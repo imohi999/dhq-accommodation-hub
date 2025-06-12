@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -104,9 +103,9 @@ export const useAllocation = () => {
           personnel_id: personnel.id,
           unit_id: unit.id,
           letter_id: letterIdData,
-          personnel_data: personnel,
-          unit_data: unit,
-        })
+          personnel_data: personnel as any,
+          unit_data: unit as any,
+        } as any)
         .select()
         .single();
 
