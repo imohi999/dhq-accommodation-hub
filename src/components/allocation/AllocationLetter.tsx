@@ -105,7 +105,7 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
             </p>
 
             <div className="ml-8">
-              <p><strong>Type:</strong> {allocationRequest.unit_data.housing_type_name || allocationRequest.unit_data.category}</p>
+              <p><strong>Type:</strong> {allocationRequest.unit_data.housing_type?.name || allocationRequest.unit_data.category}</p>
               <p><strong>Location:</strong> {allocationRequest.unit_data.location}</p>
               <p><strong>Quarter:</strong> {allocationRequest.unit_data.quarter_name}</p>
               <p><strong>Block:</strong> {allocationRequest.unit_data.block_name}</p>
