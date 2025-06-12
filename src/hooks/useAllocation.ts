@@ -16,7 +16,7 @@ export const useAllocation = () => {
   const {
     occupiedUnits,
     loading: unitsLoading,
-    transferAllocation,
+    createTransferRequest,
     deallocatePersonnel,
     refetch: refetchUnits,
   } = useOccupiedUnits();
@@ -36,7 +36,7 @@ export const useAllocation = () => {
     createAllocationRequest,
     approveAllocation,
     refuseAllocation,
-    transferAllocation,
+    createTransferRequest,
     deallocatePersonnel,
     refetch: () => {
       refetchRequests();

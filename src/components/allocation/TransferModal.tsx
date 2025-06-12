@@ -17,7 +17,7 @@ interface TransferModalProps {
 
 export const TransferModal = ({ isOpen, onClose, currentUnit }: TransferModalProps) => {
   const { units } = useAccommodationData();
-  const { transferAllocation } = useOccupiedUnits();
+  const { createTransferRequest } = useOccupiedUnits();
   const [viewMode, setViewMode] = useState<'card' | 'compact'>('card');
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -42,7 +42,7 @@ export const TransferModal = ({ isOpen, onClose, currentUnit }: TransferModalPro
 
   const handleConfirmTransfer = async () => {
     if (confirmDialog.unit) {
-      const success = await transferAllocation(currentUnit.id, confirmDialog.unit.id);
+      const success = await createTransferRequest(currentUnit.id, confirmDialog.unit.id);
       if (success) {
         setConfirmDialog({ isOpen: false, unit: null });
         onClose();
