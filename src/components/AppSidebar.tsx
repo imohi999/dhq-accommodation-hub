@@ -62,19 +62,19 @@ const menuItems = [
     items: [
       {
         title: "Active Allocations",
-        url: "/allocations/active",
+        url: "/allocation/requests",
       },
       {
         title: "Pending Approval",
-        url: "/allocations/pending",
+        url: "/allocation/requests",
       },
       {
         title: "Past Allocations",
-        url: "/allocations/past",
+        url: "/allocation/requests",
       },
       {
         title: "Stamp Settings",
-        url: "/allocations/stamp-settings",
+        url: "/allocation/requests",
       },
     ],
   },
