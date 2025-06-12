@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -27,11 +26,14 @@ const Units = () => {
   }, []);
 
   const fetchUnits = async () => {
+    console.log("Fetching units...");
     try {
       const { data, error } = await supabase
         .from("units")
         .select("*")
         .order("name");
+
+      console.log("Units fetch result:", { data, error });
 
       if (error) {
         console.error("Error fetching units:", error);
@@ -43,6 +45,7 @@ const Units = () => {
         return;
       }
 
+      console.log("Setting units:", data);
       setUnits(data || []);
     } catch (error) {
       console.error("Error:", error);
@@ -187,6 +190,8 @@ const Units = () => {
     setEditingUnit(null);
     setFormData({ name: "", description: "" });
   };
+
+  console.log("Units page state:", { loading, unitsCount: units.length });
 
   if (loading) {
     return <div className="flex justify-center p-8">Loading...</div>;
