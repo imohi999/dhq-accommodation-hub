@@ -36,50 +36,52 @@ export const seedDummyData = async () => {
       return false;
     }
 
-    // Insert dummy queue items
+    // Insert dummy queue items - fix the array insertion
+    const queueItems = [
+      {
+        full_name: "John Smith",
+        svc_no: "12345678",
+        gender: "Male",
+        arm_of_service: "Army",
+        category: "Officer",
+        rank: "Lieutenant",
+        marital_status: "Single",
+        no_of_adult_dependents: 0,
+        no_of_child_dependents: 0,
+        current_unit: "1st Infantry Battalion",
+        phone: "+234-801-234-5678"
+      },
+      {
+        full_name: "Sarah Johnson",
+        svc_no: "87654321",
+        gender: "Female",
+        arm_of_service: "Navy",
+        category: "Officer",
+        rank: "Commander",
+        marital_status: "Married",
+        no_of_adult_dependents: 1,
+        no_of_child_dependents: 2,
+        current_unit: "2nd Armored Division",
+        phone: "+234-803-456-7890"
+      },
+      {
+        full_name: "Michael Brown",
+        svc_no: "11223344",
+        gender: "Male",
+        arm_of_service: "Air Force",
+        category: "Men",
+        rank: "Sergeant",
+        marital_status: "Single",
+        no_of_adult_dependents: 0,
+        no_of_child_dependents: 0,
+        current_unit: "Medical Corps",
+        phone: "+234-805-678-9012"
+      }
+    ];
+
     const { error: queueInsertError } = await supabase
       .from("queue")
-      .insert([
-        {
-          full_name: "John Smith",
-          svc_no: "12345678",
-          gender: "Male",
-          arm_of_service: "Army",
-          category: "Officer",
-          rank: "Lieutenant",
-          marital_status: "Single",
-          no_of_adult_dependents: 0,
-          no_of_child_dependents: 0,
-          current_unit: "1st Infantry Battalion",
-          phone: "+234-801-234-5678"
-        },
-        {
-          full_name: "Sarah Johnson",
-          svc_no: "87654321",
-          gender: "Female",
-          arm_of_service: "Navy",
-          category: "Officer",
-          rank: "Commander",
-          marital_status: "Married",
-          no_of_adult_dependents: 1,
-          no_of_child_dependents: 2,
-          current_unit: "2nd Armored Division",
-          phone: "+234-803-456-7890"
-        },
-        {
-          full_name: "Michael Brown",
-          svc_no: "11223344",
-          gender: "Male",
-          arm_of_service: "Air Force",
-          category: "NCO",
-          rank: "Sergeant",
-          marital_status: "Single",
-          no_of_adult_dependents: 0,
-          no_of_child_dependents: 0,
-          current_unit: "Medical Corps",
-          phone: "+234-805-678-9012"
-        }
-      ]);
+      .insert(queueItems);
 
     if (queueInsertError) {
       console.error("Error inserting queue items:", queueInsertError);
