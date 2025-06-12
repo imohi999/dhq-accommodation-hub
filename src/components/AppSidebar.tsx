@@ -12,7 +12,10 @@ import {
   Archive,
   Stamp,
   Wrench,
-  AlertTriangle
+  AlertTriangle,
+  UserPlus,
+  Shield,
+  FileText
 } from "lucide-react"
 
 import {
@@ -103,6 +106,24 @@ const menuItems = [
     url: "/analytics",
     icon: BarChart3,
   },
+  {
+    title: "Settings",
+    icon: Settings,
+    items: [
+      {
+        title: "User Management",
+        url: "/settings/users",
+      },
+      {
+        title: "Role Profiles",
+        url: "/settings/roles",
+      },
+      {
+        title: "Audit Trail",
+        url: "/settings/audit",
+      },
+    ],
+  },
 ]
 
 export function AppSidebar() {
@@ -111,7 +132,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-border p-4">
         <div className="flex items-center gap-2">
           <img 
-            src="/lovable-uploads/5fdd34e0-92c2-4d90-b14f-74d73614597d.png" 
+            src="/lovable-uploads/6dea8f38-4e85-41a5-95cc-343631f1cde0.png" 
             alt="DAP Logo" 
             className="h-8 w-8"
           />

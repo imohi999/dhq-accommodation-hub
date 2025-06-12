@@ -11,6 +11,9 @@ import { Header } from "@/components/Header";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import UserManagement from "./pages/UserManagement";
+import RoleProfiles from "./pages/RoleProfiles";
+import AuditTrail from "./pages/AuditTrail";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance outside the component
@@ -36,6 +39,9 @@ const App = () => {
                       <div className="flex flex-1 flex-col gap-4 p-4">
                         <Routes>
                           <Route path="/" element={<Dashboard />} />
+                          <Route path="/settings/users" element={<UserManagement />} />
+                          <Route path="/settings/roles" element={<RoleProfiles />} />
+                          <Route path="/settings/audit" element={<AuditTrail />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </div>
