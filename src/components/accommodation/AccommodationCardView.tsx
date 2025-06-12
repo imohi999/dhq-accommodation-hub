@@ -176,55 +176,55 @@ export const AccommodationCardView = ({ units, viewMode, onEdit, onDelete }: Acc
                   </>
                 )}
                 
-                <div className={`grid gap-1 pt-2 ${viewMode === 'card' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                <div className={`grid gap-1 pt-2 ${viewMode === 'card' ? 'grid-cols-2' : 'grid-cols-2'}`}>
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={() => handleHistoryClick(unit)}
-                    className={viewMode === 'card' ? 'col-span-2' : ''}
+                    className="flex items-center gap-1"
                   >
                     <History className="h-3 w-3" />
-                    {viewMode === 'card' ? <span className="ml-1">History</span> : null}
+                    <span className={`${viewMode === 'compact' ? 'text-xs' : ''}`}>History</span>
                   </Button>
                   
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={() => handleInventoryClick(unit)}
-                    className={viewMode === 'card' ? 'col-span-1' : ''}
+                    className="flex items-center gap-1"
                   >
                     <Package className="h-3 w-3" />
-                    {viewMode === 'card' ? <span className="ml-1">Inventory</span> : null}
+                    <span className={`${viewMode === 'compact' ? 'text-xs' : ''}`}>Inventory</span>
                   </Button>
                   
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={() => handleMaintenanceClick(unit)}
-                    className={viewMode === 'card' ? 'col-span-1' : ''}
+                    className="flex items-center gap-1"
                   >
                     <Wrench className="h-3 w-3" />
-                    {viewMode === 'card' ? <span className="ml-1">Maintenance</span> : null}
+                    <span className={`${viewMode === 'compact' ? 'text-xs' : ''}`}>Maintenance</span>
                   </Button>
                   
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={() => onEdit(unit)}
-                    className={viewMode === 'card' ? 'col-span-1' : ''}
+                    className="flex items-center gap-1"
                   >
                     <Edit className="h-3 w-3" />
-                    {viewMode === 'card' ? <span className="ml-1">Edit</span> : null}
+                    <span className={`${viewMode === 'compact' ? 'text-xs' : ''}`}>Edit</span>
                   </Button>
                   
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={() => onDelete(unit.id)}
-                    className={viewMode === 'card' ? 'col-span-1' : ''}
+                    className="flex items-center gap-1 col-span-2"
                   >
                     <Trash2 className="h-3 w-3" />
-                    {viewMode === 'card' ? <span className="ml-1">Delete</span> : null}
+                    <span className={`${viewMode === 'compact' ? 'text-xs' : ''}`}>Delete</span>
                   </Button>
                 </div>
               </div>

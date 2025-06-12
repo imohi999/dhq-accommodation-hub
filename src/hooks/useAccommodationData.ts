@@ -55,7 +55,66 @@ export const useAccommodationData = () => {
       console.log("Setting units:", unitsData);
       console.log("Setting housing types:", housingTypesData);
       
-      setUnits(unitsData || []);
+      // Add some sample occupant data to a few units for demonstration
+      if (unitsData && unitsData.length > 0) {
+        const updatedUnits = [...unitsData];
+        
+        // Update a few units with sample occupant data
+        const sampleOccupants = [
+          {
+            name: 'Lieutenant Colonel Michael Johnson',
+            rank: 'Lt. Colonel',
+            service_number: 'A234567',
+            start_date: '2024-02-10'
+          },
+          {
+            name: 'Commander Patricia Davis',
+            rank: 'Commander',
+            service_number: 'N567890',
+            start_date: '2024-01-20'
+          },
+          {
+            name: 'Wing Commander Robert Chen',
+            rank: 'Wing Commander',
+            service_number: 'AF123456',
+            start_date: '2024-03-05'
+          },
+          {
+            name: 'Captain Jennifer Williams',
+            rank: 'Captain',
+            service_number: 'N345678',
+            start_date: '2024-04-15'
+          },
+          {
+            name: 'Major David Thompson',
+            rank: 'Major',
+            service_number: 'A789012',
+            start_date: '2024-05-01'
+          }
+        ];
+
+        // Apply sample data to first few vacant units
+        let occupantIndex = 0;
+        for (let i = 0; i < updatedUnits.length && occupantIndex < sampleOccupants.length; i++) {
+          if (updatedUnits[i].status === 'Vacant' && occupantIndex < sampleOccupants.length) {
+            const occupant = sampleOccupants[occupantIndex];
+            updatedUnits[i] = {
+              ...updatedUnits[i],
+              status: 'Occupied',
+              current_occupant_name: occupant.name,
+              current_occupant_rank: occupant.rank,
+              current_occupant_service_number: occupant.service_number,
+              occupancy_start_date: occupant.start_date
+            };
+            occupantIndex++;
+          }
+        }
+        
+        setUnits(updatedUnits);
+      } else {
+        setUnits(unitsData || []);
+      }
+      
       setHousingTypes(housingTypesData || []);
     } catch (error) {
       console.error("Error:", error);
