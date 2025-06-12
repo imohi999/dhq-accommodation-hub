@@ -11,19 +11,20 @@ import { Header } from "@/components/Header";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
+// Create a new QueryClient instance outside the component
 const queryClient = new QueryClient();
 
 const App = () => {
   console.log("App component rendering");
   
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="dap-ui-theme">
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <div className="min-h-screen flex w-full">
-            <BrowserRouter>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="light" storageKey="dap-ui-theme">
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <div className="min-h-screen flex w-full">
               <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
@@ -36,11 +37,11 @@ const App = () => {
                   </div>
                 </SidebarInset>
               </SidebarProvider>
-            </BrowserRouter>
-          </div>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+            </div>
+          </TooltipProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 };
 
