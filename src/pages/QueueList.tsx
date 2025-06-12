@@ -7,26 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { QueueForm } from "@/components/QueueForm";
-
-interface QueueItem {
-  id: string;
-  sequence: number;
-  full_name: string;
-  svc_no: string;
-  gender: string;
-  arm_of_service: string;
-  category: string;
-  rank: string;
-  marital_status: string;
-  no_of_adult_dependents: number;
-  no_of_child_dependents: number;
-  current_unit: string | null;
-  appointment: string | null;
-  date_tos: string | null;
-  date_sos: string | null;
-  phone: string | null;
-  entry_date_time: string;
-}
+import { QueueItem } from "@/types/queue";
 
 const QueueList = () => {
   const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
