@@ -9,4 +9,4 @@ export {
 export { removeFromQueue, returnPersonnelToQueueAtPositionOne } from "./queueManagementApi";
 export { updateUnitOccupancy } from "./unitManagementApi";
 export { fetchPastAllocationsFromDb } from "./pastAllocationsApi";
-export { transferPersonnelToNewUnit, deallocatePersonnelFromUnit } from "./allocationTransferApi";
+export { createTransferAllocationRequest, deallocatePersonnelFromUnit } from "./allocationTransferApi";

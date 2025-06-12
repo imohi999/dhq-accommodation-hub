@@ -7,7 +7,7 @@ import { ArrowRightLeft, UserMinus, FileText } from "lucide-react";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { useOccupiedUnits } from "@/hooks/useOccupiedUnits";
 import { AllocationLetter } from "./AllocationLetter";
-import { TransferModal } from "./TransferModal";
+import { TransferRequestModal } from "./TransferRequestModal";
 
 interface ActiveAllocationsViewProps {
   occupiedUnits: DHQLivingUnitWithHousingType[];
@@ -162,7 +162,7 @@ export const ActiveAllocationsView = ({ occupiedUnits }: ActiveAllocationsViewPr
                       className="flex items-center gap-2"
                     >
                       <ArrowRightLeft className="h-4 w-4" />
-                      Transfer
+                      Request Transfer
                     </Button>
                     
                     <Button
@@ -220,9 +220,9 @@ export const ActiveAllocationsView = ({ occupiedUnits }: ActiveAllocationsViewPr
         />
       )}
 
-      {/* Transfer Modal */}
+      {/* Transfer Request Modal */}
       {transferModal.unit && (
-        <TransferModal
+        <TransferRequestModal
           isOpen={transferModal.isOpen}
           onClose={() => setTransferModal({ isOpen: false, unit: null })}
           currentUnit={transferModal.unit}

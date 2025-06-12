@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { fetchOccupiedUnitsFromDb } from "@/services/occupiedUnitsApi";
-import { transferPersonnelToNewUnit, deallocatePersonnelFromUnit } from "@/services/allocationApi";
+import { createTransferAllocationRequest, deallocatePersonnelFromUnit } from "@/services/allocationApi";
 
 export const useOccupiedUnits = () => {
   const [occupiedUnits, setOccupiedUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
@@ -26,7 +26,7 @@ export const useOccupiedUnits = () => {
     setLoading(false);
   };
 
-  const transferAllocation = async (currentUnitId: string, newUnitId: string) => {
+  const createTransferRequest = async (currentUnitId: string, newUnitId: string) => {
     const currentUnit = occupiedUnits.find(unit => unit.id === currentUnitId);
     if (!currentUnit) {
       toast({
@@ -37,7 +37,7 @@ export const useOccupiedUnits = () => {
       return false;
     }
 
-    const success = await transferPersonnelToNewUnit(
+    const success = await createTransferAllocationRequest(
       currentUnitId,
       newUnitId,
       currentUnit.current_occupant_name!,
@@ -48,14 +48,13 @@ export const useOccupiedUnits = () => {
     if (success) {
       toast({
         title: "Success",
-        description: "Personnel transferred successfully",
+        description: "Transfer request created and sent for approval",
       });
-      fetchOccupiedUnits(); // Refresh data
       return true;
     } else {
       toast({
         title: "Error",
-        description: "Failed to transfer personnel",
+        description: "Failed to create transfer request",
         variant: "destructive",
       });
       return false;
@@ -108,7 +107,7 @@ export const useOccupiedUnits = () => {
   return {
     occupiedUnits,
     loading,
-    transferAllocation,
+    createTransferRequest,
     deallocatePersonnel,
     refetch: fetchOccupiedUnits,
   };

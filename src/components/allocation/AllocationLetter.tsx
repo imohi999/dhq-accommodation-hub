@@ -25,14 +25,62 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
             <head>
               <title>Allocation Letter</title>
               <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .logo { width: 60px; height: 60px; margin: 0 auto 10px; }
-                .content { line-height: 1.6; }
-                .subject { font-weight: bold; text-decoration: underline; margin: 20px 0; }
-                .paragraph { margin-bottom: 15px; }
-                .signature-section { margin-top: 40px; }
-                @media print { @page { margin: 40px; } }
+                body { 
+                  font-family: Arial, sans-serif; 
+                  margin: 40px; 
+                  line-height: 1.4;
+                  font-size: 12px;
+                }
+                .header { 
+                  text-align: center; 
+                  margin-bottom: 30px; 
+                }
+                .logo { 
+                  width: 80px; 
+                  height: 80px; 
+                  margin: 0 auto 15px; 
+                }
+                .content { 
+                  line-height: 1.6; 
+                }
+                .letter-ref {
+                  margin: 20px 0;
+                  font-weight: bold;
+                }
+                .personnel-info {
+                  margin: 20px 0;
+                  line-height: 1.4;
+                }
+                .date-time {
+                  text-align: right;
+                  margin: 20px 0;
+                }
+                .subject {
+                  font-weight: bold;
+                  text-align: center;
+                  margin: 30px 0;
+                  text-decoration: underline;
+                }
+                .allocation-details {
+                  margin: 20px 0;
+                  line-height: 1.6;
+                }
+                .signature-section {
+                  margin-top: 60px;
+                  text-align: right;
+                }
+                .copy-section {
+                  margin-top: 40px;
+                  font-size: 11px;
+                }
+                .transit-notice {
+                  font-weight: bold;
+                  text-decoration: underline;
+                }
+                @media print { 
+                  @page { margin: 40px; } 
+                  body { font-size: 11px; }
+                }
               </style>
             </head>
             <body>
@@ -52,6 +100,11 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
     year: 'numeric'
   });
 
+  const currentTime = new Date().toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -65,91 +118,86 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
           </DialogTitle>
         </DialogHeader>
         
-        <div id="allocation-letter-content" className="p-8 bg-white text-black">
+        <div id="allocation-letter-content" className="p-8 bg-white text-black text-sm">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <div className="flex justify-center mb-4">
               <img 
-                src="/lovable-uploads/6dea8f38-4e85-41a5-95cc-343631f1cde0.png" 
+                src="/lovable-uploads/4b0d1406-5ba0-4136-b4f0-a6f02c235830.png" 
                 alt="DHQ Logo" 
-                className="w-16 h-16"
+                className="w-20 h-20"
               />
             </div>
-            <h1 className="text-lg font-bold">DEFENCE HEADQUARTERS GARRISON</h1>
-            <h2 className="text-lg font-bold">MOGADISHU CANTONMENT ABUJA</h2>
-            <div className="mt-4">
-              <p className="font-bold underline">DHQGAR/ABJ/LOG</p>
-            </div>
-            <div className="mt-4 text-right">
-              <p>{currentDate}</p>
-            </div>
+            <h1 className="text-base font-bold mb-1">DEFENCE HEADQUARTERS GARRISON</h1>
+            <h2 className="text-base font-bold mb-1">MOGADISHU CANTONMENT</h2>
+            <h3 className="text-base font-bold">ABUJA</h3>
           </div>
 
-          {/* Recipient */}
-          <div className="mb-6">
-            <p className="font-bold">{allocationRequest.personnel_data.rank} {allocationRequest.personnel_data.full_name}</p>
-            <p>Svc No: {allocationRequest.personnel_data.svc_no}</p>
-            <p>{allocationRequest.personnel_data.current_unit || "Naval Academy"}</p>
-            <p>{allocationRequest.personnel_data.appointment || "Academy Instructor"}</p>
+          {/* Letter Reference */}
+          <div className="mb-4">
+            <p className="font-bold">{allocationRequest.letter_id}</p>
+          </div>
+
+          {/* Personnel Information */}
+          <div className="mb-4">
+            <p>Svc No: [{allocationRequest.personnel_data.svc_no}]</p>
+            <p>Rank: [{allocationRequest.personnel_data.rank}]</p>
+            <p>Name: [{allocationRequest.personnel_data.full_name}]</p>
+            <p>Unit: [{allocationRequest.personnel_data.current_unit || "Naval Academy"}]</p>
+            {allocationRequest.personnel_data.phone && (
+              <p>Phone No: [{allocationRequest.personnel_data.phone}]</p>
+            )}
+          </div>
+
+          {/* Date and Time */}
+          <div className="text-right mb-6">
+            <p>[Date:{currentDate}:Time]</p>
           </div>
 
           {/* Subject */}
-          <div className="mb-6">
-            <p className="font-bold underline">SUBJECT: ALLOCATION OF ACCOMMODATION</p>
+          <div className="text-center mb-6">
+            <p className="font-bold underline">ALLOCATION OF DEFENCE HEADQUARTERS ACCOMMODATION</p>
           </div>
 
           {/* Body */}
           <div className="space-y-4 mb-8">
             <p>
-              I am directed to inform you that you have been allocated accommodation as detailed below:
-            </p>
-
-            <div className="ml-8">
-              <p><strong>Type:</strong> {allocationRequest.unit_data.housing_type?.name || allocationRequest.unit_data.category}</p>
-              <p><strong>Location:</strong> {allocationRequest.unit_data.location}</p>
-              <p><strong>Quarter:</strong> {allocationRequest.unit_data.quarter_name}</p>
-              <p><strong>Block:</strong> {allocationRequest.unit_data.block_name}</p>
-              <p><strong>Flat/House/Room:</strong> {allocationRequest.unit_data.flat_house_room_name}</p>
-              <p><strong>No. of Rooms:</strong> {allocationRequest.unit_data.no_of_rooms}</p>
-            </div>
-
-            <p>
-              2. You are to report to the Estate Manager for the collection of keys and documentation.
+              I am directed to inform you that you have been allocated <strong>[{allocationRequest.unit_data.block_name}]</strong>, 
+              <strong>[{allocationRequest.unit_data.flat_house_room_name}] [{allocationRequest.unit_data.quarter_name}]</strong>, 
+              <strong>[{allocationRequest.unit_data.location}]</strong> as residential quarter <strong>[{allocationRequest.unit_data.unit_name || allocationRequest.unit_data.block_name + ' ' + allocationRequest.unit_data.flat_house_room_name}]</strong> on <strong>[{new Date(allocationRequest.allocation_date).toLocaleDateString('en-GB')}]</strong>. 
+              You are please requested to note that the accommodation is <span className="transit-notice">transit in nature</span> and if it is unoccupied <span className="transit-notice">2 Weeks after publication</span>, the allocation will be revoked and re-allocated to another personnel. In the event of posting out of DHQ or upon retirement, you are required to vacate and submit the keys of your house/apartment to the QM DHQ Gar for proper marching out procedure. Failure to vacate DHQ accommodation will lead to forceful ejection. Please be reminded of the existence of Rules and Regulations binding Barracks accommodation and note that you are to take proper care of all DHQ properties in your accommodation.
             </p>
 
             <p>
-              3. Please ensure you comply with all accommodation regulations and maintain the facility in good condition.
+              2. While wishing you a fruitful tour of duty and a happy stay in your new quarters.
             </p>
 
             <p>
-              4. Any damages beyond fair wear and tear will be charged to your account.
+              Please accept the assurances and esteemed regards of the Comd.
             </p>
           </div>
 
           {/* Signature */}
-          <div className="mt-12">
-            <div className="text-center">
-              <div className="mb-4">
-                <div className="w-32 h-20 border-2 border-gray-300 mx-auto flex items-center justify-center text-xs text-gray-500">
-                  OFFICIAL STAMP
-                </div>
+          <div className="text-right mt-12">
+            <div className="mb-8">
+              <div className="w-24 h-16 border border-gray-400 ml-auto mb-2 flex items-center justify-center text-xs text-gray-600">
+                STAMP
               </div>
-              {activeStamp && (
-                <div>
-                  <p className="font-bold">{activeStamp.stamp_name}</p>
-                  <p>{activeStamp.stamp_rank}</p>
-                  <p>{activeStamp.stamp_appointment}</p>
-                  {activeStamp.stamp_note && <p className="text-sm italic">{activeStamp.stamp_note}</p>}
-                </div>
-              )}
             </div>
+            {activeStamp && (
+              <div>
+                <p className="font-bold">[{activeStamp.stamp_name}]</p>
+                <p>[{activeStamp.stamp_rank}]</p>
+                <p>[{activeStamp.stamp_appointment}]</p>
+                {activeStamp.stamp_note && <p>[{activeStamp.stamp_note}]</p>}
+              </div>
+            )}
           </div>
 
-          {/* Footer */}
-          <div className="mt-8 text-xs">
-            <p>Copy to:</p>
-            <p>1. Estate Manager - for information and necessary action</p>
-            <p>2. Unit file</p>
+          {/* Copy Section */}
+          <div className="mt-12 text-xs">
+            <p className="font-bold">P Copy:</p>
+            <p>DHQ Gar Comd</p>
           </div>
         </div>
       </DialogContent>
