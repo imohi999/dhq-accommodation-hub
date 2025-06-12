@@ -2,7 +2,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, RotateCcw } from "lucide-react";
 import { Unit } from "@/types/queue";
 
 interface QueueFiltersProps {
@@ -32,9 +33,28 @@ export const QueueFilters = ({
   onUnitChange,
   units
 }: QueueFiltersProps) => {
+  const handleResetFilters = () => {
+    onSearchChange("");
+    onGenderChange("all");
+    onMaritalStatusChange("all");
+    onCategoryChange("all");
+    onUnitChange("all");
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg border mb-6">
-      <h3 className="text-lg font-semibold mb-4">Filters</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Filters</h3>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleResetFilters}
+          className="flex items-center gap-2"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Reset Filters
+        </Button>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="space-y-2">

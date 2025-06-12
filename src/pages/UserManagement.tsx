@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,53 +9,110 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { UserPlus, Edit, Trash2, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
   username: string;
-  fullName: string;
+  full_name: string;
   email: string;
   role: string;
-  status: 'active' | 'inactive';
-  createdAt: string;
+  created_at: string;
 }
 
 const UserManagement = () => {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      username: 'superadmin',
-      fullName: 'Super Administrator',
-      email: 'superadmin@dap.mil',
-      role: 'superadmin',
-      status: 'active',
-      createdAt: '2024-01-01'
-    }
-  ]);
-
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [newUser, setNewUser] = useState({
     username: '',
     fullName: '',
-    email: '',
     role: 'user',
     password: ''
   });
+  const { toast } = useToast();
 
-  const handleCreateUser = () => {
-    const user: User = {
-      id: Date.now().toString(),
-      username: newUser.username,
-      fullName: newUser.fullName,
-      email: newUser.email,
-      role: newUser.role,
-      status: 'active',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    
-    setUsers([...users, user]);
-    setNewUser({ username: '', fullName: '', email: '', role: 'user', password: '' });
-    setIsCreateModalOpen(false);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching users:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch users",
+          variant: "destructive",
+        });
+      } else {
+        setUsers(data || []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateUser = async () => {
+    if (!newUser.username || !newUser.password) {
+      toast({
+        title: "Error",
+        description: "Username and password are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const email = `${newUser.username}@dap.mil`;
+      
+      const { error } = await supabase.auth.admin.createUser({
+        email,
+        password: newUser.password,
+        user_metadata: {
+          username: newUser.username,
+          full_name: newUser.fullName,
+          role: newUser.role
+        },
+        email_confirm: true
+      });
+
+      if (error) {
+        console.error('Error creating user:', error);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "User created successfully",
+        });
+        setNewUser({ username: '', fullName: '', role: 'user', password: '' });
+        setIsCreateModalOpen(false);
+        fetchUsers();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setCreating(false);
+    }
   };
 
   const getRoleColor = (role: string) => {
@@ -70,6 +127,10 @@ const UserManagement = () => {
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
   };
+
+  if (loading) {
+    return <div className="flex justify-center p-8">Loading users...</div>;
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -93,6 +154,7 @@ const UserManagement = () => {
                   id="username"
                   value={newUser.username}
                   onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                  placeholder="Enter username"
                 />
               </div>
               <div>
@@ -101,15 +163,7 @@ const UserManagement = () => {
                   id="fullName"
                   value={newUser.fullName}
                   onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  placeholder="Enter full name"
                 />
               </div>
               <div>
@@ -119,6 +173,7 @@ const UserManagement = () => {
                   type="password"
                   value={newUser.password}
                   onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  placeholder="Enter password"
                 />
               </div>
               <div>
@@ -135,8 +190,8 @@ const UserManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleCreateUser} className="w-full">
-                Create User
+              <Button onClick={handleCreateUser} className="w-full" disabled={creating}>
+                {creating ? 'Creating User...' : 'Create User'}
               </Button>
             </div>
           </DialogContent>
@@ -145,7 +200,7 @@ const UserManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
+          <CardTitle>Users ({users.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -155,7 +210,6 @@ const UserManagement = () => {
                 <TableHead>Full Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -164,20 +218,15 @@ const UserManagement = () => {
               {users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.username}</TableCell>
-                  <TableCell>{user.fullName}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.full_name || 'N/A'}</TableCell>
+                  <TableCell>{`${user.username}@dap.mil`}</TableCell>
                   <TableCell>
                     <Badge className={getRoleColor(user.role)}>
                       <Shield className="w-3 h-3 mr-1" />
                       {user.role.toUpperCase()}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
-                      {user.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{user.createdAt}</TableCell>
+                  <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button variant="outline" size="sm">
@@ -190,6 +239,13 @@ const UserManagement = () => {
                   </TableCell>
                 </TableRow>
               ))}
+              {users.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    No users found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

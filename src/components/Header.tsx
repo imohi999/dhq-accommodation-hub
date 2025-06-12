@@ -5,13 +5,44 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
+import { useEffect, useState } from "react"
+import { supabase } from "@/integrations/supabase/client"
+
+interface UserProfile {
+  full_name: string;
+  username: string;
+}
 
 export function Header() {
   const { signOut, user } = useAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_user_profile', { _user_id: user?.id });
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+      } else if (data && data.length > 0) {
+        setProfile(data[0]);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
   };
+
+  const displayName = profile?.full_name || profile?.username || 'User';
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-4 bg-background">
@@ -28,18 +59,21 @@ export function Header() {
           </div>
           <h1 className="text-lg font-semibold text-foreground">DHQ Accommodation Platform</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <ThemeToggle />
           {user && (
-            <Button
-              onClick={handleSignOut}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-foreground">{displayName}</span>
+              <Button
+                onClick={handleSignOut}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
           )}
         </div>
       </div>
