@@ -36,9 +36,10 @@ export const seedDummyData = async () => {
       return false;
     }
 
-    // Insert dummy queue items - fix the array insertion
+    // Insert dummy queue items with sequence numbers
     const queueItems = [
       {
+        sequence: 1,
         full_name: "John Smith",
         svc_no: "12345678",
         gender: "Male",
@@ -52,6 +53,7 @@ export const seedDummyData = async () => {
         phone: "+234-801-234-5678"
       },
       {
+        sequence: 2,
         full_name: "Sarah Johnson",
         svc_no: "87654321",
         gender: "Female",
@@ -65,6 +67,7 @@ export const seedDummyData = async () => {
         phone: "+234-803-456-7890"
       },
       {
+        sequence: 3,
         full_name: "Michael Brown",
         svc_no: "11223344",
         gender: "Male",
