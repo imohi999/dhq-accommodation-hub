@@ -77,6 +77,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const email = `${username}@dap.mil`;
       
+      // Determine role based on username
+      let role = 'user';
+      if (username === 'superadmin') {
+        role = 'superadmin';
+      }
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -85,14 +91,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             username,
             full_name: fullName || '',
-            role: 'user'
+            role: role
           }
         }
       });
 
       if (error) {
         console.error('Sign up error:', error);
-        toast.error(error.message);
+        if (error.message.includes('User already registered')) {
+          toast.error('User already exists. Please sign in instead.');
+        } else {
+          toast.error(error.message);
+        }
       } else {
         toast.success('Account created successfully!');
       }
