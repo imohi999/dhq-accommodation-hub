@@ -18,9 +18,9 @@ const App = () => {
   console.log("App component rendering");
   
   return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="light" storageKey="dap-ui-theme">
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="dap-ui-theme">
+        <BrowserRouter>
           <TooltipProvider>
             <Toaster />
             <Sonner />
@@ -39,9 +39,9 @@ const App = () => {
               </SidebarProvider>
             </div>
           </TooltipProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </BrowserRouter>
+        </BrowserRouter>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
