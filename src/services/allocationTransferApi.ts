@@ -80,10 +80,14 @@ export const deallocatePersonnelFromUnit = async (
     // Convert the unit data to proper JSON format for database storage
     const unitDataJson = JSON.parse(JSON.stringify(unitData));
     
+    // Generate a personnel ID since we don't have one from the occupied unit
+    const personnelId = crypto.randomUUID();
+    
     // Add to past allocations
     const { error: pastAllocationError } = await supabase
       .from("past_allocations")
       .insert({
+        personnel_id: personnelId,
         unit_id: unitId,
         personnel_data: {
           full_name: personnelData.name,
