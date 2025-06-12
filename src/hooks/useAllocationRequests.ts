@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AllocationRequest } from "@/types/allocation";
@@ -32,6 +31,7 @@ export const useAllocationRequests = () => {
       console.log("Setting allocation requests:", data);
       setAllocationRequests(data);
     }
+    setLoading(false);
   };
 
   const createAllocationRequest = async (
