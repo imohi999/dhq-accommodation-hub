@@ -8,7 +8,9 @@ import {
   generateLetterId,
   fetchAllocationRequestsFromDb,
   createAllocationRequestInDb,
-  updateAllocationStatus
+  updateAllocationStatus,
+  updateUnitOccupancy,
+  removeFromQueue
 } from "@/services/allocationApi";
 import { fetchStampSettingsFromDb } from "@/services/stampSettingsApi";
 
@@ -95,21 +97,62 @@ export const useAllocation = () => {
   };
 
   const approveAllocation = async (requestId: string) => {
-    const success = await updateAllocationStatus(requestId, 'approved');
-    
-    if (success) {
+    // Find the allocation request to get unit and personnel details
+    const request = allocationRequests.find(r => r.id === requestId);
+    if (!request) {
       toast({
-        title: "Success",
-        description: "Allocation approved successfully",
+        title: "Error",
+        description: "Allocation request not found",
+        variant: "destructive",
       });
-      fetchAllocationRequests();
-    } else {
+      return;
+    }
+
+    // Update allocation status
+    const statusSuccess = await updateAllocationStatus(requestId, 'approved');
+    
+    if (!statusSuccess) {
       toast({
         title: "Error",
         description: "Failed to approve allocation. Please check your permissions and try again.",
         variant: "destructive",
       });
+      return;
     }
+
+    // Update unit occupancy
+    const unitSuccess = await updateUnitOccupancy(
+      request.unit_id,
+      request.personnel_data.full_name,
+      request.personnel_data.rank,
+      request.personnel_data.svc_no
+    );
+
+    if (!unitSuccess) {
+      toast({
+        title: "Warning",
+        description: "Allocation approved but failed to update unit occupancy",
+        variant: "destructive",
+      });
+    }
+
+    // Remove from queue
+    const queueSuccess = await removeFromQueue(request.personnel_id);
+    
+    if (!queueSuccess) {
+      toast({
+        title: "Warning",
+        description: "Allocation approved but failed to remove from queue",
+        variant: "destructive",
+      });
+    }
+
+    toast({
+      title: "Success",
+      description: "Allocation approved successfully",
+    });
+    
+    fetchAllocationRequests();
   };
 
   const refuseAllocation = async (requestId: string, reason: string) => {
@@ -118,7 +161,7 @@ export const useAllocation = () => {
     if (success) {
       toast({
         title: "Success",
-        description: "Allocation refused",
+        description: "Allocation refused and personnel returned to queue at position #1",
       });
       fetchAllocationRequests();
     } else {
@@ -130,6 +173,16 @@ export const useAllocation = () => {
     }
   };
 
+  const transferAllocation = async (currentRequestId: string, newUnitId: string) => {
+    // Implementation for transfer will be added
+    console.log("Transfer allocation:", currentRequestId, "to unit:", newUnitId);
+  };
+
+  const deallocatePersonnel = async (requestId: string) => {
+    // Implementation for deallocation will be added
+    console.log("Deallocate personnel:", requestId);
+  };
+
   return {
     allocationRequests,
     stampSettings,
@@ -137,6 +190,8 @@ export const useAllocation = () => {
     createAllocationRequest,
     approveAllocation,
     refuseAllocation,
+    transferAllocation,
+    deallocatePersonnel,
     refetch: fetchAllocationRequests,
   };
 };

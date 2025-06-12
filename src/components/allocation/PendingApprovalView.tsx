@@ -8,6 +8,8 @@ import { CheckCircle, XCircle, FileText, User, Home, Clock } from "lucide-react"
 import { AllocationRequest } from "@/types/allocation";
 import { useAllocation } from "@/hooks/useAllocation";
 import { AllocationLetter } from "@/components/allocation/AllocationLetter";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface PendingApprovalViewProps {
   requests: AllocationRequest[];
@@ -15,6 +17,7 @@ interface PendingApprovalViewProps {
 
 export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
   const { approveAllocation, refuseAllocation } = useAllocation();
+  const { toast } = useToast();
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     type: 'approve' | 'refuse';
@@ -50,7 +53,37 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
     if (confirmDialog.type === 'approve') {
       await approveAllocation(confirmDialog.requestId);
     } else {
-      await refuseAllocation(confirmDialog.requestId, "Request refused and returned to queue");
+      // For refusal, we need to return the person to queue at position #1
+      const request = requests.find(r => r.id === confirmDialog.requestId);
+      if (request) {
+        try {
+          // First refuse the allocation
+          await refuseAllocation(confirmDialog.requestId, "Request refused and returned to queue");
+          
+          // Then add the person back to the queue at position #1
+          const { error } = await supabase
+            .from("queue")
+            .insert({
+              ...request.personnel_data,
+              sequence: 1,
+              entry_date_time: new Date().toISOString(),
+            });
+
+          if (error) {
+            console.error("Error returning to queue:", error);
+            toast({
+              title: "Warning",
+              description: "Allocation refused but failed to return personnel to queue",
+              variant: "destructive",
+            });
+          }
+
+          // Update all other queue sequences
+          await supabase.rpc('increment_queue_sequences');
+        } catch (error) {
+          console.error("Error in refusal process:", error);
+        }
+      }
     }
     
     setConfirmDialog({

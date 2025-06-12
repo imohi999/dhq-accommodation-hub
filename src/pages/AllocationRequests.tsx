@@ -6,6 +6,7 @@ import { useAllocation } from "@/hooks/useAllocation";
 import { PendingApprovalView } from "@/components/allocation/PendingApprovalView";
 import { ActiveAllocationsView } from "@/components/allocation/ActiveAllocationsView";
 import { PastAllocationsView } from "@/components/allocation/PastAllocationsView";
+import { StampSettingsView } from "@/components/allocation/StampSettingsView";
 
 const AllocationRequests = () => {
   const { allocationRequests, loading } = useAllocation();
@@ -27,10 +28,11 @@ const AllocationRequests = () => {
       </div>
 
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="pending">Pending Approval ({pendingRequests.length})</TabsTrigger>
           <TabsTrigger value="active">Active Allocations ({approvedRequests.length})</TabsTrigger>
           <TabsTrigger value="past">Past Allocations</TabsTrigger>
+          <TabsTrigger value="stamp">Stamp Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="pending">
@@ -43,6 +45,10 @@ const AllocationRequests = () => {
         
         <TabsContent value="past">
           <PastAllocationsView />
+        </TabsContent>
+        
+        <TabsContent value="stamp">
+          <StampSettingsView />
         </TabsContent>
       </Tabs>
     </div>
