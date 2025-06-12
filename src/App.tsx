@@ -4,7 +4,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { AppSidebar } from "@/components/AppSidebar";
+import { Header } from "@/components/Header";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -14,18 +18,28 @@ const App = () => {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <div style={{ minHeight: "100vh" }}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </div>
-      </TooltipProvider>
+      <ThemeProvider defaultTheme="light" storageKey="dap-ui-theme">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <div className="min-h-screen flex w-full">
+            <BrowserRouter>
+              <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset>
+                  <Header />
+                  <div className="flex flex-1 flex-col gap-4 p-4">
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </div>
+                </SidebarInset>
+              </SidebarProvider>
+            </BrowserRouter>
+          </div>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
