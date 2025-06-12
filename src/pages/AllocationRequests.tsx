@@ -9,7 +9,7 @@ import { PastAllocationsView } from "@/components/allocation/PastAllocationsView
 import { StampSettingsView } from "@/components/allocation/StampSettingsView";
 
 const AllocationRequests = () => {
-  const { allocationRequests, loading } = useAllocation();
+  const { allocationRequests, occupiedUnits, loading } = useAllocation();
 
   const pendingRequests = allocationRequests.filter(req => req.status === 'pending');
   const approvedRequests = allocationRequests.filter(req => req.status === 'approved');
@@ -30,7 +30,7 @@ const AllocationRequests = () => {
       <Tabs defaultValue="pending" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="pending">Pending Approval ({pendingRequests.length})</TabsTrigger>
-          <TabsTrigger value="active">Active Allocations ({approvedRequests.length})</TabsTrigger>
+          <TabsTrigger value="active">Active Allocations ({occupiedUnits.length})</TabsTrigger>
           <TabsTrigger value="past">Past Allocations</TabsTrigger>
           <TabsTrigger value="stamp">Stamp Settings</TabsTrigger>
         </TabsList>
@@ -40,7 +40,7 @@ const AllocationRequests = () => {
         </TabsContent>
         
         <TabsContent value="active">
-          <ActiveAllocationsView requests={approvedRequests} />
+          <ActiveAllocationsView occupiedUnits={occupiedUnits} />
         </TabsContent>
         
         <TabsContent value="past">
