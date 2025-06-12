@@ -2,25 +2,24 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Unit {
-  id: string;
-  name: string;
-  description: string | null;
-}
+import { Unit } from "@/types/queue";
 
 const Units = () => {
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [newUnit, setNewUnit] = useState({ name: "", description: "" });
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: ""
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -47,50 +46,29 @@ const Units = () => {
       setUnits(data || []);
     } catch (error) {
       console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAdd = async () => {
-    if (!newUnit.name.trim()) {
-      toast({
-        title: "Error",
-        description: "Unit name is required",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleAdd = () => {
+    setEditingUnit(null);
+    setFormData({ name: "", description: "" });
+    setShowForm(true);
+  };
 
-    try {
-      const { error } = await supabase
-        .from("units")
-        .insert([{
-          name: newUnit.name.trim(),
-          description: newUnit.description.trim() || null
-        }]);
-
-      if (error) {
-        console.error("Error adding unit:", error);
-        toast({
-          title: "Error",
-          description: "Failed to add unit",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Unit added successfully",
-      });
-
-      setNewUnit({ name: "", description: "" });
-      setShowAddForm(false);
-      fetchUnits();
-    } catch (error) {
-      console.error("Error:", error);
-    }
+  const handleEdit = (unit: Unit) => {
+    setEditingUnit(unit);
+    setFormData({
+      name: unit.name,
+      description: unit.description || ""
+    });
+    setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -122,7 +100,92 @@ const Units = () => {
       fetchUnits();
     } catch (error) {
       console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Unit name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      if (editingUnit) {
+        const { error } = await supabase
+          .from("units")
+          .update({
+            name: formData.name,
+            description: formData.description
+          })
+          .eq("id", editingUnit.id);
+
+        if (error) {
+          console.error("Error updating unit:", error);
+          toast({
+            title: "Error",
+            description: "Failed to update unit",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Success",
+          description: "Unit updated successfully",
+        });
+      } else {
+        const { error } = await supabase
+          .from("units")
+          .insert({
+            name: formData.name,
+            description: formData.description
+          });
+
+        if (error) {
+          console.error("Error creating unit:", error);
+          toast({
+            title: "Error",
+            description: "Failed to create unit",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Success",
+          description: "Unit created successfully",
+        });
+      }
+
+      setShowForm(false);
+      setEditingUnit(null);
+      setFormData({ name: "", description: "" });
+      fetchUnits();
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingUnit(null);
+    setFormData({ name: "", description: "" });
   };
 
   if (loading) {
@@ -133,63 +196,65 @@ const Units = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-[#1B365D]">Units</h1>
+          <h1 className="text-2xl font-bold text-[#1B365D]">Units Management</h1>
           <p className="text-muted-foreground">
-            Manage military units for personnel assignment
+            Manage units that appear in the Current Unit dropdown
           </p>
         </div>
-        <Button onClick={() => setShowAddForm(true)} className="flex items-center gap-2">
+        <Button onClick={handleAdd} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Add Unit
         </Button>
       </div>
 
-      {showAddForm && (
+      {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>Add New Unit</CardTitle>
+            <CardTitle>{editingUnit ? 'Edit' : 'Add'} Unit</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Unit Name *</Label>
-                <Input
-                  id="name"
-                  value={newUnit.name}
-                  onChange={(e) => setNewUnit(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter unit name"
-                />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Unit Name *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Enter unit name"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Enter unit description (optional)"
+                    rows={3}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  value={newUnit.description}
-                  onChange={(e) => setNewUnit(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter description (optional)"
-                />
+
+              <div className="flex gap-4 pt-4">
+                <Button type="submit" className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  {editingUnit ? "Update" : "Create"} Unit
+                </Button>
+                <Button type="button" variant="outline" onClick={handleCancel} className="flex items-center gap-2">
+                  <X className="h-4 w-4" />
+                  Cancel
+                </Button>
               </div>
-            </div>
-            <div className="flex gap-2 mt-4">
-              <Button onClick={handleAdd}>
-                <Save className="h-4 w-4 mr-2" />
-                Save
-              </Button>
-              <Button variant="outline" onClick={() => setShowAddForm(false)}>
-                <X className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
-            </div>
+            </form>
           </CardContent>
         </Card>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Military Units</CardTitle>
-          <CardDescription>
-            {units.length} units configured
-          </CardDescription>
+          <CardTitle>Units List</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -197,7 +262,8 @@ const Units = () => {
               <TableRow>
                 <TableHead>Unit Name</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead>Created Date</TableHead>
+                <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -206,7 +272,17 @@ const Units = () => {
                   <TableCell className="font-medium">{unit.name}</TableCell>
                   <TableCell>{unit.description || "No description"}</TableCell>
                   <TableCell>
+                    {new Date(unit.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
                     <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(unit)}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -220,8 +296,8 @@ const Units = () => {
               ))}
               {units.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground">
-                    No units configured
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    No units found. Add your first unit to get started.
                   </TableCell>
                 </TableRow>
               )}
