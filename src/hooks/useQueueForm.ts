@@ -115,7 +115,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         // Create new item - don't include sequence as it's auto-generated
         ({ error } = await supabase
           .from("queue")
-          .insert(payload));
+          .insert([payload]));
       }
 
       if (error) {
