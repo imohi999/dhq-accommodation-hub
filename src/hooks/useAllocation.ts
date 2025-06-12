@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AllocationRequest, StampSettings } from "@/types/allocation";
@@ -10,7 +9,8 @@ import {
   createAllocationRequestInDb,
   updateAllocationStatus,
   updateUnitOccupancy,
-  removeFromQueue
+  removeFromQueue,
+  returnPersonnelToQueueAtPositionOne
 } from "@/services/allocationApi";
 import { fetchStampSettingsFromDb } from "@/services/stampSettingsApi";
 
@@ -87,6 +87,16 @@ export const useAllocation = () => {
       return null;
     }
 
+    // Remove personnel from queue immediately upon allocation creation
+    const queueRemovalSuccess = await removeFromQueue(personnel.id);
+    if (!queueRemovalSuccess) {
+      toast({
+        title: "Warning",
+        description: "Allocation created but failed to remove from queue",
+        variant: "destructive",
+      });
+    }
+
     toast({
       title: "Success",
       description: `Allocation request created successfully with letter ID: ${letterId}`,
@@ -136,17 +146,6 @@ export const useAllocation = () => {
       });
     }
 
-    // Remove from queue
-    const queueSuccess = await removeFromQueue(request.personnel_id);
-    
-    if (!queueSuccess) {
-      toast({
-        title: "Warning",
-        description: "Allocation approved but failed to remove from queue",
-        variant: "destructive",
-      });
-    }
-
     toast({
       title: "Success",
       description: "Allocation approved successfully",
@@ -156,21 +155,46 @@ export const useAllocation = () => {
   };
 
   const refuseAllocation = async (requestId: string, reason: string) => {
-    const success = await updateAllocationStatus(requestId, 'refused', reason);
-    
-    if (success) {
+    // Find the allocation request to get personnel details
+    const request = allocationRequests.find(r => r.id === requestId);
+    if (!request) {
       toast({
-        title: "Success",
-        description: "Allocation refused and personnel returned to queue at position #1",
+        title: "Error",
+        description: "Allocation request not found",
+        variant: "destructive",
       });
-      fetchAllocationRequests();
-    } else {
+      return;
+    }
+
+    // Update allocation status to refused
+    const statusSuccess = await updateAllocationStatus(requestId, 'refused', reason);
+    
+    if (!statusSuccess) {
       toast({
         title: "Error",
         description: "Failed to refuse allocation. Please check your permissions and try again.",
         variant: "destructive",
       });
+      return;
     }
+
+    // Return personnel to queue at position #1 using the new database function
+    const returnToQueueSuccess = await returnPersonnelToQueueAtPositionOne(request.personnel_data);
+    
+    if (!returnToQueueSuccess) {
+      toast({
+        title: "Warning",
+        description: "Allocation refused but failed to return personnel to queue",
+        variant: "destructive",
+      });
+    }
+
+    toast({
+      title: "Success",
+      description: "Allocation refused and personnel returned to queue at position #1",
+    });
+    
+    fetchAllocationRequests();
   };
 
   const transferAllocation = async (currentRequestId: string, newUnitId: string) => {

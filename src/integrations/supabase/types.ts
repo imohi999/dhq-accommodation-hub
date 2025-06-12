@@ -173,6 +173,54 @@ export type Database = {
         }
         Relationships: []
       }
+      past_allocations: {
+        Row: {
+          allocation_end_date: string | null
+          allocation_start_date: string
+          created_at: string
+          deallocation_date: string | null
+          duration_days: number | null
+          id: string
+          letter_id: string
+          personnel_data: Json
+          personnel_id: string
+          reason_for_leaving: string | null
+          unit_data: Json
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          allocation_end_date?: string | null
+          allocation_start_date: string
+          created_at?: string
+          deallocation_date?: string | null
+          duration_days?: number | null
+          id?: string
+          letter_id: string
+          personnel_data: Json
+          personnel_id: string
+          reason_for_leaving?: string | null
+          unit_data: Json
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          allocation_end_date?: string | null
+          allocation_start_date?: string
+          created_at?: string
+          deallocation_date?: string | null
+          duration_days?: number | null
+          id?: string
+          letter_id?: string
+          personnel_data?: Json
+          personnel_id?: string
+          reason_for_leaving?: string | null
+          unit_data?: Json
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -569,6 +617,26 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      insert_at_queue_position_one: {
+        Args: {
+          p_personnel_id: string
+          p_full_name: string
+          p_svc_no: string
+          p_gender: string
+          p_arm_of_service: string
+          p_category: string
+          p_rank: string
+          p_marital_status: string
+          p_no_of_adult_dependents: number
+          p_no_of_child_dependents: number
+          p_current_unit: string
+          p_appointment: string
+          p_date_tos: string
+          p_date_sos: string
+          p_phone: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

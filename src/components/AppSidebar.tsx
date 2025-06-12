@@ -1,4 +1,3 @@
-
 import {
   Calendar,
   Home,
@@ -61,20 +60,20 @@ const menuItems = [
     icon: CheckCircle,
     items: [
       {
-        title: "Active Allocations",
-        url: "/allocation/requests",
+        title: "Pending Approval",
+        url: "/allocation/pending",
       },
       {
-        title: "Pending Approval",
-        url: "/allocation/requests",
+        title: "Active Allocations",
+        url: "/allocation/active",
       },
       {
         title: "Past Allocations",
-        url: "/allocation/requests",
+        url: "/allocation/past",
       },
       {
         title: "Stamp Settings",
-        url: "/allocation/requests",
+        url: "/allocation/stamp-settings",
       },
     ],
   },

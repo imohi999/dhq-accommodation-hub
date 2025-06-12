@@ -1,9 +1,9 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AllocationRequest, AllocationLetterData } from "@/types/allocation";
+import { Printer } from "lucide-react";
+import { AllocationRequest } from "@/types/allocation";
 import { useAllocation } from "@/hooks/useAllocation";
-import { Printer, Download } from "lucide-react";
 
 interface AllocationLetterProps {
   isOpen: boolean;
@@ -13,176 +13,143 @@ interface AllocationLetterProps {
 
 export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: AllocationLetterProps) => {
   const { stampSettings } = useAllocation();
-  const currentStamp = stampSettings[0];
-
-  const letterData: AllocationLetterData = {
-    letterRef: allocationRequest.letter_id,
-    date: new Date(allocationRequest.allocation_date).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }),
-    personnel: {
-      name: allocationRequest.personnel_data.full_name,
-      rank: allocationRequest.personnel_data.rank,
-      serviceNumber: allocationRequest.personnel_data.svc_no,
-      unit: allocationRequest.personnel_data.current_unit || "N/A",
-      maritalStatus: allocationRequest.personnel_data.marital_status,
-      dependents: {
-        adults: allocationRequest.personnel_data.no_of_adult_dependents,
-        children: allocationRequest.personnel_data.no_of_child_dependents,
-      },
-    },
-    accommodation: {
-      type: allocationRequest.unit_data.housing_type?.name || "N/A",
-      location: allocationRequest.unit_data.location,
-      quarter: allocationRequest.unit_data.quarter_name,
-      block: allocationRequest.unit_data.block_name,
-      flatHouseRoom: allocationRequest.unit_data.flat_house_room_name,
-      rooms: allocationRequest.unit_data.no_of_rooms,
-    },
-    stamp: currentStamp ? {
-      name: currentStamp.stamp_name,
-      rank: currentStamp.stamp_rank,
-      appointment: currentStamp.stamp_appointment,
-      note: currentStamp.stamp_note,
-    } : {
-      name: "Officer",
-      rank: "Rank",
-      appointment: "Appointment",
-    },
-  };
+  const activeStamp = stampSettings.find(stamp => stamp.is_active);
 
   const handlePrint = () => {
-    window.print();
+    const printContent = document.getElementById('allocation-letter-content');
+    if (printContent) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Allocation Letter</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .logo { width: 60px; height: 60px; margin: 0 auto 10px; }
+                .content { line-height: 1.6; }
+                .subject { font-weight: bold; text-decoration: underline; margin: 20px 0; }
+                .paragraph { margin-bottom: 15px; }
+                .signature-section { margin-top: 40px; }
+                @media print { @page { margin: 40px; } }
+              </style>
+            </head>
+            <body>
+              ${printContent.innerHTML}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
   };
 
-  const handleDownload = () => {
-    // This would ideally generate a PDF, but for now we'll use print
-    window.print();
-  };
+  const currentDate = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex justify-between items-center">
-            <DialogTitle>Allocation Letter - {letterData.letterRef}</DialogTitle>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handlePrint}>
-                <Printer className="h-4 w-4 mr-2" />
-                Print
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleDownload}>
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            </div>
-          </div>
+          <DialogTitle className="flex items-center justify-between">
+            Allocation Letter
+            <Button onClick={handlePrint} size="sm" className="flex items-center gap-2">
+              <Printer className="h-4 w-4" />
+              Print
+            </Button>
+          </DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-6 print:space-y-4 print:text-black print:bg-white">
-          {/* Letter Header */}
-          <div className="text-center space-y-2">
-            <div className="flex justify-center items-center gap-4">
+        
+        <div id="allocation-letter-content" className="p-8 bg-white text-black">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
               <img 
-                src="/lovable-uploads/5d2ea046-7e4b-4691-945f-759906349865.png" 
-                alt="Nigerian Army Logo" 
-                className="h-16 w-16"
+                src="/lovable-uploads/6dea8f38-4e85-41a5-95cc-343631f1cde0.png" 
+                alt="DHQ Logo" 
+                className="w-16 h-16"
               />
-              <div>
-                <h1 className="text-lg font-bold">NIGERIAN ARMY</h1>
-                <h2 className="text-base font-semibold">DEFENCE HEADQUARTERS</h2>
-                <h3 className="text-sm">GARRISON COMMAND ABUJA</h3>
-              </div>
+            </div>
+            <h1 className="text-lg font-bold">DEFENCE HEADQUARTERS GARRISON</h1>
+            <h2 className="text-lg font-bold">MOGADISHU CANTONMENT ABUJA</h2>
+            <div className="mt-4">
+              <p className="font-bold underline">DHQGAR/ABJ/LOG</p>
+            </div>
+            <div className="mt-4 text-right">
+              <p>{currentDate}</p>
             </div>
           </div>
 
-          {/* Letter Reference and Date */}
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="font-medium">Ref: {letterData.letterRef}</p>
-            </div>
-            <div className="text-right">
-              <p>{letterData.date}</p>
-            </div>
-          </div>
-
-          {/* Addressee */}
-          <div>
-            <p className="font-medium">{letterData.personnel.rank} {letterData.personnel.name}</p>
-            <p>Svc No: {letterData.personnel.serviceNumber}</p>
-            <p>{letterData.personnel.unit}</p>
+          {/* Recipient */}
+          <div className="mb-6">
+            <p className="font-bold">{allocationRequest.personnel_data.rank} {allocationRequest.personnel_data.full_name}</p>
+            <p>Svc No: {allocationRequest.personnel_data.svc_no}</p>
+            <p>{allocationRequest.personnel_data.current_unit || "Naval Academy"}</p>
+            <p>{allocationRequest.personnel_data.appointment || "Academy Instructor"}</p>
           </div>
 
           {/* Subject */}
-          <div>
-            <p className="font-medium underline">
-              ALLOCATION OF DEFENCE HEADQUARTERS QUARTERS
-            </p>
+          <div className="mb-6">
+            <p className="font-bold underline">SUBJECT: ALLOCATION OF ACCOMMODATION</p>
           </div>
 
-          {/* Letter Body */}
-          <div className="space-y-4">
+          {/* Body */}
+          <div className="space-y-4 mb-8">
             <p>
-              I am directed to inform you that you have been allocated the under-mentioned 
-              Defence Headquarters Quarter with effect from {letterData.date}.
+              I am directed to inform you that you have been allocated accommodation as detailed below:
             </p>
 
-            <div className="space-y-2">
-              <h4 className="font-medium">QUARTER DETAILS:</h4>
-              <ul className="list-none space-y-1 ml-4">
-                <li>Quarter Name: {letterData.accommodation.quarter}</li>
-                <li>Location: {letterData.accommodation.location}</li>
-                <li>Block: {letterData.accommodation.block}</li>
-                <li>Flat/House/Room: {letterData.accommodation.flatHouseRoom}</li>
-                <li>Number of Rooms: {letterData.accommodation.rooms}</li>
-                <li>Type: {letterData.accommodation.type}</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-medium">PERSONNEL DETAILS:</h4>
-              <ul className="list-none space-y-1 ml-4">
-                <li>Marital Status: {letterData.personnel.maritalStatus}</li>
-                <li>Number of Adult Dependents: {letterData.personnel.dependents.adults}</li>
-                <li>Number of Child Dependents: {letterData.personnel.dependents.children}</li>
-              </ul>
+            <div className="ml-8">
+              <p><strong>Type:</strong> {allocationRequest.unit_data.housing_type_name || allocationRequest.unit_data.category}</p>
+              <p><strong>Location:</strong> {allocationRequest.unit_data.location}</p>
+              <p><strong>Quarter:</strong> {allocationRequest.unit_data.quarter_name}</p>
+              <p><strong>Block:</strong> {allocationRequest.unit_data.block_name}</p>
+              <p><strong>Flat/House/Room:</strong> {allocationRequest.unit_data.flat_house_room_name}</p>
+              <p><strong>No. of Rooms:</strong> {allocationRequest.unit_data.no_of_rooms}</p>
             </div>
 
             <p>
-              You are to report to the Estate Manager for proper documentation and 
-              key collection not later than 7 days from the date of this letter.
+              2. You are to report to the Estate Manager for the collection of keys and documentation.
             </p>
 
             <p>
-              Please ensure you comply with all garrison standing orders and 
-              regulations regarding the use and maintenance of the allocated quarter.
+              3. Please ensure you comply with all accommodation regulations and maintain the facility in good condition.
+            </p>
+
+            <p>
+              4. Any damages beyond fair wear and tear will be charged to your account.
             </p>
           </div>
 
-          {/* Signature Block */}
-          <div className="space-y-8 mt-12">
-            <div className="text-right">
-              <div className="space-y-1">
-                <p className="font-medium">{letterData.stamp.name}</p>
-                <p>{letterData.stamp.rank}</p>
-                <p>{letterData.stamp.appointment}</p>
-                {letterData.stamp.note && (
-                  <p className="text-sm italic">{letterData.stamp.note}</p>
-                )}
+          {/* Signature */}
+          <div className="mt-12">
+            <div className="text-center">
+              <div className="mb-4">
+                <div className="w-32 h-20 border-2 border-gray-300 mx-auto flex items-center justify-center text-xs text-gray-500">
+                  OFFICIAL STAMP
+                </div>
               </div>
+              {activeStamp && (
+                <div>
+                  <p className="font-bold">{activeStamp.stamp_name}</p>
+                  <p>{activeStamp.stamp_rank}</p>
+                  <p>{activeStamp.stamp_appointment}</p>
+                  {activeStamp.stamp_note && <p className="text-sm italic">{activeStamp.stamp_note}</p>}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Copy to */}
-          <div className="space-y-2 mt-8">
-            <p className="font-medium">Copy to:</p>
-            <ul className="list-none space-y-1 ml-4">
-              <li>1. Estate Manager - DHQ Garrison Command</li>
-              <li>2. Unit Commanding Officer</li>
-              <li>3. File</li>
-            </ul>
+          {/* Footer */}
+          <div className="mt-8 text-xs">
+            <p>Copy to:</p>
+            <p>1. Estate Manager - for information and necessary action</p>
+            <p>2. Unit file</p>
           </div>
         </div>
       </DialogContent>

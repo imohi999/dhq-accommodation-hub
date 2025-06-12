@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
@@ -196,5 +195,60 @@ export const removeFromQueue = async (personnelId: string): Promise<boolean> => 
   } catch (error) {
     console.error("Unexpected error removing from queue:", error);
     return false;
+  }
+};
+
+export const returnPersonnelToQueueAtPositionOne = async (personnel: QueueItem): Promise<boolean> => {
+  console.log(`Returning personnel ${personnel.full_name} to queue at position #1`);
+  try {
+    const { error } = await supabase.rpc("insert_at_queue_position_one", {
+      p_personnel_id: personnel.id,
+      p_full_name: personnel.full_name,
+      p_svc_no: personnel.svc_no,
+      p_gender: personnel.gender,
+      p_arm_of_service: personnel.arm_of_service,
+      p_category: personnel.category,
+      p_rank: personnel.rank,
+      p_marital_status: personnel.marital_status,
+      p_no_of_adult_dependents: personnel.no_of_adult_dependents,
+      p_no_of_child_dependents: personnel.no_of_child_dependents,
+      p_current_unit: personnel.current_unit,
+      p_appointment: personnel.appointment,
+      p_date_tos: personnel.date_tos,
+      p_date_sos: personnel.date_sos,
+      p_phone: personnel.phone,
+    });
+
+    if (error) {
+      console.error("Error returning personnel to queue:", error);
+      return false;
+    }
+
+    console.log("Successfully returned personnel to queue at position #1");
+    return true;
+  } catch (error) {
+    console.error("Unexpected error returning personnel to queue:", error);
+    return false;
+  }
+};
+
+export const fetchPastAllocationsFromDb = async () => {
+  console.log("Fetching past allocations...");
+  try {
+    const { data, error } = await supabase
+      .from("past_allocations")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching past allocations:", error);
+      return null;
+    }
+
+    console.log("Fetched past allocations:", data);
+    return data || [];
+  } catch (error) {
+    console.error("Unexpected error fetching past allocations:", error);
+    return null;
   }
 };

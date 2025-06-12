@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +15,10 @@ import Units from "./pages/Units";
 import DHQLivingUnits from "./pages/DHQLivingUnits";
 import HousingTypes from "./pages/HousingTypes";
 import AllocationRequests from "./pages/AllocationRequests";
+import PendingApproval from "./pages/PendingApproval";
+import ActiveAllocations from "./pages/ActiveAllocations";
+import PastAllocations from "./pages/PastAllocations";
+import StampSettings from "./pages/StampSettings";
 import UserManagement from "./pages/UserManagement";
 import RoleProfiles from "./pages/RoleProfiles";
 import AuditTrail from "./pages/AuditTrail";
@@ -49,6 +52,10 @@ const App = () => {
                           <Route path="/accommodation/units" element={<DHQLivingUnits />} />
                           <Route path="/accommodation/housing-types" element={<HousingTypes />} />
                           <Route path="/allocation/requests" element={<AllocationRequests />} />
+                          <Route path="/allocation/pending" element={<PendingApproval />} />
+                          <Route path="/allocation/active" element={<ActiveAllocations />} />
+                          <Route path="/allocation/past" element={<PastAllocations />} />
+                          <Route path="/allocation/stamp-settings" element={<StampSettings />} />
                           <Route path="/settings/users" element={<UserManagement />} />
                           <Route path="/settings/roles" element={<RoleProfiles />} />
                           <Route path="/settings/audit" element={<AuditTrail />} />
