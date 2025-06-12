@@ -112,10 +112,10 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
           .update(payload)
           .eq("id", item.id));
       } else {
-        // Create new item - don't include sequence as it's auto-generated
+        // Create new item - cast to any to bypass TypeScript strict typing for auto-generated fields
         ({ error } = await supabase
           .from("queue")
-          .insert([payload]));
+          .insert(payload as any));
       }
 
       if (error) {
