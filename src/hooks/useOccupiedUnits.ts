@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { fetchOccupiedUnitsFromDb } from "@/services/occupiedUnitsApi";
+import { transferPersonnelToNewUnit, deallocatePersonnelFromUnit } from "@/services/allocationApi";
 
 export const useOccupiedUnits = () => {
   const [occupiedUnits, setOccupiedUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
@@ -25,14 +26,79 @@ export const useOccupiedUnits = () => {
     setLoading(false);
   };
 
-  const transferAllocation = async (currentRequestId: string, newUnitId: string) => {
-    // Implementation for transfer will be added
-    console.log("Transfer allocation:", currentRequestId, "to unit:", newUnitId);
+  const transferAllocation = async (currentUnitId: string, newUnitId: string) => {
+    const currentUnit = occupiedUnits.find(unit => unit.id === currentUnitId);
+    if (!currentUnit) {
+      toast({
+        title: "Error",
+        description: "Current unit not found",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    const success = await transferPersonnelToNewUnit(
+      currentUnitId,
+      newUnitId,
+      currentUnit.current_occupant_name!,
+      currentUnit.current_occupant_rank!,
+      currentUnit.current_occupant_service_number!
+    );
+
+    if (success) {
+      toast({
+        title: "Success",
+        description: "Personnel transferred successfully",
+      });
+      fetchOccupiedUnits(); // Refresh data
+      return true;
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to transfer personnel",
+        variant: "destructive",
+      });
+      return false;
+    }
   };
 
-  const deallocatePersonnel = async (requestId: string) => {
-    // Implementation for deallocation will be added
-    console.log("Deallocate personnel:", requestId);
+  const deallocatePersonnel = async (unitId: string, reason?: string) => {
+    const unit = occupiedUnits.find(u => u.id === unitId);
+    if (!unit) {
+      toast({
+        title: "Error",
+        description: "Unit not found",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    const success = await deallocatePersonnelFromUnit(
+      unitId,
+      {
+        name: unit.current_occupant_name!,
+        rank: unit.current_occupant_rank!,
+        serviceNumber: unit.current_occupant_service_number!,
+      },
+      unit,
+      reason
+    );
+
+    if (success) {
+      toast({
+        title: "Success",
+        description: "Personnel deallocated successfully",
+      });
+      fetchOccupiedUnits(); // Refresh data
+      return true;
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to deallocate personnel",
+        variant: "destructive",
+      });
+      return false;
+    }
   };
 
   useEffect(() => {

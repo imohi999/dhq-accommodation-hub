@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
@@ -58,16 +57,22 @@ export const createAllocationRequestInDb = async (
   console.log("Letter ID:", letterId);
   
   try {
+    // Ensure personnel_data and unit_data are proper objects
+    const personnelData = JSON.parse(JSON.stringify(personnel));
+    const unitData = JSON.parse(JSON.stringify(unit));
+    
     const insertData = {
       personnel_id: personnel.id,
       unit_id: unit.id,
       letter_id: letterId,
-      personnel_data: personnel as any,
-      unit_data: unit as any,
-      status: 'pending'
+      personnel_data: personnelData,
+      unit_data: unitData,
+      status: 'pending',
+      allocation_date: new Date().toISOString()
     };
     
     console.log("Insert data being sent:", insertData);
+    console.log("Insert data JSON stringified:", JSON.stringify(insertData, null, 2));
 
     const { data, error } = await supabase
       .from("allocation_requests")
@@ -76,13 +81,18 @@ export const createAllocationRequestInDb = async (
       .single();
 
     if (error) {
-      console.error("Error creating allocation request:", error);
+      console.error("Supabase error creating allocation request:", error);
       console.error("Error details:", {
         message: error.message,
         code: error.code,
         hint: error.hint,
         details: error.details
       });
+      return null;
+    }
+
+    if (!data) {
+      console.error("No data returned from insert operation");
       return null;
     }
 
@@ -97,6 +107,7 @@ export const createAllocationRequestInDb = async (
     };
   } catch (error) {
     console.error("Unexpected error creating allocation request:", error);
+    console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
     return null;
   }
 };
