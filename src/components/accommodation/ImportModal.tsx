@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -58,7 +57,7 @@ export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }:
 
   const validStatuses = ["Vacant", "Occupied", "Not In Use"];
   const validOccupancyTypes = ["Single", "Shared"];
-  const validCategories = ["Men", "Navy", "Air Force"];
+  const validCategories = ["Men", "Officer"]; // Fixed: Changed from ["Men", "Navy", "Air Force"] to ["Men", "Officer"]
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -312,10 +311,25 @@ export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }:
   const downloadTemplate = () => {
     const template = [
       ["Quarter Name", "Location", "Category", "Housing Type", "No of Rooms", "Status", "Type of Occupancy", "BQ", "No of Rooms in BQ", "Block Name", "Flat/House/Room Name", "Unit Name"],
-      ["Alpha Quarters", "North Block", "Men", housingTypes[0]?.name || "Officer Quarter", "3", "Vacant", "Single", "No", "0", "Block A", "Flat 101", "A-101"]
+      ["Alpha Quarters", "North Block", "Men", housingTypes[0]?.name || "Officer Quarter", "3", "Vacant", "Single", "No", "0", "Block A", "Flat 101", "A-101"],
+      ["Officer Quarters", "South Block", "Officer", housingTypes[0]?.name || "Officer Quarter", "4", "Occupied", "Single", "Yes", "1", "Block B", "House 201", "B-201"]
     ];
 
     const ws = XLSX.utils.aoa_to_sheet(template);
+    
+    // Add validation comments to help users
+    const comments = {
+      'C1': 'Valid values: Men, Officer',
+      'F1': 'Valid values: Vacant, Occupied, Not In Use',
+      'G1': 'Valid values: Single, Shared',
+      'H1': 'Valid values: Yes, No, true, false, 1, 0'
+    };
+    
+    Object.entries(comments).forEach(([cell, comment]) => {
+      if (!ws[cell]) ws[cell] = {};
+      ws[cell].c = [{ a: 'System', t: comment }];
+    });
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "DHQ Living Units Template");
     XLSX.writeFile(wb, "dhq_living_units_template.xlsx");
