@@ -11,10 +11,11 @@ import { Header } from "@/components/Header";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
-import QueueList from "./pages/QueueList";
+import Q from "./pages/QueueList";
 import Units from "./pages/Units";
 import DHQLivingUnits from "./pages/DHQLivingUnits";
 import HousingTypes from "./pages/HousingTypes";
+import AllocationRequests from "./pages/AllocationRequests";
 import UserManagement from "./pages/UserManagement";
 import RoleProfiles from "./pages/RoleProfiles";
 import AuditTrail from "./pages/AuditTrail";
@@ -47,6 +48,7 @@ const App = () => {
                           <Route path="/queue/units" element={<Units />} />
                           <Route path="/accommodation/units" element={<DHQLivingUnits />} />
                           <Route path="/accommodation/housing-types" element={<HousingTypes />} />
+                          <Route path="/allocation/requests" element={<AllocationRequests />} />
                           <Route path="/settings/users" element={<UserManagement />} />
                           <Route path="/settings/roles" element={<RoleProfiles />} />
                           <Route path="/settings/audit" element={<AuditTrail />} />
