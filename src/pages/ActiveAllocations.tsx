@@ -3,8 +3,7 @@ import { useAllocation } from "@/hooks/useAllocation";
 import { ActiveAllocationsView } from "@/components/allocation/ActiveAllocationsView";
 
 const ActiveAllocations = () => {
-  const { allocationRequests, loading } = useAllocation();
-  const approvedRequests = allocationRequests.filter(req => req.status === 'approved');
+  const { occupiedUnits, loading } = useAllocation();
 
   if (loading) {
     return <div className="flex justify-center p-8">Loading...</div>;
@@ -18,7 +17,7 @@ const ActiveAllocations = () => {
           Manage current accommodation allocations
         </p>
       </div>
-      <ActiveAllocationsView requests={approvedRequests} />
+      <ActiveAllocationsView occupiedUnits={occupiedUnits} />
     </div>
   );
 };

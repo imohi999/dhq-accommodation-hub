@@ -3,60 +3,43 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FileText, ArrowRightLeft, UserMinus } from "lucide-react";
-import { AllocationRequest } from "@/types/allocation";
-import { AllocationLetter } from "@/components/allocation/AllocationLetter";
-import { TransferModal } from "@/components/allocation/TransferModal";
+import { ArrowRightLeft, UserMinus } from "lucide-react";
+import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 
 interface ActiveAllocationsViewProps {
-  requests: AllocationRequest[];
+  occupiedUnits: DHQLivingUnitWithHousingType[];
 }
 
-export const ActiveAllocationsView = ({ requests }: ActiveAllocationsViewProps) => {
-  const [selectedRequest, setSelectedRequest] = useState<AllocationRequest | null>(null);
-  const [transferModal, setTransferModal] = useState<{
-    isOpen: boolean;
-    request: AllocationRequest | null;
-  }>({
-    isOpen: false,
-    request: null,
-  });
+export const ActiveAllocationsView = ({ occupiedUnits }: ActiveAllocationsViewProps) => {
   const [deallocateDialog, setDeallocateDialog] = useState<{
     isOpen: boolean;
-    request: AllocationRequest | null;
+    unit: DHQLivingUnitWithHousingType | null;
   }>({
     isOpen: false,
-    request: null,
+    unit: null,
   });
 
-  const handleTransferClick = (request: AllocationRequest) => {
-    setTransferModal({
-      isOpen: true,
-      request,
-    });
-  };
-
-  const handleDeallocateClick = (request: AllocationRequest) => {
+  const handleDeallocateClick = (unit: DHQLivingUnitWithHousingType) => {
     setDeallocateDialog({
       isOpen: true,
-      request,
+      unit,
     });
   };
 
   const handleDeallocateConfirm = async () => {
-    if (deallocateDialog.request) {
+    if (deallocateDialog.unit) {
       // TODO: Implement deallocate logic
-      console.log("Deallocating:", deallocateDialog.request.personnel_data.full_name);
+      console.log("Deallocating unit:", deallocateDialog.unit.id);
     }
     setDeallocateDialog({
       isOpen: false,
-      request: null,
+      unit: null,
     });
   };
 
   return (
     <div className="space-y-6">
-      {requests.length === 0 ? (
+      {occupiedUnits.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <p className="text-gray-500">No active allocations</p>
@@ -64,34 +47,34 @@ export const ActiveAllocationsView = ({ requests }: ActiveAllocationsViewProps) 
         </Card>
       ) : (
         <div className="space-y-4">
-          {requests.map((request) => (
-            <Card key={request.id} className="hover:shadow-md transition-shadow">
+          {occupiedUnits.map((unit) => (
+            <Card key={unit.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="space-y-3">
                     <div>
-                      <h3 className="text-lg font-semibold">{request.personnel_data.full_name}</h3>
+                      <h3 className="text-lg font-semibold">{unit.current_occupant_name}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {request.personnel_data.rank} • Svc No: {request.personnel_data.svc_no}
+                        {unit.current_occupant_rank} • Svc No: {unit.current_occupant_service_number}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {request.personnel_data.current_unit || "Naval Academy"} • {request.personnel_data.appointment || "Academy Instructor"}
+                        Occupancy Start: {unit.occupancy_start_date ? new Date(unit.occupancy_start_date).toLocaleDateString() : 'N/A'}
                       </p>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="font-medium">Personnel Details:</p>
-                        <p>Category: {request.personnel_data.category}</p>
-                        <p>Marital Status: {request.personnel_data.marital_status}</p>
-                        <p>Dependents: {request.personnel_data.no_of_adult_dependents} Adults, {request.personnel_data.no_of_child_dependents} Children</p>
+                        <p>Category: {unit.category}</p>
+                        <p>Current Status: Occupied</p>
                       </div>
                       <div>
                         <p className="font-medium">Accommodation Details:</p>
-                        <p>Quarter: {request.unit_data.quarter_name}</p>
-                        <p>Location: {request.unit_data.location}</p>
-                        <p>Unit: {request.unit_data.block_name} {request.unit_data.flat_house_room_name}</p>
-                        <p>Rooms: {request.unit_data.no_of_rooms}</p>
+                        <p>Quarter: {unit.quarter_name}</p>
+                        <p>Location: {unit.location}</p>
+                        <p>Unit: {unit.block_name} {unit.flat_house_room_name}</p>
+                        <p>Rooms: {unit.no_of_rooms}</p>
+                        <p>Type: {unit.housing_type?.name || unit.category}</p>
                       </div>
                     </div>
                   </div>
@@ -100,17 +83,7 @@ export const ActiveAllocationsView = ({ requests }: ActiveAllocationsViewProps) 
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setSelectedRequest(request)}
-                      className="flex items-center gap-2"
-                    >
-                      <FileText className="h-4 w-4" />
-                      View Letter
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleTransferClick(request)}
+                      onClick={() => console.log("Transfer unit:", unit.id)}
                       className="flex items-center gap-2"
                     >
                       <ArrowRightLeft className="h-4 w-4" />
@@ -120,7 +93,7 @@ export const ActiveAllocationsView = ({ requests }: ActiveAllocationsViewProps) 
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => handleDeallocateClick(request)}
+                      onClick={() => handleDeallocateClick(unit)}
                       className="flex items-center gap-2"
                     >
                       <UserMinus className="h-4 w-4" />
@@ -134,22 +107,6 @@ export const ActiveAllocationsView = ({ requests }: ActiveAllocationsViewProps) 
         </div>
       )}
 
-      {/* Allocation Letter Dialog */}
-      {selectedRequest && (
-        <AllocationLetter
-          isOpen={!!selectedRequest}
-          onClose={() => setSelectedRequest(null)}
-          allocationRequest={selectedRequest}
-        />
-      )}
-
-      {/* Transfer Modal */}
-      <TransferModal
-        isOpen={transferModal.isOpen}
-        onClose={() => setTransferModal({ isOpen: false, request: null })}
-        currentAllocation={transferModal.request}
-      />
-
       {/* Deallocate Confirmation Dialog */}
       <Dialog open={deallocateDialog.isOpen} onOpenChange={(open) => 
         setDeallocateDialog({ ...deallocateDialog, isOpen: open })
@@ -158,14 +115,14 @@ export const ActiveAllocationsView = ({ requests }: ActiveAllocationsViewProps) 
           <DialogHeader>
             <DialogTitle>Deallocate Personnel</DialogTitle>
             <DialogDescription>
-              Are you sure you want to deallocate {deallocateDialog.request?.personnel_data.full_name}? 
+              Are you sure you want to deallocate {deallocateDialog.unit?.current_occupant_name}? 
               This will mark their accommodation as vacant and move them to Past Allocations.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button 
               variant="outline" 
-              onClick={() => setDeallocateDialog({ isOpen: false, request: null })}
+              onClick={() => setDeallocateDialog({ isOpen: false, unit: null })}
             >
               Cancel
             </Button>

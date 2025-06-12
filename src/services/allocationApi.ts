@@ -4,7 +4,7 @@ import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { AllocationRequest } from "@/types/allocation";
 
 export const generateLetterId = async (): Promise<string | null> => {
-  console.log("Generating letter ID...");
+  console.log("=== Generating letter ID ===");
   try {
     const { data, error } = await supabase.rpc("generate_letter_id");
     
@@ -28,7 +28,7 @@ export const generateLetterId = async (): Promise<string | null> => {
 };
 
 export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest[] | null> => {
-  console.log("Fetching allocation requests...");
+  console.log("=== Fetching allocation requests ===");
   try {
     const { data, error } = await supabase
       .from("allocation_requests")
@@ -40,7 +40,9 @@ export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest
       return null;
     }
 
-    console.log("Fetched allocation requests:", data);
+    console.log("Raw allocation requests data:", data);
+    console.log("Number of allocation requests:", data?.length || 0);
+    
     // Type cast the Json fields to proper types
     const typedData = data?.map(item => ({
       ...item,
@@ -49,6 +51,7 @@ export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest
       status: item.status as 'pending' | 'approved' | 'refused',
     })) || [];
     
+    console.log("Processed allocation requests:", typedData);
     return typedData;
   } catch (error) {
     console.error("Unexpected error fetching allocation requests:", error);
@@ -61,21 +64,37 @@ export const createAllocationRequestInDb = async (
   unit: DHQLivingUnitWithHousingType,
   letterId: string
 ): Promise<AllocationRequest | null> => {
-  console.log("Creating allocation request in DB...");
-  console.log("Personnel:", personnel.full_name, "Category:", personnel.category);
-  console.log("Unit:", unit.quarter_name, "Category:", unit.category);
+  console.log("=== Creating allocation request in DB ===");
+  console.log("Personnel data:", {
+    id: personnel.id,
+    name: personnel.full_name,
+    category: personnel.category,
+    rank: personnel.rank,
+    svc_no: personnel.svc_no
+  });
+  console.log("Unit data:", {
+    id: unit.id,
+    quarter: unit.quarter_name,
+    category: unit.category,
+    status: unit.status
+  });
   console.log("Letter ID:", letterId);
   
   try {
+    const insertData = {
+      personnel_id: personnel.id,
+      unit_id: unit.id,
+      letter_id: letterId,
+      personnel_data: personnel as any,
+      unit_data: unit as any,
+      status: 'pending'
+    };
+    
+    console.log("Insert data being sent:", insertData);
+
     const { data, error } = await supabase
       .from("allocation_requests")
-      .insert({
-        personnel_id: personnel.id,
-        unit_id: unit.id,
-        letter_id: letterId,
-        personnel_data: personnel as any,
-        unit_data: unit as any,
-      } as any)
+      .insert(insertData)
       .select()
       .single();
 
