@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,17 +7,32 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { QueueForm } from "@/components/QueueForm";
-import { QueueItem } from "@/types/queue";
+import { QueueSummaryCards } from "@/components/queue/QueueSummaryCards";
+import { QueueFilters } from "@/components/queue/QueueFilters";
+import { QueueCardView } from "@/components/queue/QueueCardView";
+import { QueueViewToggle } from "@/components/queue/QueueViewToggle";
+import { QueueItem, Unit } from "@/types/queue";
 
 const QueueList = () => {
   const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<QueueItem | null>(null);
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [genderFilter, setGenderFilter] = useState("all");
+  const [maritalStatusFilter, setMaritalStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [unitFilter, setUnitFilter] = useState("all");
+  
   const { toast } = useToast();
 
   useEffect(() => {
     fetchQueueItems();
+    fetchUnits();
   }, []);
 
   const fetchQueueItems = async () => {
@@ -50,6 +65,41 @@ const QueueList = () => {
     }
   };
 
+  const fetchUnits = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("units")
+        .select("*")
+        .order("name");
+
+      if (error) {
+        console.error("Error fetching units:", error);
+        return;
+      }
+
+      setUnits(data || []);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  // Filter logic
+  const filteredItems = useMemo(() => {
+    return queueItems.filter((item) => {
+      const matchesSearch = searchTerm === "" || 
+        Object.values(item).some(value => 
+          value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      
+      const matchesGender = genderFilter === "all" || item.gender === genderFilter;
+      const matchesMaritalStatus = maritalStatusFilter === "all" || item.marital_status === maritalStatusFilter;
+      const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
+      const matchesUnit = unitFilter === "all" || item.current_unit === unitFilter;
+
+      return matchesSearch && matchesGender && matchesMaritalStatus && matchesCategory && matchesUnit;
+    });
+  }, [queueItems, searchTerm, genderFilter, maritalStatusFilter, categoryFilter, unitFilter]);
+
   const handleAdd = () => {
     setEditingItem(null);
     setShowForm(true);
@@ -58,6 +108,14 @@ const QueueList = () => {
   const handleEdit = (item: QueueItem) => {
     setEditingItem(item);
     setShowForm(true);
+  };
+
+  const handleAllocate = (item: QueueItem) => {
+    // TODO: Implement allocation logic
+    toast({
+      title: "Allocation",
+      description: `Allocation for ${item.full_name} would be handled here`,
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -118,9 +176,11 @@ const QueueList = () => {
         </div>
         <Button onClick={handleAdd} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          Add Personnel
+          Add to Queue
         </Button>
       </div>
+
+      <QueueSummaryCards queueItems={filteredItems} />
 
       {showForm && (
         <QueueForm
@@ -133,82 +193,111 @@ const QueueList = () => {
         />
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Personnel Queue</CardTitle>
-          <CardDescription>
-            Current waiting list with {queueItems.length} personnel
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[60px]">Seq</TableHead>
-                <TableHead>Full Name</TableHead>
-                <TableHead>Service No</TableHead>
-                <TableHead>Gender</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Rank</TableHead>
-                <TableHead>Marital Status</TableHead>
-                <TableHead>Dependents</TableHead>
-                <TableHead>Unit</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Entry Date</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {queueItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">#{item.sequence}</TableCell>
-                  <TableCell>{item.full_name}</TableCell>
-                  <TableCell>{item.svc_no}</TableCell>
-                  <TableCell>{item.gender}</TableCell>
-                  <TableCell>{item.arm_of_service}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>{item.rank}</TableCell>
-                  <TableCell>{item.marital_status}</TableCell>
-                  <TableCell>
-                    A:{item.no_of_adult_dependents} C:{item.no_of_child_dependents}
-                  </TableCell>
-                  <TableCell>{item.current_unit || "N/A"}</TableCell>
-                  <TableCell>{item.phone || "N/A"}</TableCell>
-                  <TableCell>
-                    {new Date(item.entry_date_time).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(item)}
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {queueItems.length === 0 && (
+      <QueueFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        genderFilter={genderFilter}
+        onGenderChange={setGenderFilter}
+        maritalStatusFilter={maritalStatusFilter}
+        onMaritalStatusChange={setMaritalStatusFilter}
+        categoryFilter={categoryFilter}
+        onCategoryChange={setCategoryFilter}
+        unitFilter={unitFilter}
+        onUnitChange={setUnitFilter}
+        units={units}
+      />
+
+      <div className="flex justify-between items-center">
+        <QueueViewToggle viewMode={viewMode} onViewChange={setViewMode} />
+        <p className="text-sm text-muted-foreground">
+          Showing {filteredItems.length} of {queueItems.length} personnel
+        </p>
+      </div>
+
+      {viewMode === 'card' ? (
+        <QueueCardView 
+          queueItems={filteredItems}
+          onEdit={handleEdit}
+          onAllocate={handleAllocate}
+        />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Personnel Queue</CardTitle>
+            <CardDescription>
+              Current waiting list with {filteredItems.length} personnel
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={13} className="text-center text-muted-foreground">
-                    No personnel in queue
-                  </TableCell>
+                  <TableHead className="w-[60px]">Seq</TableHead>
+                  <TableHead>Full Name</TableHead>
+                  <TableHead>Service No</TableHead>
+                  <TableHead>Gender</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Rank</TableHead>
+                  <TableHead>Marital Status</TableHead>
+                  <TableHead>Dependents</TableHead>
+                  <TableHead>Unit</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Entry Date</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {filteredItems.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">#{item.sequence}</TableCell>
+                    <TableCell>{item.full_name}</TableCell>
+                    <TableCell>{item.svc_no}</TableCell>
+                    <TableCell>{item.gender}</TableCell>
+                    <TableCell>{item.arm_of_service}</TableCell>
+                    <TableCell>{item.category}</TableCell>
+                    <TableCell>{item.rank}</TableCell>
+                    <TableCell>{item.marital_status}</TableCell>
+                    <TableCell>
+                      A:{item.no_of_adult_dependents} C:{item.no_of_child_dependents}
+                    </TableCell>
+                    <TableCell>{item.current_unit || "N/A"}</TableCell>
+                    <TableCell>{item.phone || "N/A"}</TableCell>
+                    <TableCell>
+                      {new Date(item.entry_date_time).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(item)}
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filteredItems.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={13} className="text-center text-muted-foreground">
+                      No personnel matching current filters
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
