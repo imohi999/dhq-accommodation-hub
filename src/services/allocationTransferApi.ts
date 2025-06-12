@@ -77,18 +77,20 @@ export const deallocatePersonnelFromUnit = async (
   console.log(`Deallocating personnel from unit ${unitId}`);
   
   try {
+    // Convert the unit data to proper JSON format for database storage
+    const unitDataJson = JSON.parse(JSON.stringify(unitData));
+    
     // Add to past allocations
     const { error: pastAllocationError } = await supabase
       .from("past_allocations")
       .insert({
-        personnel_id: unitId, // Using unit ID as we don't have personnel ID
         unit_id: unitId,
         personnel_data: {
           full_name: personnelData.name,
           rank: personnelData.rank,
           svc_no: personnelData.serviceNumber,
         },
-        unit_data: unitData,
+        unit_data: unitDataJson,
         allocation_start_date: unitData.occupancy_start_date || new Date().toISOString().split('T')[0],
         allocation_end_date: new Date().toISOString().split('T')[0],
         deallocation_date: new Date().toISOString(),
