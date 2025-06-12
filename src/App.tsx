@@ -11,7 +11,7 @@ import { Header } from "@/components/Header";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
-import Q from "./pages/QueueList";
+import QueueList from "./pages/QueueList";
 import Units from "./pages/Units";
 import DHQLivingUnits from "./pages/DHQLivingUnits";
 import HousingTypes from "./pages/HousingTypes";
