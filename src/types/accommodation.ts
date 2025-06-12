@@ -13,8 +13,8 @@ export interface DHQLivingUnit {
   category: string;
   housing_type_id: string;
   no_of_rooms: number;
-  status: 'Vacant' | 'Occupied';
-  type_of_occupancy: 'Single' | 'Shared';
+  status: string; // Changed from 'Vacant' | 'Occupied' to string
+  type_of_occupancy: string; // Changed from 'Single' | 'Shared' to string
   bq: boolean;
   no_of_rooms_in_bq: number;
   block_name: string;
