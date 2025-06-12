@@ -23,33 +23,6 @@ export const useAuth = () => {
   return context;
 };
 
-// Mock user for demo purposes when Supabase auth is disabled
-const createMockUser = (username: string): User => ({
-  id: '00000000-0000-0000-0000-000000000001',
-  aud: 'authenticated',
-  role: 'authenticated',
-  email: `${username}@dap.mil`,
-  email_confirmed_at: new Date().toISOString(),
-  phone: '',
-  confirmed_at: new Date().toISOString(),
-  last_sign_in_at: new Date().toISOString(),
-  app_metadata: { provider: 'mock' },
-  user_metadata: { username, role: 'superadmin' },
-  identities: [],
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-  is_anonymous: false
-});
-
-const createMockSession = (user: User): Session => ({
-  access_token: 'mock-access-token',
-  refresh_token: 'mock-refresh-token',
-  expires_in: 3600,
-  expires_at: Math.floor(Date.now() / 1000) + 3600,
-  token_type: 'bearer',
-  user
-});
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -75,26 +48,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session) {
           setSession(session);
           setUser(session.user);
-        } else {
-          // Check for mock session in localStorage
-          const mockSession = localStorage.getItem('mock-session');
-          if (mockSession) {
-            const parsedSession = JSON.parse(mockSession);
-            console.log('Found mock session:', parsedSession);
-            setSession(parsedSession);
-            setUser(parsedSession.user);
-          }
         }
       } catch (error) {
-        console.log('Session check failed, checking for mock auth:', error);
-        // Check for mock session in localStorage
-        const mockSession = localStorage.getItem('mock-session');
-        if (mockSession) {
-          const parsedSession = JSON.parse(mockSession);
-          console.log('Using mock session after error:', parsedSession);
-          setSession(parsedSession);
-          setUser(parsedSession.user);
-        }
+        console.log('Session check failed:', error);
       }
       setLoading(false);
     };
@@ -106,7 +62,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (username: string, password: string) => {
     try {
-      // First try Supabase auth
       const email = `${username}@dap.mil`;
       
       const { error } = await supabase.auth.signInWithPassword({
@@ -115,32 +70,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        console.log('Supabase auth failed, using mock auth:', error.message);
-        
-        // Fallback to mock authentication for demo purposes
-        if (username === 'superadmin' && password === 'admin123') {
-          const mockUser = createMockUser(username);
-          const mockSession = createMockSession(mockUser);
-          
-          // Store in localStorage for persistence
-          localStorage.setItem('mock-session', JSON.stringify(mockSession));
-          
-          setUser(mockUser);
-          setSession(mockSession);
-          
-          console.log('Mock auth successful, session set:', mockSession);
-          toast.success('Successfully signed in! (Demo Mode)');
-          return { error: null };
-        } else {
-          toast.error('Invalid credentials');
-          return { error: { message: 'Invalid credentials' } };
-        }
+        console.log('Supabase auth failed:', error.message);
+        toast.error('Invalid credentials. Please check your username and password.');
+        return { error };
       } else {
         toast.success('Successfully signed in!');
         return { error: null };
       }
     } catch (error) {
       console.error('Unexpected sign in error:', error);
+      toast.error('An unexpected error occurred');
       return { error };
     }
   };
@@ -175,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           toast.error(error.message);
         }
       } else {
-        toast.success('Account created successfully!');
+        toast.success('Account created successfully! Please check your email to confirm your account.');
       }
 
       return { error };
@@ -189,8 +128,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { error } = await supabase.auth.signOut();
       
-      // Also clear mock session
-      localStorage.removeItem('mock-session');
       setUser(null);
       setSession(null);
       
@@ -201,8 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast.success('Signed out successfully');
       }
     } catch (error) {
-      // Clear mock session even if Supabase fails
-      localStorage.removeItem('mock-session');
+      console.error('Sign out error:', error);
       setUser(null);
       setSession(null);
       toast.success('Signed out successfully');

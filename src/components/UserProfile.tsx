@@ -109,7 +109,13 @@ const UserProfile: React.FC = () => {
             )}
           </>
         ) : (
-          <p className="text-gray-600">Profile not found</p>
+          <div className="text-center">
+            <p className="text-gray-600 mb-4">Profile data will be available after account confirmation</p>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">User ID: {user?.id}</p>
+              <p className="text-sm text-gray-500">Email: {user?.email}</p>
+            </div>
+          </div>
         )}
         
         <Button
