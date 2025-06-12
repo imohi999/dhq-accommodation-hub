@@ -56,36 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session first
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          setSession(session);
-          setUser(session.user);
-        } else {
-          // Check for mock session in localStorage
-          const mockSession = localStorage.getItem('mock-session');
-          if (mockSession) {
-            const parsedSession = JSON.parse(mockSession);
-            setSession(parsedSession);
-            setUser(parsedSession.user);
-          }
-        }
-      } catch (error) {
-        console.log('Session check failed, using mock auth:', error);
-        // Check for mock session in localStorage
-        const mockSession = localStorage.getItem('mock-session');
-        if (mockSession) {
-          const parsedSession = JSON.parse(mockSession);
-          setSession(parsedSession);
-          setUser(parsedSession.user);
-        }
-      }
-      setLoading(false);
-    };
-
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session);
@@ -94,6 +65,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       }
     );
+
+    // Check for existing session
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Existing session check:', session);
+        
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+        } else {
+          // Check for mock session in localStorage
+          const mockSession = localStorage.getItem('mock-session');
+          if (mockSession) {
+            const parsedSession = JSON.parse(mockSession);
+            console.log('Found mock session:', parsedSession);
+            setSession(parsedSession);
+            setUser(parsedSession.user);
+          }
+        }
+      } catch (error) {
+        console.log('Session check failed, checking for mock auth:', error);
+        // Check for mock session in localStorage
+        const mockSession = localStorage.getItem('mock-session');
+        if (mockSession) {
+          const parsedSession = JSON.parse(mockSession);
+          console.log('Using mock session after error:', parsedSession);
+          setSession(parsedSession);
+          setUser(parsedSession.user);
+        }
+      }
+      setLoading(false);
+    };
 
     checkSession();
 
@@ -124,6 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(mockUser);
           setSession(mockSession);
           
+          console.log('Mock auth successful, session set:', mockSession);
           toast.success('Successfully signed in! (Demo Mode)');
           return { error: null };
         } else {
