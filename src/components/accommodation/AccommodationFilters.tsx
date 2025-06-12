@@ -140,6 +140,7 @@ export const AccommodationFilters = ({
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="Vacant">Vacant</SelectItem>
             <SelectItem value="Occupied">Occupied</SelectItem>
+            <SelectItem value="Not In Use">Not In Use</SelectItem>
           </SelectContent>
         </Select>
 

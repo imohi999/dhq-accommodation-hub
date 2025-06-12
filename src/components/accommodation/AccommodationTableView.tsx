@@ -18,7 +18,8 @@ export const AccommodationTableView = ({ units, onEdit, onDelete }: Accommodatio
     const headers = [
       'Quarter Name', 'Location', 'Category', 'Housing Type', 'No of Rooms',
       'Status', 'Type of Occupancy', 'BQ', 'No of Rooms in BQ', 'Block Name',
-      'Flat/House/Room Name', 'Unit Name'
+      'Flat/House/Room Name', 'Unit Name', 'Current Occupant', 'Occupant Rank', 
+      'Service Number', 'Occupancy Start Date'
     ];
     
     const csvContent = [
@@ -35,7 +36,11 @@ export const AccommodationTableView = ({ units, onEdit, onDelete }: Accommodatio
         unit.no_of_rooms_in_bq,
         unit.block_name,
         unit.flat_house_room_name,
-        unit.unit_name || ''
+        unit.unit_name || '',
+        unit.current_occupant_name || '',
+        unit.current_occupant_rank || '',
+        unit.current_occupant_service_number || '',
+        unit.occupancy_start_date || ''
       ].join(','))
     ].join('\n');
 
@@ -47,6 +52,23 @@ export const AccommodationTableView = ({ units, onEdit, onDelete }: Accommodatio
     a.download = `accommodation-units-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'Occupied': return 'destructive';
+      case 'Vacant': return 'secondary';
+      case 'Not In Use': return 'outline';
+      default: return 'secondary';
+    }
+  };
+
+  const getRowClassName = (status: string) => {
+    switch (status) {
+      case 'Occupied': return 'bg-red-50';
+      case 'Not In Use': return 'bg-gray-50';
+      default: return '';
+    }
   };
 
   return (
@@ -79,12 +101,13 @@ export const AccommodationTableView = ({ units, onEdit, onDelete }: Accommodatio
               <TableHead>BQ</TableHead>
               <TableHead>Block</TableHead>
               <TableHead>Unit Name</TableHead>
+              <TableHead>Current Occupant</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {units.map((unit) => (
-              <TableRow key={unit.id} className={unit.status === 'Occupied' ? 'bg-red-50' : ''}>
+              <TableRow key={unit.id} className={getRowClassName(unit.status)}>
                 <TableCell className="font-medium">{unit.quarter_name}</TableCell>
                 <TableCell>{unit.location}</TableCell>
                 <TableCell>
@@ -93,7 +116,7 @@ export const AccommodationTableView = ({ units, onEdit, onDelete }: Accommodatio
                 <TableCell>{unit.housing_type?.name}</TableCell>
                 <TableCell>{unit.no_of_rooms}</TableCell>
                 <TableCell>
-                  <Badge variant={unit.status === 'Occupied' ? 'destructive' : 'secondary'}>
+                  <Badge variant={getStatusBadgeVariant(unit.status)}>
                     {unit.status}
                   </Badge>
                 </TableCell>
@@ -105,6 +128,17 @@ export const AccommodationTableView = ({ units, onEdit, onDelete }: Accommodatio
                 </TableCell>
                 <TableCell>{unit.block_name}</TableCell>
                 <TableCell>{unit.unit_name || `${unit.block_name} ${unit.flat_house_room_name}`}</TableCell>
+                <TableCell>
+                  {unit.status === 'Occupied' && unit.current_occupant_name ? (
+                    <div className="text-sm">
+                      <div className="font-medium">{unit.current_occupant_name}</div>
+                      <div className="text-muted-foreground">{unit.current_occupant_rank}</div>
+                      <div className="text-xs text-muted-foreground">{unit.current_occupant_service_number}</div>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">-</span>
+                  )}
+                </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Button
@@ -127,7 +161,7 @@ export const AccommodationTableView = ({ units, onEdit, onDelete }: Accommodatio
             ))}
             {units.length === 0 && (
               <TableRow>
-                <TableCell colSpan={11} className="text-center text-muted-foreground">
+                <TableCell colSpan={12} className="text-center text-muted-foreground">
                   No accommodation units matching current filters
                 </TableCell>
               </TableRow>

@@ -16,12 +16,17 @@ export type Database = {
           bq: boolean
           category: string
           created_at: string
+          current_occupant_id: string | null
+          current_occupant_name: string | null
+          current_occupant_rank: string | null
+          current_occupant_service_number: string | null
           flat_house_room_name: string
           housing_type_id: string
           id: string
           location: string
           no_of_rooms: number
           no_of_rooms_in_bq: number
+          occupancy_start_date: string | null
           quarter_name: string
           status: string
           type_of_occupancy: string
@@ -34,12 +39,17 @@ export type Database = {
           bq?: boolean
           category: string
           created_at?: string
+          current_occupant_id?: string | null
+          current_occupant_name?: string | null
+          current_occupant_rank?: string | null
+          current_occupant_service_number?: string | null
           flat_house_room_name: string
           housing_type_id: string
           id?: string
           location: string
           no_of_rooms?: number
           no_of_rooms_in_bq?: number
+          occupancy_start_date?: string | null
           quarter_name: string
           status?: string
           type_of_occupancy?: string
@@ -52,12 +62,17 @@ export type Database = {
           bq?: boolean
           category?: string
           created_at?: string
+          current_occupant_id?: string | null
+          current_occupant_name?: string | null
+          current_occupant_rank?: string | null
+          current_occupant_service_number?: string | null
           flat_house_room_name?: string
           housing_type_id?: string
           id?: string
           location?: string
           no_of_rooms?: number
           no_of_rooms_in_bq?: number
+          occupancy_start_date?: string | null
           quarter_name?: string
           status?: string
           type_of_occupancy?: string
@@ -190,6 +205,203 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      unit_history: {
+        Row: {
+          created_at: string
+          duration_days: number | null
+          end_date: string | null
+          id: string
+          occupant_name: string
+          rank: string
+          reason_for_leaving: string | null
+          service_number: string
+          start_date: string
+          unit_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_days?: number | null
+          end_date?: string | null
+          id?: string
+          occupant_name: string
+          rank: string
+          reason_for_leaving?: string | null
+          service_number: string
+          start_date: string
+          unit_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_days?: number | null
+          end_date?: string | null
+          id?: string
+          occupant_name?: string
+          rank?: string
+          reason_for_leaving?: string | null
+          service_number?: string
+          start_date?: string
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_history_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dhq_living_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unit_inventory: {
+        Row: {
+          created_at: string
+          id: string
+          item_description: string
+          item_location: string
+          item_status: string
+          note: string | null
+          quantity: number
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_description: string
+          item_location: string
+          item_status?: string
+          note?: string | null
+          quantity?: number
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_description?: string
+          item_location?: string
+          item_status?: string
+          note?: string | null
+          quantity?: number
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_inventory_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dhq_living_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unit_maintenance: {
+        Row: {
+          cost: number | null
+          created_at: string
+          description: string
+          id: string
+          maintenance_date: string
+          maintenance_type: string
+          notes: string | null
+          performed_by: string
+          priority: string
+          status: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string
+          description: string
+          id?: string
+          maintenance_date?: string
+          maintenance_type: string
+          notes?: string | null
+          performed_by: string
+          priority?: string
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string
+          description?: string
+          id?: string
+          maintenance_date?: string
+          maintenance_type?: string
+          notes?: string | null
+          performed_by?: string
+          priority?: string
+          status?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_maintenance_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dhq_living_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unit_occupants: {
+        Row: {
+          created_at: string
+          email: string | null
+          emergency_contact: string | null
+          full_name: string
+          id: string
+          is_current: boolean
+          occupancy_start_date: string
+          phone: string | null
+          rank: string
+          service_number: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          full_name: string
+          id?: string
+          is_current?: boolean
+          occupancy_start_date?: string
+          phone?: string | null
+          rank: string
+          service_number: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          full_name?: string
+          id?: string
+          is_current?: boolean
+          occupancy_start_date?: string
+          phone?: string | null
+          rank?: string
+          service_number?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_occupants_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dhq_living_units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       units: {
         Row: {

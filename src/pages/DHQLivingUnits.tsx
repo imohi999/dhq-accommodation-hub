@@ -8,6 +8,7 @@ import { AccommodationFilters } from "@/components/accommodation/AccommodationFi
 import { AccommodationViewToggle } from "@/components/accommodation/AccommodationViewToggle";
 import { AccommodationCardView } from "@/components/accommodation/AccommodationCardView";
 import { AccommodationTableView } from "@/components/accommodation/AccommodationTableView";
+import { ImportModal } from "@/components/accommodation/ImportModal";
 import { useAccommodationData } from "@/hooks/useAccommodationData";
 import { useAccommodationFilters } from "@/hooks/useAccommodationFilters";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
@@ -17,6 +18,7 @@ const DHQLivingUnits = () => {
   const { units, housingTypes, loading, refetch } = useAccommodationData();
   const [viewMode, setViewMode] = useState<'card' | 'compact' | 'table'>('card');
   const [showForm, setShowForm] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [editingUnit, setEditingUnit] = useState<DHQLivingUnitWithHousingType | null>(null);
   
   const {
@@ -25,7 +27,7 @@ const DHQLivingUnits = () => {
     quarterNameFilter,
     setQuarterNameFilter,
     locationFilter,
-    setLocationFilter,
+    setLocationFilter,  
     categoryFilter,
     setCategoryFilter,
     housingTypeFilter,
@@ -92,20 +94,12 @@ const DHQLivingUnits = () => {
     }
   };
 
-  const handleImport = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv,.xlsx,.xls';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        toast({
-          title: "Import",
-          description: `Import functionality for ${file.name} would be implemented here`,
-        });
-      }
-    };
-    input.click();
+  const handleImportComplete = () => {
+    refetch();
+    toast({
+      title: "Import Complete",
+      description: "Successfully imported accommodation units",
+    });
   };
 
   if (loading) {
@@ -122,7 +116,7 @@ const DHQLivingUnits = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleImport} variant="outline" className="flex items-center gap-2">
+          <Button onClick={() => setShowImportModal(true)} variant="outline" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Import
           </Button>
@@ -181,6 +175,13 @@ const DHQLivingUnits = () => {
           onDelete={handleDelete}
         />
       )}
+
+      <ImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportComplete={handleImportComplete}
+        housingTypes={housingTypes}
+      />
     </div>
   );
 };
