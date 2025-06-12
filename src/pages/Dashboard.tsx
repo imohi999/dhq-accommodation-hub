@@ -1,156 +1,69 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Building, Clock, CheckCircle, AlertTriangle, BarChart3 } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import UserProfile from "@/components/UserProfile";
+import { useAuth } from "@/contexts/AuthContext";
 
-export default function Dashboard() {
+const Dashboard = () => {
+  const { user } = useAuth();
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">
-          Overview of accommodation management activities
-        </p>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight text-[#1B365D]">Dashboard</h2>
       </div>
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-[#4F9CDB]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Personnel</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-[#1B365D]">Welcome</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
+            <div className="text-2xl font-bold text-[#DC143C]">DAP System</div>
             <p className="text-xs text-muted-foreground">
-              +20 from last month
+              Defense Access Portal
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Allocations</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-[#1B365D]">Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">892</div>
+            <div className="text-2xl font-bold text-green-600">Online</div>
             <p className="text-xs text-muted-foreground">
-              +5% from last week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45</div>
-            <p className="text-xs text-muted-foreground">
-              -12% from yesterday
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Maintenance Issues</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              3 urgent, 9 routine
+              System operational
             </p>
           </CardContent>
         </Card>
       </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+        <UserProfile />
         <Card>
           <CardHeader>
-            <CardTitle>Accommodation Types</CardTitle>
-            <CardDescription>
-              Distribution of accommodation units by type
-            </CardDescription>
+            <CardTitle className="text-[#1B365D]">System Information</CardTitle>
+            <CardDescription>Current system status and information</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Single Quarters</span>
-                <span className="text-sm font-medium">45%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Family Quarters</span>
-                <span className="text-sm font-medium">30%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Shared Quarters</span>
-                <span className="text-sm font-medium">25%</span>
-              </div>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">User ID:</span>
+              <span className="text-sm text-muted-foreground">{user?.id}</span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activities</CardTitle>
-            <CardDescription>
-              Latest accommodation management activities
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium">Allocation approved</p>
-                  <p className="text-muted-foreground">SGT John Smith - Block A, Room 101</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-2">
-                <Clock className="h-4 w-4 text-yellow-500 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium">Maintenance request</p>
-                  <p className="text-muted-foreground">Block B - Plumbing issue</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-2">
-                <Users className="h-4 w-4 text-blue-500 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium">New personnel added</p>
-                  <p className="text-muted-foreground">CPL Jane Doe - Queue position 15</p>
-                </div>
-              </div>
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">Last Login:</span>
+              <span className="text-sm text-muted-foreground">
+                {user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : 'N/A'}
+              </span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common tasks and shortcuts
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <button className="w-full text-left p-2 rounded hover:bg-accent text-sm">
-                Add new personnel to queue
-              </button>
-              <button className="w-full text-left p-2 rounded hover:bg-accent text-sm">
-                Process allocation request
-              </button>
-              <button className="w-full text-left p-2 rounded hover:bg-accent text-sm">
-                Schedule maintenance
-              </button>
-              <button className="w-full text-left p-2 rounded hover:bg-accent text-sm">
-                Generate occupancy report
-              </button>
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">Email Confirmed:</span>
+              <span className="text-sm text-muted-foreground">
+                {user?.email_confirmed_at ? 'Yes' : 'No'}
+              </span>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default Dashboard;

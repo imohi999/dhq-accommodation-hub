@@ -8,6 +8,8 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
@@ -20,26 +22,30 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="dap-ui-theme">
-        <BrowserRouter>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <div className="min-h-screen flex w-full">
-              <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset>
-                  <Header />
-                  <div className="flex flex-1 flex-col gap-4 p-4">
-                    <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </div>
-                </SidebarInset>
-              </SidebarProvider>
-            </div>
-          </TooltipProvider>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <ProtectedRoute>
+                <div className="min-h-screen flex w-full">
+                  <SidebarProvider>
+                    <AppSidebar />
+                    <SidebarInset>
+                      <Header />
+                      <div className="flex flex-1 flex-col gap-4 p-4">
+                        <Routes>
+                          <Route path="/" element={<Dashboard />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </div>
+                    </SidebarInset>
+                  </SidebarProvider>
+                </div>
+              </ProtectedRoute>
+            </TooltipProvider>
+          </BrowserRouter>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
