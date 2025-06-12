@@ -140,18 +140,18 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
 
           {/* Personnel Information */}
           <div className="mb-4">
-            <p>Svc No: [{allocationRequest.personnel_data.svc_no}]</p>
-            <p>Rank: [{allocationRequest.personnel_data.rank}]</p>
-            <p>Name: [{allocationRequest.personnel_data.full_name}]</p>
-            <p>Unit: [{allocationRequest.personnel_data.current_unit || "Naval Academy"}]</p>
+            <p>Svc No: {allocationRequest.personnel_data.svc_no}</p>
+            <p>Rank: {allocationRequest.personnel_data.rank}</p>
+            <p>Name: {allocationRequest.personnel_data.full_name}</p>
+            <p>Unit: {allocationRequest.personnel_data.current_unit || "Naval Academy"}</p>
             {allocationRequest.personnel_data.phone && (
-              <p>Phone No: [{allocationRequest.personnel_data.phone}]</p>
+              <p>Phone No: {allocationRequest.personnel_data.phone}</p>
             )}
           </div>
 
           {/* Date and Time */}
           <div className="text-right mb-6">
-            <p>[Date:{currentDate}:Time]</p>
+            <p>Date: {currentDate} Time: {currentTime}</p>
           </div>
 
           {/* Subject */}
@@ -162,9 +162,9 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
           {/* Body */}
           <div className="space-y-4 mb-8">
             <p>
-              I am directed to inform you that you have been allocated <strong>[{allocationRequest.unit_data.block_name}]</strong>, 
-              <strong>[{allocationRequest.unit_data.flat_house_room_name}] [{allocationRequest.unit_data.quarter_name}]</strong>, 
-              <strong>[{allocationRequest.unit_data.location}]</strong> as residential quarter <strong>[{allocationRequest.unit_data.unit_name || allocationRequest.unit_data.block_name + ' ' + allocationRequest.unit_data.flat_house_room_name}]</strong> on <strong>[{new Date(allocationRequest.allocation_date).toLocaleDateString('en-GB')}]</strong>. 
+              I am directed to inform you that you have been allocated <strong>{allocationRequest.unit_data.block_name}</strong>, 
+              <strong>{allocationRequest.unit_data.flat_house_room_name} {allocationRequest.unit_data.quarter_name}</strong>, 
+              <strong>{allocationRequest.unit_data.location}</strong> as residential quarter <strong>{allocationRequest.unit_data.block_name} {allocationRequest.unit_data.flat_house_room_name}</strong> on <strong>{new Date(allocationRequest.allocation_date).toLocaleDateString('en-GB')}</strong>. 
               You are please requested to note that the accommodation is <span className="transit-notice">transit in nature</span> and if it is unoccupied <span className="transit-notice">2 Weeks after publication</span>, the allocation will be revoked and re-allocated to another personnel. In the event of posting out of DHQ or upon retirement, you are required to vacate and submit the keys of your house/apartment to the QM DHQ Gar for proper marching out procedure. Failure to vacate DHQ accommodation will lead to forceful ejection. Please be reminded of the existence of Rules and Regulations binding Barracks accommodation and note that you are to take proper care of all DHQ properties in your accommodation.
             </p>
 
@@ -186,10 +186,10 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
             </div>
             {activeStamp && (
               <div>
-                <p className="font-bold">[{activeStamp.stamp_name}]</p>
-                <p>[{activeStamp.stamp_rank}]</p>
-                <p>[{activeStamp.stamp_appointment}]</p>
-                {activeStamp.stamp_note && <p>[{activeStamp.stamp_note}]</p>}
+                <p className="font-bold">{activeStamp.stamp_name}</p>
+                <p>{activeStamp.stamp_rank}</p>
+                <p>{activeStamp.stamp_appointment}</p>
+                {activeStamp.stamp_note && <p>{activeStamp.stamp_note}</p>}
               </div>
             )}
           </div>

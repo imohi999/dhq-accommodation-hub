@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
@@ -57,22 +58,53 @@ export const createAllocationRequestInDb = async (
   console.log("Letter ID:", letterId);
   
   try {
-    // Ensure personnel_data and unit_data are proper objects
-    const personnelData = JSON.parse(JSON.stringify(personnel));
-    const unitData = JSON.parse(JSON.stringify(unit));
+    // Simplify personnel data to avoid JSON serialization issues
+    const simplifiedPersonnelData = {
+      id: personnel.id,
+      full_name: personnel.full_name,
+      svc_no: personnel.svc_no,
+      rank: personnel.rank,
+      category: personnel.category,
+      gender: personnel.gender,
+      arm_of_service: personnel.arm_of_service,
+      marital_status: personnel.marital_status,
+      no_of_adult_dependents: personnel.no_of_adult_dependents,
+      no_of_child_dependents: personnel.no_of_child_dependents,
+      current_unit: personnel.current_unit,
+      appointment: personnel.appointment,
+      phone: personnel.phone,
+      entry_date_time: personnel.entry_date_time,
+      sequence: personnel.sequence
+    };
+
+    // Simplify unit data to avoid JSON serialization issues
+    const simplifiedUnitData = {
+      id: unit.id,
+      quarter_name: unit.quarter_name,
+      location: unit.location,
+      block_name: unit.block_name,
+      flat_house_room_name: unit.flat_house_room_name,
+      category: unit.category,
+      no_of_rooms: unit.no_of_rooms,
+      status: unit.status,
+      housing_type: unit.housing_type ? {
+        id: unit.housing_type.id,
+        name: unit.housing_type.name,
+        description: unit.housing_type.description
+      } : null
+    };
     
     const insertData = {
       personnel_id: personnel.id,
       unit_id: unit.id,
       letter_id: letterId,
-      personnel_data: personnelData,
-      unit_data: unitData,
-      status: 'pending',
+      personnel_data: simplifiedPersonnelData,
+      unit_data: simplifiedUnitData,
+      status: 'pending' as const,
       allocation_date: new Date().toISOString()
     };
     
-    console.log("Insert data being sent:", insertData);
-    console.log("Insert data JSON stringified:", JSON.stringify(insertData, null, 2));
+    console.log("Simplified insert data:", insertData);
 
     const { data, error } = await supabase
       .from("allocation_requests")

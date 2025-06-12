@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AllocationRequest } from "@/types/allocation";
@@ -70,7 +71,7 @@ export const useAllocationRequests = () => {
 
     console.log("Letter ID generated:", letterId);
 
-    // Create the allocation request
+    // Create the allocation request first
     console.log("Creating allocation request in database...");
     const result = await createAllocationRequestInDb(personnel, unit, letterId);
     if (!result) {
@@ -85,14 +86,14 @@ export const useAllocationRequests = () => {
 
     console.log("Allocation request created successfully:", result);
 
-    // Remove personnel from queue immediately upon allocation creation
+    // Only remove personnel from queue after successful allocation request creation
     console.log("Removing personnel from queue...");
     const queueRemovalSuccess = await removeFromQueue(personnel.id);
     if (!queueRemovalSuccess) {
       console.error("Failed to remove personnel from queue");
       toast({
         title: "Warning",
-        description: "Allocation created but failed to remove from queue",
+        description: "Allocation request created successfully but failed to remove from queue",
         variant: "destructive",
       });
     } else {

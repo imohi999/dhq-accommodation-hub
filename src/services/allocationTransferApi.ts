@@ -50,25 +50,40 @@ export const createTransferAllocationRequest = async (
       return false;
     }
 
-    // Create personnel data object
+    // Create simplified personnel data object for transfer
     const personnelData = {
-      id: crypto.randomUUID(),
+      id: `transfer-${currentUnitId}-${newUnitId}-${Date.now()}`,
       sequence: 1,
       full_name: personnelName,
       svc_no: serviceNumber,
-      gender: 'Male', // Default - would need to be captured properly
-      arm_of_service: 'Navy', // Default - would need to be captured properly
+      gender: 'Male',
+      arm_of_service: 'Navy',
       category: currentUnit.category,
       rank: personnelRank,
-      marital_status: 'Single', // Default - would need to be captured properly
+      marital_status: 'Single',
       no_of_adult_dependents: 0,
       no_of_child_dependents: 0,
-      current_unit: 'Naval Academy', // Default - would need to be captured properly
-      appointment: 'Academy Instructor', // Default - would need to be captured properly
-      date_tos: null,
-      date_sos: null,
+      current_unit: 'Naval Academy',
+      appointment: 'Academy Instructor',
       phone: null,
       entry_date_time: new Date().toISOString(),
+    };
+
+    // Create simplified unit data
+    const simplifiedUnitData = {
+      id: newUnit.id,
+      quarter_name: newUnit.quarter_name,
+      location: newUnit.location,
+      block_name: newUnit.block_name,
+      flat_house_room_name: newUnit.flat_house_room_name,
+      category: newUnit.category,
+      no_of_rooms: newUnit.no_of_rooms,
+      status: newUnit.status,
+      housing_type: newUnit.housing_type ? {
+        id: newUnit.housing_type.id,
+        name: newUnit.housing_type.name,
+        description: newUnit.housing_type.description
+      } : null
     };
 
     // Create allocation request for transfer
@@ -79,7 +94,7 @@ export const createTransferAllocationRequest = async (
         unit_id: newUnitId,
         letter_id: letterId,
         personnel_data: personnelData,
-        unit_data: JSON.parse(JSON.stringify(newUnit)),
+        unit_data: simplifiedUnitData,
         status: 'pending',
         allocation_date: new Date().toISOString()
       });
@@ -110,8 +125,22 @@ export const deallocatePersonnelFromUnit = async (
   console.log(`Deallocating personnel from unit ${unitId}`);
   
   try {
-    // Convert the unit data to proper JSON format for database storage
-    const unitDataJson = JSON.parse(JSON.stringify(unitData));
+    // Simplify unit data for database storage
+    const simplifiedUnitData = {
+      id: unitData.id,
+      quarter_name: unitData.quarter_name,
+      location: unitData.location,
+      block_name: unitData.block_name,
+      flat_house_room_name: unitData.flat_house_room_name,
+      category: unitData.category,
+      no_of_rooms: unitData.no_of_rooms,
+      status: unitData.status,
+      housing_type: unitData.housing_type ? {
+        id: unitData.housing_type.id,
+        name: unitData.housing_type.name,
+        description: unitData.housing_type.description
+      } : null
+    };
     
     // Generate a personnel ID since we don't have one from the occupied unit
     const personnelId = crypto.randomUUID();
@@ -127,7 +156,7 @@ export const deallocatePersonnelFromUnit = async (
           rank: personnelData.rank,
           svc_no: personnelData.serviceNumber,
         },
-        unit_data: unitDataJson,
+        unit_data: simplifiedUnitData,
         allocation_start_date: unitData.occupancy_start_date || new Date().toISOString().split('T')[0],
         allocation_end_date: new Date().toISOString().split('T')[0],
         deallocation_date: new Date().toISOString(),
