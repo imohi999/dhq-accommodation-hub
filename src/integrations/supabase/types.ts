@@ -9,6 +9,69 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      allocation_requests: {
+        Row: {
+          allocation_date: string
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          letter_id: string
+          personnel_data: Json
+          personnel_id: string
+          refusal_reason: string | null
+          status: string
+          unit_data: Json
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          allocation_date?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          letter_id: string
+          personnel_data: Json
+          personnel_id: string
+          refusal_reason?: string | null
+          status?: string
+          unit_data: Json
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          allocation_date?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          letter_id?: string
+          personnel_data?: Json
+          personnel_id?: string
+          refusal_reason?: string | null
+          status?: string
+          unit_data?: Json
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_allocation_requests_personnel"
+            columns: ["personnel_id"]
+            isOneToOne: false
+            referencedRelation: "queue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_allocation_requests_unit"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "dhq_living_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dhq_living_units: {
         Row: {
           block_image_url: string | null
@@ -202,6 +265,39 @@ export type Database = {
           rank?: string
           sequence?: number
           svc_no?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stamp_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          stamp_appointment: string
+          stamp_name: string
+          stamp_note: string | null
+          stamp_rank: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          stamp_appointment: string
+          stamp_name: string
+          stamp_note?: string | null
+          stamp_rank: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          stamp_appointment?: string
+          stamp_name?: string
+          stamp_note?: string | null
+          stamp_rank?: string
           updated_at?: string
         }
         Relationships: []
@@ -453,6 +549,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_letter_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_profile: {
         Args: { _user_id: string }
         Returns: {

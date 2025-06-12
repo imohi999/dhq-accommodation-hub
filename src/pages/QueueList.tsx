@@ -10,6 +10,7 @@ import { QueueFilters } from "@/components/queue/QueueFilters";
 import { QueueCardView } from "@/components/queue/QueueCardView";
 import { QueueViewToggle } from "@/components/queue/QueueViewToggle";
 import { QueueTableView } from "@/components/queue/QueueTableView";
+import { AllocationModal } from "@/components/allocation/AllocationModal";
 import { useQueueData } from "@/hooks/useQueueData";
 import { useQueueFilters } from "@/hooks/useQueueFilters";
 import { QueueItem } from "@/types/queue";
@@ -19,6 +20,13 @@ const QueueList = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<QueueItem | null>(null);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [allocationModal, setAllocationModal] = useState<{
+    isOpen: boolean;
+    personnel: QueueItem | null;
+  }>({
+    isOpen: false,
+    personnel: null,
+  });
   
   const {
     searchTerm,
@@ -47,9 +55,9 @@ const QueueList = () => {
   };
 
   const handleAllocate = (item: QueueItem) => {
-    toast({
-      title: "Allocation",
-      description: `Allocation for ${item.full_name} would be handled here`,
+    setAllocationModal({
+      isOpen: true,
+      personnel: item,
     });
   };
 
@@ -162,6 +170,12 @@ const QueueList = () => {
           onDelete={handleDelete}
         />
       )}
+
+      <AllocationModal
+        isOpen={allocationModal.isOpen}
+        onClose={() => setAllocationModal({ isOpen: false, personnel: null })}
+        personnel={allocationModal.personnel}
+      />
     </div>
   );
 };
