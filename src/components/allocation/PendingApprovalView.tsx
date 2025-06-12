@@ -53,33 +53,11 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
     if (confirmDialog.type === 'approve') {
       await approveAllocation(confirmDialog.requestId);
     } else {
-      // For refusal, we need to return the person to queue at position #1
+      // For refusal, we use the built-in refuseAllocation function
       const request = requests.find(r => r.id === confirmDialog.requestId);
       if (request) {
         try {
-          // First refuse the allocation
           await refuseAllocation(confirmDialog.requestId, "Request refused and returned to queue");
-          
-          // Then add the person back to the queue at position #1
-          const { error } = await supabase
-            .from("queue")
-            .insert({
-              ...request.personnel_data,
-              sequence: 1,
-              entry_date_time: new Date().toISOString(),
-            });
-
-          if (error) {
-            console.error("Error returning to queue:", error);
-            toast({
-              title: "Warning",
-              description: "Allocation refused but failed to return personnel to queue",
-              variant: "destructive",
-            });
-          }
-
-          // Update all other queue sequences
-          await supabase.rpc('increment_queue_sequences');
         } catch (error) {
           console.error("Error in refusal process:", error);
         }
