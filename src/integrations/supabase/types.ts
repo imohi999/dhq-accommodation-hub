@@ -39,6 +39,93 @@ export type Database = {
         }
         Relationships: []
       }
+      queue: {
+        Row: {
+          appointment: string | null
+          arm_of_service: string
+          category: string
+          created_at: string
+          current_unit: string | null
+          date_sos: string | null
+          date_tos: string | null
+          entry_date_time: string
+          full_name: string
+          gender: string
+          id: string
+          marital_status: string
+          no_of_adult_dependents: number
+          no_of_child_dependents: number
+          phone: string | null
+          rank: string
+          sequence: number
+          svc_no: string
+          updated_at: string
+        }
+        Insert: {
+          appointment?: string | null
+          arm_of_service: string
+          category: string
+          created_at?: string
+          current_unit?: string | null
+          date_sos?: string | null
+          date_tos?: string | null
+          entry_date_time?: string
+          full_name: string
+          gender: string
+          id?: string
+          marital_status: string
+          no_of_adult_dependents?: number
+          no_of_child_dependents?: number
+          phone?: string | null
+          rank: string
+          sequence: number
+          svc_no: string
+          updated_at?: string
+        }
+        Update: {
+          appointment?: string | null
+          arm_of_service?: string
+          category?: string
+          created_at?: string
+          current_unit?: string | null
+          date_sos?: string | null
+          date_tos?: string | null
+          entry_date_time?: string
+          full_name?: string
+          gender?: string
+          id?: string
+          marital_status?: string
+          no_of_adult_dependents?: number
+          no_of_child_dependents?: number
+          phone?: string | null
+          rank?: string
+          sequence?: number
+          svc_no?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      units: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string | null

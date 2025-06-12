@@ -138,7 +138,6 @@ export function AppSidebar() {
           />
           <div>
             <h2 className="text-lg font-semibold">DAP</h2>
-            <p className="text-sm text-muted-foreground">DHQ Accommodation Platform</p>
           </div>
         </div>
       </SidebarHeader>
@@ -180,7 +179,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t border-border p-4">
         <p className="text-xs text-muted-foreground">
-          © 2024 DHQ Accommodation Platform
+          © DHQ Accommodation Platform
         </p>
       </SidebarFooter>
     </Sidebar>

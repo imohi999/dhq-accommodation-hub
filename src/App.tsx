@@ -11,6 +11,8 @@ import { Header } from "@/components/Header";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import QueueList from "./pages/QueueList";
+import Units from "./pages/Units";
 import UserManagement from "./pages/UserManagement";
 import RoleProfiles from "./pages/RoleProfiles";
 import AuditTrail from "./pages/AuditTrail";
@@ -39,6 +41,8 @@ const App = () => {
                       <div className="flex flex-1 flex-col gap-4 p-4">
                         <Routes>
                           <Route path="/" element={<Dashboard />} />
+                          <Route path="/queue/list" element={<QueueList />} />
+                          <Route path="/queue/units" element={<Units />} />
                           <Route path="/settings/users" element={<UserManagement />} />
                           <Route path="/settings/roles" element={<RoleProfiles />} />
                           <Route path="/settings/audit" element={<AuditTrail />} />
