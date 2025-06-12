@@ -16,7 +16,6 @@ interface User {
   id: string;
   username: string;
   full_name: string;
-  email: string;
   role: string;
   created_at: string;
 }
@@ -53,7 +52,15 @@ const UserManagement = () => {
           variant: "destructive",
         });
       } else {
-        setUsers(data || []);
+        // Map the data to match our User interface
+        const mappedUsers = (data || []).map(profile => ({
+          id: profile.id,
+          username: profile.username,
+          full_name: profile.full_name,
+          role: profile.role,
+          created_at: profile.created_at
+        }));
+        setUsers(mappedUsers);
       }
     } catch (error) {
       console.error('Error:', error);
