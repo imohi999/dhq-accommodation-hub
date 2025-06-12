@@ -39,8 +39,9 @@ export const useAllocation = () => {
       // Type cast the Json fields to proper types
       const typedData = data?.map(item => ({
         ...item,
-        personnel_data: item.personnel_data as QueueItem,
-        unit_data: item.unit_data as DHQLivingUnitWithHousingType,
+        personnel_data: item.personnel_data as unknown as QueueItem,
+        unit_data: item.unit_data as unknown as DHQLivingUnitWithHousingType,
+        status: item.status as 'pending' | 'approved' | 'refused',
       })) || [];
       
       setAllocationRequests(typedData);
@@ -99,13 +100,13 @@ export const useAllocation = () => {
 
       const { data, error } = await supabase
         .from("allocation_requests")
-        .insert([{
+        .insert({
           personnel_id: personnel.id,
           unit_id: unit.id,
           letter_id: letterIdData,
           personnel_data: personnel,
           unit_data: unit,
-        }])
+        })
         .select()
         .single();
 
@@ -130,8 +131,9 @@ export const useAllocation = () => {
       // Type cast the response data
       return {
         ...data,
-        personnel_data: data.personnel_data as QueueItem,
-        unit_data: data.unit_data as DHQLivingUnitWithHousingType,
+        personnel_data: data.personnel_data as unknown as QueueItem,
+        unit_data: data.unit_data as unknown as DHQLivingUnitWithHousingType,
+        status: data.status as 'pending' | 'approved' | 'refused',
       };
     } catch (error) {
       console.error("Error:", error);
