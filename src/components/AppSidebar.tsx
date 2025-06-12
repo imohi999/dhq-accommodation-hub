@@ -15,7 +15,8 @@ import {
   AlertTriangle,
   UserPlus,
   Shield,
-  FileText
+  FileText,
+  MapPin
 } from "lucide-react"
 
 import {
@@ -84,8 +85,17 @@ const menuItems = [
   },
   {
     title: "Accommodation",
-    url: "/accommodation",
     icon: Building,
+    items: [
+      {
+        title: "DHQ Living Units",
+        url: "/accommodation/units",
+      },
+      {
+        title: "Housing Types",
+        url: "/accommodation/housing-types",
+      },
+    ],
   },
   {
     title: "Maintenance",

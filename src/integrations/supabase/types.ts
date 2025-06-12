@@ -9,6 +9,92 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      dhq_living_units: {
+        Row: {
+          block_image_url: string | null
+          block_name: string
+          bq: boolean
+          category: string
+          created_at: string
+          flat_house_room_name: string
+          housing_type_id: string
+          id: string
+          location: string
+          no_of_rooms: number
+          no_of_rooms_in_bq: number
+          quarter_name: string
+          status: string
+          type_of_occupancy: string
+          unit_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          block_image_url?: string | null
+          block_name: string
+          bq?: boolean
+          category: string
+          created_at?: string
+          flat_house_room_name: string
+          housing_type_id: string
+          id?: string
+          location: string
+          no_of_rooms?: number
+          no_of_rooms_in_bq?: number
+          quarter_name: string
+          status?: string
+          type_of_occupancy?: string
+          unit_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          block_image_url?: string | null
+          block_name?: string
+          bq?: boolean
+          category?: string
+          created_at?: string
+          flat_house_room_name?: string
+          housing_type_id?: string
+          id?: string
+          location?: string
+          no_of_rooms?: number
+          no_of_rooms_in_bq?: number
+          quarter_name?: string
+          status?: string
+          type_of_occupancy?: string
+          unit_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dhq_living_units_housing_type_id_fkey"
+            columns: ["housing_type_id"]
+            isOneToOne: false
+            referencedRelation: "housing_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      housing_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
