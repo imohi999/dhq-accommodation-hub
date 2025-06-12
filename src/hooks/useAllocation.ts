@@ -47,24 +47,39 @@ export const useAllocation = () => {
     unit: DHQLivingUnitWithHousingType
   ) => {
     console.log("Creating allocation request...");
+    console.log("Personnel category:", personnel.category);
+    console.log("Unit category:", unit.category);
+    
+    // Validate that categories match
+    if (personnel.category !== unit.category) {
+      toast({
+        title: "Category Mismatch",
+        description: `Personnel category (${personnel.category}) doesn't match unit category (${unit.category})`,
+        variant: "destructive",
+      });
+      return null;
+    }
     
     // Generate letter ID
+    console.log("Generating letter ID...");
     const letterId = await generateLetterId();
     if (!letterId) {
       toast({
-        title: "Error",
-        description: "Failed to generate letter ID",
+        title: "Letter ID Generation Failed",
+        description: "Unable to generate a unique letter ID. Please check the database connection and try again.",
         variant: "destructive",
       });
       return null;
     }
 
+    console.log("Letter ID generated:", letterId);
+
     // Create the allocation request
     const result = await createAllocationRequestInDb(personnel, unit, letterId);
     if (!result) {
       toast({
-        title: "Error",
-        description: "Failed to create allocation request",
+        title: "Database Error",
+        description: "Failed to create allocation request in database. Please check your permissions and try again.",
         variant: "destructive",
       });
       return null;
@@ -72,7 +87,7 @@ export const useAllocation = () => {
 
     toast({
       title: "Success",
-      description: "Allocation request created successfully",
+      description: `Allocation request created successfully with letter ID: ${letterId}`,
     });
 
     fetchAllocationRequests();
@@ -91,7 +106,7 @@ export const useAllocation = () => {
     } else {
       toast({
         title: "Error",
-        description: "Failed to approve allocation",
+        description: "Failed to approve allocation. Please check your permissions and try again.",
         variant: "destructive",
       });
     }
@@ -109,7 +124,7 @@ export const useAllocation = () => {
     } else {
       toast({
         title: "Error",
-        description: "Failed to refuse allocation",
+        description: "Failed to refuse allocation. Please check your permissions and try again.",
         variant: "destructive",
       });
     }

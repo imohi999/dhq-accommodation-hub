@@ -11,12 +11,19 @@ export const generateLetterId = async (): Promise<string | null> => {
     
     if (error) {
       console.error("Error generating letter ID:", error);
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        hint: error.hint,
+        details: error.details
+      });
       return null;
     }
     
+    console.log("Generated letter ID:", data);
     return data;
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Unexpected error generating letter ID:", error);
     return null;
   }
 };
@@ -45,7 +52,7 @@ export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest
     
     return typedData;
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Unexpected error fetching allocation requests:", error);
     return null;
   }
 };
@@ -56,6 +63,10 @@ export const createAllocationRequestInDb = async (
   letterId: string
 ): Promise<AllocationRequest | null> => {
   console.log("Creating allocation request in DB...");
+  console.log("Personnel:", personnel.full_name, "Category:", personnel.category);
+  console.log("Unit:", unit.quarter_name, "Category:", unit.category);
+  console.log("Letter ID:", letterId);
+  
   try {
     const { data, error } = await supabase
       .from("allocation_requests")
@@ -71,10 +82,16 @@ export const createAllocationRequestInDb = async (
 
     if (error) {
       console.error("Error creating allocation request:", error);
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        hint: error.hint,
+        details: error.details
+      });
       return null;
     }
 
-    console.log("Created allocation request:", data);
+    console.log("Created allocation request successfully:", data);
     
     // Type cast the response data
     return {
@@ -84,7 +101,7 @@ export const createAllocationRequestInDb = async (
       status: data.status as 'pending' | 'approved' | 'refused',
     };
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Unexpected error creating allocation request:", error);
     return null;
   }
 };
@@ -112,12 +129,19 @@ export const updateAllocationStatus = async (
 
     if (error) {
       console.error(`Error ${status === 'approved' ? 'approving' : 'refusing'} allocation:`, error);
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        hint: error.hint,
+        details: error.details
+      });
       return false;
     }
 
+    console.log(`Successfully ${status === 'approved' ? 'approved' : 'refused'} allocation request`);
     return true;
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Unexpected error updating allocation status:", error);
     return false;
   }
 };
