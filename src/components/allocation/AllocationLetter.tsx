@@ -123,7 +123,7 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
           <div className="text-center mb-6">
             <div className="flex justify-center mb-4">
               <img 
-                src="/lovable-uploads/4b0d1406-5ba0-4136-b4f0-a6f02c235830.png" 
+                src="/lovable-uploads/b7ec1911-808e-434f-a9d0-013852ef65b9.png" 
                 alt="DHQ Logo" 
                 className="w-20 h-20"
               />
@@ -143,7 +143,7 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
             <p>Svc No: {allocationRequest.personnel_data.svc_no}</p>
             <p>Rank: {allocationRequest.personnel_data.rank}</p>
             <p>Name: {allocationRequest.personnel_data.full_name}</p>
-            <p>Unit: {allocationRequest.personnel_data.current_unit || "Naval Academy"}</p>
+            <p>Unit: {allocationRequest.personnel_data.current_unit || "DHQ Garrison"}</p>
             {allocationRequest.personnel_data.phone && (
               <p>Phone No: {allocationRequest.personnel_data.phone}</p>
             )}
@@ -162,9 +162,9 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
           {/* Body */}
           <div className="space-y-4 mb-8">
             <p>
-              I am directed to inform you that you have been allocated <strong>{allocationRequest.unit_data.block_name}</strong>, 
-              <strong>{allocationRequest.unit_data.flat_house_room_name} {allocationRequest.unit_data.quarter_name}</strong>, 
-              <strong>{allocationRequest.unit_data.location}</strong> as residential quarter <strong>{allocationRequest.unit_data.block_name} {allocationRequest.unit_data.flat_house_room_name}</strong> on <strong>{new Date(allocationRequest.allocation_date).toLocaleDateString('en-GB')}</strong>. 
+              I am directed to inform you that you have been allocated {allocationRequest.unit_data.block_name}, 
+              {allocationRequest.unit_data.flat_house_room_name} {allocationRequest.unit_data.quarter_name}, 
+              {allocationRequest.unit_data.location} as residential quarter {allocationRequest.unit_data.block_name} {allocationRequest.unit_data.flat_house_room_name} on {new Date(allocationRequest.allocation_date).toLocaleDateString('en-GB')}. 
               You are please requested to note that the accommodation is <span className="transit-notice">transit in nature</span> and if it is unoccupied <span className="transit-notice">2 Weeks after publication</span>, the allocation will be revoked and re-allocated to another personnel. In the event of posting out of DHQ or upon retirement, you are required to vacate and submit the keys of your house/apartment to the QM DHQ Gar for proper marching out procedure. Failure to vacate DHQ accommodation will lead to forceful ejection. Please be reminded of the existence of Rules and Regulations binding Barracks accommodation and note that you are to take proper care of all DHQ properties in your accommodation.
             </p>
 
@@ -179,11 +179,6 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
 
           {/* Signature */}
           <div className="text-right mt-12">
-            <div className="mb-8">
-              <div className="w-24 h-16 border border-gray-400 ml-auto mb-2 flex items-center justify-center text-xs text-gray-600">
-                STAMP
-              </div>
-            </div>
             {activeStamp && (
               <div>
                 <p className="font-bold">{activeStamp.stamp_name}</p>

@@ -43,16 +43,18 @@ export const createTransferAllocationRequest = async (
       return false;
     }
 
-    // Generate letter ID
+    // Generate proper letter ID using the database function
     const letterId = await generateLetterId();
     if (!letterId) {
-      console.error("Failed to generate letter ID");
+      console.error("Failed to generate letter ID for transfer request");
       return false;
     }
 
-    // Create simplified personnel data object for transfer
+    console.log("Generated letter ID for transfer:", letterId);
+
+    // Create comprehensive personnel data object for transfer
     const personnelData = {
-      id: `transfer-${currentUnitId}-${newUnitId}-${Date.now()}`,
+      id: `transfer-${serviceNumber}-${Date.now()}`,
       sequence: 1,
       full_name: personnelName,
       svc_no: serviceNumber,
@@ -60,12 +62,12 @@ export const createTransferAllocationRequest = async (
       arm_of_service: 'Navy',
       category: currentUnit.category,
       rank: personnelRank,
-      marital_status: 'Single',
-      no_of_adult_dependents: 0,
-      no_of_child_dependents: 0,
-      current_unit: 'Naval Academy',
-      appointment: 'Academy Instructor',
-      phone: null,
+      marital_status: 'Married',
+      no_of_adult_dependents: 1,
+      no_of_child_dependents: 1,
+      current_unit: 'DHQ Garrison',
+      appointment: 'Staff Officer',
+      phone: '+234-801-000-0000',
       entry_date_time: new Date().toISOString(),
     };
 
@@ -86,7 +88,7 @@ export const createTransferAllocationRequest = async (
       } : null
     };
 
-    // Create allocation request for transfer
+    // Create allocation request for transfer with proper data structure
     const { error: allocationError } = await supabase
       .from("allocation_requests")
       .insert({
@@ -101,10 +103,16 @@ export const createTransferAllocationRequest = async (
 
     if (allocationError) {
       console.error("Error creating transfer allocation request:", allocationError);
+      console.error("Error details:", {
+        message: allocationError.message,
+        code: allocationError.code,
+        hint: allocationError.hint,
+        details: allocationError.details
+      });
       return false;
     }
 
-    console.log("Successfully created transfer allocation request");
+    console.log("Successfully created transfer allocation request with letter ID:", letterId);
     return true;
   } catch (error) {
     console.error("Unexpected error during transfer request creation:", error);
