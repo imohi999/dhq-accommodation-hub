@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { generateLetterId } from "./letterIdApi";
@@ -52,9 +51,12 @@ export const createTransferAllocationRequest = async (
 
     console.log("Generated letter ID for transfer:", letterId);
 
+    // Generate proper UUID for personnel_id
+    const personnelId = crypto.randomUUID();
+
     // Create comprehensive personnel data object for transfer
     const personnelData = {
-      id: `transfer-${serviceNumber}-${Date.now()}`,
+      id: personnelId,
       sequence: 1,
       full_name: personnelName,
       svc_no: serviceNumber,
@@ -88,18 +90,27 @@ export const createTransferAllocationRequest = async (
       } : null
     };
 
+    console.log("About to insert allocation request with data:", {
+      personnel_id: personnelId,
+      unit_id: newUnitId,
+      letter_id: letterId,
+      status: 'pending'
+    });
+
     // Create allocation request for transfer with proper data structure
-    const { error: allocationError } = await supabase
+    const { data: insertedData, error: allocationError } = await supabase
       .from("allocation_requests")
       .insert({
-        personnel_id: personnelData.id,
+        personnel_id: personnelId,
         unit_id: newUnitId,
         letter_id: letterId,
         personnel_data: personnelData,
         unit_data: simplifiedUnitData,
         status: 'pending',
         allocation_date: new Date().toISOString()
-      });
+      })
+      .select()
+      .single();
 
     if (allocationError) {
       console.error("Error creating transfer allocation request:", allocationError);
@@ -112,7 +123,7 @@ export const createTransferAllocationRequest = async (
       return false;
     }
 
-    console.log("Successfully created transfer allocation request with letter ID:", letterId);
+    console.log("Successfully created transfer allocation request:", insertedData);
     return true;
   } catch (error) {
     console.error("Unexpected error during transfer request creation:", error);

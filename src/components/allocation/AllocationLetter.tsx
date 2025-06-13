@@ -105,6 +105,9 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
     minute: '2-digit'
   });
 
+  // Ensure proper letter ID format - use the actual letter_id from the request
+  const displayLetterId = allocationRequest.letter_id || 'DHQ/GAR/ABJ/00/00/LOG';
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -125,7 +128,11 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
               <img 
                 src="/lovable-uploads/b7ec1911-808e-434f-a9d0-013852ef65b9.png" 
                 alt="DHQ Logo" 
-                className="w-20 h-20"
+                className="w-20 h-20 object-contain"
+                onError={(e) => {
+                  console.error('Logo failed to load');
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </div>
             <h1 className="text-base font-bold mb-1">DEFENCE HEADQUARTERS GARRISON</h1>
@@ -133,9 +140,9 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
             <h3 className="text-base font-bold">ABUJA</h3>
           </div>
 
-          {/* Letter Reference */}
+          {/* Letter Reference - Display actual letter ID */}
           <div className="mb-4">
-            <p className="font-bold">{allocationRequest.letter_id}</p>
+            <p className="font-bold">{displayLetterId}</p>
           </div>
 
           {/* Personnel Information */}
@@ -177,10 +184,10 @@ export const AllocationLetter = ({ isOpen, onClose, allocationRequest }: Allocat
             </p>
           </div>
 
-          {/* Signature */}
+          {/* Signature - Removed stamp image box, only text */}
           <div className="text-right mt-12">
             {activeStamp && (
-              <div>
+              <div className="text-sm">
                 <p className="font-bold">{activeStamp.stamp_name}</p>
                 <p>{activeStamp.stamp_rank}</p>
                 <p>{activeStamp.stamp_appointment}</p>

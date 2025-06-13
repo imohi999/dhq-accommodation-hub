@@ -15,13 +15,20 @@ export const generateLetterId = async (): Promise<string | null> => {
         details: error.details
       });
       
-      // Fallback to manual generation if database function fails
+      //rAllback to manual generation if database function fails
       console.log("Attempting fallback letter ID generation...");
       return generateFallbackLetterId();
     }
     
     console.log("Generated letter ID from database function:", data);
-    return data;
+    
+    // Ensure the generated ID follows the correct format
+    if (data && data.startsWith('DHQ/GAR/ABJ/') && data.endsWith('/LOG')) {
+      return data;
+    } else {
+      console.warn("Database function returned invalid format, using fallback");
+      return generateFallbackLetterId();
+    }
   } catch (error) {
     console.error("Unexpected error generating letter ID:", error);
     
@@ -39,4 +46,20 @@ const generateFallbackLetterId = (): string => {
   const fallbackId = `DHQ/GAR/ABJ/${firstPart}/${secondPart}/LOG`;
   console.log("Generated fallback letter ID:", fallbackId);
   return fallbackId;
+};
+
+// Test function to verify letter ID generation
+export const testLetterIdGeneration = async (): Promise<void> => {
+  console.log("Testing letter ID generation...");
+  
+  for (let i = 0; i < 5; i++) {
+    const letterId = await generateLetterId();
+    console.log(`Test ${i + 1}: Generated letter ID:`, letterId);
+    
+    if (!letterId || !letterId.match(/^DHQ\/GAR\/ABJ\/\d{2}\/\d{2}\/LOG$/)) {
+      console.error(`Test ${i + 1} failed: Invalid letter ID format:`, letterId);
+    } else {
+      console.log(`Test ${i + 1} passed: Valid letter ID format`);
+    }
+  }
 };
