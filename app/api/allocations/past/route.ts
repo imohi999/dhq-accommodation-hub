@@ -83,8 +83,8 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(result, { status: 201 });
-  } catch (error: any) {
-    if (error.message === "Allocation not found") {
+  } catch (error) {
+    if (error instanceof Error && error.message === "Allocation not found") {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
     
