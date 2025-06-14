@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import useSWR, { mutate } from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,20 +11,27 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { UserPlus, Edit, Trash2, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface User {
+interface Profile {
   id: string;
+  userId: string;
   username: string;
-  full_name: string | null;
+  fullName: string | null;
   role: string;
-  created_at: string;
+  createdAt: string;
+  user: {
+    id: string;
+    email: string;
+    emailVerified: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -34,41 +42,11 @@ export default function UserManagementPage() {
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const { data: profiles = [], error, isLoading } = useSWR<Profile[]>('/api/profiles', fetcher);
 
-  const fetchUsers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch users",
-          variant: "destructive",
-        });
-      } else {
-        // Map the data to match our User interface
-        const mappedUsers = (data || []).map(profile => ({
-          id: profile.id,
-          username: profile.username,
-          full_name: profile.full_name,
-          role: profile.role,
-          created_at: profile.created_at
-        }));
-        setUsers(mappedUsers);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (error) {
+    console.error('Error fetching profiles:', error);
+  }
 
   const handleCreateUser = async () => {
     if (!newUser.username || !newUser.password) {
@@ -84,22 +62,26 @@ export default function UserManagementPage() {
     try {
       const email = `${newUser.username}@dap.mil`;
       
-      const { error } = await supabase.auth.admin.createUser({
-        email,
-        password: newUser.password,
-        user_metadata: {
-          username: newUser.username,
-          full_name: newUser.fullName,
-          role: newUser.role
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        email_confirm: true
+        body: JSON.stringify({
+          email,
+          password: newUser.password,
+          username: newUser.username,
+          fullName: newUser.fullName,
+          role: newUser.role
+        }),
       });
 
-      if (error) {
+      if (!response.ok) {
+        const error = await response.json();
         console.error('Error creating user:', error);
         toast({
           title: "Error",
-          description: error.message,
+          description: error.error || "Failed to create user",
           variant: "destructive",
         });
       } else {
@@ -109,7 +91,7 @@ export default function UserManagementPage() {
         });
         setNewUser({ username: '', fullName: '', role: 'user', password: '' });
         setIsCreateModalOpen(false);
-        fetchUsers();
+        mutate('/api/profiles');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -136,8 +118,20 @@ export default function UserManagementPage() {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className="flex justify-center p-8">Loading users...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center p-8">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <p className="text-destructive text-center">Error loading users. Please try again later.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -208,7 +202,7 @@ export default function UserManagementPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Users ({users.length})</CardTitle>
+          <CardTitle>Users ({profiles.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -223,18 +217,18 @@ export default function UserManagementPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.username}</TableCell>
-                  <TableCell>{user.full_name || 'N/A'}</TableCell>
-                  <TableCell>{`${user.username}@dap.mil`}</TableCell>
+              {profiles.map((profile) => (
+                <TableRow key={profile.id}>
+                  <TableCell className="font-medium">{profile.username}</TableCell>
+                  <TableCell>{profile.fullName || 'N/A'}</TableCell>
+                  <TableCell>{profile.user.email}</TableCell>
                   <TableCell>
-                    <Badge className={getRoleColor(user.role)}>
+                    <Badge className={getRoleColor(profile.role)}>
                       <Shield className="w-3 h-3 mr-1" />
-                      {user.role.toUpperCase()}
+                      {profile.role.toUpperCase()}
                     </Badge>
                   </TableCell>
-                  <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(profile.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button variant="outline" size="sm">
@@ -247,7 +241,7 @@ export default function UserManagementPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {users.length === 0 && (
+              {profiles.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground">
                     No users found
