@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Wrench, Calendar, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { UnitMaintenance } from "@/types/accommodation";
+import useSWR, { mutate } from "swr";
 
 interface MaintenanceModalProps {
   isOpen: boolean;
@@ -19,9 +19,9 @@ interface MaintenanceModalProps {
   unitName: string;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: MaintenanceModalProps) => {
-  const [maintenance, setMaintenance] = useState<UnitMaintenance[]>([]);
-  const [loading, setLoading] = useState(false);
   const [editingItem, setEditingItem] = useState<UnitMaintenance | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,34 +36,25 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchMaintenance();
+  // Use SWR to fetch maintenance records
+  const { data: maintenance = [], error, isLoading } = useSWR<UnitMaintenance[]>(
+    isOpen ? `/api/units/maintenance?unitId=${unitId}` : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
     }
-  }, [isOpen, unitId]);
+  );
 
-  const fetchMaintenance = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('unit_maintenance')
-        .select('*')
-        .eq('unit_id', unitId)
-        .order('maintenance_date', { ascending: false });
-
-      if (error) throw error;
-      setMaintenance(data || []);
-    } catch (error) {
+  useEffect(() => {
+    if (error) {
       console.error('Error fetching maintenance:', error);
       toast({
         title: "Error",
         description: "Failed to fetch maintenance records",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [error, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,28 +62,35 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
     try {
       const dataToSubmit = {
         ...formData,
-        cost: formData.cost ? parseFloat(formData.cost) : null,
         unit_id: unitId
       };
 
       if (editingItem) {
-        const { error } = await supabase
-          .from('unit_maintenance')
-          .update(dataToSubmit)
-          .eq('id', editingItem.id);
+        const response = await fetch(`/api/units/maintenance/${editingItem.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(dataToSubmit),
+        });
         
-        if (error) throw error;
+        if (!response.ok) throw new Error('Failed to update maintenance record');
         toast({ title: "Success", description: "Maintenance record updated successfully" });
       } else {
-        const { error } = await supabase
-          .from('unit_maintenance')
-          .insert(dataToSubmit);
+        const response = await fetch('/api/units/maintenance', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(dataToSubmit),
+        });
         
-        if (error) throw error;
+        if (!response.ok) throw new Error('Failed to add maintenance record');
         toast({ title: "Success", description: "Maintenance record added successfully" });
       }
       
-      fetchMaintenance();
+      // Revalidate the maintenance data
+      await mutate(`/api/units/maintenance?unitId=${unitId}`);
       resetForm();
     } catch (error) {
       console.error('Error saving maintenance record:', error);
@@ -108,14 +106,15 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
     if (!confirm("Are you sure you want to delete this maintenance record?")) return;
     
     try {
-      const { error } = await supabase
-        .from('unit_maintenance')
-        .delete()
-        .eq('id', id);
+      const response = await fetch(`/api/units/maintenance/${id}`, {
+        method: 'DELETE',
+      });
       
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to delete maintenance record');
       toast({ title: "Success", description: "Maintenance record deleted successfully" });
-      fetchMaintenance();
+      
+      // Revalidate the maintenance data
+      await mutate(`/api/units/maintenance?unitId=${unitId}`);
     } catch (error) {
       console.error('Error deleting maintenance record:', error);
       toast({
@@ -288,7 +287,7 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
           )}
 
           <div className="space-y-3">
-            {loading ? (
+            {isLoading ? (
               <div className="text-center py-4">Loading maintenance records...</div>
             ) : maintenance.length > 0 ? (
               maintenance.map((item) => (
