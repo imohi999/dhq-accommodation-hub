@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { UnitInventory } from "@/types/accommodation";
+import useSWR, { mutate } from "swr";
 
 interface InventoryModalProps {
   isOpen: boolean;
@@ -19,9 +19,9 @@ interface InventoryModalProps {
   unitName: string;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryModalProps) => {
-  const [inventory, setInventory] = useState<UnitInventory[]>([]);
-  const [loading, setLoading] = useState(false);
   const [editingItem, setEditingItem] = useState<UnitInventory | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,57 +33,56 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchInventory();
+  // Use SWR to fetch inventory
+  const { data: inventory = [], error, isLoading } = useSWR<UnitInventory[]>(
+    isOpen ? `/api/units/inventory?unitId=${unitId}` : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
     }
-  }, [isOpen, unitId]);
+  );
 
-  const fetchInventory = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('unit_inventory')
-        .select('*')
-        .eq('unit_id', unitId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setInventory(data || []);
-    } catch (error) {
+  useEffect(() => {
+    if (error) {
       console.error('Error fetching inventory:', error);
       toast({
         title: "Error",
         description: "Failed to fetch inventory",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [error, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       if (editingItem) {
-        const { error } = await supabase
-          .from('unit_inventory')
-          .update(formData)
-          .eq('id', editingItem.id);
+        const response = await fetch(`/api/units/inventory/${editingItem.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
         
-        if (error) throw error;
+        if (!response.ok) throw new Error('Failed to update inventory item');
         toast({ title: "Success", description: "Inventory item updated successfully" });
       } else {
-        const { error } = await supabase
-          .from('unit_inventory')
-          .insert({ ...formData, unit_id: unitId });
+        const response = await fetch('/api/units/inventory', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...formData, unit_id: unitId }),
+        });
         
-        if (error) throw error;
+        if (!response.ok) throw new Error('Failed to add inventory item');
         toast({ title: "Success", description: "Inventory item added successfully" });
       }
       
-      fetchInventory();
+      // Revalidate the inventory data
+      await mutate(`/api/units/inventory?unitId=${unitId}`);
       resetForm();
     } catch (error) {
       console.error('Error saving inventory item:', error);
@@ -99,14 +98,15 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
     if (!confirm("Are you sure you want to delete this inventory item?")) return;
     
     try {
-      const { error } = await supabase
-        .from('unit_inventory')
-        .delete()
-        .eq('id', id);
+      const response = await fetch(`/api/units/inventory/${id}`, {
+        method: 'DELETE',
+      });
       
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to delete inventory item');
       toast({ title: "Success", description: "Inventory item deleted successfully" });
-      fetchInventory();
+      
+      // Revalidate the inventory data
+      await mutate(`/api/units/inventory?unitId=${unitId}`);
     } catch (error) {
       console.error('Error deleting inventory item:', error);
       toast({
@@ -228,7 +228,7 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
           )}
 
           <div className="space-y-3">
-            {loading ? (
+            {isLoading ? (
               <div className="text-center py-4">Loading inventory...</div>
             ) : inventory.length > 0 ? (
               inventory.map((item) => (
