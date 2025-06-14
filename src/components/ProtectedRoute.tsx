@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import LoginPage from '@/pages/LoginPage';
+import { useAuth } from '../hooks/useAuth';
+import LoginPage from '../pages/LoginPage';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

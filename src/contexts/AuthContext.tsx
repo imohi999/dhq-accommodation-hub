@@ -1,79 +1,65 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import useSWR, { mutate } from 'swr';
+import { AuthContext, User, Session } from './AuthContextType';
 
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  signIn: (username: string, password: string) => Promise<{ error: any }>;
-  signUp: (username: string, password: string, fullName?: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
-  loading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+const sessionFetcher = (url: string) => 
+  fetch(url)
+    .then((res) => res.json())
+    .then((data) => data);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  
+  // Use SWR to check session
+  const { data: sessionData, isLoading } = useSWR(
+    '/api/auth/session',
+    sessionFetcher,
+    {
+      refreshInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+      revalidateOnFocus: true,
+    }
+  );
 
   useEffect(() => {
-    // Set up auth state listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // Check for existing session
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('Existing session check:', session);
-        
-        if (session) {
-          setSession(session);
-          setUser(session.user);
-        }
-      } catch (error) {
-        console.log('Session check failed:', error);
-      }
-      setLoading(false);
-    };
-
-    checkSession();
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (sessionData?.user) {
+      setUser(sessionData.user);
+      setSession(sessionData.session);
+    } else {
+      setUser(null);
+      setSession(null);
+    }
+  }, [sessionData]);
 
   const signIn = async (username: string, password: string) => {
     try {
-      const email = `${username}@dap.mil`;
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
       });
 
-      if (error) {
-        console.log('Supabase auth failed:', error.message);
-        toast.error('Invalid credentials. Please check your username and password.');
-        return { error };
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log('Auth failed:', data.error);
+        toast.error(data.error || 'Invalid credentials. Please check your username and password.');
+        return { error: data.error };
       } else {
+        // Update local state
+        setUser(data.user);
+        setSession({
+          user: data.user,
+          expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        });
+        
+        // Trigger SWR revalidation
+        await mutate('/api/auth/session');
+        
         toast.success('Successfully signed in!');
         return { error: null };
       }
@@ -86,59 +72,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (username: string, password: string, fullName?: string) => {
     try {
-      const email = `${username}@dap.mil`;
-      
-      let role = 'user';
-      if (username === 'superadmin') {
-        role = 'superadmin';
-      }
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            username,
-            full_name: fullName || '',
-            role: role
-          }
-        }
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password, fullName }),
       });
 
-      if (error) {
-        console.error('Sign up error:', error);
-        if (error.message.includes('User already registered')) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Sign up error:', data.error);
+        if (data.error === 'User already exists') {
           toast.error('User already exists. Please sign in instead.');
         } else {
-          toast.error(error.message);
+          toast.error(data.error || 'Failed to create account');
         }
+        return { error: data.error };
       } else {
-        toast.success('Account created successfully! Please check your email to confirm your account.');
+        toast.success(data.message || 'Account created successfully!');
+        return { error: null };
       }
-
-      return { error };
     } catch (error) {
       console.error('Unexpected sign up error:', error);
+      toast.error('An unexpected error occurred');
       return { error };
     }
   };
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      
-      setUser(null);
-      setSession(null);
-      
-      if (error) {
-        console.error('Sign out error:', error);
+      const response = await fetch('/api/auth/signout', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        console.error('Sign out error');
         toast.error('Error signing out');
       } else {
+        // Clear local state
+        setUser(null);
+        setSession(null);
+        
+        // Trigger SWR revalidation
+        await mutate('/api/auth/session');
+        
         toast.success('Signed out successfully');
       }
     } catch (error) {
       console.error('Sign out error:', error);
+      // Clear state even if request fails
       setUser(null);
       setSession(null);
       toast.success('Signed out successfully');
@@ -151,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signUp,
     signOut,
-    loading,
+    loading: isLoading,
   };
 
   return (

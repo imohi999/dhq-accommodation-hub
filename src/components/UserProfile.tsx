@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import React from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import useSWR from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,44 +9,33 @@ import { User, Shield, LogOut } from 'lucide-react';
 
 interface UserProfile {
   id: string;
+  userId: string;
   username: string;
-  full_name: string;
+  fullName: string | null;
   role: string;
-  roles: string[];
 }
+
+const fetcher = (url: string) => fetch(url).then((res) => {
+  if (!res.ok) {
+    if (res.status === 404) {
+      return null;
+    }
+    throw new Error('Failed to fetch');
+  }
+  return res.json();
+});
 
 const UserProfile: React.FC = () => {
   const { user, signOut } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  
+  const { data: profile, error, isLoading } = useSWR<UserProfile>(
+    user?.id ? `/api/profiles/${user.id}` : null,
+    fetcher
+  );
 
-  useEffect(() => {
-    if (user) {
-      fetchUserProfile();
-    }
-  }, [user]);
-
-  const fetchUserProfile = async () => {
-    if (!user?.id) {
-      setLoading(false);
-      return;
-    }
-    
-    try {
-      const { data, error } = await supabase
-        .rpc('get_user_profile', { _user_id: user.id });
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-      } else if (data && data.length > 0) {
-        setProfile(data[0]);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (error) {
+    console.error('Error fetching profile:', error);
+  }
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -61,7 +50,7 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-[#1B365D]">Loading profile...</div>
@@ -87,7 +76,7 @@ const UserProfile: React.FC = () => {
             
             <div>
               <label className="text-sm font-medium text-gray-600">Full Name</label>
-              <p className="text-[#1B365D] font-medium">{profile.full_name || 'Not provided'}</p>
+              <p className="text-[#1B365D] font-medium">{profile.fullName || 'Not provided'}</p>
             </div>
             
             <div>
@@ -100,18 +89,6 @@ const UserProfile: React.FC = () => {
               </div>
             </div>
 
-            {profile.roles && profile.roles.length > 1 && (
-              <div>
-                <label className="text-sm font-medium text-gray-600">All Roles</label>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {profile.roles.map((role, index) => (
-                    <Badge key={index} className={getRoleColor(role)}>
-                      {role.toUpperCase()}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
           </>
         ) : (
           <div className="text-center">

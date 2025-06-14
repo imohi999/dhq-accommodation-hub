@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent } from '@/components/ui/card';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { LoginLogo } from '@/components/LoginLogo';
-import { LoginForm } from '@/components/LoginForm';
-import { DemoCredentials } from '@/components/DemoCredentials';
+import { useAuth } from '../hooks/useAuth';
+import { Card, CardContent } from '../components/ui/card';
+import { ThemeToggle } from '../components/ThemeToggle';
+import { LoginLogo } from '../components/LoginLogo';
+import { LoginForm } from '../components/LoginForm';
+import { DemoCredentials } from '../components/DemoCredentials';
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
