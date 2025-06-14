@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { StampSettings } from "@/types/allocation";
-import { supabase } from "@/integrations/supabase/client";
+import useSWR, { mutate } from "swr";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export const StampSettingsView = () => {
   const [settings, setSettings] = useState<StampSettings>({
@@ -20,94 +22,110 @@ export const StampSettingsView = () => {
     created_at: '',
     updated_at: '',
   });
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
+  // Use SWR to fetch stamp settings - API returns camelCase
+  const { data: stampSettingsData, error, isLoading } = useSWR<any[]>(
+    '/api/stamp-settings',
+    fetcher
+  );
+
   useEffect(() => {
-    fetchStampSettings();
-  }, []);
-
-  const fetchStampSettings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("stamp_settings")
-        .select("*")
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error("Error fetching stamp settings:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch stamp settings",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (data) {
-        setSettings(data);
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error);
+    if (error) {
+      console.error("Error fetching stamp settings:", error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "Failed to fetch stamp settings",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [error, toast]);
+
+  useEffect(() => {
+    if (stampSettingsData) {
+      // Find the active stamp setting - API returns camelCase
+      const activeSettings = stampSettingsData.find(s => s.isActive);
+      if (activeSettings) {
+        // Transform from camelCase to snake_case for component state
+        setSettings({
+          id: activeSettings.id,
+          stamp_name: activeSettings.stampName,
+          stamp_rank: activeSettings.stampRank,
+          stamp_appointment: activeSettings.stampAppointment,
+          stamp_note: activeSettings.stampNote || '',
+          is_active: activeSettings.isActive,
+          created_at: activeSettings.createdAt,
+          updated_at: activeSettings.updatedAt,
+        });
+      }
+    }
+  }, [stampSettingsData]);
 
   const handleSave = async () => {
     setSaving(true);
     try {
       const saveData = {
-        stamp_name: settings.stamp_name,
-        stamp_rank: settings.stamp_rank,
-        stamp_appointment: settings.stamp_appointment,
-        stamp_note: settings.stamp_note,
-        is_active: true,
+        stampName: settings.stamp_name,
+        stampRank: settings.stamp_rank,
+        stampAppointment: settings.stamp_appointment,
+        stampNote: settings.stamp_note,
+        isActive: true,
       };
 
-      let result;
+      let response;
       
       if (settings.id) {
         // Update existing
-        result = await supabase
-          .from("stamp_settings")
-          .update(saveData)
-          .eq("id", settings.id);
+        response = await fetch(`/api/stamp-settings/${settings.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(saveData),
+        });
       } else {
         // Create new
-        result = await supabase
-          .from("stamp_settings")
-          .insert(saveData);
+        response = await fetch('/api/stamp-settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(saveData),
+        });
       }
 
-      if (result.error) {
-        console.error("Error saving stamp settings:", result.error);
-        toast({
-          title: "Error",
-          description: "Failed to save stamp settings",
-          variant: "destructive",
-        });
-        return;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save stamp settings');
       }
+
+      const savedData = await response.json();
+      
+      // Update local state with the response data
+      setSettings({
+        ...savedData,
+        stamp_name: savedData.stampName,
+        stamp_rank: savedData.stampRank,
+        stamp_appointment: savedData.stampAppointment,
+        stamp_note: savedData.stampNote,
+        is_active: savedData.isActive,
+        created_at: savedData.createdAt,
+        updated_at: savedData.updatedAt,
+      });
 
       toast({
         title: "Success",
         description: "Stamp settings saved successfully",
       });
 
-      fetchStampSettings(); // Refresh the data
+      // Revalidate the data
+      await mutate('/api/stamp-settings');
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.error("Error saving stamp settings:", error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: error instanceof Error ? error.message : "Failed to save stamp settings",
         variant: "destructive",
       });
     } finally {
@@ -115,7 +133,7 @@ export const StampSettingsView = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className="flex justify-center p-8">Loading...</div>;
   }
 
