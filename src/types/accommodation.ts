@@ -2,7 +2,7 @@
 export interface HousingType {
   id: string;
   name: string;
-  description?: string;
+  description?: string | null;
   created_at: string;
 }
 
@@ -36,13 +36,13 @@ export interface DHQLivingUnitWithHousingType extends DHQLivingUnit {
 
 export interface UnitOccupant {
   id: string;
-  unit_id: string;
+  unit_id: string | null;
   full_name: string;
   rank: string;
   service_number: string;
-  phone?: string;
-  email?: string;
-  emergency_contact?: string;
+  phone?: string | null;
+  email?: string | null;
+  emergency_contact?: string | null;
   occupancy_start_date: string;
   is_current: boolean;
   created_at: string;
@@ -51,40 +51,40 @@ export interface UnitOccupant {
 
 export interface UnitHistory {
   id: string;
-  unit_id: string;
+  unit_id: string | null;
   occupant_name: string;
   rank: string;
   service_number: string;
   start_date: string;
-  end_date?: string;
-  duration_days?: number;
-  reason_for_leaving?: string;
+  end_date?: string | null;
+  duration_days?: number | null;
+  reason_for_leaving?: string | null;
   created_at: string;
 }
 
 export interface UnitInventory {
   id: string;
-  unit_id: string;
+  unit_id: string | null;
   quantity: number;
   item_description: string;
   item_location: string;
   item_status: string;
-  note?: string;
+  note?: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export interface UnitMaintenance {
   id: string;
-  unit_id: string;
+  unit_id: string | null;
   maintenance_type: string;
   description: string;
   maintenance_date: string;
   performed_by: string;
-  cost?: number;
+  cost?: number | null;
   status: string;
   priority: string;
-  notes?: string;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 }

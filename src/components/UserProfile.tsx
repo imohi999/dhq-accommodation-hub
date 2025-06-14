@@ -27,9 +27,14 @@ const UserProfile: React.FC = () => {
   }, [user]);
 
   const fetchUserProfile = async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+    
     try {
       const { data, error } = await supabase
-        .rpc('get_user_profile', { _user_id: user?.id });
+        .rpc('get_user_profile', { _user_id: user.id });
 
       if (error) {
         console.error('Error fetching profile:', error);

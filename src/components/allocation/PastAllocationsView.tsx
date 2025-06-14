@@ -10,10 +10,13 @@ interface PastAllocation {
   personnel_data: any;
   unit_data: any;
   allocation_start_date: string;
-  allocation_end_date?: string;
-  duration_days?: number;
-  reason_for_leaving?: string;
+  allocation_end_date?: string | null;
+  duration_days?: number | null;
+  reason_for_leaving?: string | null;
   letter_id: string;
+  deallocation_date?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export const PastAllocationsView = () => {

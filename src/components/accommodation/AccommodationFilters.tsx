@@ -59,7 +59,7 @@ export const AccommodationFilters = ({
   const uniqueCategories = [...new Set(units.map(unit => unit.category))];
   const uniqueBlockNames = [...new Set(units.map(unit => unit.block_name))];
   const uniqueFlatHouseRooms = [...new Set(units.map(unit => unit.flat_house_room_name))];
-  const uniqueUnitNames = [...new Set(units.map(unit => unit.unit_name).filter(Boolean))];
+  const uniqueUnitNames = [...new Set(units.map(unit => unit.unit_name).filter((name): name is string => name !== null))];
 
   return (
     <div className="space-y-4">

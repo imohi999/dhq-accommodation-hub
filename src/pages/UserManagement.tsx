@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 interface User {
   id: string;
   username: string;
-  full_name: string;
+  full_name: string | null;
   role: string;
   created_at: string;
 }

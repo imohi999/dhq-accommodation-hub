@@ -37,11 +37,11 @@ export const returnPersonnelToQueueAtPositionOne = async (personnel: QueueItem):
       p_marital_status: personnel.marital_status,
       p_no_of_adult_dependents: personnel.no_of_adult_dependents,
       p_no_of_child_dependents: personnel.no_of_child_dependents,
-      p_current_unit: personnel.current_unit,
-      p_appointment: personnel.appointment,
-      p_date_tos: personnel.date_tos,
-      p_date_sos: personnel.date_sos,
-      p_phone: personnel.phone,
+      p_current_unit: personnel.current_unit || '',
+      p_appointment: personnel.appointment || '',
+      p_date_tos: personnel.date_tos || '',
+      p_date_sos: personnel.date_sos || '',
+      p_phone: personnel.phone || '',
     });
 
     if (error) {

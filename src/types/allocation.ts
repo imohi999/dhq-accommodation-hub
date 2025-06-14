@@ -11,9 +11,9 @@ export interface AllocationRequest {
   unit_data: DHQLivingUnitWithHousingType;
   allocation_date: string;
   status: 'pending' | 'approved' | 'refused';
-  approved_by?: string;
-  approved_at?: string;
-  refusal_reason?: string;
+  approved_by?: string | null;
+  approved_at?: string | null;
+  refusal_reason?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -23,7 +23,7 @@ export interface StampSettings {
   stamp_name: string;
   stamp_rank: string;
   stamp_appointment: string;
-  stamp_note?: string;
+  stamp_note?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
