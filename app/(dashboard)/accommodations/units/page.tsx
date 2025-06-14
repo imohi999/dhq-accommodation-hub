@@ -23,7 +23,7 @@ export default function Units() {
   });
   const { toast } = useToast();
 
-  const { data: units = [], error, isLoading } = useSWR<Unit[]>('/api/units-simple', fetcher);
+  const { data: units = [], error, isLoading } = useSWR<Unit[]>('/api/units', fetcher);
 
   const handleAdd = () => {
     setEditingUnit(null);
@@ -46,7 +46,7 @@ export default function Units() {
     }
 
     try {
-      const response = await fetch(`/api/units-simple/${id}`, {
+      const response = await fetch(`/api/units/${id}`, {
         method: 'DELETE',
       });
 
@@ -65,7 +65,7 @@ export default function Units() {
         description: "Unit deleted successfully",
       });
 
-      mutate('/api/units-simple');
+      mutate('/api/units');
     } catch (error) {
       console.error("Error:", error);
       toast({
@@ -90,7 +90,7 @@ export default function Units() {
 
     try {
       if (editingUnit) {
-        const response = await fetch(`/api/units-simple/${editingUnit.id}`, {
+        const response = await fetch(`/api/units/${editingUnit.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ export default function Units() {
           description: "Unit updated successfully",
         });
       } else {
-        const response = await fetch('/api/units-simple', {
+        const response = await fetch('/api/units', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ export default function Units() {
       setShowForm(false);
       setEditingUnit(null);
       setFormData({ name: "", description: "" });
-      mutate('/api/units-simple');
+      mutate('/api/units');
     } catch (error) {
       console.error("Error:", error);
       toast({
@@ -259,7 +259,7 @@ export default function Units() {
                   <TableCell className="font-medium">{unit.name}</TableCell>
                   <TableCell>{unit.description || "No description"}</TableCell>
                   <TableCell>
-                    {unit.createdAt ? new Date(unit.createdAt).toLocaleDateString() : 'N/A'}
+                    {unit.created_at ? new Date(unit.created_at).toLocaleDateString() : 'N/A'}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

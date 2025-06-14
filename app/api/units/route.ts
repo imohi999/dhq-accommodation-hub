@@ -1,59 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { handlePrismaError, paginate, searchFilter } from "@/lib/prisma-utils";
+import { handlePrismaError } from "@/lib/prisma-utils";
 
-// GET: List all units with pagination and filters
-export async function GET(request: NextRequest) {
+// GET: List all units
+export async function GET() {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    
-    // Pagination
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    
-    // Filters
-    const search = searchParams.get('search');
-    const status = searchParams.get('status');
-    const housingTypeId = searchParams.get('housingTypeId');
-    const category = searchParams.get('category');
-    
-    // Build where clause
-    const where = {
-      AND: [
-        search ? searchFilter(search, ['unitName', 'quarterName', 'location', 'blockName']) : {},
-        status ? { status } : {},
-        housingTypeId ? { housingTypeId } : {},
-        category ? { category } : {}
-      ]
-    };
-    
-    const { skip, take } = paginate(page, limit);
-    
-    const [units, total] = await Promise.all([
-      prisma.dhqLivingUnit.findMany({
-        skip,
-        take,
-        where,
-        include: {
-          housingType: true,
-          occupants: {
-            where: { isCurrent: true }
-          }
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      }),
-      prisma.dhqLivingUnit.count({ where })
-    ]);
-    
-    return NextResponse.json({
-      data: units,
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit)
+    const units = await prisma.unit.findMany({
+      orderBy: {
+        name: 'asc'
+      }
     });
+    
+    return NextResponse.json(units);
   } catch (error) {
     const { message, status } = handlePrismaError(error);
     return NextResponse.json({ error: message }, { status });
@@ -65,20 +23,60 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Generate unit name if not provided
-    const unitName = body.unitName || `${body.blockName} ${body.flatHouseRoomName}`;
-    
-    const unit = await prisma.dhqLivingUnit.create({
+    const unit = await prisma.unit.create({
       data: {
-        ...body,
-        unitName
-      },
-      include: {
-        housingType: true
+        name: body.name,
+        description: body.description
       }
     });
 
     return NextResponse.json(unit, { status: 201 });
+  } catch (error) {
+    const { message, status } = handlePrismaError(error);
+    return NextResponse.json({ error: message }, { status });
+  }
+}
+
+// PUT: Update unit
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, ...data } = body;
+    
+    if (!id) {
+      return NextResponse.json({ error: "Unit ID is required" }, { status: 400 });
+    }
+    
+    const unit = await prisma.unit.update({
+      where: { id },
+      data: {
+        name: data.name,
+        description: data.description
+      }
+    });
+
+    return NextResponse.json(unit);
+  } catch (error) {
+    const { message, status } = handlePrismaError(error);
+    return NextResponse.json({ error: message }, { status });
+  }
+}
+
+// DELETE: Delete unit
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: "Unit ID is required" }, { status: 400 });
+    }
+    
+    await prisma.unit.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
     const { message, status } = handlePrismaError(error);
     return NextResponse.json({ error: message }, { status });

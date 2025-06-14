@@ -8,25 +8,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const unit = await prisma.dhqLivingUnit.findUnique({
-      where: { id: params.id },
-      include: {
-        housingType: true,
-        occupants: {
-          where: { isCurrent: true }
-        },
-        history: {
-          orderBy: { createdAt: 'desc' },
-          take: 10
-        },
-        inventory: {
-          orderBy: { createdAt: 'desc' }
-        },
-        maintenance: {
-          orderBy: { createdAt: 'desc' },
-          take: 10
-        }
-      }
+    const unit = await prisma.unit.findUnique({
+      where: { id: params.id }
     });
 
     if (!unit) {
@@ -48,25 +31,11 @@ export async function PUT(
   try {
     const body = await request.json();
     
-    // Generate unit name if block or flat changed
-    if (body.blockName || body.flatHouseRoomName) {
-      const currentUnit = await prisma.dhqLivingUnit.findUnique({
-        where: { id: params.id }
-      });
-      
-      if (currentUnit) {
-        body.unitName = `${body.blockName || currentUnit.blockName} ${body.flatHouseRoomName || currentUnit.flatHouseRoomName}`;
-      }
-    }
-
-    const unit = await prisma.dhqLivingUnit.update({
+    const unit = await prisma.unit.update({
       where: { id: params.id },
-      data: body,
-      include: {
-        housingType: true,
-        occupants: {
-          where: { isCurrent: true }
-        }
+      data: {
+        name: body.name,
+        description: body.description
       }
     });
 
@@ -83,19 +52,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check if unit is occupied
-    const unit = await prisma.dhqLivingUnit.findUnique({
-      where: { id: params.id }
-    });
-
-    if (unit?.status === 'Occupied') {
-      return NextResponse.json(
-        { error: "Cannot delete occupied unit" },
-        { status: 400 }
-      );
-    }
-
-    await prisma.dhqLivingUnit.delete({
+    await prisma.unit.delete({
       where: { id: params.id }
     });
 
