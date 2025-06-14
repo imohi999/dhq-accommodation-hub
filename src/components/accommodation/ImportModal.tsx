@@ -4,11 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { ImportFileUpload } from "./import/ImportFileUpload";
 import { ImportValidation } from "./import/ImportValidation";
 import { ImportConfirmation } from "./import/ImportConfirmation";
 import { useImportValidation } from "./import/useImportValidation";
+import { mutate } from "swr";
 
 interface ImportModalProps {
   isOpen: boolean;
@@ -58,14 +58,6 @@ export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }:
     setIsImporting(true);
 
     try {
-      // First, delete all existing records
-      const { error: deleteError } = await supabase
-        .from('dhq_living_units')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
-      
-      if (deleteError) throw deleteError;
-
       // Prepare data for insertion
       const insertData = parsedData.map(row => {
         const housingType = housingTypes.find(ht => ht.name === row["Housing Type"]);
@@ -86,17 +78,32 @@ export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }:
         };
       });
 
-      // Insert new records
-      const { error: insertError } = await supabase
-        .from('dhq_living_units')
-        .insert(insertData);
-      
-      if (insertError) throw insertError;
+      // Call the API endpoint to import data
+      const response = await fetch('/api/units/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: insertData,
+          replaceExisting: true,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Import failed');
+      }
+
+      const result = await response.json();
 
       toast({
         title: "Import Successful",
-        description: `Successfully imported ${parsedData.length} records.`,
+        description: result.message || `Successfully imported ${result.count} records.`,
       });
+
+      // Revalidate the accommodations data
+      await mutate('/api/accommodations');
 
       onImportComplete();
       onClose();
@@ -105,7 +112,7 @@ export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }:
       console.error('Error importing data:', error);
       toast({
         title: "Import Failed",
-        description: "Failed to import data. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to import data. Please try again.",
         variant: "destructive",
       });
     } finally {
