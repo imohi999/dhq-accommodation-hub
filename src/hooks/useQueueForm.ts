@@ -1,8 +1,17 @@
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { QueueItem, Unit, QueueFormData } from "@/types/queue";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+interface UnitResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+}
 
 export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
   const [formData, setFormData] = useState<QueueFormData>({
@@ -26,8 +35,32 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // Fetch units using SWR
+  const { data: unitsData, error: unitsError } = useSWR<UnitResponse[]>(
+    '/api/units',
+    fetcher
+  );
+
   useEffect(() => {
-    fetchUnits();
+    if (unitsError) {
+      console.error("Error fetching units:", unitsError);
+    }
+  }, [unitsError]);
+
+  useEffect(() => {
+    if (unitsData) {
+      // Transform API response to match expected format
+      const transformedUnits = unitsData.map((unit) => ({
+        id: unit.id,
+        name: unit.name,
+        description: unit.description,
+        created_at: unit.createdAt,
+      }));
+      setUnits(transformedUnits);
+    }
+  }, [unitsData]);
+
+  useEffect(() => {
     if (item) {
       setFormData({
         full_name: item.full_name,
@@ -47,24 +80,6 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
       });
     }
   }, [item]);
-
-  const fetchUnits = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("units")
-        .select("*")
-        .order("name");
-
-      if (error) {
-        console.error("Error fetching units:", error);
-        return;
-      }
-
-      setUnits(data || []);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
@@ -87,45 +102,48 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
     setLoading(true);
 
     try {
+      // Transform to camelCase for API
       const payload = {
-        full_name: formData.full_name,
-        svc_no: formData.svc_no,
+        fullName: formData.full_name,
+        svcNo: formData.svc_no,
         gender: formData.gender,
-        arm_of_service: formData.arm_of_service,
+        armOfService: formData.arm_of_service,
         category: formData.category,
         rank: formData.rank,
-        marital_status: formData.marital_status,
-        no_of_adult_dependents: Number(formData.no_of_adult_dependents),
-        no_of_child_dependents: Number(formData.no_of_child_dependents),
-        current_unit: formData.current_unit || null,
+        maritalStatus: formData.marital_status,
+        noOfAdultDependents: Number(formData.no_of_adult_dependents),
+        noOfChildDependents: Number(formData.no_of_child_dependents),
+        currentUnit: formData.current_unit || null,
         appointment: formData.appointment || null,
-        date_tos: formData.date_tos || null,
-        date_sos: formData.date_sos || null,
+        dateTos: formData.date_tos || null,
+        dateSos: formData.date_sos || null,
         phone: formData.phone || null,
       };
 
-      let error;
+      let response;
       if (item) {
         // Update existing item
-        ({ error } = await supabase
-          .from("queue")
-          .update(payload)
-          .eq("id", item.id));
+        response = await fetch(`/api/queue/${item.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
       } else {
-        // Create new item - cast to any to bypass TypeScript strict typing for auto-generated fields
-        ({ error } = await supabase
-          .from("queue")
-          .insert(payload as any));
+        // Create new item
+        response = await fetch('/api/queue', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
       }
 
-      if (error) {
-        console.error("Error saving queue item:", error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to save queue item",
-          variant: "destructive",
-        });
-        return;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || error.message || "Failed to save queue item");
       }
 
       toast({
@@ -135,10 +153,10 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
 
       onSubmit();
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error saving queue item:", error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
