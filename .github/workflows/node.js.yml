@@ -1,0 +1,53 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+    env:
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
+      NEXTAUTH_URL: ${{secrets.NEXTAUTH_URL}}
+      NEXTAUTH_SECRET: ${{secrets.NEXTAUTH_SECRET}}
+      NEXT_PUBLIC_APP_URL: ${{secrets.NEXT_PUBLIC_APP_URL}}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Fix Git Safe Directory Issue
+        run: |
+          git config --global --add safe.directory $(pwd)
+
+      - name: Clean up Git Submodule Configurations
+        run: |
+          git config --global --unset-all http.https://github.com/.extraheader || true
+          git submodule foreach --recursive git config --local --unset-all http.https://github.com/.extraheader || true
+          git submodule foreach --recursive git config --local --unset-all core.sshCommand || true
+
+      - run: npm install
+      - run: npm run build --if-present
+      - name: Set Secrets and Change Dir
+        run: | # Secrets needed on the server
+          echo "DATABASE_URL=${{secrets.DATABASE_URL}}" >> .env
+          echo "NEXTAUTH_URL=${{secrets.NEXTAUTH_URL}}" >> .env
+          echo "NEXTAUTH_SECRET=${{secrets.NEXTAUTH_SECRET}}" >> .env
+          echo "NEXT_PUBLIC_APP_URL=${{secrets.NEXT_PUBLIC_APP_URL}}" >> .env
+
+      - name: Validate .env contents
+        run: cat .env
+      # - name: change directory
+      #   run: cd /home/leo/runners/dhq-accommodation-hub/_work/dhq-accommodation-hub/dhq-accommodation-hub
+      # - run: pm2 restart dhq-accommodation-hub
