@@ -2,13 +2,13 @@
 import { useAllocationRequestsData } from "./useAllocationRequestsData";
 import { useAllocationApproval } from "./useAllocationApproval";
 
-export const useAllocationRequests = () => {
+export const useAllocationRequests = (status?: string) => {
   const {
     allocationRequests,
     loading,
     createAllocationRequest,
     refetch
-  } = useAllocationRequestsData();
+  } = useAllocationRequestsData(status);
 
   const {
     approveAllocation,

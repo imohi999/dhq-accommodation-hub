@@ -54,7 +54,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         id: unit.id,
         name: unit.name,
         description: unit.description,
-        created_at: unit.createdAt,
+        createdAt: unit.createdAt,
       }));
       setUnits(transformedUnits);
     }

@@ -1,0 +1,136 @@
+	•	Queue List
+This list serves like a waiting list for incoming personnel. You are removed from from the list when assigned to living unit or deleted and all the other records move up the list in sequence (record 2 becomes #1, and record 3 becomes #2)
+Fields:
+	•	id - Unique identifier for the queue item (not displayed)
+	•	sequence - number - Position in queue  (cannot be edited, the first record to be entered based on date and time is #1, the second record is #2, the third is #3…)
+	•	FullName:  (Personnel full name)
+	•	SvcNo: (Unique, no duplicates) 
+	•	Gender: (Dropdown: Male,Female)
+	•	ArmOfService: (Dropdown: Army, Navy, Air Force) 
+	•	Category: (Dropdown: Men,Officer) 
+	•	Rank: (Display dropdown based on ArmOfService and Category Selected)  
+	•	Marital status: (Dropdown: Single, Married, Divorced, Widowed)
+	•	NoOfAdultDependents: (number:0-99)
+	•	NoOfChildDependents: (number:0-99)
+	•	CurrentUnit: (Drop down menu to be added from sub menu “Units” list)
+	•	Appointment:
+	•	DateTOS: Date field
+	•	DateSOS: Date field 
+	•	Phone: 
+	•	EntryDateTime: (Automatic date and time stamp)
+Rank field Options based on category & Arm of service selected: 
+ArmOfService: Army
+Category:Men
+1. Private
+2. Lance Corporal
+3. Corporal
+4. Sergeant
+5. Staff Sergeant
+6. Warrant Officer
+7. Master Warrant Officer
+8. Army Warrant Officer
+ArmOfService: Army
+Category:Officers
+1. Second Lieutenant
+2. Lieutenant
+3. Captain
+4. Major
+5. Lieutenant Colonel
+6. Colonel
+7. Brigadier General
+8. Major General
+9. Lieutenant General
+10. General
+11. Field Marshal
+ArmOfService: Navy
+Category:Men
+1. Ordinary Seaman
+2. Seaman
+3. Able Seaman
+4. Leading Seaman
+5. Petty Officer
+6. Warrant Officer
+7. Master Warrant Officer
+8. Navy Warrant Officer
+ArmOfService: Navy
+Category:Officer
+1. Midshipman
+2. Sub-Lieutenant
+3. Lieutenant
+4. Lieutenant Commander
+5. Commander
+6. Captain
+7. Commodore
+8. Rear Admiral
+9. Vice Admiral
+10. Admiral
+11. Admiral of the Fleet
+ArmOfService: Air Force
+Category:Men
+1. Aircraftman/Aircraftwoman
+2. Lance Corporal
+3. Corporal
+4. Sergeant
+5. Flight Sergeant
+6. Warrant Officer
+7. Master Warrant Officer
+8. Air Warrant Officer
+ArmOfService: Air Force
+Category:Officer
+1. Officer Cadet
+2. Pilot Officer
+3. Flying Officer
+4. Flight Lieutenant
+5. Squadron Leader
+6. Wing Commander
+7. Group Captain
+8. Air Commodore
+9. Air Vice Marshal
+10. Air Marshal
+11. Air Chief Marshal
+12. Marshal of the Air Force
+
+
+
+On the Queue List card view, Include a functional Red Delete icon with confirmation before action. under the Allocate Button, Change the Allocate button color to Green. When the allocate button is clicked a pop up list of the Card and compact view only of all “Vacant” status DHQ Living units matching the Category field (same as category field in the Queue list and DHQ Living unit Dropdown: Men,Officer) of the personnel. The Cards on the Card and Compact view on the pop up list should have an “Allocate Unit” button on each unit displayed. 
+
+This button would then allocate the Living Unit to the personnel after displaying a confirmation. This action changes the status of the Living Unit to Occupied and removes the Personnel info from the Queue List to “Pending Approval” under the allocation section. This Action also generates an “Approval letter” this will be an Image displayed in a single page view. Following the format exactly as in the Allocation letter image attached. Make sure the letter is generated exactly as the attachment.
+
+
+
+
+
+
+
+
+
+Pay attention to these areas of the letter 
+
+	•	DHQ/GAR/ABJ/xx/xx/LOG (random values should replace all the “x”) this will be the Letter ID and a unique identifier.
+	•	[SvcNo] will be replaced with the SvcNo of the personnel 
+	•	[Rank] will be replaced with the Rank of the personnel
+	•	[FullName] will be replaced with the FullName of the personnel
+	•	[CurrentUnit] will be replaced with the CurrentUnit of the personnel
+	•	[Phone] will be replaced with the Phone of the personnel	            
+	•	[Date:Time] will be replaced with the time and date of allocation in this mask ( DD Mmm YYYY: HH:MM)
+
+	•	[Block Name] will be replaced with the Block Name of the Living unit
+	•	[Flat/House/RoomName] will be replaced with the Flat/House/RoomName of the Living unit
+	•	[Quarter Name] will be replaced with the Quarter Name of the Living unit
+	•	[Location] will be replaced with the Location of the Living unit
+	•	[Unit Name] will be replaced with the Unit Name of the Living unit
+	•	[Date] will be replaced with the time and date of allocation in this mask (DD Mmm YYYY)
+
+	•	[Stamp Name] Will be Defined under Stamp Settings
+	•	[Stamp Rank] Will be Defined under Stamp Settings
+	•	[Stamp Appointment] Will be Defined under Stamp Settings
+	•	[Stamp Note] Will be Defined under Stamp Settings
+Under Stamp Settings, Create a form to define the following field vaules to be used on the Allocation letter [Stamp Name], [Stamp Rank], [Stamp Appointment], [Stamp Note].
+
+The Pending approval list should display in card view like the attached image. Each card should have the View letter, Approval (in green) and Refusal (in red) buttons on the right of the card just like in the attached image
+Under Pending Approval, When the approved button is clicked, there should be a pop up confirmation for the approval before the action is take. This approval button will move the record from Pending Approvals to Active Allocations. When the Refusal button is clicked, the record should go to Sequence #1 on the Queue list. 
+To understand this better the Active Allocations is a List that shows all the “Occupied” status accommodation these Cards should show the Personnel and Living Unit info on each card. The button to “View Letter” which should display the image of the letter in one page with download as image and PDF  should be on each card on Active Allocations. 
+
+
+
+The button to “Transfer” which should first prompt  for confirmation “Do you want to transfer this person to another unit” should pop up list of the Card and compact view only of all “Vacant” status DHQ Living units matching the Category field (same as category field in the Queue list and DHQ Living unit Dropdown: Men,Officer) of the personnel. The Cards on the Card and Compact view on the pop up list should have an “Allocate Unit” button on each unit displayed. This button would then allocate the Living Unit to the personnel after displaying a confirmation. This action changes the status of the allocated Living Unit to Occupied and the status of the former Living Unit to Vacant it will also log an entry into the Past Allocations list that would show cards displaying the Personnel and the period they were allocated the Living unit for and also list the new allocated Living unit as an Active Allocation.  The last button on the Active Allocations card should be “Deallocate” This button should trigger a confirmation and changes the status of the allocated Living Unit to Vacant removes the person from Active Allocations list and logs an entry into the Past Allocations list that would show cards displaying the Personnel and the period they were allocated the Living unit for.  

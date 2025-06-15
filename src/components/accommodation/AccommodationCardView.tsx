@@ -131,7 +131,7 @@ export const AccommodationCardView = ({
 								{unit.block_image_url ? (
 									<img
 										src={unit.block_image_url}
-										alt={`${unit.quarter_name} - ${unit.block_name}`}
+										alt={`${unit.quarterName} - ${unit.blockName}`}
 										className='w-full h-full object-cover'
 									/>
 								) : (
@@ -149,7 +149,7 @@ export const AccommodationCardView = ({
 										className={`font-semibold ${
 											viewMode === "compact" ? "text-sm" : "text-base"
 										}`}>
-										{unit.quarter_name}
+										{unit.quarterName}
 									</h3>
 									<p
 										className={`text-muted-foreground ${
@@ -236,10 +236,10 @@ export const AccommodationCardView = ({
 										<div className='text-sm'>
 											<p className='font-medium'>
 												{unit.unit_name ||
-													`${unit.block_name} ${unit.flat_house_room_name}`}
+													`${unit.blockName} ${unit.flat_house_room_name}`}
 											</p>
 											<p className='text-muted-foreground'>
-												{unit.block_name} - {unit.flat_house_room_name}
+												{unit.blockName} - {unit.flat_house_room_name}
 											</p>
 										</div>
 									</>
@@ -329,7 +329,7 @@ export const AccommodationCardView = ({
 						onClose={() => setShowHistoryModal(false)}
 						unitName={
 							selectedUnit.unit_name ||
-							`${selectedUnit.block_name} ${selectedUnit.flat_house_room_name}`
+							`${selectedUnit.blockName} ${selectedUnit.flat_house_room_name}`
 						}
 						history={unitHistory}
 					/>
@@ -340,7 +340,7 @@ export const AccommodationCardView = ({
 						unitId={selectedUnit.id}
 						unitName={
 							selectedUnit.unit_name ||
-							`${selectedUnit.block_name} ${selectedUnit.flat_house_room_name}`
+							`${selectedUnit.blockName} ${selectedUnit.flat_house_room_name}`
 						}
 					/>
 
@@ -350,7 +350,7 @@ export const AccommodationCardView = ({
 						unitId={selectedUnit.id}
 						unitName={
 							selectedUnit.unit_name ||
-							`${selectedUnit.block_name} ${selectedUnit.flat_house_room_name}`
+							`${selectedUnit.blockName} ${selectedUnit.flat_house_room_name}`
 						}
 					/>
 				</>

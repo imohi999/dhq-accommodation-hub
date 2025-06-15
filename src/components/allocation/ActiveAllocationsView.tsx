@@ -135,9 +135,9 @@ export const ActiveAllocationsView = ({ occupiedUnits }: ActiveAllocationsViewPr
                       </div>
                       <div>
                         <p className="font-medium">Accommodation Details:</p>
-                        <p>Quarter: {unit.quarter_name}</p>
+                        <p>Quarter: {unit.quarterName}</p>
                         <p>Location: {unit.location}</p>
-                        <p>Unit: {unit.block_name} {unit.flat_house_room_name}</p>
+                        <p>Unit: {unit.blockName} {unit.flat_house_room_name}</p>
                         <p>Rooms: {unit.no_of_rooms}</p>
                         <p>Type: {unit.housing_type?.name || unit.category}</p>
                       </div>

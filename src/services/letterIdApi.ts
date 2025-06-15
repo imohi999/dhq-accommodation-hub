@@ -1,34 +1,19 @@
 
-import { supabase } from "@/integrations/supabase/client";
-
 export const generateLetterId = async (): Promise<string | null> => {
-  console.log("=== Generating letter ID using database function ===");
+  console.log("=== Generating letter ID using API ===");
   try {
-    const { data, error } = await supabase.rpc("generate_letter_id");
+    const response = await fetch('/api/allocations/generate-letter-id');
     
-    if (error) {
-      console.error("Error generating letter ID:", error);
-      console.error("Error details:", {
-        message: error.message,
-        code: error.code,
-        hint: error.hint,
-        details: error.details
-      });
-      
-      //rAllback to manual generation if database function fails
+    if (!response.ok) {
+      console.error("Error generating letter ID:", response.statusText);
       console.log("Attempting fallback letter ID generation...");
       return generateFallbackLetterId();
     }
     
-    console.log("Generated letter ID from database function:", data);
+    const data = await response.json();
+    console.log("Generated letter ID from API:", data.letterId);
     
-    // Ensure the generated ID follows the correct format
-    if (data && data.startsWith('DHQ/GAR/ABJ/') && data.endsWith('/LOG')) {
-      return data;
-    } else {
-      console.warn("Database function returned invalid format, using fallback");
-      return generateFallbackLetterId();
-    }
+    return data.letterId;
   } catch (error) {
     console.error("Unexpected error generating letter ID:", error);
     
@@ -39,11 +24,11 @@ export const generateLetterId = async (): Promise<string | null> => {
 };
 
 const generateFallbackLetterId = (): string => {
-  // Generate random 2-digit numbers for the xx/xx part
-  const firstPart = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-  const secondPart = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+  // Generate fallback ID with current year and timestamp
+  const year = new Date().getFullYear();
+  const randomPart = Date.now().toString().slice(-4);
   
-  const fallbackId = `DHQ/GAR/ABJ/${firstPart}/${secondPart}/LOG`;
+  const fallbackId = `DHQ/ACC/${year}/${randomPart}`;
   console.log("Generated fallback letter ID:", fallbackId);
   return fallbackId;
 };
@@ -56,7 +41,7 @@ export const testLetterIdGeneration = async (): Promise<void> => {
     const letterId = await generateLetterId();
     console.log(`Test ${i + 1}: Generated letter ID:`, letterId);
     
-    if (!letterId || !letterId.match(/^DHQ\/GAR\/ABJ\/\d{2}\/\d{2}\/LOG$/)) {
+    if (!letterId || !letterId.match(/^DHQ\/ACC\/\d{4}\/\d{4}$/)) {
       console.error(`Test ${i + 1} failed: Invalid letter ID format:`, letterId);
     } else {
       console.log(`Test ${i + 1} passed: Valid letter ID format`);

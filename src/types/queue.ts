@@ -23,7 +23,7 @@ export interface Unit {
   id: string;
   name: string;
   description: string | null;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface QueueFormProps {

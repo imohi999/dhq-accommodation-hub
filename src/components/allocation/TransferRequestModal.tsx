@@ -75,9 +75,9 @@ export const TransferRequestModal = ({ isOpen, onClose, currentUnit }: TransferR
                     <p><span className="font-medium">Category:</span> {currentUnit.category}</p>
                   </div>
                   <div>
-                    <p><span className="font-medium">Quarter:</span> {currentUnit.quarter_name}</p>
+                    <p><span className="font-medium">Quarter:</span> {currentUnit.quarterName}</p>
                     <p><span className="font-medium">Location:</span> {currentUnit.location}</p>
-                    <p><span className="font-medium">Unit:</span> {currentUnit.block_name} {currentUnit.flat_house_room_name}</p>
+                    <p><span className="font-medium">Unit:</span> {currentUnit.blockName} {currentUnit.flat_house_room_name}</p>
                     <p><span className="font-medium">Occupancy Start:</span> {currentUnit.occupancy_start_date ? new Date(currentUnit.occupancy_start_date).toLocaleDateString() : 'N/A'}</p>
                   </div>
                 </div>
@@ -121,7 +121,7 @@ export const TransferRequestModal = ({ isOpen, onClose, currentUnit }: TransferR
                           <div className="flex items-center gap-2">
                             <Home className="h-4 w-4 text-muted-foreground" />
                             <h4 className={viewMode === 'card' ? "font-medium" : "text-sm font-medium"}>
-                              {unit.quarter_name}
+                              {unit.quarterName}
                             </h4>
                           </div>
                           
@@ -130,7 +130,7 @@ export const TransferRequestModal = ({ isOpen, onClose, currentUnit }: TransferR
                               <MapPin className="h-3 w-3" />
                               <span>{unit.location}</span>
                             </div>
-                            <p><span className="font-medium">Block:</span> {unit.block_name}</p>
+                            <p><span className="font-medium">Block:</span> {unit.blockName}</p>
                             <p><span className="font-medium">Unit:</span> {unit.flat_house_room_name}</p>
                             <div className="flex items-center gap-2">
                               <Bed className="h-3 w-3" />
@@ -170,7 +170,7 @@ export const TransferRequestModal = ({ isOpen, onClose, currentUnit }: TransferR
           <DialogHeader>
             <DialogTitle>Confirm Transfer Request</DialogTitle>
             <DialogDescription>
-              Are you sure you want to request a transfer for {currentUnit.current_occupant_name} from {currentUnit.quarter_name} {currentUnit.block_name} {currentUnit.flat_house_room_name} to {confirmDialog.unit?.quarter_name} {confirmDialog.unit?.block_name} {confirmDialog.unit?.flat_house_room_name}?
+              Are you sure you want to request a transfer for {currentUnit.current_occupant_name} from {currentUnit.quarterName} {currentUnit.blockName} {currentUnit.flat_house_room_name} to {confirmDialog.unit?.quarterName} {confirmDialog.unit?.blockName} {confirmDialog.unit?.flat_house_room_name}?
               
               This will create a transfer request that needs to be approved before the transfer takes place.
             </DialogDescription>

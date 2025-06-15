@@ -1,36 +1,50 @@
-
-import { useState, useEffect } from "react";
+import useSWR from "swr";
 import { useToast } from "@/hooks/use-toast";
 import { AllocationRequest } from "@/types/allocation";
 import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import {
-  generateLetterId,
-  fetchAllocationRequestsFromDb,
   createAllocationRequestInDb,
-  removeFromQueue
-} from "@/services/allocationApi";
+} from "@/services/allocationRequestsApi";
+import { generateLetterId, removeFromQueue } from "@/services/allocationApi";
 
-export const useAllocationRequestsData = () => {
-  const [allocationRequests, setAllocationRequests] = useState<AllocationRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+// SWR fetcher
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+export const useAllocationRequestsData = (status?: string) => {
   const { toast } = useToast();
 
-  const fetchAllocationRequests = async () => {
-    console.log("Fetching allocation requests...");
-    const data = await fetchAllocationRequestsFromDb();
-    if (data === null) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch allocation requests",
-        variant: "destructive",
-      });
-    } else {
-      console.log("Setting allocation requests:", data);
-      setAllocationRequests(data);
+  // Build URL with status filter if provided
+  const url = status 
+    ? `/api/allocations/requests?status=${status}`
+    : '/api/allocations/requests';
+
+  // Use SWR to fetch allocation requests
+  const { data, isLoading, mutate } = useSWR<any[]>(
+    url,
+    fetcher,
+    {
+      refreshInterval: 30000, // Refresh every 30 seconds
+      revalidateOnFocus: true,
     }
-    setLoading(false);
-  };
+  );
+
+  // Transform the data to match our expected format
+  const allocationRequests: AllocationRequest[] = data?.map((item: any) => ({
+    id: item.id,
+    personnel_id: item.personnelId,
+    unit_id: item.unitId,
+    letter_id: item.letterId,
+    personnel_data: item.personnelData as QueueItem,
+    unit_data: item.unitData as DHQLivingUnitWithHousingType,
+    allocation_date: item.allocationDate,
+    status: item.status as 'pending' | 'approved' | 'refused',
+    approved_by: item.approvedBy,
+    approved_at: item.approvedAt,
+    refusal_reason: item.refusalReason,
+    created_at: item.createdAt,
+    updated_at: item.updatedAt,
+  })) || [];
 
   const createAllocationRequest = async (
     personnel: QueueItem,
@@ -103,18 +117,14 @@ export const useAllocationRequestsData = () => {
     });
 
     // Refresh data
-    fetchAllocationRequests();
+    mutate();
     return result;
   };
 
-  useEffect(() => {
-    fetchAllocationRequests();
-  }, []);
-
   return {
     allocationRequests,
-    loading,
+    loading: isLoading,
     createAllocationRequest,
-    refetch: fetchAllocationRequests,
+    refetch: mutate,
   };
 };

@@ -22,13 +22,13 @@ export const useAccommodationFilters = (units: DHQLivingUnitWithHousingType[]) =
           value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         );
       
-      const matchesQuarterName = quarterNameFilter === "all" || unit.quarter_name === quarterNameFilter;
+      const matchesQuarterName = quarterNameFilter === "all" || unit.quarterName === quarterNameFilter;
       const matchesLocation = locationFilter === "all" || unit.location === locationFilter;
       const matchesCategory = categoryFilter === "all" || unit.category === categoryFilter;
       const matchesHousingType = housingTypeFilter === "all" || unit.housing_type_id === housingTypeFilter;
       const matchesStatus = statusFilter === "all" || unit.status === statusFilter;
       const matchesOccupancy = occupancyFilter === "all" || unit.type_of_occupancy === occupancyFilter;
-      const matchesBlockName = blockNameFilter === "all" || unit.block_name === blockNameFilter;
+      const matchesBlockName = blockNameFilter === "all" || unit.blockName === blockNameFilter;
       const matchesFlatHouseRoom = flatHouseRoomFilter === "all" || unit.flat_house_room_name === flatHouseRoomFilter;
       const matchesUnitName = unitNameFilter === "all" || unit.unit_name === unitNameFilter;
 

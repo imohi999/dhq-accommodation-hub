@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { QueueItem } from '@/types/queue'
+import { useEffect } from 'react'
 
 interface QueueFilters {
   search?: string
@@ -11,14 +12,27 @@ interface QueueFilters {
   limit?: number
 }
 
-interface QueueResponse {
-  data: QueueItem[]
-  meta: {
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-  }
+// API returns camelCase properties
+interface ApiQueueItem {
+  id: string
+  fullName: string
+  svcNo: string
+  gender: string
+  armOfService: string
+  category: string
+  rank: string
+  maritalStatus: string
+  noOfAdultDependents: number
+  noOfChildDependents: number
+  currentUnit?: string | null
+  appointment?: string | null
+  dateTos?: string | null
+  dateSos?: string | null
+  phone?: string | null
+  sequence: number
+  entryDateTime: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface QueueOptions {
@@ -26,9 +40,9 @@ interface QueueOptions {
   refetchIntervalInBackground?: boolean
 }
 
-// Fetch queue data with pagination and auto-refresh
+// Fetch queue data with auto-refresh
 export function useQueueData(filters: QueueFilters = {}, options: QueueOptions = {}) {
-  return useQuery<QueueResponse>({
+  return useQuery<ApiQueueItem[]>({
     queryKey: ['queue', filters],
     queryFn: async () => {
       const params = new URLSearchParams()
@@ -41,7 +55,7 @@ export function useQueueData(filters: QueueFilters = {}, options: QueueOptions =
       return response.json()
     },
     staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: options.refetchInterval ?? 30000, // Default 30s auto-refresh
+    refetchInterval: options.refetchInterval !== undefined ? options.refetchInterval : 30000, // Default 30s auto-refresh
     refetchIntervalInBackground: options.refetchIntervalInBackground ?? false,
   })
 }
@@ -121,8 +135,6 @@ export function useDeleteQueueEntry() {
     },
   })
 }
-
-import { useEffect } from 'react'
 
 // Optional: Use Server-Sent Events for real-time updates
 export function useQueueSSE(enabled = false) {

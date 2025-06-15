@@ -1,8 +1,9 @@
-
 import { useToast } from "@/hooks/use-toast";
 import { AllocationRequest } from "@/types/allocation";
 import {
   updateAllocationStatus,
+} from "@/services/allocationRequestsApi";
+import {
   updateUnitOccupancy,
   returnPersonnelToQueueAtPositionOne
 } from "@/services/allocationApi";
@@ -37,7 +38,8 @@ export const useAllocationApproval = (
       return;
     }
 
-    // Update unit occupancy
+    // Update unit occupancy - API already handles this in the PATCH endpoint
+    // but we'll keep this as a fallback
     const unitSuccess = await updateUnitOccupancy(
       request.unit_id,
       request.personnel_data.full_name,
@@ -46,11 +48,7 @@ export const useAllocationApproval = (
     );
 
     if (!unitSuccess) {
-      toast({
-        title: "Warning",
-        description: "Allocation approved but failed to update unit occupancy",
-        variant: "destructive",
-      });
+      console.warn("Failed to update unit occupancy through direct call, but API should have handled it");
     }
 
     toast({

@@ -1,6 +1,8 @@
-import { supabase } from "@/integrations/supabase/client";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
+import { QueueItem } from "@/types/queue";
 import { generateLetterId } from "./letterIdApi";
+import { fetchAccommodationById, updateAccommodationStatus } from "./accommodationApi";
+import { createAllocationRequestInDb } from "./allocationRequestsApi";
 
 export const createTransferAllocationRequest = async (
   currentUnitId: string,
@@ -13,32 +15,18 @@ export const createTransferAllocationRequest = async (
   
   try {
     // Get current unit details
-    const { data: currentUnit, error: currentUnitError } = await supabase
-      .from("dhq_living_units")
-      .select(`
-        *,
-        housing_type:housing_types(*)
-      `)
-      .eq("id", currentUnitId)
-      .single();
+    const currentUnit = await fetchAccommodationById(currentUnitId);
 
-    if (currentUnitError || !currentUnit) {
-      console.error("Error fetching current unit:", currentUnitError);
+    if (!currentUnit) {
+      console.error("Error fetching current unit");
       return false;
     }
 
     // Get new unit details
-    const { data: newUnit, error: newUnitError } = await supabase
-      .from("dhq_living_units")
-      .select(`
-        *,
-        housing_type:housing_types(*)
-      `)
-      .eq("id", newUnitId)
-      .single();
+    const newUnit = await fetchAccommodationById(newUnitId);
 
-    if (newUnitError || !newUnit) {
-      console.error("Error fetching new unit:", newUnitError);
+    if (!newUnit) {
+      console.error("Error fetching new unit");
       return false;
     }
 
@@ -76,9 +64,9 @@ export const createTransferAllocationRequest = async (
     // Create simplified unit data
     const simplifiedUnitData = {
       id: newUnit.id,
-      quarter_name: newUnit.quarter_name,
+      quarter_name: newUnit.quarterName,
       location: newUnit.location,
-      block_name: newUnit.block_name,
+      block_name: newUnit.blockName,
       flat_house_room_name: newUnit.flat_house_room_name,
       category: newUnit.category,
       no_of_rooms: newUnit.no_of_rooms,
@@ -97,33 +85,19 @@ export const createTransferAllocationRequest = async (
       status: 'pending'
     });
 
-    // Create allocation request for transfer with proper data structure
-    const { data: insertedData, error: allocationError } = await supabase
-      .from("allocation_requests")
-      .insert({
-        personnel_id: personnelId,
-        unit_id: newUnitId,
-        letter_id: letterId,
-        personnel_data: personnelData,
-        unit_data: simplifiedUnitData,
-        status: 'pending',
-        allocation_date: new Date().toISOString()
-      })
-      .select()
-      .single();
+    // Create allocation request for transfer
+    const createdRequest = await createAllocationRequestInDb(
+      personnelData as QueueItem, // Type casting as QueueItem for API compatibility
+      newUnit,
+      letterId
+    );
 
-    if (allocationError) {
-      console.error("Error creating transfer allocation request:", allocationError);
-      console.error("Error details:", {
-        message: allocationError.message,
-        code: allocationError.code,
-        hint: allocationError.hint,
-        details: allocationError.details
-      });
+    if (!createdRequest) {
+      console.error("Failed to create transfer allocation request");
       return false;
     }
 
-    console.log("Successfully created transfer allocation request:", insertedData);
+    console.log("Successfully created transfer allocation request:", createdRequest);
     return true;
   } catch (error) {
     console.error("Unexpected error during transfer request creation:", error);
@@ -147,9 +121,9 @@ export const deallocatePersonnelFromUnit = async (
     // Simplify unit data for database storage
     const simplifiedUnitData = {
       id: unitData.id,
-      quarter_name: unitData.quarter_name,
+      quarter_name: unitData.quarterName,
       location: unitData.location,
-      block_name: unitData.block_name,
+      block_name: unitData.blockName,
       flat_house_room_name: unitData.flat_house_room_name,
       category: unitData.category,
       no_of_rooms: unitData.no_of_rooms,
@@ -164,45 +138,46 @@ export const deallocatePersonnelFromUnit = async (
     // Generate a personnel ID since we don't have one from the occupied unit
     const personnelId = crypto.randomUUID();
     
-    // Add to past allocations
-    const { error: pastAllocationError } = await supabase
-      .from("past_allocations")
-      .insert({
-        personnel_id: personnelId,
-        unit_id: unitId,
-        personnel_data: {
+    // Add to past allocations via API with direct deallocation
+    const pastAllocationData = {
+      directDeallocation: {
+        unitId: unitId,
+        personnelData: {
           full_name: personnelData.name,
           rank: personnelData.rank,
           svc_no: personnelData.serviceNumber,
         },
-        unit_data: simplifiedUnitData,
-        allocation_start_date: unitData.occupancy_start_date || new Date().toISOString().split('T')[0],
-        allocation_end_date: new Date().toISOString().split('T')[0],
-        deallocation_date: new Date().toISOString(),
-        reason_for_leaving: reason || 'Manual deallocation',
-        letter_id: `DEALLOC-${Date.now()}`,
-      });
+        unitData: simplifiedUnitData,
+        startDate: unitData.occupancy_start_date || new Date().toISOString()
+      },
+      reason: reason || 'Manual deallocation'
+    };
 
-    if (pastAllocationError) {
-      console.error("Error adding to past allocations:", pastAllocationError);
+    const response = await fetch('/api/allocations/past', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(pastAllocationData)
+    });
+
+    if (!response.ok) {
+      console.error("Error adding to past allocations:", response.statusText);
       return false;
     }
 
     // Clear unit occupancy
-    const { error: unitError } = await supabase
-      .from("dhq_living_units")
-      .update({
-        status: 'Vacant',
-        current_occupant_name: null,
-        current_occupant_rank: null,
-        current_occupant_service_number: null,
-        current_occupant_id: null,
-        occupancy_start_date: null,
-      })
-      .eq("id", unitId);
+    const updated = await updateAccommodationStatus(unitId, {
+      status: 'Vacant',
+      currentOccupantName: null,
+      currentOccupantRank: null,
+      currentOccupantServiceNumber: null,
+      currentOccupantId: null,
+      occupancyStartDate: null,
+    });
 
-    if (unitError) {
-      console.error("Error clearing unit occupancy:", unitError);
+    if (!updated) {
+      console.error("Error clearing unit occupancy");
       return false;
     }
 

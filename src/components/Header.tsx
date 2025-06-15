@@ -1,13 +1,21 @@
-
 'use client';
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { LogOut } from "lucide-react"
-import { useAuth } from "@/hooks/useAuth"
+import { LogOut, User, ChevronDown } from "lucide-react"
+import { signOut, useSession } from "next-auth/react"
 import useSWR from "swr"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface UserProfile {
   id: string;
@@ -28,10 +36,10 @@ const fetcher = (url: string) => fetch(url).then((res) => {
 });
 
 export function Header() {
-  const { signOut, user } = useAuth();
+  const { data: session, status } = useSession();
   
   const { data: profile, error } = useSWR<UserProfile>(
-    user?.id ? `/api/profiles/${user.id}` : null,
+    session?.user?.id ? `/api/profiles/${session.user.id}` : null,
     fetcher
   );
 
@@ -40,10 +48,24 @@ export function Header() {
   }
 
   const handleSignOut = async () => {
-    await signOut();
+    await signOut({ callbackUrl: '/login' });
   };
 
-  const displayName = profile?.fullName || profile?.username || 'User';
+  const displayName = session?.user?.name || profile?.fullName || profile?.username || 'User';
+  const userEmail = session?.user?.email || '';
+  const userRole = profile?.role || 'User';
+  
+  // Get initials for avatar
+  const getInitials = (name: string) => {
+    if (!name || typeof name !== 'string') return 'U';
+    
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-4 bg-background">
@@ -62,20 +84,51 @@ export function Header() {
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          {user && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-foreground">{displayName}</span>
-              <Button
-                onClick={handleSignOut}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
-            </div>
-          )}
+          {status === "loading" ? (
+            <div className="h-10 w-10 animate-pulse bg-muted rounded-full" />
+          ) : session?.user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 px-2">
+                  <Avatar className="h-8 w-8 mr-2">
+                    <AvatarImage src={session.user.image || undefined} alt={displayName} />
+                    <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium leading-none">{displayName}</span>
+                      <span className="text-xs text-muted-foreground capitalize">{userRole}</span>
+                    </div>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{displayName}</p>
+                    {userEmail && (
+                      <p className="text-xs leading-none text-muted-foreground">{userEmail}</p>
+                    )}
+                    <p className="text-xs leading-none text-muted-foreground capitalize">Role: {userRole}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null}
         </div>
       </div>
     </header>

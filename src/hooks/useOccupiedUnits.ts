@@ -1,33 +1,16 @@
 
-import { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
-import { fetchOccupiedUnitsFromDb } from "@/services/occupiedUnitsApi";
+import { useOccupiedUnits as useOccupiedUnitsSWR } from "@/services/occupiedUnitsApi";
 import { createTransferAllocationRequest, deallocatePersonnelFromUnit } from "@/services/allocationApi";
+import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 
 export const useOccupiedUnits = () => {
-  const [occupiedUnits, setOccupiedUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: occupiedUnits, error, isLoading, mutate } = useOccupiedUnitsSWR();
   const { toast } = useToast();
 
-  const fetchOccupiedUnits = async () => {
-    console.log("Fetching occupied units...");
-    const data = await fetchOccupiedUnitsFromDb();
-    if (data === null) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch occupied units",
-        variant: "destructive",
-      });
-    } else {
-      console.log("Setting occupied units:", data);
-      setOccupiedUnits(data);
-    }
-    setLoading(false);
-  };
-
   const createTransferRequest = async (currentUnitId: string, newUnitId: string) => {
-    const currentUnit = occupiedUnits.find(unit => unit.id === currentUnitId);
+    const currentUnit = occupiedUnits?.find((unit: DHQLivingUnitWithHousingType) => unit.id === currentUnitId);
     if (!currentUnit) {
       toast({
         title: "Error",
@@ -62,7 +45,7 @@ export const useOccupiedUnits = () => {
   };
 
   const deallocatePersonnel = async (unitId: string, reason?: string) => {
-    const unit = occupiedUnits.find(u => u.id === unitId);
+    const unit = occupiedUnits?.find((u: DHQLivingUnitWithHousingType) => u.id === unitId);
     if (!unit) {
       toast({
         title: "Error",
@@ -88,7 +71,7 @@ export const useOccupiedUnits = () => {
         title: "Success",
         description: "Personnel deallocated successfully",
       });
-      fetchOccupiedUnits(); // Refresh data
+      mutate(); // Refresh data
       return true;
     } else {
       toast({
@@ -100,15 +83,22 @@ export const useOccupiedUnits = () => {
     }
   };
 
+  // Show error toast if there's an error
   useEffect(() => {
-    fetchOccupiedUnits();
-  }, []);
+    if (error && !isLoading) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch occupied units",
+        variant: "destructive",
+      });
+    }
+  }, [error, isLoading, toast]);
 
   return {
-    occupiedUnits,
-    loading,
+    occupiedUnits: occupiedUnits || [],
+    loading: isLoading,
     createTransferRequest,
     deallocatePersonnel,
-    refetch: fetchOccupiedUnits,
+    refetch: mutate,
   };
 };

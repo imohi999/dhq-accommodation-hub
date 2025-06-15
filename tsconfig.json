@@ -1,38 +1,48 @@
 {
-  "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "target": "es2015",
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./src/components/*"],
-      "@/contexts/*": ["./src/contexts/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/lib/*": ["./lib/*", "./src/lib/*"],
-      "@/integrations/*": ["./src/integrations/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/utils/*": ["./src/utils/*"],
-      "@/constants/*": ["./src/constants/*"],
-      "@/pages/*": ["./src/pages/*"]
-    },
-    "baseUrl": "."
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", ".next", "src/main.tsx", "src/App.tsx", "src/App.css", "vite.config.ts", "index.html", "src/pages/**/*", "src/components/ProtectedRoute.tsx"]
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"incremental": true,
+		"target": "es2015",
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"paths": {
+			"@/*": ["./*"],
+			"@/components/*": ["./src/components/*"],
+			"@/contexts/*": ["./src/contexts/*"],
+			"@/hooks/*": ["./src/hooks/*"],
+			"@/types/*": ["./src/types/*"],
+			"@/lib/*": ["src/lib/*", "./src/lib/*"],
+			"@/integrations/*": ["./src/integrations/*"],
+			"@/services/*": ["./src/services/*"],
+			"@/utils/*": ["./src/utils/*"],
+			"@/constants/*": ["./src/constants/*"],
+			"@/pages/*": ["./src/pages/*"]
+		},
+		"baseUrl": "."
+	},
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+	"exclude": [
+		"node_modules",
+		".next",
+		"src/main.tsx",
+		"src/archive/pages/App.tsx",
+		"src/App.css",
+		"vite.config.ts",
+		"index.html",
+		"src/pages/**/*",
+		"src/components/ProtectedRoute.tsx"
+	]
 }

@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Calendar,
   Home,
@@ -15,7 +17,9 @@ import {
   UserPlus,
   Shield,
   FileText,
-  MapPin
+  MapPin,
+  ClipboardList,
+  Hammer
 } from "lucide-react"
 
 import {
@@ -33,7 +37,7 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar"
-import { Link } from "react-router-dom"
+import Link from "next/link"
 
 const menuItems = [
   {
@@ -61,25 +65,25 @@ const menuItems = [
     items: [
       {
         title: "Pending Approval",
-        url: "/allocation/pending",
+        url: "/allocations/pending",
       },
       {
         title: "Active Allocations",
-        url: "/allocation/active",
+        url: "/allocations/active",
       },
       {
         title: "Past Allocations",
-        url: "/allocation/past",
+        url: "/allocations/past",
       },
       {
         title: "Stamp Settings",
-        url: "/allocation/stamp-settings",
+        url: "/allocations/stamp-settings",
       },
     ],
   },
   {
     title: "Strength",
-    url: "/strength",
+    url: "/allocations/strength",
     icon: Users,
   },
   {
@@ -88,11 +92,11 @@ const menuItems = [
     items: [
       {
         title: "DHQ Living Units",
-        url: "/accommodation/units",
+        url: "/accommodations/units",
       },
       {
         title: "Housing Types",
-        url: "/accommodation/housing-types",
+        url: "/accommodations/types",
       },
     ],
   },
@@ -108,12 +112,11 @@ const menuItems = [
         title: "Maintenance Requests",
         url: "/maintenance/requests",
       },
+      {
+        title: "Analytics",
+        url: "/maintenance/analytics",
+      },
     ],
-  },
-  {
-    title: "Analytics",
-    url: "/analytics",
-    icon: BarChart3,
   },
   {
     title: "Settings",
@@ -121,15 +124,15 @@ const menuItems = [
     items: [
       {
         title: "User Management",
-        url: "/settings/users",
+        url: "/admin/users",
       },
       {
         title: "Role Profiles",
-        url: "/settings/roles",
+        url: "/admin/roles",
       },
       {
         title: "Audit Trail",
-        url: "/settings/audit",
+        url: "/audit",
       },
     ],
   },
@@ -166,7 +169,7 @@ export function AppSidebar() {
                         {item.items.map((subItem) => (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton asChild>
-                              <Link to={subItem.url}>{subItem.title}</Link>
+                              <Link href={subItem.url}>{subItem.title}</Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))}
@@ -174,7 +177,7 @@ export function AppSidebar() {
                     </>
                   ) : (
                     <SidebarMenuButton asChild>
-                      <Link to={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
                       </Link>

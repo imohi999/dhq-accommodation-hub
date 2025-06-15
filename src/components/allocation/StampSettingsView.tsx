@@ -1,4 +1,4 @@
-
+"use client";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,191 +12,203 @@ import useSWR, { mutate } from "swr";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export const StampSettingsView = () => {
-  const [settings, setSettings] = useState<StampSettings>({
-    id: '',
-    stamp_name: '',
-    stamp_rank: '',
-    stamp_appointment: '',
-    stamp_note: '',
-    is_active: true,
-    created_at: '',
-    updated_at: '',
-  });
-  const [saving, setSaving] = useState(false);
-  const { toast } = useToast();
+	const [settings, setSettings] = useState<StampSettings>({
+		id: "",
+		stamp_name: "",
+		stamp_rank: "",
+		stamp_appointment: "",
+		stamp_note: "",
+		is_active: true,
+		created_at: "",
+		updated_at: "",
+	});
+	const [saving, setSaving] = useState(false);
+	const { toast } = useToast();
 
-  // Use SWR to fetch stamp settings - API returns camelCase
-  const { data: stampSettingsData, error, isLoading } = useSWR<any[]>(
-    '/api/stamp-settings',
-    fetcher
-  );
+	// Use SWR to fetch stamp settings - API returns camelCase
+	const {
+		data: stampSettingsData,
+		error,
+		isLoading,
+	} = useSWR<any[]>("/api/stamp-settings", fetcher);
 
-  useEffect(() => {
-    if (error) {
-      console.error("Error fetching stamp settings:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch stamp settings",
-        variant: "destructive",
-      });
-    }
-  }, [error, toast]);
+	useEffect(() => {
+		if (error) {
+			console.error("Error fetching stamp settings:", error);
+			toast({
+				title: "Error",
+				description: "Failed to fetch stamp settings",
+				variant: "destructive",
+			});
+		}
+	}, [error, toast]);
 
-  useEffect(() => {
-    if (stampSettingsData) {
-      // Find the active stamp setting - API returns camelCase
-      const activeSettings = stampSettingsData.find(s => s.isActive);
-      if (activeSettings) {
-        // Transform from camelCase to snake_case for component state
-        setSettings({
-          id: activeSettings.id,
-          stamp_name: activeSettings.stampName,
-          stamp_rank: activeSettings.stampRank,
-          stamp_appointment: activeSettings.stampAppointment,
-          stamp_note: activeSettings.stampNote || '',
-          is_active: activeSettings.isActive,
-          created_at: activeSettings.createdAt,
-          updated_at: activeSettings.updatedAt,
-        });
-      }
-    }
-  }, [stampSettingsData]);
+	useEffect(() => {
+		if (stampSettingsData) {
+			// Find the active stamp setting - API returns camelCase
+			const activeSettings = stampSettingsData.find((s) => s.isActive);
+			if (activeSettings) {
+				// Transform from camelCase to snake_case for component state
+				setSettings({
+					id: activeSettings.id,
+					stamp_name: activeSettings.stampName,
+					stamp_rank: activeSettings.stampRank,
+					stamp_appointment: activeSettings.stampAppointment,
+					stamp_note: activeSettings.stampNote || "",
+					is_active: activeSettings.isActive,
+					created_at: activeSettings.createdAt,
+					updated_at: activeSettings.updatedAt,
+				});
+			}
+		}
+	}, [stampSettingsData]);
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const saveData = {
-        stampName: settings.stamp_name,
-        stampRank: settings.stamp_rank,
-        stampAppointment: settings.stamp_appointment,
-        stampNote: settings.stamp_note,
-        isActive: true,
-      };
+	const handleSave = async () => {
+		setSaving(true);
+		try {
+			const saveData = {
+				stampName: settings.stamp_name,
+				stampRank: settings.stamp_rank,
+				stampAppointment: settings.stamp_appointment,
+				stampNote: settings.stamp_note,
+				isActive: true,
+			};
 
-      let response;
-      
-      if (settings.id) {
-        // Update existing
-        response = await fetch(`/api/stamp-settings/${settings.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(saveData),
-        });
-      } else {
-        // Create new
-        response = await fetch('/api/stamp-settings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(saveData),
-        });
-      }
+			let response;
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save stamp settings');
-      }
+			if (settings.id) {
+				// Update existing
+				response = await fetch(`/api/stamp-settings/${settings.id}`, {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(saveData),
+				});
+			} else {
+				// Create new
+				response = await fetch("/api/stamp-settings", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(saveData),
+				});
+			}
 
-      const savedData = await response.json();
-      
-      // Update local state with the response data
-      setSettings({
-        ...savedData,
-        stamp_name: savedData.stampName,
-        stamp_rank: savedData.stampRank,
-        stamp_appointment: savedData.stampAppointment,
-        stamp_note: savedData.stampNote,
-        is_active: savedData.isActive,
-        created_at: savedData.createdAt,
-        updated_at: savedData.updatedAt,
-      });
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error || "Failed to save stamp settings");
+			}
 
-      toast({
-        title: "Success",
-        description: "Stamp settings saved successfully",
-      });
+			const savedData = await response.json();
 
-      // Revalidate the data
-      await mutate('/api/stamp-settings');
-    } catch (error) {
-      console.error("Error saving stamp settings:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save stamp settings",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
+			// Update local state with the response data
+			setSettings({
+				...savedData,
+				stamp_name: savedData.stampName,
+				stamp_rank: savedData.stampRank,
+				stamp_appointment: savedData.stampAppointment,
+				stamp_note: savedData.stampNote,
+				is_active: savedData.isActive,
+				created_at: savedData.createdAt,
+				updated_at: savedData.updatedAt,
+			});
 
-  if (isLoading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
-  }
+			toast({
+				title: "Success",
+				description: "Stamp settings saved successfully",
+			});
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#1B365D]">Stamp Settings</h1>
-        <p className="text-muted-foreground">
-          Configure the stamp information for allocation letters
-        </p>
-      </div>
+			// Revalidate the data
+			await mutate("/api/stamp-settings");
+		} catch (error) {
+			console.error("Error saving stamp settings:", error);
+			toast({
+				title: "Error",
+				description:
+					error instanceof Error
+						? error.message
+						: "Failed to save stamp settings",
+				variant: "destructive",
+			});
+		} finally {
+			setSaving(false);
+		}
+	};
 
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Allocation Letter Stamp Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="stamp_name">Stamp Name</Label>
-            <Input
-              id="stamp_name"
-              value={settings.stamp_name}
-              onChange={(e) => setSettings({ ...settings, stamp_name: e.target.value })}
-              placeholder="Enter the name for the stamp"
-            />
-          </div>
+	if (isLoading) {
+		return <div className='flex justify-center p-8'>Loading...</div>;
+	}
 
-          <div className="space-y-2">
-            <Label htmlFor="stamp_rank">Stamp Rank</Label>
-            <Input
-              id="stamp_rank"
-              value={settings.stamp_rank}
-              onChange={(e) => setSettings({ ...settings, stamp_rank: e.target.value })}
-              placeholder="Enter the rank for the stamp"
-            />
-          </div>
+	return (
+		<div className='space-y-6'>
+			<div>
+				<h1 className='text-2xl font-bold text-[#1B365D]'>Stamp Settings</h1>
+				<p className='text-muted-foreground'>
+					Configure the stamp information for allocation letters
+				</p>
+			</div>
 
-          <div className="space-y-2">
-            <Label htmlFor="stamp_appointment">Stamp Appointment</Label>
-            <Input
-              id="stamp_appointment"
-              value={settings.stamp_appointment}
-              onChange={(e) => setSettings({ ...settings, stamp_appointment: e.target.value })}
-              placeholder="Enter the appointment for the stamp"
-            />
-          </div>
+			<Card className='max-w-2xl'>
+				<CardHeader>
+					<CardTitle>Allocation Letter Stamp Configuration</CardTitle>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					<div className='space-y-2'>
+						<Label htmlFor='stamp_name'>Stamp Name</Label>
+						<Input
+							id='stamp_name'
+							value={settings.stamp_name}
+							onChange={(e) =>
+								setSettings({ ...settings, stamp_name: e.target.value })
+							}
+							placeholder='Enter the name for the stamp'
+						/>
+					</div>
 
-          <div className="space-y-2">
-            <Label htmlFor="stamp_note">Stamp Note (Optional)</Label>
-            <Textarea
-              id="stamp_note"
-              value={settings.stamp_note || ''}
-              onChange={(e) => setSettings({ ...settings, stamp_note: e.target.value })}
-              placeholder="Enter any additional note for the stamp"
-              rows={3}
-            />
-          </div>
+					<div className='space-y-2'>
+						<Label htmlFor='stamp_rank'>Stamp Rank</Label>
+						<Input
+							id='stamp_rank'
+							value={settings.stamp_rank}
+							onChange={(e) =>
+								setSettings({ ...settings, stamp_rank: e.target.value })
+							}
+							placeholder='Enter the rank for the stamp'
+						/>
+					</div>
 
-          <Button onClick={handleSave} disabled={saving} className="w-full">
-            {saving ? "Saving..." : "Save Stamp Settings"}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+					<div className='space-y-2'>
+						<Label htmlFor='stamp_appointment'>Stamp Appointment</Label>
+						<Input
+							id='stamp_appointment'
+							value={settings.stamp_appointment}
+							onChange={(e) =>
+								setSettings({ ...settings, stamp_appointment: e.target.value })
+							}
+							placeholder='Enter the appointment for the stamp'
+						/>
+					</div>
+
+					<div className='space-y-2'>
+						<Label htmlFor='stamp_note'>Stamp Note (Optional)</Label>
+						<Textarea
+							id='stamp_note'
+							value={settings.stamp_note || ""}
+							onChange={(e) =>
+								setSettings({ ...settings, stamp_note: e.target.value })
+							}
+							placeholder='Enter any additional note for the stamp'
+							rows={3}
+						/>
+					</div>
+
+					<Button onClick={handleSave} disabled={saving} className='w-full'>
+						{saving ? "Saving..." : "Save Stamp Settings"}
+					</Button>
+				</CardContent>
+			</Card>
+		</div>
+	);
 };

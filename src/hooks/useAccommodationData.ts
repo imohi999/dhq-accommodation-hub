@@ -5,9 +5,19 @@ import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// Type for API response
-interface AccommodationsResponse {
-  data: Array<{
+interface HousingTypeResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+}
+
+export const useAccommodationData = () => {
+  const [units, setUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
+  const { toast } = useToast();
+
+  // Fetch units from new dhq-living-units endpoint
+  const { data: unitsData, error: unitsError, isLoading: unitsLoading, mutate: refetchUnits } = useSWR<Array<{
     id: string;
     quarterName: string;
     location: string;
@@ -35,27 +45,8 @@ interface AccommodationsResponse {
       description: string | null;
       createdAt: string;
     };
-  }>;
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-}
-
-interface HousingTypeResponse {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: string;
-}
-
-export const useAccommodationData = () => {
-  const [units, setUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
-  const { toast } = useToast();
-
-  // Fetch units - need to handle pagination or get all units
-  const { data: unitsResponse, error: unitsError, isLoading: unitsLoading, mutate: refetchUnits } = useSWR<AccommodationsResponse>(
-    '/api/accommodations?limit=1000', // Get all units
+  }>>(
+    '/api/dhq-living-units',
     fetcher
   );
 
@@ -88,11 +79,11 @@ export const useAccommodationData = () => {
   }, [housingTypesError, toast]);
 
   useEffect(() => {
-    if (unitsResponse?.data) {
-      // Transform API response to match expected format
-      const transformedUnits = unitsResponse.data.map((unit) => ({
+    if (unitsData) {
+      // Transform API response to match expected format (camelCase to snake_case)
+      const transformedUnits: DHQLivingUnitWithHousingType[] = unitsData.map((unit) => ({
         id: unit.id,
-        quarter_name: unit.quarterName,
+        quarterName: unit.quarterName,
         location: unit.location,
         category: unit.category,
         housing_type_id: unit.housingTypeId,
@@ -101,7 +92,7 @@ export const useAccommodationData = () => {
         type_of_occupancy: unit.typeOfOccupancy,
         bq: unit.bq,
         no_of_rooms_in_bq: unit.noOfRoomsInBq,
-        block_name: unit.blockName,
+        blockName: unit.blockName,
         flat_house_room_name: unit.flatHouseRoomName,
         unit_name: unit.unitName,
         block_image_url: unit.blockImageUrl,
@@ -116,80 +107,20 @@ export const useAccommodationData = () => {
           id: unit.housingType.id,
           name: unit.housingType.name,
           description: unit.housingType.description,
-          created_at: unit.housingType.createdAt,
+          createdAt: unit.housingType.createdAt,
         } : undefined,
       }));
 
-      console.log("Setting units:", transformedUnits);
-      
-      // Add some sample occupant data to a few units for demonstration
-      if (transformedUnits && transformedUnits.length > 0) {
-        const updatedUnits = [...transformedUnits];
-        
-        // Update a few units with sample occupant data
-        const sampleOccupants = [
-          {
-            name: 'Lieutenant Colonel Michael Johnson',
-            rank: 'Lt. Colonel',
-            service_number: 'A234567',
-            start_date: '2024-02-10'
-          },
-          {
-            name: 'Commander Patricia Davis',
-            rank: 'Commander',
-            service_number: 'N567890',
-            start_date: '2024-01-20'
-          },
-          {
-            name: 'Wing Commander Robert Chen',
-            rank: 'Wing Commander',
-            service_number: 'AF123456',
-            start_date: '2024-03-05'
-          },
-          {
-            name: 'Captain Jennifer Williams',
-            rank: 'Captain',
-            service_number: 'N345678',
-            start_date: '2024-04-15'
-          },
-          {
-            name: 'Major David Thompson',
-            rank: 'Major',
-            service_number: 'A789012',
-            start_date: '2024-05-01'
-          }
-        ];
-
-        // Apply sample data to first few vacant units
-        let occupantIndex = 0;
-        for (let i = 0; i < updatedUnits.length && occupantIndex < sampleOccupants.length; i++) {
-          if (updatedUnits[i].status === 'Vacant' && occupantIndex < sampleOccupants.length) {
-            const occupant = sampleOccupants[occupantIndex];
-            updatedUnits[i] = {
-              ...updatedUnits[i],
-              status: 'Occupied',
-              current_occupant_name: occupant.name,
-              current_occupant_rank: occupant.rank,
-              current_occupant_service_number: occupant.service_number,
-              occupancy_start_date: occupant.start_date
-            };
-            occupantIndex++;
-          }
-        }
-        
-        setUnits(updatedUnits);
-      } else {
-        setUnits(transformedUnits || []);
-      }
+      setUnits(transformedUnits || []);
     }
-  }, [unitsResponse]);
+  }, [unitsData]);
 
   // Transform housing types
   const housingTypes: HousingType[] = housingTypesData?.map((ht) => ({
     id: ht.id,
     name: ht.name,
     description: ht.description,
-    created_at: ht.createdAt,
+    createdAt: ht.createdAt,
   })) || [];
 
   const loading = unitsLoading || housingTypesLoading;

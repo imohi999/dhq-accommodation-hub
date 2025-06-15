@@ -1,31 +1,60 @@
-
-import { supabase } from "@/integrations/supabase/client";
 import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { AllocationRequest } from "@/types/allocation";
 
+// API response types
+interface AllocationRequestApiResponse {
+  id: string;
+  personnelId: string;
+  unitId: string;
+  letterId: string;
+  personnelData: QueueItem;
+  unitData: DHQLivingUnitWithHousingType;
+  allocationDate: string;
+  status: 'pending' | 'approved' | 'refused';
+  approvedBy?: string | null;
+  approvedAt?: string | null;
+  refusalReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface UpdateAllocationStatusData {
+  status: 'approved' | 'refused';
+  approvedBy?: string;
+  refusalReason?: string;
+}
+
+// Fetch allocation requests using the API
 export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest[] | null> => {
   console.log("=== Fetching allocation requests ===");
   try {
-    const { data, error } = await supabase
-      .from("allocation_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Error fetching allocation requests:", error);
+    const response = await fetch('/api/allocations/requests');
+    
+    if (!response.ok) {
+      console.error("Error fetching allocation requests:", response.statusText);
       return null;
     }
 
+    const data = await response.json();
     console.log("Raw allocation requests data:", data);
     console.log("Number of allocation requests:", data?.length || 0);
     
-    // Type cast the Json fields to proper types
-    const typedData = data?.map(item => ({
-      ...item,
-      personnel_data: item.personnel_data as unknown as QueueItem,
-      unit_data: item.unit_data as unknown as DHQLivingUnitWithHousingType,
+    // Transform the data to match our expected format
+    const typedData = data?.map((item: AllocationRequestApiResponse) => ({
+      id: item.id,
+      personnel_id: item.personnelId,
+      unit_id: item.unitId,
+      letter_id: item.letterId,
+      personnel_data: item.personnelData as QueueItem,
+      unit_data: item.unitData as DHQLivingUnitWithHousingType,
+      allocation_date: item.allocationDate,
       status: item.status as 'pending' | 'approved' | 'refused',
+      approved_by: item.approvedBy,
+      approved_at: item.approvedAt,
+      refusal_reason: item.refusalReason,
+      created_at: item.createdAt,
+      updated_at: item.updatedAt
     })) || [];
     
     console.log("Processed allocation requests:", typedData);
@@ -36,12 +65,13 @@ export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest
   }
 };
 
+// Create allocation request using the API
 export const createAllocationRequestInDb = async (
   personnel: QueueItem,
   unit: DHQLivingUnitWithHousingType,
   letterId: string
 ): Promise<AllocationRequest | null> => {
-  console.log("=== Creating allocation request in DB ===");
+  console.log("=== Creating allocation request via API ===");
   console.log("Personnel data:", {
     id: personnel.id,
     name: personnel.full_name,
@@ -51,7 +81,7 @@ export const createAllocationRequestInDb = async (
   });
   console.log("Unit data:", {
     id: unit.id,
-    quarter: unit.quarter_name,
+    quarter: unit.quarterName,
     category: unit.category,
     status: unit.status
   });
@@ -80,9 +110,9 @@ export const createAllocationRequestInDb = async (
     // Simplify unit data to avoid JSON serialization issues
     const simplifiedUnitData = {
       id: unit.id,
-      quarter_name: unit.quarter_name,
+      quarter_name: unit.quarterName,
       location: unit.location,
-      block_name: unit.block_name,
+      block_name: unit.blockName,
       flat_house_room_name: unit.flat_house_room_name,
       category: unit.category,
       no_of_rooms: unit.no_of_rooms,
@@ -94,48 +124,46 @@ export const createAllocationRequestInDb = async (
       } : null
     };
     
-    const insertData = {
-      personnel_id: personnel.id,
-      unit_id: unit.id,
-      letter_id: letterId,
-      personnel_data: simplifiedPersonnelData,
-      unit_data: simplifiedUnitData,
-      status: 'pending' as const,
-      allocation_date: new Date().toISOString()
+    const requestData = {
+      personnelId: personnel.id,
+      unitId: unit.id,
+      personnelData: simplifiedPersonnelData,
+      unitData: simplifiedUnitData
     };
     
-    console.log("Simplified insert data:", insertData);
+    console.log("Simplified request data:", requestData);
 
-    const { data, error } = await supabase
-      .from("allocation_requests")
-      .insert(insertData)
-      .select()
-      .single();
+    const response = await fetch('/api/allocations/requests', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData)
+    });
 
-    if (error) {
-      console.error("Supabase error creating allocation request:", error);
-      console.error("Error details:", {
-        message: error.message,
-        code: error.code,
-        hint: error.hint,
-        details: error.details
-      });
+    if (!response.ok) {
+      console.error("API error creating allocation request:", response.statusText);
       return null;
     }
 
-    if (!data) {
-      console.error("No data returned from insert operation");
-      return null;
-    }
-
+    const data = await response.json();
     console.log("Created allocation request successfully:", data);
     
-    // Type cast the response data
+    // Transform the response to match our expected format
     return {
-      ...data,
-      personnel_data: data.personnel_data as unknown as QueueItem,
-      unit_data: data.unit_data as unknown as DHQLivingUnitWithHousingType,
+      id: data.id,
+      personnel_id: data.personnelId,
+      unit_id: data.unitId,
+      letter_id: data.letterId,
+      personnel_data: data.personnelData as QueueItem,
+      unit_data: data.unitData as DHQLivingUnitWithHousingType,
+      allocation_date: data.allocationDate,
       status: data.status as 'pending' | 'approved' | 'refused',
+      approved_by: data.approvedBy,
+      approved_at: data.approvedAt,
+      refusal_reason: data.refusalReason,
+      created_at: data.createdAt,
+      updated_at: data.updatedAt
     };
   } catch (error) {
     console.error("Unexpected error creating allocation request:", error);
@@ -144,6 +172,7 @@ export const createAllocationRequestInDb = async (
   }
 };
 
+// Update allocation status using the API
 export const updateAllocationStatus = async (
   requestId: string,
   status: 'approved' | 'refused',
@@ -151,28 +180,27 @@ export const updateAllocationStatus = async (
 ): Promise<boolean> => {
   console.log(`Updating allocation request ${requestId} to ${status}`);
   try {
-    const updateData: any = {
+    const updateData: UpdateAllocationStatusData = {
       status,
-      approved_at: new Date().toISOString(),
     };
 
-    if (reason) {
-      updateData.refusal_reason = reason;
+    if (status === 'approved') {
+      // TODO: Get the current user's ID from session
+      updateData.approvedBy = 'admin';
+    } else if (reason) {
+      updateData.refusalReason = reason;
     }
 
-    const { error } = await supabase
-      .from("allocation_requests")
-      .update(updateData)
-      .eq("id", requestId);
+    const response = await fetch(`/api/allocations/requests/${requestId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateData)
+    });
 
-    if (error) {
-      console.error(`Error ${status === 'approved' ? 'approving' : 'refusing'} allocation:`, error);
-      console.error("Error details:", {
-        message: error.message,
-        code: error.code,
-        hint: error.hint,
-        details: error.details
-      });
+    if (!response.ok) {
+      console.error(`Error ${status === 'approved' ? 'approving' : 'refusing'} allocation:`, response.statusText);
       return false;
     }
 

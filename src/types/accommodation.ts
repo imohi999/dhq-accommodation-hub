@@ -3,12 +3,12 @@ export interface HousingType {
   id: string;
   name: string;
   description?: string | null;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface DHQLivingUnit {
   id: string;
-  quarter_name: string;
+  quarterName: string;
   location: string;
   category: string;
   housing_type_id: string;
@@ -17,7 +17,7 @@ export interface DHQLivingUnit {
   type_of_occupancy: string;
   bq: boolean;
   no_of_rooms_in_bq: number;
-  block_name: string;
+  blockName: string;
   flat_house_room_name: string;
   unit_name: string | null;
   block_image_url: string | null;
