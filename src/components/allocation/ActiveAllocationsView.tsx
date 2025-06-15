@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -9,7 +9,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowRightLeft, UserMinus, FileText } from "lucide-react";
+import { ArrowRightLeft, UserMinus, FileText, Home, Building2, Users, Briefcase } from "lucide-react";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { useOccupiedUnits } from "@/hooks/useOccupiedUnits";
 import { AllocationLetter } from "./AllocationLetter";
@@ -190,8 +190,103 @@ export const ActiveAllocationsView = ({
 		},
 	});
 
+	// Calculate summary statistics
+	const totalActiveAllocations = occupiedUnits.length;
+	const officerAllocations = occupiedUnits.filter(
+		(unit) => unit.category === "Officer"
+	).length;
+	const menAllocations = occupiedUnits.filter(
+		(unit) => unit.category === "Men"
+	).length;
+	
+	// Calculate by housing type
+	const housingTypeBreakdown = occupiedUnits.reduce((acc, unit) => {
+		const type = unit.housingType?.name || unit.category;
+		acc[type] = (acc[type] || 0) + 1;
+		return acc;
+	}, {} as Record<string, number>);
+
+	// Calculate by location
+	const locationBreakdown = occupiedUnits.reduce((acc, unit) => {
+		acc[unit.location] = (acc[unit.location] || 0) + 1;
+		return acc;
+	}, {} as Record<string, number>);
+
+	// Find the most common housing type
+	const mostCommonHousingType = Object.entries(housingTypeBreakdown).reduce(
+		(max, [type, count]) => (count > max.count ? { type, count } : max),
+		{ type: "N/A", count: 0 }
+	);
+
 	return (
 		<div className='space-y-6'>
+			{/* Summary Cards */}
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
+				<Card>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium'>
+							Total Active Allocations
+						</CardTitle>
+						<Home className='h-4 w-4 text-muted-foreground' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold'>{totalActiveAllocations}</div>
+						<p className='text-xs text-muted-foreground'>
+							Officers: {officerAllocations} | Men: {menAllocations}
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium'>By Category</CardTitle>
+						<Users className='h-4 w-4 text-muted-foreground' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold'>{officerAllocations}</div>
+						<p className='text-xs text-muted-foreground'>
+							Officers ({totalActiveAllocations > 0 ? Math.round((officerAllocations / totalActiveAllocations) * 100) : 0}%)
+						</p>
+						<p className='text-xs text-muted-foreground'>
+							Men: {menAllocations} ({totalActiveAllocations > 0 ? Math.round((menAllocations / totalActiveAllocations) * 100) : 0}%)
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium'>Most Common Type</CardTitle>
+						<Building2 className='h-4 w-4 text-muted-foreground' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold'>{mostCommonHousingType.count}</div>
+						<p className='text-xs text-muted-foreground'>
+							{mostCommonHousingType.type}
+						</p>
+						<p className='text-xs text-muted-foreground'>
+							{totalActiveAllocations > 0 ? Math.round((mostCommonHousingType.count / totalActiveAllocations) * 100) : 0}% of allocations
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium'>Locations</CardTitle>
+						<Briefcase className='h-4 w-4 text-muted-foreground' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold'>{Object.keys(locationBreakdown).length}</div>
+						<p className='text-xs text-muted-foreground'>
+							Active locations
+						</p>
+						<p className='text-xs text-muted-foreground'>
+							{Object.entries(locationBreakdown).slice(0, 2).map(([loc, count]) => 
+								`${loc.split(' ').slice(0, 2).join(' ')}: ${count}`
+							).join(' | ')}
+						</p>
+					</CardContent>
+				</Card>
+			</div>
 			{occupiedUnits.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
