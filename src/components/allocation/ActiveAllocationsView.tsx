@@ -9,11 +9,21 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowRightLeft, UserMinus, FileText, Home, Building2, Users, Briefcase } from "lucide-react";
+import {
+	ArrowRightLeft,
+	UserMinus,
+	FileText,
+	Home,
+	Building2,
+	Users,
+	Briefcase,
+} from "lucide-react";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { useOccupiedUnits } from "@/hooks/useOccupiedUnits";
 import { AllocationLetter } from "./AllocationLetter";
 import { TransferRequestModal } from "./TransferRequestModal";
+import { toast } from "@/hooks/use-toast";
+import { mutate } from "swr";
 
 interface ActiveAllocationsViewProps {
 	occupiedUnits: DHQLivingUnitWithHousingType[];
@@ -22,7 +32,6 @@ interface ActiveAllocationsViewProps {
 export const ActiveAllocationsView = ({
 	occupiedUnits,
 }: ActiveAllocationsViewProps) => {
-	const { deallocatePersonnel } = useOccupiedUnits();
 	const [deallocateDialog, setDeallocateDialog] = useState<{
 		isOpen: boolean;
 		unit: DHQLivingUnitWithHousingType | null;
@@ -53,6 +62,47 @@ export const ActiveAllocationsView = ({
 			unit,
 		});
 	};
+
+	async function deallocatePersonnel(unitId: string) {
+		try {
+			const response = await fetch(
+				"/api/dhq-living-units/deallocate",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ unitId }),
+				}
+			);
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message || "Failed to deallocate unit");
+			}
+
+			const result = await response.json();
+
+			// Show success toast
+			toast({
+				title: "Success",
+				description: "Personnel deallocated successfully",
+			});
+
+			// Mutate the data to refresh the list
+			await mutate('/api/dhq-living-units?status=occupied');
+			
+			return result;
+		} catch (error) {
+			console.error("Error deallocating personnel:", error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to deallocate personnel",
+				variant: "destructive",
+			});
+			throw error;
+		}
+	}
 
 	const handleDeallocateConfirm = async () => {
 		if (deallocateDialog.unit) {
@@ -198,7 +248,7 @@ export const ActiveAllocationsView = ({
 	const menAllocations = occupiedUnits.filter(
 		(unit) => unit.category === "Men"
 	).length;
-	
+
 	// Calculate by housing type
 	const housingTypeBreakdown = occupiedUnits.reduce((acc, unit) => {
 		const type = unit.housingType?.name || unit.category;
@@ -245,26 +295,45 @@ export const ActiveAllocationsView = ({
 					<CardContent>
 						<div className='text-2xl font-bold'>{officerAllocations}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers ({totalActiveAllocations > 0 ? Math.round((officerAllocations / totalActiveAllocations) * 100) : 0}%)
+							Officers (
+							{totalActiveAllocations > 0
+								? Math.round(
+										(officerAllocations / totalActiveAllocations) * 100
+								  )
+								: 0}
+							%)
 						</p>
 						<p className='text-xs text-muted-foreground'>
-							Men: {menAllocations} ({totalActiveAllocations > 0 ? Math.round((menAllocations / totalActiveAllocations) * 100) : 0}%)
+							Men: {menAllocations} (
+							{totalActiveAllocations > 0
+								? Math.round((menAllocations / totalActiveAllocations) * 100)
+								: 0}
+							%)
 						</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Most Common Type</CardTitle>
+						<CardTitle className='text-sm font-medium'>
+							Most Common Type
+						</CardTitle>
 						<Building2 className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{mostCommonHousingType.count}</div>
+						<div className='text-2xl font-bold'>
+							{mostCommonHousingType.count}
+						</div>
 						<p className='text-xs text-muted-foreground'>
 							{mostCommonHousingType.type}
 						</p>
 						<p className='text-xs text-muted-foreground'>
-							{totalActiveAllocations > 0 ? Math.round((mostCommonHousingType.count / totalActiveAllocations) * 100) : 0}% of allocations
+							{totalActiveAllocations > 0
+								? Math.round(
+										(mostCommonHousingType.count / totalActiveAllocations) * 100
+								  )
+								: 0}
+							% of allocations
 						</p>
 					</CardContent>
 				</Card>
@@ -275,14 +344,18 @@ export const ActiveAllocationsView = ({
 						<Briefcase className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{Object.keys(locationBreakdown).length}</div>
+						<div className='text-2xl font-bold'>
+							{Object.keys(locationBreakdown).length}
+						</div>
+						<p className='text-xs text-muted-foreground'>Active locations</p>
 						<p className='text-xs text-muted-foreground'>
-							Active locations
-						</p>
-						<p className='text-xs text-muted-foreground'>
-							{Object.entries(locationBreakdown).slice(0, 2).map(([loc, count]) => 
-								`${loc.split(' ').slice(0, 2).join(' ')}: ${count}`
-							).join(' | ')}
+							{Object.entries(locationBreakdown)
+								.slice(0, 2)
+								.map(
+									([loc, count]) =>
+										`${loc.split(" ").slice(0, 2).join(" ")}: ${count}`
+								)
+								.join(" | ")}
 						</p>
 					</CardContent>
 				</Card>
