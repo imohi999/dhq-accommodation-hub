@@ -62,8 +62,22 @@ export async function POST(request: NextRequest) {
         entryDateTime: new Date()
       };
 
-      // Increment all existing sequences by 1
-      await tx.$executeRaw`UPDATE "Queue" SET sequence = sequence + 1`;
+      // Get the current max sequence to update from highest to lowest
+      const maxSequence = await tx.queue.aggregate({
+        _max: {
+          sequence: true
+        }
+      });
+
+      // Update sequences in descending order to avoid unique constraint conflicts
+      if (maxSequence._max.sequence) {
+        for (let i = maxSequence._max.sequence; i >= 1; i--) {
+          await tx.queue.updateMany({
+            where: { sequence: i },
+            data: { sequence: i + 1 }
+          });
+        }
+      }
 
       // Create new entry at sequence 1
       await tx.queue.create({
