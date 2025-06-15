@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
 
       return updatedRequest;
     }, {
-      timeout: 10000 // 10 seconds
+      timeout: 100000 // 10 seconds
     });
 
     return NextResponse.json({ 
