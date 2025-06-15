@@ -28,13 +28,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (unit.status !== "Occupied") {
-      return NextResponse.json(
-        { error: "Unit is not occupied" },
-        { status: 400 }
-      );
-    }
-
     // Start a transaction to ensure data consistency
     const result = await prisma.$transaction(async (tx) => {
       // Create a past allocation record

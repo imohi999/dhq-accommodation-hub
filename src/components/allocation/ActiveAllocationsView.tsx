@@ -65,16 +65,13 @@ export const ActiveAllocationsView = ({
 
 	async function deallocatePersonnel(unitId: string) {
 		try {
-			const response = await fetch(
-				"/api/dhq-living-units/deallocate",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ unitId }),
-				}
-			);
+			const response = await fetch("/api/dhq-living-units/deallocate", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ unitId }),
+			});
 
 			if (!response.ok) {
 				const error = await response.json();
@@ -90,14 +87,17 @@ export const ActiveAllocationsView = ({
 			});
 
 			// Mutate the data to refresh the list
-			await mutate('/api/dhq-living-units?status=occupied');
-			
+			await mutate("/api/dhq-living-units?status=Occupied");
+
 			return result;
 		} catch (error) {
 			console.error("Error deallocating personnel:", error);
 			toast({
 				title: "Error",
-				description: error instanceof Error ? error.message : "Failed to deallocate personnel",
+				description:
+					error instanceof Error
+						? error.message
+						: "Failed to deallocate personnel",
 				variant: "destructive",
 			});
 			throw error;

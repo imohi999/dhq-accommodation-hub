@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const pastAllocations = await prisma.pastAllocation.findMany({
       orderBy: {
-        deallocationDate: 'desc'
+        updatedAt: 'desc'
       }
     });
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       // Handle direct deallocation (no allocation request)
       if (directDeallocation) {
         const { unitId, personnelData, unitData, startDate } = directDeallocation;
-        
+
         // Create past allocation record directly
         const pastAllocation = await tx.pastAllocation.create({
           data: {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         // Update unit status to vacant
         await tx.dhqLivingUnit.update({
           where: { id: unitId },
-          data: { 
+          data: {
             status: 'Vacant',
             currentOccupantId: null,
             currentOccupantName: null,
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
         return pastAllocation;
       }
-      
+
       // Get the current allocation
       const allocation = await tx.allocationRequest.findUnique({
         where: { id: allocationId },
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       // Update unit status to vacant
       await tx.dhqLivingUnit.update({
         where: { id: allocation.unitId },
-        data: { 
+        data: {
           status: 'Vacant',
           currentOccupantId: null,
           currentOccupantName: null,
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error && error.message === "Allocation not found") {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
-    
+
     const { message, status } = handlePrismaError(error);
     return NextResponse.json({ error: message }, { status });
   }
