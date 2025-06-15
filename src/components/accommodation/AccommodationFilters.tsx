@@ -69,7 +69,11 @@ export const AccommodationFilters = ({
 	const uniqueCategories = [...new Set(units.map((unit) => unit.category))];
 	const uniqueBlockNames = [...new Set(units.map((unit) => unit.blockName))];
 	const uniqueFlatHouseRooms = [
-		...new Set(units.map((unit) => unit.flat_house_room_name)),
+		...new Set(
+			units
+				.map((unit) => unit.flatHouseRoomName)
+				.filter((name): name is string => name !== null && name !== undefined)
+		),
 	];
 	const uniqueUnitNames = [
 		...new Set(

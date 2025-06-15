@@ -12,26 +12,43 @@ export const fetchAccommodationById = async (id: string): Promise<DHQLivingUnitW
 
     const data = await response.json();
     
-    // Transform API response to match our type
+    // Transform API response to match our type (include both camelCase and snake_case)
     return {
+      // Required camelCase properties
       id: data.id,
       quarterName: data.quarterName,
       location: data.location,
       category: data.category,
+      housingTypeId: data.housingTypeId,
+      noOfRooms: data.noOfRooms,
+      status: data.status,
+      typeOfOccupancy: data.typeOfOccupancy,
+      bq: data.bq,
+      noOfRoomsInBq: data.noOfRoomsInBq,
+      blockName: data.blockName,
+      flatHouseRoomName: data.flatHouseRoomName,
+      unitName: data.unitName,
+      blockImageUrl: data.blockImageUrl,
+      currentOccupantId: data.currentOccupantId,
+      currentOccupantName: data.currentOccupantName,
+      currentOccupantRank: data.currentOccupantRank,
+      currentOccupantServiceNumber: data.currentOccupantServiceNumber,
+      occupancyStartDate: data.occupancyStartDate,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+      housingType: data.housingType,
+      // Optional snake_case properties for backward compatibility
       housing_type_id: data.housingTypeId,
       no_of_rooms: data.noOfRooms,
-      status: data.status,
       type_of_occupancy: data.typeOfOccupancy,
-      bq: data.bq,
       no_of_rooms_in_bq: data.noOfRoomsInBq,
-      blockName: data.blockName,
       flat_house_room_name: data.flatHouseRoomName,
       unit_name: data.unitName,
       block_image_url: data.blockImageUrl,
+      current_occupant_id: data.currentOccupantId,
       current_occupant_name: data.currentOccupantName,
       current_occupant_rank: data.currentOccupantRank,
       current_occupant_service_number: data.currentOccupantServiceNumber,
-      current_occupant_id: data.currentOccupantId,
       occupancy_start_date: data.occupancyStartDate,
       created_at: data.createdAt,
       updated_at: data.updatedAt,

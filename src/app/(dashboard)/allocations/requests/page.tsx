@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import useSWR from "swr";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAllocation } from "@/hooks/useAllocation";
@@ -8,14 +9,27 @@ import { PendingApprovalView } from "@/components/allocation/PendingApprovalView
 import { ActiveAllocationsView } from "@/components/allocation/ActiveAllocationsView";
 import { PastAllocationsView } from "@/components/allocation/PastAllocationsView";
 import { StampSettingsView } from "@/components/allocation/StampSettingsView";
+import { APIAllocationRequest } from "../pending/page";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function AllocationRequests() {
-  const { allocationRequests, occupiedUnits, loading } = useAllocation();
+  const { occupiedUnits, loading: occupiedLoading } = useAllocation();
+  
+  // Fetch allocation requests in the correct format for PendingApprovalView
+  const { data: allocationRequests = [], isLoading: requestsLoading } = useSWR<APIAllocationRequest[]>(
+    '/api/allocations/requests',
+    fetcher,
+    {
+      refreshInterval: 10_000,
+      revalidateOnFocus: true,
+    }
+  );
 
   const pendingRequests = allocationRequests.filter(req => req.status === 'pending');
   const approvedRequests = allocationRequests.filter(req => req.status === 'approved');
 
-  if (loading) {
+  if (requestsLoading || occupiedLoading) {
     return <div className="flex justify-center p-8">Loading...</div>;
   }
 

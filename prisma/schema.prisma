@@ -262,8 +262,6 @@ model AllocationRequest {
   approvedBy     String?          @map("approved_by")
   approvedAt     DateTime?        @map("approved_at")
   refusalReason  String?          @map("refusal_reason")
-  isTransfer     Boolean          @default(false) @map("is_transfer")
-  previousUnitId String?          @map("previous_unit_id")
   unit           DhqLivingUnit    @relation(fields: [unitId], references: [id], onDelete: Cascade)
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")

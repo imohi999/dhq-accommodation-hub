@@ -21,7 +21,7 @@ export const AccommodationSummaryCards = ({
 	const uniqueQuarters = new Set(units.map((unit) => unit.quarterName)).size;
 
 	// Sum total rooms
-	const totalRooms = units.reduce((sum, unit) => sum + unit.no_of_rooms, 0);
+	const totalRooms = units.reduce((sum, unit) => sum + unit.noOfRooms, 0);
 
 	// Count status breakdown
 	const vacantCount = units.filter((unit) => unit.status === "Vacant").length;
