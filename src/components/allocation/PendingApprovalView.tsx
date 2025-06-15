@@ -11,7 +11,6 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { CheckCircle, XCircle, FileText, Clock } from "lucide-react";
-import { useAllocation } from "@/hooks/useAllocation";
 import { AllocationLetter } from "@/components/allocation/AllocationLetter";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
 import { toast } from "@/hooks/use-toast";
@@ -28,7 +27,6 @@ export const PendingApprovalView = ({
 }: PendingApprovalViewProps) => {
 	console.log({ requests });
 
-	const { refuseAllocation } = useAllocation();
 	const [confirmDialog, setConfirmDialog] = useState<{
 		isOpen: boolean;
 		type: "approve" | "refuse";
@@ -77,7 +75,7 @@ export const PendingApprovalView = ({
 			}
 
 			const result = await response.json();
-			
+
 			// Show success toast
 			toast({
 				title: "Success",
@@ -86,13 +84,56 @@ export const PendingApprovalView = ({
 
 			// Mutate the data to refresh the list
 			await mutate();
-			
+
 			return result;
 		} catch (error) {
 			console.error("Error approving allocation:", error);
 			toast({
 				title: "Error",
-				description: error instanceof Error ? error.message : "Failed to approve allocation",
+				description:
+					error instanceof Error
+						? error.message
+						: "Failed to approve allocation",
+				variant: "destructive",
+			});
+			throw error;
+		}
+	}
+
+	async function refuseAllocation(requestId: string) {
+		try {
+			const response = await fetch("/api/allocations/refuse", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ requestId }),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message || "Failed to approve allocation");
+			}
+
+			const result = await response.json();
+
+			toast({
+				title: "Success",
+				description: "Allocation request was refused",
+			});
+
+			// Mutate the data to refresh the list
+			await mutate();
+
+			return result;
+		} catch (error) {
+			console.error("Error approving allocation:", error);
+			toast({
+				title: "Error",
+				description:
+					error instanceof Error
+						? error.message
+						: "Failed to approve allocation",
 				variant: "destructive",
 			});
 			throw error;
@@ -101,19 +142,12 @@ export const PendingApprovalView = ({
 
 	const handleConfirmAction = async () => {
 		if (confirmDialog.type === "approve") {
-			console.log({ confirmDialog });
-
 			await approveAllocation(confirmDialog.requestId);
 		} else {
-			// For refusal, we use the built-in refuseAllocation function
 			const request = requests.find((r) => r.id === confirmDialog.requestId);
 			if (request) {
 				try {
-					await refuseAllocation(
-						confirmDialog.requestId,
-						"Request refused and returned to queue"
-					);
-					// Mutate the data to refresh the list after refusal
+					await refuseAllocation(confirmDialog.requestId);
 					await mutate();
 				} catch (error) {
 					console.error("Error in refusal process:", error);
