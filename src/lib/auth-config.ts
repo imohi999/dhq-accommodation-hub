@@ -14,6 +14,7 @@ export const authConfig: NextAuthConfig = {
     signIn: '/login',
     error: '/login',
   },
+  trustHost: true,
   providers: [
     Credentials({
       name: 'credentials',
