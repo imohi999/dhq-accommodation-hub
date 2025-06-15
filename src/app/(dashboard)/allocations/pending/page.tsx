@@ -128,20 +128,7 @@ export default function PendingApproval() {
 
 	if (isLoading) {
 		return <div className='flex justify-center p-8'>Loading...</div>;
-	}
-
-	// Log the raw data to debug
-	console.log('[PendingApproval] Data updated:', new Date().toISOString());
-	console.log('[PendingApproval] Total pending requests:', data.length);
-	if (data.length > 0) {
-		console.log('[PendingApproval] First request:', {
-			id: data[0].id,
-			personnelData: data[0].personnelData,
-			unitData: data[0].unitData,
-			status: data[0].status
-		});
-	}
-	
+	}	
 	// Pass the data as is
 	const pendingRequests = data;
 

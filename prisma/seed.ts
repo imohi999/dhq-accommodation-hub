@@ -527,7 +527,16 @@ async function main() {
 
   const dhqUnits = await prisma.dhqLivingUnit.findMany({ take: 10 })
 
+  const currentYear = new Date().getFullYear();
+
+  function generateRandomFourDigitNumber() {
+    return Math.floor(1000 + Math.random() * 9000);
+  }
+
+
   for (let i = 0; i < 20; i++) {
+    const paddedCount = generateRandomFourDigitNumber();
+    const letterId = `DHQ/GAR/ABJ/${currentYear}/${paddedCount}/LOG`;
     const occupant = pastOccupants[i % pastOccupants.length]
     const unit = dhqUnits[i % dhqUnits.length]
     const startDate = new Date(2023, i % 12, (i % 28) + 1)
@@ -536,7 +545,7 @@ async function main() {
     pastAllocations.push({
       personnelId: `past-${i}`, // Dummy ID as these are past allocations
       unitId: unit.id,
-      letterId: `DAP/ACC/${2023 + (i % 2)}/${1000 + i}`,
+      letterId: letterId,
       personnelData: {
         fullName: occupant.name,
         rank: occupant.rank,
@@ -569,6 +578,8 @@ async function main() {
   const vacantUnits = await prisma.dhqLivingUnit.findMany({ where: { status: 'Vacant' }, take: 10 })
 
   for (let i = 1; i <= 20; i++) {
+    const paddedCount = generateRandomFourDigitNumber();
+    const letterId = `DHQ/GAR/ABJ/${currentYear}/${paddedCount}/LOG`;
     const queueEntry = queueData[(i - 1) % queueData.length]
     const requestedUnit = vacantUnits[(i - 1) % vacantUnits.length]
     const housingType = await prisma.housingType.findUnique({ where: { id: requestedUnit.housingTypeId } })
@@ -576,7 +587,7 @@ async function main() {
     allocationRequests.push({
       personnelId: queueEntry.id,
       unitId: requestedUnit.id,
-      letterId: `DAP/ACC/2025/${2000 + i}`,
+      letterId: letterId,
       status: requestStatuses[i % 4],
       personnelData: {
         fullName: queueEntry.fullName,
