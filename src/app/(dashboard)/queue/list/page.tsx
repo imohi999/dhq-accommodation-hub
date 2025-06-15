@@ -198,7 +198,11 @@ export default function QueuePage() {
 
 			<AllocationModal
 				isOpen={allocationModal.isOpen}
-				onClose={() => setAllocationModal({ isOpen: false, personnel: null })}
+				onClose={() => {
+					setAllocationModal({ isOpen: false, personnel: null });
+					// Refresh queue data after closing allocation modal
+					fetchQueueItems();
+				}}
 				personnel={allocationModal.personnel}
 			/>
 		</div>

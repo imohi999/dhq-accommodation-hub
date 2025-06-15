@@ -51,7 +51,7 @@ export const useAccommodationData = () => {
   );
 
   // Fetch housing types
-  const { data: housingTypesData, error: housingTypesError, isLoading: housingTypesLoading } = useSWR<HousingTypeResponse[]>(
+  const { data: housingTypesData = [], error: housingTypesError, isLoading: housingTypesLoading } = useSWR<HousingTypeResponse[]>(
     '/api/housing-types',
     fetcher
   );

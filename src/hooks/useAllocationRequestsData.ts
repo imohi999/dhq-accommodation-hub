@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import useSWR, { mutate as globalMutate } from "swr";
 import { useToast } from "@/hooks/use-toast";
 import { AllocationRequest } from "@/types/allocation";
 import { QueueItem } from "@/types/queue";
@@ -6,7 +6,7 @@ import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import {
   createAllocationRequestInDb,
 } from "@/services/allocationRequestsApi";
-import { generateLetterId, removeFromQueue } from "@/services/allocationApi";
+import { generateLetterId } from "@/services/allocationApi";
 
 // SWR fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -82,7 +82,7 @@ export const useAllocationRequestsData = (status?: string) => {
 
     console.log("Letter ID generated:", letterId);
 
-    // Create the allocation request first
+    // Create the allocation request (this will also remove from queue in a transaction)
     console.log("Creating allocation request in database...");
     const result = await createAllocationRequestInDb(personnel, unit, letterId);
     if (!result) {
@@ -96,28 +96,22 @@ export const useAllocationRequestsData = (status?: string) => {
     }
 
     console.log("Allocation request created successfully:", result);
-
-    // Only remove personnel from queue after successful allocation request creation
-    console.log("Removing personnel from queue...");
-    const queueRemovalSuccess = await removeFromQueue(personnel.id);
-    if (!queueRemovalSuccess) {
-      console.error("Failed to remove personnel from queue");
-      toast({
-        title: "Warning",
-        description: "Allocation request created successfully but failed to remove from queue",
-        variant: "destructive",
-      });
-    } else {
-      console.log("Personnel removed from queue successfully");
-    }
+    console.log("Personnel automatically removed from queue in transaction");
 
     toast({
       title: "Success",
       description: `Allocation request created successfully with letter ID: ${letterId}`,
     });
 
-    // Refresh data
+    // Refresh allocation requests data
     mutate();
+    
+    // Also invalidate the queue cache to ensure QueueSummaryCards updates
+    await globalMutate((key) => typeof key === 'string' && key.startsWith('/api/queue'));
+    
+    // Invalidate allocation requests cache globally to ensure pending page updates
+    await globalMutate((key) => typeof key === 'string' && key.includes('/api/allocations/requests'));
+    
     return result;
   };
 

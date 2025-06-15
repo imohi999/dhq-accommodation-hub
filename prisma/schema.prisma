@@ -114,7 +114,6 @@ model Queue {
   dateSos              DateTime?            @map("date_sos") @db.Date
   phone                String?
   entryDateTime        DateTime             @default(now()) @map("entry_date_time")
-  allocationRequests   AllocationRequest[]
   createdAt            DateTime             @default(now()) @map("created_at")
   updatedAt            DateTime             @updatedAt @map("updated_at")
 
@@ -263,7 +262,8 @@ model AllocationRequest {
   approvedBy     String?          @map("approved_by")
   approvedAt     DateTime?        @map("approved_at")
   refusalReason  String?          @map("refusal_reason")
-  personnel      Queue            @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  isTransfer     Boolean          @default(false) @map("is_transfer")
+  previousUnitId String?          @map("previous_unit_id")
   unit           DhqLivingUnit    @relation(fields: [unitId], references: [id], onDelete: Cascade)
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")

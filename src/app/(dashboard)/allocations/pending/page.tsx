@@ -9,22 +9,34 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // Interface for personnelData JSON field
 interface PersonnelData {
+	id: string;
 	rank: string;
 	phone: string;
 	svcNo: string;
+	gender: string;
 	category: string;
 	fullName: string;
+	sequence: number;
+	appointment: string;
 	currentUnit: string;
+	armOfService: string;
+	entryDateTime: string;
 	maritalStatus: string;
+	noOfAdultDependents: number;
+	noOfChildDependents: number;
 }
 
 // Interface for unitData JSON field
 interface UnitData {
+	id: string;
+	status: string;
+	category: string;
 	location: string;
-	unitName: string;
+	blockName: string;
 	noOfRooms: number;
 	housingType: string;
 	quarterName: string;
+	flatHouseRoomName: string;
 }
 
 // Interface for the full personnel record
@@ -99,18 +111,18 @@ export interface APIAllocationRequest {
 	refusalReason: string | null;
 	createdAt: string;
 	updatedAt: string;
-	personnel: Personnel;
 	unit: Unit;
 }
 
 
 export default function PendingApproval() {
-	const { data = [], isLoading } = useSWR<APIAllocationRequest[]>(
+	const { data = [], isLoading, mutate } = useSWR<APIAllocationRequest[]>(
 		"/api/allocations/requests?status=pending",
 		fetcher,
 		{
 			refreshInterval: 30000,
 			revalidateOnFocus: true,
+			revalidateOnMount: true,
 		}
 	);
 
@@ -118,26 +130,20 @@ export default function PendingApproval() {
 		return <div className='flex justify-center p-8'>Loading...</div>;
 	}
 
-	// Transform data to match component expectations
-	const pendingRequests = data.map((item) => ({
-		...item,
-		// Add snake_case properties for component compatibility
-		letter_id: item.letterId,
-		created_at: item.createdAt,
-		personnel_data: {
-			full_name: item.personnelData.fullName,
-			svc_no: item.personnelData.svcNo,
-			current_unit: item.personnelData.currentUnit,
-			appointment: item.personnel.appointment,
-			category: item.personnelData.category,
-			arm_of_service: item.personnel.armOfService,
-		},
-		unit_data: {
-			quarterName: item.unitData.quarterName,
-			blockName: item.unit.blockName,
-			flat_house_room_name: item.unit.flatHouseRoomName,
-		},
-	}));
+	// Log the raw data to debug
+	console.log('[PendingApproval] Data updated:', new Date().toISOString());
+	console.log('[PendingApproval] Total pending requests:', data.length);
+	if (data.length > 0) {
+		console.log('[PendingApproval] First request:', {
+			id: data[0].id,
+			personnelData: data[0].personnelData,
+			unitData: data[0].unitData,
+			status: data[0].status
+		});
+	}
+	
+	// Pass the data as is
+	const pendingRequests = data;
 
 	return (
 		<div className='space-y-6'>

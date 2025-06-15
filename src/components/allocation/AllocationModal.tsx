@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { mutate as globalMutate } from "swr";
 import {
 	Dialog,
 	DialogContent,
@@ -71,7 +72,7 @@ export const AllocationModal = ({
 			unit.quarterName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			unit.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			unit.blockName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			unit.flat_house_room_name.toLowerCase().includes(searchTerm.toLowerCase())
+			unit.flatHouseRoomName.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
 	const selectedUnit = eligibleUnits.find((unit) => unit.id === selectedUnitId);
@@ -84,6 +85,11 @@ export const AllocationModal = ({
 
 		const result = await createAllocationRequest(personnel, selectedUnit);
 		if (result) {
+			console.log("Allocation request created successfully, closing modal");
+			// Manually trigger cache revalidation for pending allocations
+			await globalMutate("/api/allocations/requests?status=pending");
+			// Also refresh all allocation requests
+			await globalMutate((key) => typeof key === 'string' && key.includes('/api/allocations/requests'));
 			onClose();
 			setSelectedUnitId("");
 			setSearchTerm("");

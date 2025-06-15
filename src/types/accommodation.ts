@@ -11,26 +11,42 @@ export interface DHQLivingUnit {
   quarterName: string;
   location: string;
   category: string;
-  housing_type_id: string;
-  no_of_rooms: number;
+  housingTypeId: string;
+  noOfRooms: number;
   status: string;
-  type_of_occupancy: string;
+  typeOfOccupancy: string;
   bq: boolean;
-  no_of_rooms_in_bq: number;
+  noOfRoomsInBq: number;
   blockName: string;
-  flat_house_room_name: string;
-  unit_name: string | null;
-  block_image_url: string | null;
-  current_occupant_id: string | null;
-  current_occupant_name: string | null;
-  current_occupant_rank: string | null;
-  current_occupant_service_number: string | null;
-  occupancy_start_date: string | null;
-  created_at: string;
-  updated_at: string;
+  flatHouseRoomName: string;
+  unitName: string | null;
+  blockImageUrl: string | null;
+  currentOccupantId: string | null;
+  currentOccupantName: string | null;
+  currentOccupantRank: string | null;
+  currentOccupantServiceNumber: string | null;
+  occupancyStartDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // Snake case versions for backward compatibility
+  housing_type_id?: string;
+  no_of_rooms?: number;
+  type_of_occupancy?: string;
+  no_of_rooms_in_bq?: number;
+  flat_house_room_name?: string;
+  unit_name?: string | null;
+  block_image_url?: string | null;
+  current_occupant_id?: string | null;
+  current_occupant_name?: string | null;
+  current_occupant_rank?: string | null;
+  current_occupant_service_number?: string | null;
+  occupancy_start_date?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface DHQLivingUnitWithHousingType extends DHQLivingUnit {
+  housingType?: HousingType;
   housing_type?: HousingType;
 }
 

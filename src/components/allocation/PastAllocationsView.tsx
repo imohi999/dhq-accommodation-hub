@@ -5,14 +5,21 @@ import useSWR from "swr";
 
 interface PersonnelData {
 	fullName?: string;
+	full_name?: string;
 	rank?: string;
 	serviceNumber?: string;
+	svc_no?: string;
+	svcNo?: string;
 }
 
 interface UnitData {
 	quarterName?: string;
+	quarter_name?: string;
 	unitName?: string;
 	flat_house_room_name?: string;
+	flatHouseRoomName?: string;
+	blockName?: string;
+	block_name?: string;
 }
 
 interface PastAllocation {
@@ -44,6 +51,8 @@ export const PastAllocationsView = () => {
 		error,
 		isLoading,
 	} = useSWR<PastAllocation[]>("/api/allocations/past", fetcher);
+
+	console.log({ pastAllocations: JSON.stringify(pastAllocations) });
 
 	if (error) {
 		return (
@@ -141,13 +150,14 @@ export const PastAllocationsView = () => {
 										<div>
 											<h3 className='text-lg font-semibold'>
 												{allocation.personnelData?.fullName ||
-													allocation.personnelData?.fullName ||
+													allocation.personnelData?.full_name ||
 													"Unknown Personnel"}
 											</h3>
 											<p className='text-sm text-muted-foreground'>
 												{allocation.personnelData?.rank || "N/A"} • Svc No:{" "}
 												{allocation.personnelData?.serviceNumber ||
-													allocation.personnelData?.serviceNumber ||
+													allocation.personnelData?.svc_no ||
+													allocation.personnelData?.svcNo ||
 													"N/A"}
 											</p>
 											<p className='text-sm text-muted-foreground'>
@@ -182,9 +192,9 @@ export const PastAllocationsView = () => {
 										<div>
 											<p className='font-medium'>Previous Unit:</p>
 											<p>
-												{allocation.unitData?.quarterName || "N/A"}{" "}
-												{allocation.unitData?.unitName || ""}{" "}
-												{allocation.unitData?.flat_house_room_name || ""}
+												{allocation.unitData?.quarterName || allocation.unitData?.quarter_name || "N/A"}{" "}
+												{allocation.unitData?.blockName || allocation.unitData?.block_name || ""}{" "}
+												{allocation.unitData?.flat_house_room_name || allocation.unitData?.flatHouseRoomName || allocation.unitData?.unitName || ""}
 											</p>
 											{allocation.reasonForLeaving && (
 												<p className='text-muted-foreground mt-1'>

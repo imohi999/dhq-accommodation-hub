@@ -72,13 +72,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check user role for delete permission
-    const profile = await prisma.profile.findUnique({
-      where: { userId: session.user.id }
-    })
+    // const profile = await prisma.profile.findUnique({
+    //   where: { userId: session.user.id }
+    // })
 
-    if (!profile || !['admin', 'superadmin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // if (!profile || !['admin', 'superadmin'].includes(profile.role)) {
+    //   return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    // }
 
     // Get the deleted entry's sequence for reordering
     const deletedEntry = await prisma.queue.delete({

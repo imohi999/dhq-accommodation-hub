@@ -24,7 +24,7 @@ async function main() {
 
   // Create superadmin user
   const hashedPassword = await bcrypt.hash('admin123', 10)
-  
+
   const adminUser = await prisma.user.create({
     data: {
       email: 'admin@dhq.mil',
@@ -286,13 +286,13 @@ async function main() {
     { male: "Sani Abubakar", female: "Adaeze Igwe" },
     { male: "Tayo Olatunji", female: "Hauwa Ibrahim" }
   ]
-  
+
   for (let i = 9; i <= 20; i++) {
     const isOfficer = i <= 12
     const isMale = i % 2 === 0
     const nameIndex = (i - 9) % nigerianNames.length
     const fullName = isMale ? nigerianNames[nameIndex].male : nigerianNames[nameIndex].female
-    
+
     additionalQueueEntries.push({
       sequence: i,
       fullName: fullName,
@@ -300,7 +300,7 @@ async function main() {
       gender: isMale ? 'Male' : 'Female',
       armOfService: ['Army', 'Navy', 'Air Force'][i % 3],
       category: isOfficer ? 'Officer' : 'Men',
-      rank: isOfficer 
+      rank: isOfficer
         ? ['Major', 'Captain', 'Squadron Leader', 'Lieutenant Colonel'][i % 4]
         : ['Corporal', 'Sergeant', 'Staff Sergeant', 'Warrant Officer'][i % 4],
       maritalStatus: ['Single', 'Married', 'Divorced', 'Widowed'][i % 4],
@@ -419,7 +419,7 @@ async function main() {
 
   // Add more varied living units to make 20 total
   const additionalLivingUnits = []
-  
+
   // Add two bedroom flats (Block 3)
   for (let i = 1; i <= 5; i++) {
     additionalLivingUnits.push({
@@ -532,7 +532,7 @@ async function main() {
     const unit = dhqUnits[i % dhqUnits.length]
     const startDate = new Date(2023, i % 12, (i % 28) + 1)
     const endDate = new Date(2024, (i + 6) % 12, (i % 28) + 1)
-    
+
     pastAllocations.push({
       personnelId: `past-${i}`, // Dummy ID as these are past allocations
       unitId: unit.id,
@@ -565,14 +565,14 @@ async function main() {
 
   // Create allocation requests (20 entries)
   const allocationRequests = []
-  const requestStatuses = ['pending', 'approved', 'rejected', 'under_review']
+  const requestStatuses = ['approved', 'rejected', 'pending']
   const vacantUnits = await prisma.dhqLivingUnit.findMany({ where: { status: 'Vacant' }, take: 10 })
-  
+
   for (let i = 1; i <= 20; i++) {
     const queueEntry = queueData[(i - 1) % queueData.length]
     const requestedUnit = vacantUnits[(i - 1) % vacantUnits.length]
     const housingType = await prisma.housingType.findUnique({ where: { id: requestedUnit.housingTypeId } })
-    
+
     allocationRequests.push({
       personnelId: queueEntry.id,
       unitId: requestedUnit.id,

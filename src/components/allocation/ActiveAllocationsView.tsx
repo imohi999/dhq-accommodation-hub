@@ -73,33 +73,88 @@ export const ActiveAllocationsView = ({ occupiedUnits }: ActiveAllocationsViewPr
   // Create a mock allocation request for the letter from unit data
   const createMockAllocationRequest = (unit: DHQLivingUnitWithHousingType) => ({
     id: unit.id,
-    personnel_id: unit.current_occupant_id || unit.id,
-    unit_id: unit.id,
-    letter_id: `ACTIVE-${unit.id.slice(0, 8)}`,
-    personnel_data: {
-      id: unit.current_occupant_id || unit.id,
-      sequence: 1,
-      full_name: unit.current_occupant_name || '',
-      svc_no: unit.current_occupant_service_number || '',
-      gender: 'Male',
-      arm_of_service: 'Navy',
+    personnelId: unit.currentOccupantId || unit.id,
+    unitId: unit.id,
+    letterId: `ACTIVE-${unit.id.slice(0, 8)}`,
+    personnelData: {
+      rank: unit.currentOccupantRank || '',
+      phone: '',
+      svcNo: unit.currentOccupantServiceNumber || '',
       category: unit.category,
-      rank: unit.current_occupant_rank || '',
-      marital_status: 'Single',
-      no_of_adult_dependents: 0,
-      no_of_child_dependents: 0,
-      current_unit: 'Naval Academy',
-      appointment: 'Academy Instructor',
-      date_tos: null,
-      date_sos: null,
-      phone: null,
-      entry_date_time: new Date().toISOString(),
+      fullName: unit.currentOccupantName || '',
+      currentUnit: 'Naval Academy',
+      maritalStatus: 'Single',
     },
-    unit_data: unit,
-    allocation_date: unit.occupancy_start_date || new Date().toISOString(),
-    status: 'approved' as const,
-    created_at: unit.occupancy_start_date || new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    unitData: {
+      location: unit.location,
+      unitName: unit.unitName || `${unit.blockName} ${unit.flatHouseRoomName}`,
+      noOfRooms: unit.noOfRooms,
+      housingType: unit.housingType?.name || unit.category,
+      quarterName: unit.quarterName,
+    },
+    allocationDate: unit.occupancyStartDate || new Date().toISOString(),
+    status: 'approved',
+    approvedBy: null,
+    approvedAt: unit.occupancyStartDate || new Date().toISOString(),
+    refusalReason: null,
+    createdAt: unit.occupancyStartDate || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    personnelName: unit.currentOccupantName || '',
+    personnel: {
+      id: unit.currentOccupantId || unit.id,
+      sequence: 1,
+      fullName: unit.currentOccupantName || '',
+      svcNo: unit.currentOccupantServiceNumber || '',
+      gender: 'Male',
+      armOfService: 'Navy',
+      category: unit.category,
+      rank: unit.currentOccupantRank || '',
+      maritalStatus: 'Single',
+      noOfAdultDependents: 0,
+      noOfChildDependents: 0,
+      currentUnit: 'Naval Academy',
+      appointment: 'Academy Instructor',
+      dateTos: null,
+      dateSos: null,
+      phone: '',
+      entryDateTime: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    unit: {
+      id: unit.id,
+      quarterName: unit.quarterName,
+      location: unit.location,
+      category: unit.category,
+      housingTypeId: unit.housingTypeId,
+      noOfRooms: unit.noOfRooms,
+      status: unit.status,
+      typeOfOccupancy: unit.typeOfOccupancy,
+      bq: unit.bq,
+      noOfRoomsInBq: unit.noOfRoomsInBq,
+      blockName: unit.blockName,
+      flatHouseRoomName: unit.flatHouseRoomName,
+      unitName: unit.unitName || `${unit.blockName} ${unit.flatHouseRoomName}`,
+      blockImageUrl: unit.blockImageUrl,
+      currentOccupantId: unit.currentOccupantId,
+      currentOccupantName: unit.currentOccupantName,
+      currentOccupantRank: unit.currentOccupantRank,
+      currentOccupantServiceNumber: unit.currentOccupantServiceNumber,
+      occupancyStartDate: unit.occupancyStartDate,
+      createdAt: unit.createdAt,
+      updatedAt: unit.updatedAt,
+      housingType: unit.housingType ? {
+        id: unit.housingType.id,
+        name: unit.housingType.name,
+        description: unit.housingType.description || '',
+        createdAt: unit.housingType.createdAt,
+      } : {
+        id: unit.housingTypeId,
+        name: unit.category,
+        description: '',
+        createdAt: new Date().toISOString(),
+      },
+    },
   });
 
   return (
@@ -118,12 +173,12 @@ export const ActiveAllocationsView = ({ occupiedUnits }: ActiveAllocationsViewPr
                 <div className="flex items-start justify-between">
                   <div className="space-y-3">
                     <div>
-                      <h3 className="text-lg font-semibold">{unit.current_occupant_name}</h3>
+                      <h3 className="text-lg font-semibold">{unit.currentOccupantName}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {unit.current_occupant_rank} • Svc No: {unit.current_occupant_service_number}
+                        {unit.currentOccupantRank} • Svc No: {unit.currentOccupantServiceNumber}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Occupancy Start: {unit.occupancy_start_date ? new Date(unit.occupancy_start_date).toLocaleDateString() : 'N/A'}
+                        Occupancy Start: {unit.occupancyStartDate ? new Date(unit.occupancyStartDate).toLocaleDateString() : 'N/A'}
                       </p>
                     </div>
                     
@@ -137,9 +192,9 @@ export const ActiveAllocationsView = ({ occupiedUnits }: ActiveAllocationsViewPr
                         <p className="font-medium">Accommodation Details:</p>
                         <p>Quarter: {unit.quarterName}</p>
                         <p>Location: {unit.location}</p>
-                        <p>Unit: {unit.blockName} {unit.flat_house_room_name}</p>
-                        <p>Rooms: {unit.no_of_rooms}</p>
-                        <p>Type: {unit.housing_type?.name || unit.category}</p>
+                        <p>Unit: {unit.blockName} {unit.flatHouseRoomName}</p>
+                        <p>Rooms: {unit.noOfRooms}</p>
+                        <p>Type: {unit.housingType?.name || unit.category}</p>
                       </div>
                     </div>
                   </div>
@@ -190,7 +245,7 @@ export const ActiveAllocationsView = ({ occupiedUnits }: ActiveAllocationsViewPr
           <DialogHeader>
             <DialogTitle>Deallocate Personnel</DialogTitle>
             <DialogDescription>
-              Are you sure you want to deallocate {deallocateDialog.unit?.current_occupant_name}? 
+              Are you sure you want to deallocate {deallocateDialog.unit?.currentOccupantName}? 
               This will mark their accommodation as vacant and move them to Past Allocations.
             </DialogDescription>
           </DialogHeader>

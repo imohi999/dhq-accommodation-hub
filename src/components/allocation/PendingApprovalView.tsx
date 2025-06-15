@@ -14,12 +14,17 @@ import { CheckCircle, XCircle, FileText, Clock } from "lucide-react";
 import { useAllocation } from "@/hooks/useAllocation";
 import { AllocationLetter } from "@/components/allocation/AllocationLetter";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
+import { request } from "http";
 
 interface PendingApprovalViewProps {
 	requests: APIAllocationRequest[];
 }
 
-export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
+export const PendingApprovalView = ({
+	requests = [],
+}: PendingApprovalViewProps) => {
+	console.log({ requests });
+
 	const { approveAllocation, refuseAllocation } = useAllocation();
 	const [confirmDialog, setConfirmDialog] = useState<{
 		isOpen: boolean;
@@ -88,13 +93,13 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
 		(r) => r.personnelData?.category === "Men"
 	).length;
 	const armyRequests = requests.filter(
-		(r) => r.personnel?.armOfService === "Army"
+		(r) => r.personnelData?.armOfService === "Army"
 	).length;
 	const navyRequests = requests.filter(
-		(r) => r.personnel?.armOfService === "Navy"
+		(r) => r.personnelData?.armOfService === "Navy"
 	).length;
 	const airForceRequests = requests.filter(
-		(r) => r.personnel?.armOfService === "Air Force"
+		(r) => r.personnelData?.armOfService === "Air Force"
 	).length;
 
 	return (
@@ -128,7 +133,7 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
 							{
 								requests.filter(
 									(r) =>
-										r.personnel.armOfService === "Army" &&
+										r.personnelData?.armOfService === "Army" &&
 										r.personnelData.category === "Officer"
 								).length
 							}{" "}
@@ -136,7 +141,7 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
 							{
 								requests.filter(
 									(r) =>
-										r.personnel.armOfService === "Army" &&
+										r.personnelData?.armOfService === "Army" &&
 										r.personnelData.category === "Men"
 								).length
 							}
@@ -156,7 +161,7 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
 							{
 								requests.filter(
 									(r) =>
-										r.personnel.armOfService === "Navy" &&
+										r.personnelData?.armOfService === "Navy" &&
 										r.personnelData.category === "Officer"
 								).length
 							}{" "}
@@ -164,7 +169,7 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
 							{
 								requests.filter(
 									(r) =>
-										r.personnel.armOfService === "Navy" &&
+										r.personnelData?.armOfService === "Navy" &&
 										r.personnelData.category === "Men"
 								).length
 							}
@@ -184,7 +189,7 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
 							{
 								requests.filter(
 									(r) =>
-										r.personnel.armOfService === "Air Force" &&
+										r.personnelData?.armOfService === "Air Force" &&
 										r.personnelData?.category === "Officer"
 								).length
 							}{" "}
@@ -192,7 +197,7 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
 							{
 								requests.filter(
 									(r) =>
-										r.personnel.armOfService === "Air Force" &&
+										r.personnelData?.armOfService === "Air Force" &&
 										r.personnelData.category === "Men"
 								).length
 							}
@@ -229,9 +234,9 @@ export const PendingApprovalView = ({ requests }: PendingApprovalViewProps) => {
 													{request.personnelData.fullName}
 												</h3>
 												<p className='text-sm text-muted-foreground'>
-													Svc No: {request.personnel.svcNo} •{" "}
-													{request.personnel.currentUnit || "Naval Academy"} •{" "}
-													{request.personnel.appointment ||
+													Svc No: {request.personnelData?.svcNo} •{" "}
+													{request.personnelData?.currentUnit || "Naval Academy"} •{" "}
+													{request.personnelData?.appointment ||
 														"Academy Instructor"}
 												</p>
 												<div className='flex items-center gap-2 mt-1'>

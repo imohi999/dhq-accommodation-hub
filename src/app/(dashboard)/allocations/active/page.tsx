@@ -1,13 +1,27 @@
 'use client';
 
-import { useAllocation } from "@/hooks/useAllocation";
+import useSWR from 'swr';
 import { ActiveAllocationsView } from "@/components/allocation/ActiveAllocationsView";
 
-export default function ActiveAllocationsPage() {
-  const { occupiedUnits, loading } = useAllocation();
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  if (loading) {
+export default function ActiveAllocationsPage() {
+  const { data, error, mutate } = useSWR(
+    '/api/dhq-living-units?status=Occupied',
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 30000, // Refresh every 30 seconds
+    }
+  );
+
+  if (!data && !error) {
     return <div className="flex justify-center p-8">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="flex justify-center p-8 text-red-500">Error loading allocations</div>;
   }
 
   return (
@@ -18,7 +32,7 @@ export default function ActiveAllocationsPage() {
           Manage current accommodation allocations
         </p>
       </div>
-      <ActiveAllocationsView occupiedUnits={occupiedUnits} />
+      <ActiveAllocationsView occupiedUnits={data || []} />
     </div>
   );
 }

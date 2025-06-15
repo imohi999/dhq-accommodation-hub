@@ -66,7 +66,6 @@ export async function POST(request: NextRequest) {
       const allocation = await tx.allocationRequest.findUnique({
         where: { id: allocationId },
         include: {
-          personnel: true,
           unit: {
             include: {
               housingType: true

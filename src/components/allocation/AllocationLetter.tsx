@@ -21,6 +21,8 @@ export const AllocationLetter = ({
 	onClose,
 	allocationRequest,
 }: AllocationLetterProps) => {
+	console.log({ allocationRequest: JSON.stringify(allocationRequest) });
+
 	const { stampSettings } = useAllocation();
 	const activeStamp = stampSettings.find((stamp) => stamp.is_active);
 
@@ -31,15 +33,18 @@ export const AllocationLetter = ({
 			if (printWindow) {
 				// Clone the content and replace Next Image with regular img for printing
 				const clonedContent = printContent.cloneNode(true) as HTMLElement;
-				const nextImages = clonedContent.querySelectorAll('img[data-nimg]');
+				const nextImages = clonedContent.querySelectorAll("img[data-nimg]");
 				nextImages.forEach((img) => {
-					img.removeAttribute('data-nimg');
-					img.removeAttribute('decoding');
-					img.removeAttribute('loading');
-					img.removeAttribute('style');
-					img.setAttribute('style', 'width: 100%; height: 100%; object-fit: contain;');
+					img.removeAttribute("data-nimg");
+					img.removeAttribute("decoding");
+					img.removeAttribute("loading");
+					img.removeAttribute("style");
+					img.setAttribute(
+						"style",
+						"width: 100%; height: 100%; object-fit: contain;"
+					);
 				});
-				
+
 				printWindow.document.write(`
           <html>
             <head>
@@ -223,8 +228,7 @@ export const AllocationLetter = ({
 	});
 
 	// Ensure proper letter ID format - use the actual letter_id from the request
-	const displayLetterId =
-		allocationRequest.letterId || "DHQ/GAR/ABJ/00/00/LOG";
+	const displayLetterId = allocationRequest.letterId || "DHQ/GAR/ABJ/00/00/LOG";
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -272,12 +276,11 @@ export const AllocationLetter = ({
 
 					{/* Personnel Information */}
 					<div className='mb-4'>
-						<p>Svc No: {allocationRequest.personnel.svcNo}</p>
-						<p>Rank: {allocationRequest.personnel.rank}</p>
+						<p>Svc No: {allocationRequest.personnelData.svcNo}</p>
+						<p>Rank: {allocationRequest.personnelData.rank}</p>
 						<p>Name: {allocationRequest.personnelData.fullName}</p>
 						<p>
-							Unit:{" "}
-							{allocationRequest.personnel.currentUnit || "DHQ Garrison"}
+							Unit: {allocationRequest.personnelData.currentUnit || "DHQ Garrison"}
 						</p>
 						{allocationRequest.personnelData.phone && (
 							<p>Phone No: {allocationRequest.personnelData.phone}</p>

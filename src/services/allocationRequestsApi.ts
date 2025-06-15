@@ -88,47 +88,44 @@ export const createAllocationRequestInDb = async (
   console.log("Letter ID:", letterId);
   
   try {
-    // Simplify personnel data to avoid JSON serialization issues
+    // Simplify personnel data in camelCase for consistency
     const simplifiedPersonnelData = {
       id: personnel.id,
-      full_name: personnel.full_name,
-      svc_no: personnel.svc_no,
+      fullName: personnel.full_name,
+      svcNo: personnel.svc_no,
       rank: personnel.rank,
       category: personnel.category,
       gender: personnel.gender,
-      arm_of_service: personnel.arm_of_service,
-      marital_status: personnel.marital_status,
-      no_of_adult_dependents: personnel.no_of_adult_dependents,
-      no_of_child_dependents: personnel.no_of_child_dependents,
-      current_unit: personnel.current_unit,
+      armOfService: personnel.arm_of_service,
+      maritalStatus: personnel.marital_status,
+      noOfAdultDependents: personnel.no_of_adult_dependents,
+      noOfChildDependents: personnel.no_of_child_dependents,
+      currentUnit: personnel.current_unit,
       appointment: personnel.appointment,
       phone: personnel.phone,
-      entry_date_time: personnel.entry_date_time,
+      entryDateTime: personnel.entry_date_time,
       sequence: personnel.sequence
     };
 
-    // Simplify unit data to avoid JSON serialization issues
+    // Simplify unit data in camelCase for consistency
     const simplifiedUnitData = {
       id: unit.id,
-      quarter_name: unit.quarterName,
+      quarterName: unit.quarterName,
       location: unit.location,
-      block_name: unit.blockName,
-      flat_house_room_name: unit.flat_house_room_name,
+      blockName: unit.blockName,
+      flatHouseRoomName: unit.flat_house_room_name || unit.flatHouseRoomName,
       category: unit.category,
-      no_of_rooms: unit.no_of_rooms,
+      noOfRooms: unit.no_of_rooms || unit.noOfRooms,
       status: unit.status,
-      housing_type: unit.housing_type ? {
-        id: unit.housing_type.id,
-        name: unit.housing_type.name,
-        description: unit.housing_type.description
-      } : null
+      housingType: unit.housing_type?.name || unit.housingType?.name || unit.category
     };
     
     const requestData = {
       personnelId: personnel.id,
       unitId: unit.id,
       personnelData: simplifiedPersonnelData,
-      unitData: simplifiedUnitData
+      unitData: simplifiedUnitData,
+      letterId: letterId // Pass the letter ID to the API
     };
     
     console.log("Simplified request data:", requestData);
