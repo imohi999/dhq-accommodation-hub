@@ -79,28 +79,50 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Create new entry at sequence 1
-      await tx.queue.create({
-        data: {
-          id: personnelId, // Use the original personnel ID
-          fullName: queueData.fullName,
-          svcNo: queueData.svcNo,
-          gender: queueData.gender,
-          armOfService: queueData.armOfService,
-          category: queueData.category,
-          rank: queueData.rank,
-          maritalStatus: queueData.maritalStatus,
-          noOfAdultDependents: queueData.noOfAdultDependents,
-          noOfChildDependents: queueData.noOfChildDependents,
-          currentUnit: queueData.currentUnit,
-          appointment: queueData.appointment,
-          dateTos: queueData.dateTos ? new Date(queueData.dateTos) : null,
-          dateSos: queueData.dateSos ? new Date(queueData.dateSos) : null,
-          phone: queueData.phone,
-          entryDateTime: queueData.entryDateTime,
-          sequence: 1
+      // Check if the personnel already exists in the queue by ID or service number
+      const existingQueueEntry = await tx.queue.findFirst({
+        where: {
+          OR: [
+            { id: personnelId },
+            { svcNo: queueData.svcNo }
+          ]
         }
       });
+
+      if (existingQueueEntry) {
+        // If they exist, update their record and set sequence to 1
+        await tx.queue.update({
+          where: { id: existingQueueEntry.id },
+          data: {
+            sequence: 1,
+            entryDateTime: new Date(), // Update entry time
+            updatedAt: new Date()
+          }
+        });
+      } else {
+        // Create new entry at sequence 1
+        await tx.queue.create({
+          data: {
+            id: personnelId, // Use the original personnel ID
+            fullName: queueData.fullName,
+            svcNo: queueData.svcNo,
+            gender: queueData.gender,
+            armOfService: queueData.armOfService,
+            category: queueData.category,
+            rank: queueData.rank,
+            maritalStatus: queueData.maritalStatus,
+            noOfAdultDependents: queueData.noOfAdultDependents,
+            noOfChildDependents: queueData.noOfChildDependents,
+            currentUnit: queueData.currentUnit,
+            appointment: queueData.appointment,
+            dateTos: queueData.dateTos ? new Date(queueData.dateTos) : null,
+            dateSos: queueData.dateSos ? new Date(queueData.dateSos) : null,
+            phone: queueData.phone,
+            entryDateTime: queueData.entryDateTime,
+            sequence: 1
+          }
+        });
+      }
 
       return updatedRequest;
     }, {
