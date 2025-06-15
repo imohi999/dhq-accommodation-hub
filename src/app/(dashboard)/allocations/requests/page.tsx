@@ -17,7 +17,7 @@ export default function AllocationRequests() {
   const { occupiedUnits, loading: occupiedLoading } = useAllocation();
   
   // Fetch allocation requests in the correct format for PendingApprovalView
-  const { data: allocationRequests = [], isLoading: requestsLoading } = useSWR<APIAllocationRequest[]>(
+  const { data: allocationRequests = [], isLoading: requestsLoading, mutate } = useSWR<APIAllocationRequest[]>(
     '/api/allocations/requests',
     fetcher,
     {
@@ -51,7 +51,7 @@ export default function AllocationRequests() {
         </TabsList>
         
         <TabsContent value="pending">
-          <PendingApprovalView requests={pendingRequests} />
+          <PendingApprovalView requests={pendingRequests} mutate={mutate} />
         </TabsContent>
         
         <TabsContent value="active">

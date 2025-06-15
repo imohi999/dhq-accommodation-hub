@@ -153,7 +153,7 @@ export default function PendingApproval() {
 					Review and approve accommodation allocation requests
 				</p>
 			</div>
-			<PendingApprovalView requests={pendingRequests} />
+			<PendingApprovalView requests={pendingRequests} mutate={mutate} />
 		</div>
 	);
 }

@@ -14,14 +14,17 @@ import { CheckCircle, XCircle, FileText, Clock } from "lucide-react";
 import { useAllocation } from "@/hooks/useAllocation";
 import { AllocationLetter } from "@/components/allocation/AllocationLetter";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
-import { request } from "http";
+import { toast } from "@/hooks/use-toast";
+import { KeyedMutator } from "swr";
 
 interface PendingApprovalViewProps {
 	requests: APIAllocationRequest[];
+	mutate: KeyedMutator<APIAllocationRequest[]>;
 }
 
 export const PendingApprovalView = ({
 	requests = [],
+	mutate,
 }: PendingApprovalViewProps) => {
 	console.log({ requests });
 
@@ -59,13 +62,41 @@ export const PendingApprovalView = ({
 	};
 
 	async function approveAllocation(requestId: string) {
-		const response = await fetch("/api/allocations/approve", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ requestId }),
-		});
+		try {
+			const response = await fetch("/api/allocations/approve", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ requestId }),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message || "Failed to approve allocation");
+			}
+
+			const result = await response.json();
+			
+			// Show success toast
+			toast({
+				title: "Success",
+				description: "Allocation request approved successfully",
+			});
+
+			// Mutate the data to refresh the list
+			await mutate();
+			
+			return result;
+		} catch (error) {
+			console.error("Error approving allocation:", error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to approve allocation",
+				variant: "destructive",
+			});
+			throw error;
+		}
 	}
 
 	const handleConfirmAction = async () => {
@@ -82,6 +113,8 @@ export const PendingApprovalView = ({
 						confirmDialog.requestId,
 						"Request refused and returned to queue"
 					);
+					// Mutate the data to refresh the list after refusal
+					await mutate();
 				} catch (error) {
 					console.error("Error in refusal process:", error);
 				}
