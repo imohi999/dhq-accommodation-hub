@@ -39,16 +39,21 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { personnelId, unitId, personnelData, unitData, letterId: providedLetterId } = body;
 
-    console.log({ body });
-
-
     const result = await prisma.$transaction(async (tx) => {
+      const currentYear = new Date().getFullYear();
 
-      let letterId = providedLetterId;
-      if (!letterId) {
-        const count = await tx.allocationRequest.count();
-        letterId = `DHQ/ACC/${new Date().getFullYear()}/${String(count + 1).padStart(4, '0')}`;
-      }
+      // Get or create the sequence row for current year
+      const sequence = await tx.allocationSequence.upsert({
+        where: { id: 1 },
+        update: { count: { increment: 1 } },
+        create: { id: 1, year: currentYear, count: 1 }
+      });
+
+      const paddedCount = String(sequence.count).padStart(4, '0');
+
+      // Construct letterId in the format DHQ/GAR/ABJ/2025/0001/LOG
+      const letterId = `DHQ/GAR/ABJ/${currentYear}/${paddedCount}/LOG`;
+
       const allocationRequest = await tx.allocationRequest.create({
         data: {
           personnelId,
@@ -66,15 +71,16 @@ export async function POST(request: NextRequest) {
           }
         }
       });
+
       await tx.queue.delete({
         where: { id: personnelId }
       });
-    
+
       return allocationRequest;
     }, {
-      maxWait: 10000, // Maximum time to wait for a transaction slot
-      timeout: 10000, // Maximum time allowed for the transaction
+      timeout: 10000 // 10 seconds
     });
+
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

@@ -305,3 +305,9 @@ model PastAllocation {
   @@index([unitId])
   @@map("past_allocations")
 }
+
+model AllocationSequence {
+  id    Int   @id
+  year  Int
+  count Int
+}
