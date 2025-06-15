@@ -25,7 +25,7 @@ export const PendingApprovalView = ({
 }: PendingApprovalViewProps) => {
 	console.log({ requests });
 
-	const { approveAllocation, refuseAllocation } = useAllocation();
+	const { refuseAllocation } = useAllocation();
 	const [confirmDialog, setConfirmDialog] = useState<{
 		isOpen: boolean;
 		type: "approve" | "refuse";
@@ -58,8 +58,20 @@ export const PendingApprovalView = ({
 		});
 	};
 
+	async function approveAllocation(requestId: string) {
+		const response = await fetch("/api/allocations/approve", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ requestId }),
+		});
+	}
+
 	const handleConfirmAction = async () => {
 		if (confirmDialog.type === "approve") {
+			console.log({ confirmDialog });
+
 			await approveAllocation(confirmDialog.requestId);
 		} else {
 			// For refusal, we use the built-in refuseAllocation function
@@ -235,7 +247,9 @@ export const PendingApprovalView = ({
 												</h3>
 												<p className='text-sm text-muted-foreground'>
 													Svc No: {request.personnelData?.svcNo} •{" "}
-													{request.personnelData?.currentUnit || "Naval Academy"} •{" "}
+													{request.personnelData?.currentUnit ||
+														"Naval Academy"}{" "}
+													•{" "}
 													{request.personnelData?.appointment ||
 														"Academy Instructor"}
 												</p>

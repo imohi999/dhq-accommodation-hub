@@ -235,7 +235,6 @@ export const AllocationLetter = ({
 			<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
 				<DialogHeader>
 					<DialogTitle className='flex items-center justify-between'>
-						Allocation Letter
 						<Button
 							onClick={handlePrint}
 							size='sm'
@@ -280,7 +279,8 @@ export const AllocationLetter = ({
 						<p>Rank: {allocationRequest.personnelData.rank}</p>
 						<p>Name: {allocationRequest.personnelData.fullName}</p>
 						<p>
-							Unit: {allocationRequest.personnelData.currentUnit || "DHQ Garrison"}
+							Unit:{" "}
+							{allocationRequest.personnelData.currentUnit || "DHQ Garrison"}
 						</p>
 						{allocationRequest.personnelData.phone && (
 							<p>Phone No: {allocationRequest.personnelData.phone}</p>
