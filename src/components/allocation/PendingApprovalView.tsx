@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Badge } from "@/components/ui/badge";
 import {
 	Dialog,
@@ -40,6 +41,7 @@ export const PendingApprovalView = ({
 	});
 	const [selectedRequest, setSelectedRequest] =
 		useState<APIAllocationRequest | null>(null);
+	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
 
 	const handleApproveClick = (request: APIAllocationRequest) => {
 		setConfirmDialog({
@@ -60,6 +62,7 @@ export const PendingApprovalView = ({
 	};
 
 	async function approveAllocation(requestId: string) {
+		setLoadingStates(prev => ({ ...prev, [`approve_${requestId}`]: true }));
 		try {
 			const response = await fetch("/api/allocations/approve", {
 				method: "POST",
@@ -91,10 +94,13 @@ export const PendingApprovalView = ({
 					: "Failed to approve allocation"
 			);
 			throw error;
+		} finally {
+			setLoadingStates(prev => ({ ...prev, [`approve_${requestId}`]: false }));
 		}
 	}
 
 	async function refuseAllocation(requestId: string) {
+		setLoadingStates(prev => ({ ...prev, [`refuse_${requestId}`]: true }));
 		try {
 			const response = await fetch("/api/allocations/refuse", {
 				method: "POST",
@@ -125,6 +131,8 @@ export const PendingApprovalView = ({
 					: "Failed to approve allocation"
 			);
 			throw error;
+		} finally {
+			setLoadingStates(prev => ({ ...prev, [`refuse_${requestId}`]: false }));
 		}
 	}
 
@@ -345,23 +353,27 @@ export const PendingApprovalView = ({
 											View Letter
 										</Button>
 
-										<Button
+										<LoadingButton
 											variant='default'
 											size='sm'
 											onClick={() => handleApproveClick(request)}
+											loading={loadingStates[`approve_${request.id}`]}
+											loadingText="Approving..."
 											className='flex items-center gap-2 bg-green-600 hover:bg-green-700'>
 											<CheckCircle className='h-4 w-4' />
 											Approval
-										</Button>
+										</LoadingButton>
 
-										<Button
+										<LoadingButton
 											variant='destructive'
 											size='sm'
 											onClick={() => handleRefuseClick(request)}
+											loading={loadingStates[`refuse_${request.id}`]}
+											loadingText="Refusing..."
 											className='flex items-center gap-2'>
 											<XCircle className='h-4 w-4' />
 											Refusal
-										</Button>
+										</LoadingButton>
 									</div>
 								</div>
 							</CardContent>
@@ -397,18 +409,20 @@ export const PendingApprovalView = ({
 							}>
 							Cancel
 						</Button>
-						<Button
+						<LoadingButton
 							variant={
 								confirmDialog.type === "approve" ? "default" : "destructive"
 							}
 							onClick={handleConfirmAction}
+							loading={loadingStates[`${confirmDialog.type}_${confirmDialog.requestId}`]}
+							loadingText={confirmDialog.type === "approve" ? "Approving..." : "Refusing..."}
 							className={
 								confirmDialog.type === "approve"
 									? "bg-green-600 hover:bg-green-700"
 									: ""
 							}>
 							{confirmDialog.type === "approve" ? "Approve" : "Refuse"}
-						</Button>
+						</LoadingButton>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>

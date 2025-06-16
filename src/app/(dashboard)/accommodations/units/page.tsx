@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { LoadingState } from "@/components/ui/spinner";
 import { Plus, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import { AccommodationSummaryCards } from "@/components/accommodation/AccommodationSummaryCards";
@@ -21,6 +23,7 @@ export default function DHQLivingUnits() {
   const [showForm, setShowForm] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingUnit, setEditingUnit] = useState<DHQLivingUnitWithHousingType | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   
   const {
     searchTerm,
@@ -62,6 +65,7 @@ export default function DHQLivingUnits() {
       return;
     }
 
+    setDeleteLoading(id);
     try {
       const response = await fetch(`/api/dhq-living-units/${id}`, {
         method: 'DELETE',
@@ -80,6 +84,8 @@ export default function DHQLivingUnits() {
     } catch (error) {
       console.error("Error:", error);
       toast.error("An unexpected error occurred");
+    } finally {
+      setDeleteLoading(null);
     }
   };
 
@@ -89,7 +95,7 @@ export default function DHQLivingUnits() {
   };
 
   if (loading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
+    return <LoadingState isLoading={true} children={null} />;
   }
 
   return (
@@ -152,6 +158,7 @@ export default function DHQLivingUnits() {
           units={filteredUnits}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          deleteLoading={deleteLoading}
         />
       ) : (
         <AccommodationCardView
@@ -159,6 +166,7 @@ export default function DHQLivingUnits() {
           viewMode={viewMode}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          deleteLoading={deleteLoading}
         />
       )}
 

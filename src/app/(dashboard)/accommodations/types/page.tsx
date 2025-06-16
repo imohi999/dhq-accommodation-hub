@@ -32,6 +32,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { HousingType } from "@/types/accommodation";
 import { toast } from "react-toastify";
+import { LoadingState } from "@/components/ui/spinner";
+import { LoadingButton } from "@/components/ui/loading-button";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -39,6 +41,8 @@ export default function HousingTypes() {
 	const [showForm, setShowForm] = useState(false);
 	const [editingItem, setEditingItem] = useState<HousingType | null>(null);
 	const [formData, setFormData] = useState({ name: "", description: "" });
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
 	const { data: housingTypes = [], error, isLoading } = useSWR<HousingType[]>(
 		'/api/housing-types',
@@ -53,6 +57,7 @@ export default function HousingTypes() {
 			return;
 		}
 
+		setIsSubmitting(true);
 		try {
 			if (editingItem) {
 				const response = await fetch(`/api/housing-types/${editingItem.id}`, {
@@ -89,6 +94,8 @@ export default function HousingTypes() {
 		} catch (error) {
 			console.error("Error:", error);
 			toast.error("Failed to save housing type");
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
@@ -103,6 +110,7 @@ export default function HousingTypes() {
 			return;
 		}
 
+		setIsDeleting(id);
 		try {
 			const response = await fetch(`/api/housing-types/${id}`, {
 				method: "DELETE",
@@ -116,6 +124,8 @@ export default function HousingTypes() {
 		} catch (error) {
 			console.error("Error:", error);
 			toast.error("Failed to delete housing type");
+		} finally {
+			setIsDeleting(null);
 		}
 	};
 
@@ -140,7 +150,7 @@ export default function HousingTypes() {
 	}
 
 	if (isLoading) {
-		return <div className='flex justify-center p-8'>Loading...</div>;
+		return <LoadingState isLoading={true} children={null} />;
 	}
 
 	return (
@@ -197,12 +207,12 @@ export default function HousingTypes() {
 								/>
 							</div>
 							<div className='flex justify-end gap-2'>
-								<Button type='button' variant='outline' onClick={resetForm}>
+								<Button type='button' variant='outline' onClick={resetForm} disabled={isSubmitting}>
 									Cancel
 								</Button>
-								<Button type='submit'>
+								<LoadingButton type='submit' loading={isSubmitting} loadingText={editingItem ? "Updating..." : "Creating..."}>
 									{editingItem ? "Update" : "Create"}
-								</Button>
+								</LoadingButton>
 							</div>
 						</form>
 					</DialogContent>
@@ -239,15 +249,18 @@ export default function HousingTypes() {
 											<Button
 												variant='outline'
 												size='sm'
-												onClick={() => handleEdit(item)}>
+												onClick={() => handleEdit(item)}
+												disabled={isDeleting === item.id}>
 												<Edit className='h-3 w-3' />
 											</Button>
-											<Button
+											<LoadingButton
 												variant='outline'
 												size='sm'
-												onClick={() => handleDelete(item.id)}>
+												onClick={() => handleDelete(item.id)}
+												loading={isDeleting === item.id}
+												disabled={isDeleting !== null}>
 												<Trash2 className='h-3 w-3' />
-											</Button>
+											</LoadingButton>
 										</div>
 									</TableCell>
 								</TableRow>

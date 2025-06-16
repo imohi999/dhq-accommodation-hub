@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QueueFormProps } from "@/types/queue";
 import { useQueueForm } from "@/hooks/useQueueForm";
@@ -45,9 +46,13 @@ export const QueueForm = ({ item, onSubmit, onCancel }: QueueFormProps) => {
           </div>
 
           <div className="flex gap-4 pt-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : item ? "Update" : "Create"}
-            </Button>
+            <LoadingButton 
+              type="submit" 
+              loading={loading}
+              loadingText="Saving..."
+            >
+              {item ? "Update" : "Create"}
+            </LoadingButton>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>

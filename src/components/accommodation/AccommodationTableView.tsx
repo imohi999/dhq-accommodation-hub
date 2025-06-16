@@ -22,12 +22,14 @@ interface AccommodationTableViewProps {
 	units: DHQLivingUnitWithHousingType[];
 	onEdit: (unit: DHQLivingUnitWithHousingType) => void;
 	onDelete: (id: string) => void;
+	deleteLoading?: string | null;
 }
 
 export const AccommodationTableView = ({
 	units,
 	onEdit,
 	onDelete,
+	deleteLoading,
 }: AccommodationTableViewProps) => {
 	const handleExport = () => {
 		// Create CSV content

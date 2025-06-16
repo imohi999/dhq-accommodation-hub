@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { LoadingState } from "@/components/ui/spinner";
 import { Clock, User, Home } from "lucide-react";
 import useSWR from "swr";
 
@@ -69,7 +70,7 @@ export const PastAllocationsView = () => {
 	}
 
 	if (isLoading) {
-		return <div className='flex justify-center p-8'>Loading...</div>;
+		return <LoadingState isLoading={true} children={null} />;
 	}
 
 	return (

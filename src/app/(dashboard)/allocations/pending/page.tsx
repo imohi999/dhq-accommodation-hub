@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { LoadingState } from "@/components/ui/spinner";
 import { PendingApprovalView } from "@/components/allocation/PendingApprovalView";
 import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
@@ -127,7 +128,7 @@ export default function PendingApproval() {
 	);
 
 	if (isLoading) {
-		return <div className='flex justify-center p-8'>Loading...</div>;
+		return <LoadingState isLoading={true} children={null} />;
 	}	
 	// Pass the data as is
 	const pendingRequests = data;

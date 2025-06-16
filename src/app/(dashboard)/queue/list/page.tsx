@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useQueueData, useDeleteQueueEntry } from "@/hooks/useQueueDataNext";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { LoadingState } from "@/components/ui/spinner";
 import { Plus } from "lucide-react";
 import { toast } from "react-toastify";
 import { QueueForm } from "@/components/QueueForm";
@@ -28,9 +30,10 @@ export default function QueuePage() {
 		isOpen: false,
 		personnel: null,
 	});
+	const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
 	// Fetch units data
-	const { data: units = [] } = useQuery({
+	const { data: units = [], isLoading: unitsLoading } = useQuery({
 		queryKey: ['units'],
 		queryFn: async () => {
 			const response = await fetch('/api/units');
@@ -106,12 +109,20 @@ export default function QueuePage() {
 			return;
 		}
 
+		setDeletingIds(prev => new Set(prev.add(id)));
+
 		try {
 			await deleteEntry.mutateAsync(id);
 			toast.success("Queue item deleted successfully");
 		} catch (error) {
 			console.error("Error:", error);
 			toast.error("An unexpected error occurred");
+		} finally {
+			setDeletingIds(prev => {
+				const newSet = new Set(prev);
+				newSet.delete(id);
+				return newSet;
+			});
 		}
 	};
 
@@ -121,8 +132,8 @@ export default function QueuePage() {
 		fetchQueueItems();
 	};
 
-	if (loading) {
-		return <div className="flex justify-center p-8">Loading...</div>;
+	if (loading || unitsLoading) {
+		return <LoadingState isLoading={true} children={null} />;
 	}
 
 	return (
@@ -185,6 +196,7 @@ export default function QueuePage() {
 					queueItems={filteredItems}
 					onEdit={handleEdit}
 					onDelete={handleDelete}
+					deletingIds={deletingIds}
 				/>
 			)}
 

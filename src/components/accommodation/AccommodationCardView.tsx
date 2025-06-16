@@ -28,6 +28,7 @@ interface AccommodationCardViewProps {
 	viewMode: "card" | "compact";
 	onEdit: (unit: DHQLivingUnitWithHousingType) => void;
 	onDelete: (id: string) => void;
+	deleteLoading?: string | null;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -37,6 +38,7 @@ export const AccommodationCardView = ({
 	viewMode,
 	onEdit,
 	onDelete,
+	deleteLoading,
 }: AccommodationCardViewProps) => {
 	const [selectedUnit, setSelectedUnit] =
 		useState<DHQLivingUnitWithHousingType | null>(null);

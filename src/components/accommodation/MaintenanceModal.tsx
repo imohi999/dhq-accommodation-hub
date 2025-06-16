@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +25,8 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: MaintenanceModalProps) => {
   const [editingItem, setEditingItem] = useState<UnitMaintenance | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     maintenance_type: '',
     description: '',
@@ -49,11 +52,12 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
       console.error('Error fetching maintenance:', error);
       toast.error("Failed to fetch maintenance records");
     }
-  }, [error, toast]);
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    setIsSubmitting(true);
     try {
       const dataToSubmit = {
         ...formData,
@@ -90,12 +94,15 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
     } catch (error) {
       console.error('Error saving maintenance record:', error);
       toast.error("Failed to save maintenance record");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this maintenance record?")) return;
     
+    setIsDeleting(id);
     try {
       const response = await fetch(`/api/units/maintenance/${id}`, {
         method: 'DELETE',
@@ -109,6 +116,8 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
     } catch (error) {
       console.error('Error deleting maintenance record:', error);
       toast.error("Failed to delete maintenance record");
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -267,7 +276,9 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
               </div>
               
               <div className="flex gap-2">
-                <Button type="submit">{editingItem ? 'Update Record' : 'Add Record'}</Button>
+                <LoadingButton type="submit" loading={isSubmitting}>
+                  {editingItem ? 'Update Record' : 'Add Record'}
+                </LoadingButton>
                 <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
               </div>
             </form>
@@ -302,9 +313,15 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
                       <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
                         <Edit className="h-3 w-3" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)}>
+                      <LoadingButton 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDelete(item.id)}
+                        loading={isDeleting === item.id}
+                        disabled={!!isDeleting}
+                      >
                         <Trash2 className="h-3 w-3" />
-                      </Button>
+                      </LoadingButton>
                     </div>
                   </div>
                   

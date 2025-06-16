@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { LoadingState } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -34,6 +36,8 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function UserManagementPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [editLoading, setEditLoading] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [newUser, setNewUser] = useState({
     username: '',
     fullName: '',
@@ -103,7 +107,7 @@ export default function UserManagementPage() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center p-8">Loading users...</div>;
+    return <LoadingState isLoading={true} children={null} />;
   }
 
   if (error) {
@@ -176,9 +180,9 @@ export default function UserManagementPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleCreateUser} className="w-full" disabled={creating}>
-                {creating ? 'Creating User...' : 'Create User'}
-              </Button>
+              <LoadingButton onClick={handleCreateUser} className="w-full" loading={creating}>
+                Create User
+              </LoadingButton>
             </div>
           </DialogContent>
         </Dialog>
@@ -215,12 +219,30 @@ export default function UserManagementPage() {
                   <TableCell>{new Date(profile.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
+                      <LoadingButton 
+                        variant="outline" 
+                        size="sm"
+                        loading={editLoading === profile.id}
+                        onClick={() => {
+                          setEditLoading(profile.id);
+                          // TODO: Implement edit functionality
+                          setTimeout(() => setEditLoading(null), 1000);
+                        }}
+                      >
                         <Edit className="w-3 h-3" />
-                      </Button>
-                      <Button variant="outline" size="sm">
+                      </LoadingButton>
+                      <LoadingButton 
+                        variant="outline" 
+                        size="sm"
+                        loading={deleteLoading === profile.id}
+                        onClick={() => {
+                          setDeleteLoading(profile.id);
+                          // TODO: Implement delete functionality
+                          setTimeout(() => setDeleteLoading(null), 1000);
+                        }}
+                      >
                         <Trash2 className="w-3 h-3" />
-                      </Button>
+                      </LoadingButton>
                     </div>
                   </TableCell>
                 </TableRow>

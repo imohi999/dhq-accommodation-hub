@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +25,8 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryModalProps) => {
   const [editingItem, setEditingItem] = useState<UnitInventory | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     quantity: 1,
     item_description: '',
@@ -46,11 +49,12 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
       console.error('Error fetching inventory:', error);
       toast.error("Failed to fetch inventory");
     }
-  }, [error, toast]);
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    setIsSubmitting(true);
     try {
       if (editingItem) {
         const response = await fetch(`/api/units/inventory/${editingItem.id}`, {
@@ -82,12 +86,15 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
     } catch (error) {
       console.error('Error saving inventory item:', error);
       toast.error("Failed to save inventory item");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this inventory item?")) return;
     
+    setIsDeleting(id);
     try {
       const response = await fetch(`/api/units/inventory/${id}`, {
         method: 'DELETE',
@@ -101,6 +108,8 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
     } catch (error) {
       console.error('Error deleting inventory item:', error);
       toast.error("Failed to delete inventory item");
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -208,7 +217,9 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
               </div>
               
               <div className="flex gap-2">
-                <Button type="submit">{editingItem ? 'Update Item' : 'Add Item'}</Button>
+                <LoadingButton type="submit" loading={isSubmitting}>
+                  {editingItem ? 'Update Item' : 'Add Item'}
+                </LoadingButton>
                 <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
               </div>
             </form>
@@ -238,9 +249,15 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
                       <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
                         <Edit className="h-3 w-3" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)}>
+                      <LoadingButton 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDelete(item.id)}
+                        loading={isDeleting === item.id}
+                        disabled={!!isDeleting}
+                      >
                         <Trash2 className="h-3 w-3" />
-                      </Button>
+                      </LoadingButton>
                     </div>
                   </div>
                 </div>

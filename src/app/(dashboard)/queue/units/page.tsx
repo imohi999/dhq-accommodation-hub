@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { LoadingState } from "@/components/ui/spinner";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { Unit } from "@/types/queue";
@@ -169,7 +170,7 @@ export default function QueueUnitsPage() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
+    return <LoadingState isLoading={true} children={null} />;
   }
 
   return (

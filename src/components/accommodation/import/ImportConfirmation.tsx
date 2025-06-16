@@ -1,5 +1,5 @@
 
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
@@ -29,9 +29,9 @@ export const ImportConfirmation = ({
           <strong>Final Warning:</strong> This action will replace all existing records with the {parsedDataLength} records from your file.
         </AlertDescription>
       </Alert>
-      <Button onClick={onImport} disabled={isImporting} className="w-full">
+      <LoadingButton onClick={onImport} loading={isImporting} className="w-full">
         {isImporting ? "Importing..." : `Import ${parsedDataLength} Records`}
-      </Button>
+      </LoadingButton>
     </div>
   );
 };

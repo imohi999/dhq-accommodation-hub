@@ -4,6 +4,7 @@ import { useState } from "react";
 import useSWR from "swr";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoadingState } from "@/components/ui/spinner";
 import { useAllocation } from "@/hooks/useAllocation";
 import { PendingApprovalView } from "@/components/allocation/PendingApprovalView";
 import { ActiveAllocationsView } from "@/components/allocation/ActiveAllocationsView";
@@ -30,7 +31,7 @@ export default function AllocationRequests() {
   const approvedRequests = allocationRequests.filter(req => req.status === 'approved');
 
   if (requestsLoading || occupiedLoading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
+    return <LoadingState isLoading={true} children={null} />;
   }
 
   return (

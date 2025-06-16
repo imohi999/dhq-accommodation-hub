@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { LoadingState } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,7 +37,7 @@ export const StampSettingsView = () => {
 			console.error("Error fetching stamp settings:", error);
 			toast.error("Failed to fetch stamp settings");
 		}
-	}, [error, toast]);
+	}, [error]);
 
 	useEffect(() => {
 		if (stampSettingsData) {
@@ -127,7 +128,7 @@ export const StampSettingsView = () => {
 	};
 
 	if (isLoading) {
-		return <div className='flex justify-center p-8'>Loading...</div>;
+		return <LoadingState isLoading={true} children={null} />;
 	}
 
 	return (
@@ -193,9 +194,9 @@ export const StampSettingsView = () => {
 						/>
 					</div>
 
-					<Button onClick={handleSave} disabled={saving} className='w-full'>
+					<LoadingButton onClick={handleSave} loading={saving} className='w-full'>
 						{saving ? "Saving..." : "Save Stamp Settings"}
-					</Button>
+					</LoadingButton>
 				</CardContent>
 			</Card>
 		</div>

@@ -1,6 +1,7 @@
 'use client';
 
 import useSWR from 'swr';
+import { LoadingState } from "@/components/ui/spinner";
 import { ActiveAllocationsView } from "@/components/allocation/ActiveAllocationsView";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -17,7 +18,7 @@ export default function ActiveAllocationsPage() {
   );
 
   if (!data && !error) {
-    return <div className="flex justify-center p-8">Loading...</div>;
+    return <LoadingState isLoading={true} children={null} />;
   }
 
   if (error) {

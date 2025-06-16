@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
 	Dialog,
 	DialogContent,
@@ -55,6 +56,8 @@ export const ActiveAllocationsView = ({
 		unit: null,
 	});
 
+	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+
 	const handleDeallocateClick = (unit: DHQLivingUnitWithHousingType) => {
 		setDeallocateDialog({
 			isOpen: true,
@@ -63,6 +66,7 @@ export const ActiveAllocationsView = ({
 	};
 
 	async function deallocatePersonnel(unitId: string) {
+		setLoadingStates(prev => ({ ...prev, [`deallocate_${unitId}`]: true }));
 		try {
 			const response = await fetch("/api/dhq-living-units/deallocate", {
 				method: "POST",
@@ -94,6 +98,8 @@ export const ActiveAllocationsView = ({
 					: "Failed to deallocate personnel"
 			);
 			throw error;
+		} finally {
+			setLoadingStates(prev => ({ ...prev, [`deallocate_${unitId}`]: false }));
 		}
 	}
 
@@ -422,14 +428,16 @@ export const ActiveAllocationsView = ({
 											Request Transfer
 										</Button>
 
-										<Button
+										<LoadingButton
 											variant='destructive'
 											size='sm'
 											onClick={() => handleDeallocateClick(unit)}
+											loading={loadingStates[`deallocate_${unit.id}`]}
+											loadingText="Deallocating..."
 											className='flex items-center gap-2'>
 											<UserMinus className='h-4 w-4' />
 											Deallocate
-										</Button>
+										</LoadingButton>
 									</div>
 								</div>
 							</CardContent>
@@ -461,9 +469,13 @@ export const ActiveAllocationsView = ({
 							}>
 							Cancel
 						</Button>
-						<Button variant='destructive' onClick={handleDeallocateConfirm}>
+						<LoadingButton 
+							variant='destructive' 
+							onClick={handleDeallocateConfirm}
+							loading={deallocateDialog.unit ? loadingStates[`deallocate_${deallocateDialog.unit.id}`] : false}
+							loadingText="Deallocating...">
 							Deallocate
-						</Button>
+						</LoadingButton>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>

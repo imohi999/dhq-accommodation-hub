@@ -7,6 +7,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home, MapPin, Bed } from "lucide-react";
@@ -38,6 +39,8 @@ export const TransferRequestModal = ({
 		unit: null,
 	});
 
+	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+
 	// Filter vacant units that match the personnel's category
 	const availableUnits = units.filter(
 		(unit) => unit.status === "Vacant" && unit.category === currentUnit.category
@@ -54,6 +57,7 @@ export const TransferRequestModal = ({
 		fromUnitId: string,
 		toUnitId: string
 	): Promise<boolean> {
+		setLoadingStates(prev => ({ ...prev, [`transfer_${toUnitId}`]: true }));
 		try {
 			const response = await fetch("/api/allocations/transfer", {
 				method: "POST",
@@ -82,6 +86,8 @@ export const TransferRequestModal = ({
 			console.error("Error processing transfer:", error);
 			toast.error(`Transfer Failed: ${error instanceof Error ? error.message : "Failed to process transfer"}`);
 			return false;
+		} finally {
+			setLoadingStates(prev => ({ ...prev, [`transfer_${toUnitId}`]: false }));
 		}
 	}
 
@@ -245,13 +251,15 @@ export const TransferRequestModal = ({
 													</div>
 												</div>
 
-												<Button
+												<LoadingButton
 													size='sm'
 													onClick={() => handleRequestTransferClick(unit)}
+													loading={loadingStates[`transfer_${unit.id}`]}
+													loadingText="Selecting..."
 													className='flex items-center gap-2'>
 													<Home className='h-4 w-4' />
 													Select for Transfer
-												</Button>
+												</LoadingButton>
 											</div>
 										</CardContent>
 									</Card>
@@ -286,9 +294,12 @@ export const TransferRequestModal = ({
 							onClick={() => setConfirmDialog({ isOpen: false, unit: null })}>
 							Cancel
 						</Button>
-						<Button onClick={handleConfirmTransferRequest}>
+						<LoadingButton 
+							onClick={handleConfirmTransferRequest}
+							loading={confirmDialog.unit ? loadingStates[`transfer_${confirmDialog.unit.id}`] : false}
+							loadingText="Transferring...">
 							Confirm Transfer
-						</Button>
+						</LoadingButton>
 					</div>
 				</DialogContent>
 			</Dialog>

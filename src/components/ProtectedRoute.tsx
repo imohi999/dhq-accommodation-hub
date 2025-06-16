@@ -4,6 +4,7 @@ import React from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { LoadingState } from '@/components/ui/spinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -21,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#1B365D]">
-        <div className="text-white text-xl">Loading...</div>
+        <LoadingState isLoading={true} children={null} fallback={<div className="text-white text-xl">Loading...</div>} />
       </div>
     );
   }

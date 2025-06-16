@@ -1,5 +1,5 @@
 
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 import { ValidationError } from "./importUtils";
@@ -27,9 +27,9 @@ export const ImportValidation = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Step 3: Validate Data</h3>
-        <Button onClick={onValidate} disabled={isValidating}>
+        <LoadingButton onClick={onValidate} loading={isValidating}>
           {isValidating ? "Validating..." : "Validate File"}
-        </Button>
+        </LoadingButton>
       </div>
       
       {validationComplete && (

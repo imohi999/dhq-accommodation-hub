@@ -15,6 +15,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Edit, Trash2 } from "lucide-react";
 import { QueueTableControls } from "@/components/queue/QueueTableControls";
 import { QueueItem } from "@/types/queue";
@@ -23,12 +24,14 @@ interface QueueTableViewProps {
 	queueItems: QueueItem[];
 	onEdit: (item: QueueItem) => void;
 	onDelete: (id: string) => void;
+	deletingIds?: Set<string>;
 }
 
 export const QueueTableView = ({
 	queueItems,
 	onEdit,
 	onDelete,
+	deletingIds = new Set(),
 }: QueueTableViewProps) => {
 	// Column visibility state - all visible by default
 	const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(
@@ -177,12 +180,13 @@ export const QueueTableView = ({
 												onClick={() => onEdit(item)}>
 												<Edit className='h-3 w-3' />
 											</Button>
-											<Button
+											<LoadingButton
 												variant='outline'
 												size='sm'
+												loading={deletingIds.has(item.id)}
 												onClick={() => onDelete(item.id)}>
 												<Trash2 className='h-3 w-3' />
-											</Button>
+											</LoadingButton>
 										</div>
 									</TableCell>
 								</TableRow>
