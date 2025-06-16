@@ -26,8 +26,6 @@ export const PendingApprovalView = ({
 	requests = [],
 	mutate,
 }: PendingApprovalViewProps) => {
-	console.log({ requests });
-
 	const [confirmDialog, setConfirmDialog] = useState<{
 		isOpen: boolean;
 		type: "approve" | "refuse";
@@ -41,7 +39,9 @@ export const PendingApprovalView = ({
 	});
 	const [selectedRequest, setSelectedRequest] =
 		useState<APIAllocationRequest | null>(null);
-	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+		{}
+	);
 
 	const handleApproveClick = (request: APIAllocationRequest) => {
 		setConfirmDialog({
@@ -62,7 +62,7 @@ export const PendingApprovalView = ({
 	};
 
 	async function approveAllocation(requestId: string) {
-		setLoadingStates(prev => ({ ...prev, [`approve_${requestId}`]: true }));
+		setLoadingStates((prev) => ({ ...prev, [`approve_${requestId}`]: true }));
 		try {
 			const response = await fetch("/api/allocations/approve", {
 				method: "POST",
@@ -89,18 +89,19 @@ export const PendingApprovalView = ({
 		} catch (error) {
 			console.error("Error approving allocation:", error);
 			toast.error(
-				error instanceof Error
-					? error.message
-					: "Failed to approve allocation"
+				error instanceof Error ? error.message : "Failed to approve allocation"
 			);
 			throw error;
 		} finally {
-			setLoadingStates(prev => ({ ...prev, [`approve_${requestId}`]: false }));
+			setLoadingStates((prev) => ({
+				...prev,
+				[`approve_${requestId}`]: false,
+			}));
 		}
 	}
 
 	async function refuseAllocation(requestId: string) {
-		setLoadingStates(prev => ({ ...prev, [`refuse_${requestId}`]: true }));
+		setLoadingStates((prev) => ({ ...prev, [`refuse_${requestId}`]: true }));
 		try {
 			const response = await fetch("/api/allocations/refuse", {
 				method: "POST",
@@ -126,13 +127,11 @@ export const PendingApprovalView = ({
 		} catch (error) {
 			console.error("Error approving allocation:", error);
 			toast.error(
-				error instanceof Error
-					? error.message
-					: "Failed to approve allocation"
+				error instanceof Error ? error.message : "Failed to approve allocation"
 			);
 			throw error;
 		} finally {
-			setLoadingStates(prev => ({ ...prev, [`refuse_${requestId}`]: false }));
+			setLoadingStates((prev) => ({ ...prev, [`refuse_${requestId}`]: false }));
 		}
 	}
 
@@ -167,14 +166,22 @@ export const PendingApprovalView = ({
 	const menRequests = requests.filter(
 		(r) => r.personnelData?.category === "Men"
 	).length;
+	// Extract service from service number prefix
+	const getServiceFromSvcNo = (svcNo: string) => {
+		if (svcNo?.startsWith('A/')) return 'Army';
+		if (svcNo?.startsWith('N/')) return 'Navy';
+		if (svcNo?.startsWith('AF/')) return 'Air Force';
+		return 'Unknown';
+	};
+
 	const armyRequests = requests.filter(
-		(r) => r.personnelData?.armOfService === "Army"
+		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Army"
 	).length;
 	const navyRequests = requests.filter(
-		(r) => r.personnelData?.armOfService === "Navy"
+		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Navy"
 	).length;
 	const airForceRequests = requests.filter(
-		(r) => r.personnelData?.armOfService === "Air Force"
+		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Air Force"
 	).length;
 
 	return (
@@ -208,7 +215,7 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										r.personnelData?.armOfService === "Army" &&
+										getServiceFromSvcNo(r.personnelData?.svcNo) === "Army" &&
 										r.personnelData.category === "Officer"
 								).length
 							}{" "}
@@ -216,7 +223,7 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										r.personnelData?.armOfService === "Army" &&
+										getServiceFromSvcNo(r.personnelData?.svcNo) === "Army" &&
 										r.personnelData.category === "Men"
 								).length
 							}
@@ -236,7 +243,7 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										r.personnelData?.armOfService === "Navy" &&
+										getServiceFromSvcNo(r.personnelData?.svcNo) === "Navy" &&
 										r.personnelData.category === "Officer"
 								).length
 							}{" "}
@@ -244,7 +251,7 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										r.personnelData?.armOfService === "Navy" &&
+										getServiceFromSvcNo(r.personnelData?.svcNo) === "Navy" &&
 										r.personnelData.category === "Men"
 								).length
 							}
@@ -264,7 +271,7 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										r.personnelData?.armOfService === "Air Force" &&
+										getServiceFromSvcNo(r.personnelData?.svcNo) === "Air Force" &&
 										r.personnelData?.category === "Officer"
 								).length
 							}{" "}
@@ -272,7 +279,7 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										r.personnelData?.armOfService === "Air Force" &&
+										getServiceFromSvcNo(r.personnelData?.svcNo) === "Air Force" &&
 										r.personnelData.category === "Men"
 								).length
 							}
@@ -309,12 +316,8 @@ export const PendingApprovalView = ({
 													{request.personnelData.fullName}
 												</h3>
 												<p className='text-sm text-muted-foreground'>
-													Svc No: {request.personnelData?.svcNo} •{" "}
-													{request.personnelData?.currentUnit ||
-														"Naval Academy"}{" "}
-													•{" "}
-													{request.personnelData?.appointment ||
-														"Academy Instructor"}
+													{request.personnelData?.rank} • {getServiceFromSvcNo(request.personnelData?.svcNo)} •{" "}
+													{request.personnelData?.currentUnit}
 												</p>
 												<div className='flex items-center gap-2 mt-1'>
 													<Badge variant='outline' className='text-xs'>
@@ -332,9 +335,9 @@ export const PendingApprovalView = ({
 													Letter No: {request.letterId}
 												</p>
 												<p className='text-sm text-muted-foreground'>
-													Quarter: {request.unitData.quarterName}{" "}
-													{request.unit.blockName}{" "}
-													{request.unit.flatHouseRoomName}
+													{request.unitData?.housingType} •
+													{request.unitData?.noOfRooms} Room(s) •
+													{request.unitData?.flatHouseRoomName}
 												</p>
 												<Badge className='bg-yellow-100 text-yellow-800 mt-1'>
 													Pending Review
@@ -358,7 +361,7 @@ export const PendingApprovalView = ({
 											size='sm'
 											onClick={() => handleApproveClick(request)}
 											loading={loadingStates[`approve_${request.id}`]}
-											loadingText="Approving..."
+											loadingText='Approving...'
 											className='flex items-center gap-2 bg-green-600 hover:bg-green-700'>
 											<CheckCircle className='h-4 w-4' />
 											Approval
@@ -369,7 +372,7 @@ export const PendingApprovalView = ({
 											size='sm'
 											onClick={() => handleRefuseClick(request)}
 											loading={loadingStates[`refuse_${request.id}`]}
-											loadingText="Refusing..."
+											loadingText='Refusing...'
 											className='flex items-center gap-2'>
 											<XCircle className='h-4 w-4' />
 											Refusal
@@ -414,8 +417,16 @@ export const PendingApprovalView = ({
 								confirmDialog.type === "approve" ? "default" : "destructive"
 							}
 							onClick={handleConfirmAction}
-							loading={loadingStates[`${confirmDialog.type}_${confirmDialog.requestId}`]}
-							loadingText={confirmDialog.type === "approve" ? "Approving..." : "Refusing..."}
+							loading={
+								loadingStates[
+									`${confirmDialog.type}_${confirmDialog.requestId}`
+								]
+							}
+							loadingText={
+								confirmDialog.type === "approve"
+									? "Approving..."
+									: "Refusing..."
+							}
 							className={
 								confirmDialog.type === "approve"
 									? "bg-green-600 hover:bg-green-700"
