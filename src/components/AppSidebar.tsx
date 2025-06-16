@@ -112,10 +112,6 @@ const menuItems = [
         title: "Maintenance Requests",
         url: "/maintenance/requests",
       },
-      {
-        title: "Analytics",
-        url: "/maintenance/analytics",
-      },
     ],
   },
   {

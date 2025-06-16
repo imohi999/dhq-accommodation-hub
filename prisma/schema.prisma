@@ -249,6 +249,7 @@ model UnitMaintenance {
   @@map("unit_maintenance")
 }
 
+
 // Allocation management
 model AllocationRequest {
   id             String           @id @default(uuid())

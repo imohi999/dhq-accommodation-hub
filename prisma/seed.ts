@@ -624,6 +624,260 @@ async function main() {
 
   console.log('✅ Created 20 allocation requests')
 
+  // Create maintenance records (using existing UnitMaintenance table)
+  const maintenanceData = [
+    {
+      unitId: dhqUnits[0].id,
+      maintenanceType: "AC Servicing",
+      description: "Quarterly air conditioner maintenance and filter replacement",
+      maintenanceDate: new Date('2025-01-15'),
+      performedBy: "HVAC Team",
+      cost: 15000.00,
+      status: "Completed",
+      priority: "Medium",
+      notes: "All units serviced, filters replaced"
+    },
+    {
+      unitId: dhqUnits[1].id,
+      maintenanceType: "Plumbing Repair",
+      description: "Fix leaking faucet in kitchen area",
+      maintenanceDate: new Date('2025-02-10'),
+      performedBy: "Plumbing Team",
+      cost: 8500.00,
+      status: "Completed",
+      priority: "High",
+      notes: "Replaced faulty valve"
+    },
+    {
+      unitId: dhqUnits[2].id,
+      maintenanceType: "Electrical Inspection",
+      description: "Annual electrical safety inspection",
+      maintenanceDate: new Date('2025-03-05'),
+      performedBy: "Electrical Team",
+      cost: 12000.00,
+      status: "Pending",
+      priority: "Medium",
+      notes: "Scheduled for next week"
+    },
+    {
+      unitId: dhqUnits[3].id,
+      maintenanceType: "Pest Control",
+      description: "Quarterly pest control treatment",
+      maintenanceDate: new Date('2025-02-20'),
+      performedBy: "Pest Control Team",
+      cost: 5000.00,
+      status: "Completed",
+      priority: "Low",
+      notes: "No pest activity detected"
+    },
+    {
+      unitId: dhqUnits[4].id,
+      maintenanceType: "Painting",
+      description: "Touch-up painting for living room walls",
+      maintenanceDate: new Date('2025-04-01'),
+      performedBy: "Maintenance Team",
+      cost: 25000.00,
+      status: "Pending",
+      priority: "Low",
+      notes: "Materials ordered"
+    },
+    {
+      unitId: dhqUnits[0].id,
+      maintenanceType: "Generator Service",
+      description: "Monthly generator maintenance and testing",
+      maintenanceDate: new Date('2025-03-15'),
+      performedBy: "Generator Tech",
+      cost: 18000.00,
+      status: "Overdue",
+      priority: "High",
+      notes: "Service overdue by 5 days"
+    },
+    {
+      unitId: dhqUnits[1].id,
+      maintenanceType: "Window Repair",
+      description: "Replace broken window pane in bedroom",
+      maintenanceDate: new Date('2025-02-25'),
+      performedBy: "Glass Repair Team",
+      cost: 7500.00,
+      status: "Completed",
+      priority: "Medium",
+      notes: "New safety glass installed"
+    },
+    {
+      unitId: dhqUnits[2].id,
+      maintenanceType: "Deep Cleaning",
+      description: "Quarterly deep cleaning service",
+      maintenanceDate: new Date('2025-03-30'),
+      performedBy: "Cleaning Crew",
+      cost: 10000.00,
+      status: "Pending",
+      priority: "Low",
+      notes: "Scheduled for end of month"
+    }
+  ]
+
+  for (const maintenance of maintenanceData) {
+    await prisma.unitMaintenance.create({ data: maintenance })
+  }
+
+  console.log('✅ Created maintenance records')
+
+  // Create maintenance requests (using UnitMaintenance table with specific pattern)
+  const maintenanceRequestsData = [
+    {
+      unitId: dhqUnits[0].id,
+      maintenanceType: "Plumbing",
+      description: "Leaking faucet in kitchen sink, constant dripping",
+      maintenanceDate: new Date('2025-06-15'),
+      performedBy: "Lt. John Doe",
+      cost: 0,
+      status: "Pending",
+      priority: "High",
+      notes: "Urgent repair needed, affecting water pressure"
+    },
+    {
+      unitId: dhqUnits[1].id,
+      maintenanceType: "Electrical",
+      description: "Power outlet not working in master bedroom",
+      maintenanceDate: new Date('2025-06-14'),
+      performedBy: "Major Jane Smith",
+      cost: 0,
+      status: "In Progress",
+      priority: "Medium",
+      notes: "Electrician scheduled for tomorrow"
+    },
+    {
+      unitId: dhqUnits[2].id,
+      maintenanceType: "HVAC",
+      description: "Air conditioner not cooling properly",
+      maintenanceDate: new Date('2025-06-13'),
+      performedBy: "Col. Michael Brown",
+      cost: 0,
+      status: "Completed",
+      priority: "High",
+      notes: "Refrigerant refilled, system working normally"
+    },
+    {
+      unitId: dhqUnits[3].id,
+      maintenanceType: "Structural",
+      description: "Crack in bathroom wall near shower area",
+      maintenanceDate: new Date('2025-06-12'),
+      performedBy: "Sgt. Ahmed Hassan",
+      cost: 0,
+      status: "Pending",
+      priority: "Medium",
+      notes: "Needs structural assessment"
+    },
+    {
+      unitId: dhqUnits[4].id,
+      maintenanceType: "Appliance",
+      description: "Refrigerator making unusual noise",
+      maintenanceDate: new Date('2025-06-10'),
+      performedBy: "Capt. Sarah Wilson",
+      cost: 0,
+      status: "In Progress",
+      priority: "Low",
+      notes: "Technician diagnosed compressor issue"
+    },
+    {
+      unitId: dhqUnits[5] ? dhqUnits[5].id : dhqUnits[0].id,
+      maintenanceType: "Plumbing",
+      description: "Water pressure low in bathroom shower",
+      maintenanceDate: new Date('2025-06-09'),
+      performedBy: "WO1 Adebayo",
+      cost: 0,
+      status: "Pending",
+      priority: "Medium",
+      notes: "Check main water line connection"
+    },
+    {
+      unitId: dhqUnits[6] ? dhqUnits[6].id : dhqUnits[1].id,
+      maintenanceType: "Electrical",
+      description: "Ceiling fan making noise in living room",
+      maintenanceDate: new Date('2025-06-08'),
+      performedBy: "Squadron Leader Okoro",
+      cost: 0,
+      status: "Completed",
+      priority: "Low",
+      notes: "Fan motor lubricated and balanced"
+    },
+    {
+      unitId: dhqUnits[7] ? dhqUnits[7].id : dhqUnits[2].id,
+      maintenanceType: "Security",
+      description: "Door lock mechanism not working properly",
+      maintenanceDate: new Date('2025-06-07'),
+      performedBy: "Lt. Commander Hassan",
+      cost: 0,
+      status: "Pending",
+      priority: "High",
+      notes: "Security concern - needs immediate attention"
+    }
+  ]
+
+  for (const request of maintenanceRequestsData) {
+    await prisma.unitMaintenance.create({ data: request })
+  }
+
+  console.log('✅ Created maintenance requests')
+
+  // Create unit inventory records
+  const inventoryData = [
+    {
+      unitId: dhqUnits[0].id,
+      quantity: 2,
+      itemDescription: "Split Air Conditioner",
+      itemLocation: "Living Room & Bedroom",
+      itemStatus: "Functional",
+      note: "Recently serviced"
+    },
+    {
+      unitId: dhqUnits[0].id,
+      quantity: 1,
+      itemDescription: "Refrigerator",
+      itemLocation: "Kitchen",
+      itemStatus: "Functional",
+      note: "Good condition"
+    },
+    {
+      unitId: dhqUnits[1].id,
+      quantity: 1,
+      itemDescription: "Water Heater",
+      itemLocation: "Bathroom",
+      itemStatus: "Needs Repair",
+      note: "Heating element faulty"
+    },
+    {
+      unitId: dhqUnits[1].id,
+      quantity: 3,
+      itemDescription: "Ceiling Fan",
+      itemLocation: "Living Room, Bedroom, Kitchen",
+      itemStatus: "Functional",
+      note: "All working properly"
+    },
+    {
+      unitId: dhqUnits[2].id,
+      quantity: 1,
+      itemDescription: "Washing Machine",
+      itemLocation: "Utility Room",
+      itemStatus: "Non-Functional",
+      note: "Motor needs replacement"
+    },
+    {
+      unitId: dhqUnits[3].id,
+      quantity: 2,
+      itemDescription: "Smoke Detector",
+      itemLocation: "Hallway & Bedroom",
+      itemStatus: "Functional",
+      note: "Batteries replaced recently"
+    }
+  ]
+
+  for (const inventory of inventoryData) {
+    await prisma.unitInventory.create({ data: inventory })
+  }
+
+  console.log('✅ Created unit inventory records')
+
   console.log('🎉 Database seed completed!')
 }
 
