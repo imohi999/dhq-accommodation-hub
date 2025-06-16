@@ -65,7 +65,6 @@ This is a military accommodation management system with three main workflows:
 **Form Handling**
 - React Hook Form for all forms
 - Zod schemas for validation
-- Toast notifications for user feedback
 
 **Database Design**
 - Row Level Security (RLS) on all tables
