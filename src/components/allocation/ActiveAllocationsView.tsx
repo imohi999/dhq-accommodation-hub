@@ -19,10 +19,9 @@ import {
 	Briefcase,
 } from "lucide-react";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
-import { useOccupiedUnits } from "@/hooks/useOccupiedUnits";
 import { AllocationLetter } from "./AllocationLetter";
 import { TransferRequestModal } from "./TransferRequestModal";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { mutate } from "swr";
 
 interface ActiveAllocationsViewProps {
@@ -81,10 +80,7 @@ export const ActiveAllocationsView = ({
 			const result = await response.json();
 
 			// Show success toast
-			toast({
-				title: "Success",
-				description: "Personnel deallocated successfully",
-			});
+			toast.success("Personnel deallocated successfully");
 
 			// Mutate the data to refresh the list
 			await mutate("/api/dhq-living-units?status=Occupied");
@@ -92,14 +88,11 @@ export const ActiveAllocationsView = ({
 			return result;
 		} catch (error) {
 			console.error("Error deallocating personnel:", error);
-			toast({
-				title: "Error",
-				description:
-					error instanceof Error
-						? error.message
-						: "Failed to deallocate personnel",
-				variant: "destructive",
-			});
+			toast.error(
+				error instanceof Error
+					? error.message
+					: "Failed to deallocate personnel"
+			);
 			throw error;
 		}
 	}
@@ -490,6 +483,7 @@ export const ActiveAllocationsView = ({
 					isOpen={transferModal.isOpen}
 					onClose={() => setTransferModal({ isOpen: false, unit: null })}
 					currentUnit={transferModal.unit}
+					mutate={mutate}
 				/>
 			)}
 		</div>

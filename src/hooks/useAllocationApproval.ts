@@ -1,4 +1,4 @@
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { AllocationRequest } from "@/types/allocation";
 import {
   updateAllocationStatus,
@@ -12,17 +12,12 @@ export const useAllocationApproval = (
   allocationRequests: AllocationRequest[],
   refetchRequests: () => void
 ) => {
-  const { toast } = useToast();
 
   const approveAllocation = async (requestId: string) => {
     // Find the allocation request to get unit and personnel details
     const request = allocationRequests.find(r => r.id === requestId);
     if (!request) {
-      toast({
-        title: "Error",
-        description: "Allocation request not found",
-        variant: "destructive",
-      });
+      toast.error("Allocation request not found");
       return;
     }
 
@@ -30,11 +25,7 @@ export const useAllocationApproval = (
     const statusSuccess = await updateAllocationStatus(requestId, 'approved');
     
     if (!statusSuccess) {
-      toast({
-        title: "Error",
-        description: "Failed to approve allocation. Please check your permissions and try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to approve allocation. Please check your permissions and try again.");
       return;
     }
 
@@ -51,10 +42,7 @@ export const useAllocationApproval = (
       console.warn("Failed to update unit occupancy through direct call, but API should have handled it");
     }
 
-    toast({
-      title: "Success",
-      description: "Allocation approved successfully",
-    });
+    toast.success("Allocation approved successfully");
     
     refetchRequests();
   };
@@ -63,11 +51,7 @@ export const useAllocationApproval = (
     // Find the allocation request to get personnel details
     const request = allocationRequests.find(r => r.id === requestId);
     if (!request) {
-      toast({
-        title: "Error",
-        description: "Allocation request not found",
-        variant: "destructive",
-      });
+      toast.error("Allocation request not found");
       return;
     }
 
@@ -75,11 +59,7 @@ export const useAllocationApproval = (
     const statusSuccess = await updateAllocationStatus(requestId, 'refused', reason);
     
     if (!statusSuccess) {
-      toast({
-        title: "Error",
-        description: "Failed to refuse allocation. Please check your permissions and try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to refuse allocation. Please check your permissions and try again.");
       return;
     }
 
@@ -87,17 +67,10 @@ export const useAllocationApproval = (
     const returnToQueueSuccess = await returnPersonnelToQueueAtPositionOne(request.personnel_data);
     
     if (!returnToQueueSuccess) {
-      toast({
-        title: "Warning",
-        description: "Allocation refused but failed to return personnel to queue",
-        variant: "destructive",
-      });
+      toast.error("Allocation refused but failed to return personnel to queue");
     }
 
-    toast({
-      title: "Success",
-      description: "Allocation refused and personnel returned to queue at position #1",
-    });
+    toast.success("Allocation refused and personnel returned to queue at position #1");
     
     refetchRequests();
   };

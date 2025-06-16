@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { QueueItem, Unit, QueueFormData } from "@/types/queue";
 import useSWR from "swr";
 
@@ -33,7 +33,6 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
   
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   // Fetch units using SWR
   const { data: unitsData, error: unitsError } = useSWR<UnitResponse[]>(
@@ -146,19 +145,12 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         throw new Error(error.error || error.message || "Failed to save queue item");
       }
 
-      toast({
-        title: "Success",
-        description: `Queue item ${item ? 'updated' : 'created'} successfully`,
-      });
+      toast.success(`Queue item ${item ? 'updated' : 'created'} successfully`);
 
       onSubmit();
     } catch (error) {
       console.error("Error saving queue item:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { DHQLivingUnitWithHousingType, HousingType } from "@/types/accommodation";
 import useSWR from "swr";
 
@@ -14,7 +14,6 @@ interface HousingTypeResponse {
 
 export const useAccommodationData = () => {
   const [units, setUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
-  const { toast } = useToast();
 
   // Fetch units from new dhq-living-units endpoint
   const { data: unitsData, error: unitsError, isLoading: unitsLoading, mutate: refetchUnits } = useSWR<Array<{
@@ -59,22 +58,14 @@ export const useAccommodationData = () => {
   useEffect(() => {
     if (unitsError) {
       console.error("Error fetching units:", unitsError);
-      toast({
-        title: "Error",
-        description: "Failed to fetch accommodation units",
-        variant: "destructive",
-      });
+      toast.error("Failed to fetch accommodation units");
     }
   }, [unitsError, toast]);
 
   useEffect(() => {
     if (housingTypesError) {
       console.error("Error fetching housing types:", housingTypesError);
-      toast({
-        title: "Error",
-        description: "Failed to fetch housing types",
-        variant: "destructive",
-      });
+      toast.error("Failed to fetch housing types");
     }
   }, [housingTypesError, toast]);
 

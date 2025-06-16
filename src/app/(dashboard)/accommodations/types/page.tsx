@@ -5,7 +5,6 @@ import useSWR, { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import {
 	Card,
 	CardContent,
@@ -32,6 +31,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { HousingType } from "@/types/accommodation";
+import { toast } from "react-toastify";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -39,7 +39,6 @@ export default function HousingTypes() {
 	const [showForm, setShowForm] = useState(false);
 	const [editingItem, setEditingItem] = useState<HousingType | null>(null);
 	const [formData, setFormData] = useState({ name: "", description: "" });
-	const { toast } = useToast();
 
 	const { data: housingTypes = [], error, isLoading } = useSWR<HousingType[]>(
 		'/api/housing-types',
@@ -50,11 +49,7 @@ export default function HousingTypes() {
 		e.preventDefault();
 
 		if (!formData.name.trim()) {
-			toast({
-				title: "Error",
-				description: "Housing type name is required",
-				variant: "destructive",
-			});
+			toast.error("Housing type name is required");
 			return;
 		}
 
@@ -71,10 +66,7 @@ export default function HousingTypes() {
 
 				if (!response.ok) throw new Error("Failed to update housing type");
 
-				toast({
-					title: "Success",
-					description: "Housing type updated successfully",
-				});
+				toast.success("Housing type updated successfully");
 			} else {
 				const response = await fetch("/api/housing-types", {
 					method: "POST",
@@ -87,10 +79,7 @@ export default function HousingTypes() {
 
 				if (!response.ok) throw new Error("Failed to create housing type");
 
-				toast({
-					title: "Success",
-					description: "Housing type created successfully",
-				});
+				toast.success("Housing type created successfully");
 			}
 
 			setShowForm(false);
@@ -99,11 +88,7 @@ export default function HousingTypes() {
 			mutate('/api/housing-types');
 		} catch (error) {
 			console.error("Error:", error);
-			toast({
-				title: "Error",
-				description: "Failed to save housing type",
-				variant: "destructive",
-			});
+			toast.error("Failed to save housing type");
 		}
 	};
 
@@ -125,19 +110,12 @@ export default function HousingTypes() {
 
 			if (!response.ok) throw new Error("Failed to delete housing type");
 
-			toast({
-				title: "Success",
-				description: "Housing type deleted successfully",
-			});
+			toast.success("Housing type deleted successfully");
 
 			mutate('/api/housing-types');
 		} catch (error) {
 			console.error("Error:", error);
-			toast({
-				title: "Error",
-				description: "Failed to delete housing type",
-				variant: "destructive",
-			});
+			toast.error("Failed to delete housing type");
 		}
 	};
 

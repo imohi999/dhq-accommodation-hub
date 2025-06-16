@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, AlertTriangle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { ImportFileUpload } from "./import/ImportFileUpload";
 import { ImportValidation } from "./import/ImportValidation";
 import { ImportConfirmation } from "./import/ImportConfirmation";
@@ -20,7 +20,6 @@ interface ImportModalProps {
 export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }: ImportModalProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [isImporting, setIsImporting] = useState(false);
-  const { toast } = useToast();
 
   const {
     validationErrors,
@@ -43,11 +42,7 @@ export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }:
 
   const handleImport = async () => {
     if (!validationComplete || validationErrors.length > 0 || parsedData.length === 0) {
-      toast({
-        title: "Cannot Import",
-        description: "Please validate the file and fix all errors first.",
-        variant: "destructive",
-      });
+      toast.error("Cannot Import - Please validate the file and fix all errors first.");
       return;
     }
 
@@ -97,10 +92,7 @@ export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }:
 
       const result = await response.json();
 
-      toast({
-        title: "Import Successful",
-        description: result.message || `Successfully imported ${result.count} records.`,
-      });
+      toast.success(result.message || `Successfully imported ${result.count} records.`);
 
       // Revalidate the accommodations data
       await mutate('/api/accommodations');
@@ -110,11 +102,7 @@ export const ImportModal = ({ isOpen, onClose, onImportComplete, housingTypes }:
       resetForm();
     } catch (error) {
       console.error('Error importing data:', error);
-      toast({
-        title: "Import Failed",
-        description: error instanceof Error ? error.message : "Failed to import data. Please try again.",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to import data. Please try again.");
     } finally {
       setIsImporting(false);
     }

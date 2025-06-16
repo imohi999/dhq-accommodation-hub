@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Wrench, Calendar, DollarSign } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { UnitMaintenance } from "@/types/accommodation";
 import useSWR, { mutate } from "swr";
 
@@ -34,7 +34,6 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
     priority: 'Medium',
     notes: ''
   });
-  const { toast } = useToast();
 
   // Use SWR to fetch maintenance records
   const { data: maintenance = [], error, isLoading } = useSWR<UnitMaintenance[]>(
@@ -48,11 +47,7 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
   useEffect(() => {
     if (error) {
       console.error('Error fetching maintenance:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch maintenance records",
-        variant: "destructive",
-      });
+      toast.error("Failed to fetch maintenance records");
     }
   }, [error, toast]);
 
@@ -75,7 +70,7 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
         });
         
         if (!response.ok) throw new Error('Failed to update maintenance record');
-        toast({ title: "Success", description: "Maintenance record updated successfully" });
+        toast.success("Maintenance record updated successfully");
       } else {
         const response = await fetch('/api/units/maintenance', {
           method: 'POST',
@@ -86,7 +81,7 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
         });
         
         if (!response.ok) throw new Error('Failed to add maintenance record');
-        toast({ title: "Success", description: "Maintenance record added successfully" });
+        toast.success("Maintenance record added successfully");
       }
       
       // Revalidate the maintenance data
@@ -94,11 +89,7 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
       resetForm();
     } catch (error) {
       console.error('Error saving maintenance record:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save maintenance record",
-        variant: "destructive",
-      });
+      toast.error("Failed to save maintenance record");
     }
   };
 
@@ -111,17 +102,13 @@ export const MaintenanceModal = ({ isOpen, onClose, unitId, unitName }: Maintena
       });
       
       if (!response.ok) throw new Error('Failed to delete maintenance record');
-      toast({ title: "Success", description: "Maintenance record deleted successfully" });
+      toast.success("Maintenance record deleted successfully");
       
       // Revalidate the maintenance data
       await mutate(`/api/units/maintenance?unitId=${unitId}`);
     } catch (error) {
       console.error('Error deleting maintenance record:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete maintenance record",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete maintenance record");
     }
   };
 

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { QueueItem, Unit } from "@/types/queue";
 import useSWR from "swr";
 
@@ -39,7 +39,6 @@ interface UnitResponse {
 export const useQueueData = () => {
   const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
-  const { toast } = useToast();
 
   // Fetch queue items
   const { data: queueData, error: queueError, isLoading: queueLoading, mutate: fetchQueueItems } = useSWR<QueueResponse[]>(
@@ -56,11 +55,7 @@ export const useQueueData = () => {
   useEffect(() => {
     if (queueError) {
       console.error("Error fetching queue items:", queueError);
-      toast({
-        title: "Error",
-        description: "Failed to fetch queue items",
-        variant: "destructive",
-      });
+      toast.error("Failed to fetch queue items");
     }
   }, [queueError, toast]);
 

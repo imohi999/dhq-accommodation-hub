@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { UserPlus, Edit, Trash2, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'react-toastify';
 
 interface Profile {
   id: string;
@@ -40,7 +40,6 @@ export default function UserManagementPage() {
     role: 'user',
     password: ''
   });
-  const { toast } = useToast();
 
   const { data: profiles = [], error, isLoading } = useSWR<Profile[]>('/api/profiles', fetcher);
 
@@ -50,11 +49,7 @@ export default function UserManagementPage() {
 
   const handleCreateUser = async () => {
     if (!newUser.username || !newUser.password) {
-      toast({
-        title: "Error",
-        description: "Username and password are required",
-        variant: "destructive",
-      });
+      toast.error("Username and password are required");
       return;
     }
 
@@ -79,27 +74,16 @@ export default function UserManagementPage() {
       if (!response.ok) {
         const error = await response.json();
         console.error('Error creating user:', error);
-        toast({
-          title: "Error",
-          description: error.error || "Failed to create user",
-          variant: "destructive",
-        });
+        toast.error(error.error || "Failed to create user");
       } else {
-        toast({
-          title: "Success",
-          description: "User created successfully",
-        });
+        toast.success("User created successfully");
         setNewUser({ username: '', fullName: '', role: 'user', password: '' });
         setIsCreateModalOpen(false);
         mutate('/api/profiles');
       }
     } catch (error) {
       console.error('Error:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      toast.error("An unexpected error occurred");
     } finally {
       setCreating(false);
     }

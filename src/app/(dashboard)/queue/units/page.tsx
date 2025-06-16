@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { Unit } from "@/types/queue";
 
 // API response type
@@ -72,7 +72,6 @@ export default function QueueUnitsPage() {
     description: ""
   });
   
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Fetch units
@@ -86,18 +85,11 @@ export default function QueueUnitsPage() {
     mutationFn: createUnit,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['units'] });
-      toast({
-        title: "Success",
-        description: "Unit created successfully",
-      });
+      toast.success("Unit created successfully");
       handleCancel();
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to create unit",
-        variant: "destructive",
-      });
+      toast.error("Failed to create unit");
     },
   });
 
@@ -106,18 +98,11 @@ export default function QueueUnitsPage() {
     mutationFn: updateUnit,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['units'] });
-      toast({
-        title: "Success",
-        description: "Unit updated successfully",
-      });
+      toast.success("Unit updated successfully");
       handleCancel();
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update unit",
-        variant: "destructive",
-      });
+      toast.error("Failed to update unit");
     },
   });
 
@@ -126,17 +111,10 @@ export default function QueueUnitsPage() {
     mutationFn: deleteUnit,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['units'] });
-      toast({
-        title: "Success",
-        description: "Unit deleted successfully",
-      });
+      toast.success("Unit deleted successfully");
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to delete unit",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete unit");
     },
   });
 
@@ -166,11 +144,7 @@ export default function QueueUnitsPage() {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      toast({
-        title: "Error",
-        description: "Unit name is required",
-        variant: "destructive",
-      });
+      toast.error("Unit name is required");
       return;
     }
 

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { AccommodationSummaryCards } from "@/components/accommodation/AccommodationSummaryCards";
 import { AccommodationFilters } from "@/components/accommodation/AccommodationFilters";
 import { AccommodationViewToggle } from "@/components/accommodation/AccommodationViewToggle";
@@ -13,6 +12,7 @@ import { ImportModal } from "@/components/accommodation/ImportModal";
 import { useAccommodationData } from "@/hooks/useAccommodationData";
 import { useAccommodationFilters } from "@/hooks/useAccommodationFilters";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
+import { toast } from "react-toastify";
 // Removed Supabase import - using API instead
 
 export default function DHQLivingUnits() {
@@ -46,8 +46,6 @@ export default function DHQLivingUnits() {
     filteredUnits
   } = useAccommodationFilters(units);
   
-  const { toast } = useToast();
-
   const handleAdd = () => {
     setEditingUnit(null);
     setShowForm(true);
@@ -71,36 +69,22 @@ export default function DHQLivingUnits() {
       if (!response.ok) {
         const error = await response.json();
         console.error("Error deleting unit:", error);
-        toast({
-          title: "Error",
-          description: error.error || "Failed to delete accommodation unit",
-          variant: "destructive",
-        });
+        toast.error(error.error || "Failed to delete accommodation unit");
         return;
       }
 
-      toast({
-        title: "Success",
-        description: "Accommodation unit deleted successfully",
-      });
+      toast.success("Accommodation unit deleted successfully");
 
       refetch();
     } catch (error) {
       console.error("Error:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      toast.error("An unexpected error occurred");
     }
   };
 
   const handleImportComplete = () => {
     refetch();
-    toast({
-      title: "Import Complete",
-      description: "Successfully imported accommodation units",
-    });
+    toast.success("Successfully imported accommodation units");
   };
 
   if (loading) {

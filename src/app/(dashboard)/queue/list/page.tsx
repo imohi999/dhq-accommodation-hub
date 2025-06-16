@@ -5,7 +5,7 @@ import { useQueueData, useDeleteQueueEntry } from "@/hooks/useQueueDataNext";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { QueueForm } from "@/components/QueueForm";
 import { QueueSummaryCards } from "@/components/queue/QueueSummaryCards";
 import { QueueFilters } from "@/components/queue/QueueFilters";
@@ -81,7 +81,6 @@ export default function QueuePage() {
 		filteredItems
 	} = useQueueFilters(transformedQueueItems);
 
-	const { toast } = useToast();
 	const deleteEntry = useDeleteQueueEntry();
 
 	// Handler functions
@@ -109,17 +108,10 @@ export default function QueuePage() {
 
 		try {
 			await deleteEntry.mutateAsync(id);
-			toast({
-				title: "Success",
-				description: "Queue item deleted successfully",
-			});
+			toast.success("Queue item deleted successfully");
 		} catch (error) {
 			console.error("Error:", error);
-			toast({
-				title: "Error",
-				description: "An unexpected error occurred",
-				variant: "destructive",
-			});
+			toast.error("An unexpected error occurred");
 		}
 	};
 

@@ -1,5 +1,5 @@
 import useSWR, { mutate as globalMutate } from "swr";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { AllocationRequest } from "@/types/allocation";
 import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
@@ -12,7 +12,6 @@ import { generateLetterId } from "@/services/allocationApi";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export const useAllocationRequestsData = (status?: string) => {
-  const { toast } = useToast();
 
   // Build URL with status filter if provided
   const url = status 
@@ -59,11 +58,7 @@ export const useAllocationRequestsData = (status?: string) => {
     // Validate that categories match
     if (personnel.category !== unit.category) {
       console.error("Category mismatch - Personnel:", personnel.category, "Unit:", unit.category);
-      toast({
-        title: "Category Mismatch",
-        description: `Personnel category (${personnel.category}) doesn't match unit category (${unit.category})`,
-        variant: "destructive",
-      });
+      toast.error(`Category Mismatch: Personnel category (${personnel.category}) doesn't match unit category (${unit.category})`);
       return null;
     }
     
@@ -72,11 +67,7 @@ export const useAllocationRequestsData = (status?: string) => {
     const letterId = await generateLetterId();
     if (!letterId) {
       console.error("Failed to generate letter ID");
-      toast({
-        title: "Letter ID Generation Failed",
-        description: "Unable to generate a unique letter ID. Please check the database connection and try again.",
-        variant: "destructive",
-      });
+      toast.error("Letter ID Generation Failed: Unable to generate a unique letter ID. Please check the database connection and try again.");
       return null;
     }
 
@@ -87,21 +78,14 @@ export const useAllocationRequestsData = (status?: string) => {
     const result = await createAllocationRequestInDb(personnel, unit, letterId);
     if (!result) {
       console.error("Failed to create allocation request in database");
-      toast({
-        title: "Database Error",
-        description: "Failed to create allocation request in database. Please check your permissions and try again.",
-        variant: "destructive",
-      });
+      toast.error("Database Error: Failed to create allocation request in database. Please check your permissions and try again.");
       return null;
     }
 
     console.log("Allocation request created successfully:", result);
     console.log("Personnel automatically removed from queue in transaction");
 
-    toast({
-      title: "Success",
-      description: `Allocation request created successfully with letter ID: ${letterId}`,
-    });
+    toast.success(`Allocation request created successfully with letter ID: ${letterId}`);
 
     // Refresh allocation requests data
     mutate();

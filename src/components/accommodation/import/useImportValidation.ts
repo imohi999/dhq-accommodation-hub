@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import {
   ImportData,
   ValidationError,
@@ -16,7 +16,6 @@ export const useImportValidation = (housingTypes: Array<{ id: string; name: stri
   const [parsedData, setParsedData] = useState<ImportData[]>([]);
   const [isValidating, setIsValidating] = useState(false);
   const [validationComplete, setValidationComplete] = useState(false);
-  const { toast } = useToast();
 
   const validateData = async (file: File) => {
     setIsValidating(true);
@@ -105,24 +104,13 @@ export const useImportValidation = (housingTypes: Array<{ id: string; name: stri
       setValidationComplete(true);
       
       if (errors.length === 0) {
-        toast({
-          title: "Validation Successful",
-          description: `${data.length} records validated successfully. Ready to import.`,
-        });
+        toast.success(`${data.length} records validated successfully. Ready to import.`);
       } else {
-        toast({
-          title: "Validation Failed",
-          description: `Found ${errors.length} errors. Please fix them before importing.`,
-          variant: "destructive",
-        });
+        toast.error(`Found ${errors.length} errors. Please fix them before importing.`);
       }
     } catch (error) {
       console.error('Error validating file:', error);
-      toast({
-        title: "Validation Error",
-        description: "Failed to parse the file. Please check the format.",
-        variant: "destructive",
-      });
+      toast.error("Failed to parse the file. Please check the format.");
     } finally {
       setIsValidating(false);
     }

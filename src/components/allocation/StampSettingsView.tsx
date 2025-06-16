@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { StampSettings } from "@/types/allocation";
 import useSWR, { mutate } from "swr";
 
@@ -23,7 +23,6 @@ export const StampSettingsView = () => {
 		updated_at: "",
 	});
 	const [saving, setSaving] = useState(false);
-	const { toast } = useToast();
 
 	// Use SWR to fetch stamp settings - API returns camelCase
 	const {
@@ -35,11 +34,7 @@ export const StampSettingsView = () => {
 	useEffect(() => {
 		if (error) {
 			console.error("Error fetching stamp settings:", error);
-			toast({
-				title: "Error",
-				description: "Failed to fetch stamp settings",
-				variant: "destructive",
-			});
+			toast.error("Failed to fetch stamp settings");
 		}
 	}, [error, toast]);
 
@@ -115,23 +110,17 @@ export const StampSettingsView = () => {
 				updated_at: savedData.updatedAt,
 			});
 
-			toast({
-				title: "Success",
-				description: "Stamp settings saved successfully",
-			});
+			toast.success("Stamp settings saved successfully");
 
 			// Revalidate the data
 			await mutate("/api/stamp-settings");
 		} catch (error) {
 			console.error("Error saving stamp settings:", error);
-			toast({
-				title: "Error",
-				description:
-					error instanceof Error
-						? error.message
-						: "Failed to save stamp settings",
-				variant: "destructive",
-			});
+			toast.error(
+				error instanceof Error
+					? error.message
+					: "Failed to save stamp settings"
+			);
 		} finally {
 			setSaving(false);
 		}

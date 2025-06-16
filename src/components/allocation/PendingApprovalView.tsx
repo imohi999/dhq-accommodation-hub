@@ -13,7 +13,7 @@ import {
 import { CheckCircle, XCircle, FileText, Clock } from "lucide-react";
 import { AllocationLetter } from "@/components/allocation/AllocationLetter";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { KeyedMutator } from "swr";
 
 interface PendingApprovalViewProps {
@@ -77,10 +77,7 @@ export const PendingApprovalView = ({
 			const result = await response.json();
 
 			// Show success toast
-			toast({
-				title: "Success",
-				description: "Allocation request approved successfully",
-			});
+			toast.success("Allocation request approved successfully");
 
 			// Mutate the data to refresh the list
 			await mutate();
@@ -88,14 +85,11 @@ export const PendingApprovalView = ({
 			return result;
 		} catch (error) {
 			console.error("Error approving allocation:", error);
-			toast({
-				title: "Error",
-				description:
-					error instanceof Error
-						? error.message
-						: "Failed to approve allocation",
-				variant: "destructive",
-			});
+			toast.error(
+				error instanceof Error
+					? error.message
+					: "Failed to approve allocation"
+			);
 			throw error;
 		}
 	}
@@ -117,10 +111,7 @@ export const PendingApprovalView = ({
 
 			const result = await response.json();
 
-			toast({
-				title: "Success",
-				description: "Allocation request was refused",
-			});
+			toast.success("Allocation request was refused");
 
 			// Mutate the data to refresh the list
 			await mutate();
@@ -128,14 +119,11 @@ export const PendingApprovalView = ({
 			return result;
 		} catch (error) {
 			console.error("Error approving allocation:", error);
-			toast({
-				title: "Error",
-				description:
-					error instanceof Error
-						? error.message
-						: "Failed to approve allocation",
-				variant: "destructive",
-			});
+			toast.error(
+				error instanceof Error
+					? error.message
+					: "Failed to approve allocation"
+			);
 			throw error;
 		}
 	}

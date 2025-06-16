@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import { UnitInventory } from "@/types/accommodation";
 import useSWR, { mutate } from "swr";
 
@@ -31,7 +31,6 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
     item_status: 'Functional',
     note: ''
   });
-  const { toast } = useToast();
 
   // Use SWR to fetch inventory
   const { data: inventory = [], error, isLoading } = useSWR<UnitInventory[]>(
@@ -45,11 +44,7 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
   useEffect(() => {
     if (error) {
       console.error('Error fetching inventory:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch inventory",
-        variant: "destructive",
-      });
+      toast.error("Failed to fetch inventory");
     }
   }, [error, toast]);
 
@@ -67,7 +62,7 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
         });
         
         if (!response.ok) throw new Error('Failed to update inventory item');
-        toast({ title: "Success", description: "Inventory item updated successfully" });
+        toast.success("Inventory item updated successfully");
       } else {
         const response = await fetch('/api/units/inventory', {
           method: 'POST',
@@ -78,7 +73,7 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
         });
         
         if (!response.ok) throw new Error('Failed to add inventory item');
-        toast({ title: "Success", description: "Inventory item added successfully" });
+        toast.success("Inventory item added successfully");
       }
       
       // Revalidate the inventory data
@@ -86,11 +81,7 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
       resetForm();
     } catch (error) {
       console.error('Error saving inventory item:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save inventory item",
-        variant: "destructive",
-      });
+      toast.error("Failed to save inventory item");
     }
   };
 
@@ -103,17 +94,13 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
       });
       
       if (!response.ok) throw new Error('Failed to delete inventory item');
-      toast({ title: "Success", description: "Inventory item deleted successfully" });
+      toast.success("Inventory item deleted successfully");
       
       // Revalidate the inventory data
       await mutate(`/api/units/inventory?unitId=${unitId}`);
     } catch (error) {
       console.error('Error deleting inventory item:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete inventory item",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete inventory item");
     }
   };
 

@@ -20,7 +20,7 @@ import {
 import { HistoryModal } from "./HistoryModal";
 import { InventoryModal } from "./InventoryModal";
 import { MaintenanceModal } from "./MaintenanceModal";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "react-toastify";
 import useSWR from "swr";
 
 interface AccommodationCardViewProps {
@@ -43,7 +43,6 @@ export const AccommodationCardView = ({
 	const [showHistoryModal, setShowHistoryModal] = useState(false);
 	const [showInventoryModal, setShowInventoryModal] = useState(false);
 	const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
-	const { toast } = useToast();
 
 	// Use SWR to fetch unit history when a unit is selected
 	const { data: unitHistory = [], error: historyError } = useSWR<UnitHistory[]>(
@@ -54,11 +53,7 @@ export const AccommodationCardView = ({
 		{
 			onError: (error) => {
 				console.error("Error fetching history:", error);
-				toast({
-					title: "Error",
-					description: "Failed to fetch unit history",
-					variant: "destructive",
-				});
+				toast.error("Failed to fetch unit history");
 			},
 		}
 	);
