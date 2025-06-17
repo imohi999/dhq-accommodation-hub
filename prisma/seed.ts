@@ -124,6 +124,7 @@ async function main() {
       stampRank: "Capt.",
       stampAppointment: "Ag QM",
       stampNote: "for Comd",
+      copyTo: "1. Chief of Staff\n2. Director of Operations\n3. Adjutant General",
       isActive: true
     }
   })

@@ -9,6 +9,7 @@ interface ApiStampSetting {
   stampRank: string;
   stampAppointment: string;
   stampNote?: string | null;
+  copyTo?: string
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -30,6 +31,7 @@ const transformStampSetting = (item: ApiStampSetting): StampSettings => ({
   stamp_rank: item.stampRank,
   stamp_appointment: item.stampAppointment,
   stamp_note: item.stampNote,
+  copy_to: item.copyTo,
   is_active: item.isActive,
   created_at: item.createdAt,
   updated_at: item.updatedAt
@@ -59,9 +61,9 @@ export const useStampSettings = () => {
 // Hook to fetch only active stamp settings
 export const useActiveStampSettings = () => {
   const { data, error, isLoading, mutate } = useStampSettings();
-  
+
   const activeSettings = data?.filter(setting => setting.is_active) || [];
-  
+
   return {
     data: activeSettings,
     error,
@@ -75,7 +77,7 @@ export const fetchStampSettingsFromDb = async (): Promise<StampSettings[]> => {
   console.log("Fetching stamp settings...");
   try {
     const response = await fetch('/api/stamp-settings');
-    
+
     if (!response.ok) {
       console.error("Error fetching stamp settings:", response.statusText);
       return [];
@@ -83,10 +85,10 @@ export const fetchStampSettingsFromDb = async (): Promise<StampSettings[]> => {
 
     const data: ApiStampSetting[] = await response.json();
     const transformedData = data.map(transformStampSetting);
-    
+
     // Filter for active settings only (matching the original behavior)
     const activeSettings = transformedData.filter(setting => setting.is_active);
-    
+
     console.log("Setting stamp settings:", activeSettings);
     return activeSettings;
   } catch (error) {
@@ -126,7 +128,7 @@ export const createStampSetting = async (stampData: {
     }
 
     const apiResponse: ApiStampSetting = await response.json();
-    
+
     // Invalidate the cache
     await mutate('/api/stamp-settings');
 
@@ -176,7 +178,7 @@ export const updateStampSetting = async (
     }
 
     const apiResponse: ApiStampSetting = await response.json();
-    
+
     // Invalidate the cache
     await mutate('/api/stamp-settings');
 

@@ -18,11 +18,12 @@ export async function GET() {
   }
 }
 
+
 // POST: Create new stamp setting
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { stampName, stampRank, stampAppointment, stampNote } = body;
+    const { stampName, stampRank, stampAppointment, stampNote, copyTo } = body;
 
     // Deactivate all other stamps if this one is active
     if (body.isActive !== false) {
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
         stampRank,
         stampAppointment,
         stampNote,
+        copyTo,
         isActive: body.isActive !== false
       }
     });

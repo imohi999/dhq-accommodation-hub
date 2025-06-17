@@ -24,6 +24,7 @@ export interface StampSettings {
   stamp_rank: string;
   stamp_appointment: string;
   stamp_note?: string | null;
+  copy_to?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

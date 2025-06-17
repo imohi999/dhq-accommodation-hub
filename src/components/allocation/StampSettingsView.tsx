@@ -19,6 +19,7 @@ interface StampSettingsAPIResponse {
 	stampRank: string;
 	stampAppointment: string;
 	stampNote?: string | null;
+	copyTo?: string | null;
 	isActive: boolean;
 	createdAt: string;
 	updatedAt: string;
@@ -31,6 +32,7 @@ export const StampSettingsView = () => {
 		stamp_rank: "",
 		stamp_appointment: "",
 		stamp_note: "",
+		copy_to: "",
 		is_active: true,
 		created_at: "",
 		updated_at: "",
@@ -63,6 +65,7 @@ export const StampSettingsView = () => {
 					stamp_rank: activeSettings.stampRank,
 					stamp_appointment: activeSettings.stampAppointment,
 					stamp_note: activeSettings.stampNote || "",
+					copy_to: activeSettings.copyTo || "",
 					is_active: activeSettings.isActive,
 					created_at: activeSettings.createdAt,
 					updated_at: activeSettings.updatedAt,
@@ -79,6 +82,7 @@ export const StampSettingsView = () => {
 				stampRank: settings.stamp_rank,
 				stampAppointment: settings.stamp_appointment,
 				stampNote: settings.stamp_note,
+				copyTo: settings.copy_to,
 				isActive: true,
 			};
 
@@ -118,6 +122,7 @@ export const StampSettingsView = () => {
 				stamp_rank: savedData.stampRank,
 				stamp_appointment: savedData.stampAppointment,
 				stamp_note: savedData.stampNote,
+				copy_to: savedData.copyTo,
 				is_active: savedData.isActive,
 				created_at: savedData.createdAt,
 				updated_at: savedData.updatedAt,
@@ -202,6 +207,19 @@ export const StampSettingsView = () => {
 								setSettings({ ...settings, stamp_note: e.target.value })
 							}
 							placeholder='Enter any additional remarks for the stamp'
+							rows={3}
+						/>
+					</div>
+
+					<div className='space-y-2'>
+						<Label htmlFor='copy_to'>Copy To (Optional)</Label>
+						<Textarea
+							id='copy_to'
+							value={settings.copy_to || ""}
+							onChange={(e) =>
+								setSettings({ ...settings, copy_to: e.target.value })
+							}
+							placeholder='Enter recipients to copy (e.g., "1. Chief of Staff\n2. Director of Operations")'
 							rows={3}
 						/>
 					</div>

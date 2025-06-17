@@ -253,6 +253,7 @@ model StampSetting {
   stampName        String   @map("stamp_name")
   stampRank        String   @map("stamp_rank")
   stampAppointment String   @map("stamp_appointment")
+  copyTo           String?  @map("copy_to")
   stampNote        String?  @map("stamp_note")
   isActive         Boolean  @default(true) @map("is_active")
   createdAt        DateTime @default(now()) @map("created_at")

@@ -30,14 +30,14 @@ export const AllocationLetter = ({
 			if (printWindow) {
 				// Clone the content
 				const clonedContent = printContent.cloneNode(true) as HTMLElement;
-				
+
 				// Ensure all images have absolute URLs for printing
 				const images = clonedContent.querySelectorAll("img");
 				images.forEach((img) => {
 					// Convert relative URLs to absolute
-					const src = img.getAttribute('src');
-					if (src && src.startsWith('/')) {
-						img.setAttribute('src', window.location.origin + src);
+					const src = img.getAttribute("src");
+					if (src && src.startsWith("/")) {
+						img.setAttribute("src", window.location.origin + src);
 					}
 				});
 
@@ -218,7 +218,7 @@ export const AllocationLetter = ({
           </html>
         `);
 				printWindow.document.close();
-				
+
 				// Add a small delay to ensure images are loaded
 				setTimeout(() => {
 					printWindow.print();
@@ -264,21 +264,19 @@ export const AllocationLetter = ({
 								src='/lovable-uploads/5fdd34e0-92c2-4d90-b14f-74d73614597d.png'
 								alt='Nigerian Coat of Arms'
 								style={{
-									width: '96px',
-									height: '96px',
-									objectFit: 'contain'
+									width: "96px",
+									height: "96px",
+									objectFit: "contain",
 								}}
 							/>
 						</div>
-						<h1 className='text-lg font-bold mb-2'>
-							DEFENCE HEADQUARTERS GARRISON
-						</h1>
-						<h2 className='text-lg font-bold mb-1'>MOGADISHU CANTONMENT</h2>
-						<h3 className='text-lg font-bold'>ABUJA</h3>
+						<h1 className='text-lg font-bold leading-tight'>DEFENCE HEADQUARTERS GARRISON</h1>
+						<h2 className='text-lg font-bold leading-tight'>MOGADISHU CANTONMENT</h2>
+						<h3 className='text-lg font-bold leading-tight'>ABUJA</h3>
 					</div>
 
 					{/* Letter Reference - Display actual letter ID */}
-					<div className='mb-4'>
+					<div>
 						<p className='font-bold'>{displayLetterId}</p>
 					</div>
 
@@ -297,7 +295,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Date and Time */}
-					<div className='text-right mb-6'>
+					<div className='text-right mb-6 mr-16'>
 						<p>{currentDate}</p>
 					</div>
 
@@ -312,11 +310,25 @@ export const AllocationLetter = ({
 					<div className='space-y-4 mb-8'>
 						<p>
 							1. I am directed to inform you that you have been allocated{" "}
-							<span className='font-bold'>{allocationRequest.unit.blockName}</span>,{" "}
-							<span className='font-bold'>{allocationRequest.unit.flatHouseRoomName}</span>{" "}
-							<span className='font-bold'>{allocationRequest.unitData.quarterName}</span>,{" "}
-							<span className='font-bold'>{allocationRequest.unitData.location}</span> as residential quarter{" "}
-							<span className='font-bold'>{allocationRequest.unit.flatHouseRoomName}</span> on{" "}
+							<span className='font-bold'>
+								{allocationRequest.unit.blockName}
+							</span>
+							,{" "}
+							<span className='font-bold'>
+								{allocationRequest.unit.flatHouseRoomName}
+							</span>{" "}
+							<span className='font-bold'>
+								{allocationRequest.unitData.quarterName}
+							</span>
+							,{" "}
+							<span className='font-bold'>
+								{allocationRequest.unitData.location}
+							</span>{" "}
+							as residential quarter{" "}
+							<span className='font-bold'>
+								{allocationRequest.unit.flatHouseRoomName}
+							</span>{" "}
+							on{" "}
 							<span className='font-bold'>
 								{new Date(allocationRequest.allocationDate).toLocaleDateString(
 									"en-GB",
@@ -350,7 +362,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Signature - Removed stamp image box, only text */}
-					<div className='text-right mt-12'>
+					<div className='text-right mt-12 mr-16'>
 						{activeStamp && (
 							<div className='text-sm'>
 								<p className='font-bold'>{activeStamp.stamp_name}</p>
@@ -363,8 +375,14 @@ export const AllocationLetter = ({
 
 					{/* Copy Section */}
 					<div className='mt-12 text-xs'>
-						<p className='font-bold'> Copy To:</p>
-						<p>DHQ Gar Comd</p>
+						<p className='font-bold'>Copy To:</p>
+						{activeStamp?.copy_to ? (
+							<div style={{ whiteSpace: "pre-line" }}>
+								{activeStamp.copy_to}
+							</div>
+						) : (
+							<p>DHQ Gar Comd</p>
+						)}
 					</div>
 				</div>
 			</DialogContent>
