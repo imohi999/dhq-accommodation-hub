@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { useAllocation } from "@/hooks/useAllocation";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
-import Image from "next/image";
 
 interface AllocationLetterProps {
 	isOpen: boolean;
@@ -29,18 +28,17 @@ export const AllocationLetter = ({
 		if (printContent) {
 			const printWindow = window.open("", "_blank");
 			if (printWindow) {
-				// Clone the content and replace Next Image with regular img for printing
+				// Clone the content
 				const clonedContent = printContent.cloneNode(true) as HTMLElement;
-				const nextImages = clonedContent.querySelectorAll("img[data-nimg]");
-				nextImages.forEach((img) => {
-					img.removeAttribute("data-nimg");
-					img.removeAttribute("decoding");
-					img.removeAttribute("loading");
-					img.removeAttribute("style");
-					img.setAttribute(
-						"style",
-						"width: 100%; height: 100%; object-fit: contain;"
-					);
+				
+				// Ensure all images have absolute URLs for printing
+				const images = clonedContent.querySelectorAll("img");
+				images.forEach((img) => {
+					// Convert relative URLs to absolute
+					const src = img.getAttribute('src');
+					if (src && src.startsWith('/')) {
+						img.setAttribute('src', window.location.origin + src);
+					}
 				});
 
 				printWindow.document.write(`
@@ -190,6 +188,19 @@ export const AllocationLetter = ({
                     line-height: 1.6;
                   }
                   
+                  /* Force images to display */
+                  img {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    max-width: 96px !important;
+                    max-height: 96px !important;
+                    width: 96px !important;
+                    height: 96px !important;
+                    object-fit: contain !important;
+                    margin: 0 auto !important;
+                  }
+                  
                   /* Page breaks */
                   .signature-section {
                     page-break-inside: avoid;
@@ -207,7 +218,11 @@ export const AllocationLetter = ({
           </html>
         `);
 				printWindow.document.close();
-				printWindow.print();
+				
+				// Add a small delay to ensure images are loaded
+				setTimeout(() => {
+					printWindow.print();
+				}, 500);
 			}
 		}
 	};
@@ -215,11 +230,6 @@ export const AllocationLetter = ({
 	const currentDate = new Date().toLocaleDateString("en-GB", {
 		month: "short",
 		year: "2-digit",
-	});
-
-	const currentTime = new Date().toLocaleTimeString("en-GB", {
-		hour: "2-digit",
-		minute: "2-digit",
 	});
 
 	// Ensure proper letter ID format - use the actual letter_id from the request
@@ -250,15 +260,15 @@ export const AllocationLetter = ({
 					{/* Header */}
 					<div className='text-center mb-6'>
 						<div className='flex justify-center mb-4'>
-							<div className='relative w-24 h-24'>
-								<Image
-									src='/lovable-uploads/5fdd34e0-92c2-4d90-b14f-74d73614597d.png'
-									alt='Nigerian Coat of Arms'
-									fill
-									className='object-contain'
-									priority
-								/>
-							</div>
+							<img
+								src='/lovable-uploads/5fdd34e0-92c2-4d90-b14f-74d73614597d.png'
+								alt='Nigerian Coat of Arms'
+								style={{
+									width: '96px',
+									height: '96px',
+									objectFit: 'contain'
+								}}
+							/>
 						</div>
 						<h1 className='text-lg font-bold mb-2'>
 							DEFENCE HEADQUARTERS GARRISON
