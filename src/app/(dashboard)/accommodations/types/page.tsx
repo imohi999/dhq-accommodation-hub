@@ -169,7 +169,7 @@ export default function HousingTypes() {
 						Accommodation Types
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage accommodation type categories for accommodation units
+						Manage accommodation type categories for accommodation quarters
 					</p>
 				</div>
 				<Dialog open={showForm} onOpenChange={setShowForm}>
@@ -191,7 +191,7 @@ export default function HousingTypes() {
 							<DialogDescription>
 								{editingItem
 									? "Update the accommodation type details."
-									: "Create a new accommodation type for accommodation units."}
+									: "Create a new accommodation type for accommodation quarters."}
 							</DialogDescription>
 						</DialogHeader>
 						<form onSubmit={handleSubmit} className='space-y-4'>

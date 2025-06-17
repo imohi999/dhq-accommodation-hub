@@ -63,7 +63,7 @@ export default function DHQLivingUnits() {
 	};
 
 	const handleDelete = async (id: string) => {
-		if (!confirm("Are you sure you want to delete this accommodation unit?")) {
+		if (!confirm("Are you sure you want to delete this accommodation quarters?")) {
 			return;
 		}
 
@@ -76,11 +76,11 @@ export default function DHQLivingUnits() {
 			if (!response.ok) {
 				const error = await response.json();
 				console.error("Error deleting unit:", error);
-				toast.error(error.error || "Failed to delete accommodation unit");
+				toast.error(error.error || "Failed to delete accommodation quarters");
 				return;
 			}
 
-			toast.success("Accommodation unit deleted successfully");
+			toast.success("Accommodation quarters deleted successfully");
 
 			refetch();
 		} catch (error) {
@@ -93,7 +93,7 @@ export default function DHQLivingUnits() {
 
 	const handleImportComplete = () => {
 		refetch();
-		toast.success("Successfully imported accommodation units");
+		toast.success("Successfully imported accommodation quarters");
 	};
 
 	if (loading) {
@@ -108,7 +108,7 @@ export default function DHQLivingUnits() {
 						DHQ Accommodation
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage accommodation units for military personnel
+						Manage accommodation quarters for military personnel
 					</p>
 				</div>
 				<div className='flex gap-2'>
@@ -121,7 +121,7 @@ export default function DHQLivingUnits() {
 					</Button>
 					<Button onClick={handleAdd} className='flex items-center gap-2'>
 						<Plus className='h-4 w-4' />
-						Add Unit
+						Add Quarters
 					</Button>
 				</div>
 			</div>
@@ -159,7 +159,7 @@ export default function DHQLivingUnits() {
 					onViewChange={setViewMode}
 				/>
 				<p className='text-sm text-muted-foreground'>
-					Showing {filteredUnits.length} of {units.length} units
+					Showing {filteredUnits.length} of {units.length} quarters
 				</p>
 			</div>
 

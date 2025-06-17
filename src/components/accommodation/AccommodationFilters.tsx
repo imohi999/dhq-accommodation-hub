@@ -142,7 +142,7 @@ export const AccommodationFilters = ({
 
 				<Select value={housingTypeFilter} onValueChange={onHousingTypeChange}>
 					<SelectTrigger>
-						<SelectValue placeholder='Accommodationation Type' />
+						<SelectValue placeholder='Accommodation Type' />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>All Accommodation Types</SelectItem>
@@ -209,10 +209,10 @@ export const AccommodationFilters = ({
 
 				<Select value={unitNameFilter} onValueChange={onUnitNameChange}>
 					<SelectTrigger>
-						<SelectValue placeholder='Unit Name' />
+						<SelectValue placeholder='Quarters Name' />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value='all'>All Unit Names</SelectItem>
+						<SelectItem value='all'>All Quarters Names</SelectItem>
 						{uniqueUnitNames.map((name, index) => (
 							<SelectItem key={index} value={name}>
 								{name}

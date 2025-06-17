@@ -38,7 +38,7 @@ export const AccommodationSummaryCards = ({
 		{
 			title: "Total",
 			value: totalUnits,
-			description: "Total accommodation units",
+			description: "Total accommodation quarters",
 			icon: Building,
 		},
 		{

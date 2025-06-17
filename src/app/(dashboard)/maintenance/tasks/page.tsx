@@ -93,7 +93,7 @@ export default function MaintenanceTasksPage() {
 						Maintenance Tasks
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage scheduled maintenance tasks for accommodation units
+						Manage scheduled maintenance tasks for accommodation quarters
 					</p>
 				</div>
 				<Button onClick={handleAdd} className='flex items-center gap-2'>

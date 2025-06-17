@@ -95,7 +95,7 @@ export default function MaintenanceRequestsPage() {
 						Maintenance Requests
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage maintenance requests for accommodation units
+						Manage maintenance requests for accommodation quarters
 					</p>
 				</div>
 				<Button onClick={handleAdd} className='flex items-center gap-2'>

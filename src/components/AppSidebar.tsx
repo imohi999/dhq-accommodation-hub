@@ -54,7 +54,7 @@ const menuItems = [
 				url: "/queue/list",
 			},
 			{
-				title: "Units",
+				title: "Quarters",
 				url: "/queue/units",
 			},
 		],

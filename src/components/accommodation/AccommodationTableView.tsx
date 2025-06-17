@@ -45,7 +45,7 @@ export const AccommodationTableView = ({
 			"No of Rooms in BQ",
 			"Block Name",
 			"Flat/House/Room Name",
-			"Unit Name",
+			"Quarters Name",
 			"Current Occupant",
 			"Occupant Rank",
 			"Service Number",
@@ -81,7 +81,7 @@ export const AccommodationTableView = ({
 		const url = window.URL.createObjectURL(blob);
 		const a = document.createElement("a");
 		a.href = url;
-		a.download = `accommodation-units-${
+		a.download = `accommodation-quarters-${
 			new Date().toISOString().split("T")[0]
 		}.csv`;
 		a.click();
@@ -117,9 +117,9 @@ export const AccommodationTableView = ({
 			<CardHeader>
 				<div className='flex justify-between items-center'>
 					<div>
-						<CardTitle>Accommodation Units</CardTitle>
+						<CardTitle>Accommodation Quarters</CardTitle>
 						<CardDescription>
-							Currently showing {units.length} accommodation units
+							Currently showing {units.length} accommodation quarters
 						</CardDescription>
 					</div>
 					<Button
@@ -144,7 +144,7 @@ export const AccommodationTableView = ({
 							<TableHead>Occupancy</TableHead>
 							<TableHead>BQ</TableHead>
 							<TableHead>Block</TableHead>
-							<TableHead>Unit Name</TableHead>
+							<TableHead>Quarters Name</TableHead>
 							<TableHead>Current Occupant</TableHead>
 							<TableHead className='w-[100px]'>Actions</TableHead>
 						</TableRow>
@@ -217,7 +217,7 @@ export const AccommodationTableView = ({
 								<TableCell
 									colSpan={12}
 									className='text-center text-muted-foreground'>
-									No accommodation units matching current filters
+									No accommodation quarters matching current filters
 								</TableCell>
 							</TableRow>
 						)}

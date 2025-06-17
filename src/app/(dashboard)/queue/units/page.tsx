@@ -86,11 +86,11 @@ export default function QueueUnitsPage() {
     mutationFn: createUnit,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['units'] });
-      toast.success("Unit created successfully");
+      toast.success("Quarters created successfully");
       handleCancel();
     },
     onError: () => {
-      toast.error("Failed to create unit");
+      toast.error("Failed to create quarters");
     },
   });
 
@@ -99,11 +99,11 @@ export default function QueueUnitsPage() {
     mutationFn: updateUnit,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['units'] });
-      toast.success("Unit updated successfully");
+      toast.success("Quarter updated successfully");
       handleCancel();
     },
     onError: () => {
-      toast.error("Failed to update unit");
+      toast.error("Failed to update quarters");
     },
   });
 
@@ -112,10 +112,10 @@ export default function QueueUnitsPage() {
     mutationFn: deleteUnit,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['units'] });
-      toast.success("Unit deleted successfully");
+      toast.success("Quarters deleted successfully");
     },
     onError: () => {
-      toast.error("Failed to delete unit");
+      toast.error("Failed to delete quarter");
     },
   });
 
@@ -135,7 +135,7 @@ export default function QueueUnitsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this unit?")) {
+    if (!confirm("Are you sure you want to delete this quarters?")) {
       return;
     }
     deleteMutation.mutate(id);
@@ -145,7 +145,7 @@ export default function QueueUnitsPage() {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      toast.error("Unit name is required");
+      toast.error("Quarter name is required");
       return;
     }
 
@@ -177,32 +177,32 @@ export default function QueueUnitsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-[#1B365D]">Units Management</h1>
+          <h1 className="text-2xl font-bold text-[#1B365D]">Quarters Management</h1>
           <p className="text-muted-foreground">
-            Manage units that appear in the Current Unit dropdown
+            Manage quarters that appear in the Current Quarters dropdown
           </p>
         </div>
         <Button onClick={handleAdd} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          Add Unit
+          Add Quarters
         </Button>
       </div>
 
       {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>{editingUnit ? 'Edit' : 'Add'} Unit</CardTitle>
+            <CardTitle>{editingUnit ? 'Edit' : 'Add'} Quarters</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Unit Name *</Label>
+                  <Label htmlFor="name">Quarter Name *</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Enter unit name"
+                    placeholder="Enter quarter name"
                     required
                   />
                 </div>
@@ -212,7 +212,7 @@ export default function QueueUnitsPage() {
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Enter unit description (optional)"
+                    placeholder="Enter quarter description (optional)"
                     rows={3}
                   />
                 </div>
@@ -225,7 +225,7 @@ export default function QueueUnitsPage() {
                   disabled={createMutation.isPending || updateMutation.isPending}
                 >
                   <Save className="h-4 w-4" />
-                  {editingUnit ? "Update" : "Create"} Unit
+                  {editingUnit ? "Update" : "Create"} Quarters
                 </Button>
                 <Button type="button" variant="outline" onClick={handleCancel} className="flex items-center gap-2">
                   <X className="h-4 w-4" />
@@ -239,13 +239,13 @@ export default function QueueUnitsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Units List</CardTitle>
+          <CardTitle>Quarters List</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Unit Name</TableHead>
+                <TableHead>Quarters Name</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Created Date</TableHead>
                 <TableHead className="w-[120px]">Actions</TableHead>
@@ -283,7 +283,7 @@ export default function QueueUnitsPage() {
               {units.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    No units found. Add your first unit to get started.
+                    No quarters found. Add your first quarters to get started.
                   </TableCell>
                 </TableRow>
               )}
