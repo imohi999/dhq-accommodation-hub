@@ -120,7 +120,7 @@ export const TransferRequestModal = ({
 			<Dialog open={isOpen} onOpenChange={onClose}>
 				<DialogContent className='max-w-6xl max-h-[90vh] overflow-y-auto'>
 					<DialogHeader>
-						<DialogTitle>Request Transfer</DialogTitle>
+						<DialogTitle>Re-allocate</DialogTitle>
 						<DialogDescription>
 							Request transfer for {currentUnit.currentOccupantName} to another
 							unit. This will proceed with immediate transfer. Showing{" "}

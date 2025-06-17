@@ -440,7 +440,7 @@ export const ActiveAllocationsView = ({
 											onClick={() => handleTransferClick(unit)}
 											className='flex items-center gap-2'>
 											<ArrowRightLeft className='h-4 w-4' />
-											Request Transfer
+											Re-allocate
 										</Button>
 
 										<LoadingButton
