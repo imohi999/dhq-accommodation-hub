@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQueueData, useDeleteQueueEntry } from "@/hooks/useQueueDataNext";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,8 @@ export default function QueuePage() {
 
 	// Use auto-refresh for queue data
 	const { data: queueItems = [], isLoading: loading, refetch: fetchQueueItems } = useQueueData({}, {
-		refetchInterval: 30000, // Auto-refresh every 30 seconds
+		refetchInterval: 10000, // Auto-refresh every 10 seconds
+		refetchIntervalInBackground: true,
 	});
 
 	// Transform API data to match expected format if needed
@@ -90,6 +91,22 @@ export default function QueuePage() {
 	} = useQueueFilters(transformedQueueItems);
 
 	const deleteEntry = useDeleteQueueEntry();
+
+	// Refresh queue data when page gains focus
+	useEffect(() => {
+		const handleFocus = () => {
+			fetchQueueItems();
+		};
+
+		window.addEventListener('focus', handleFocus);
+		
+		// Also refresh when navigating to this page
+		fetchQueueItems();
+
+		return () => {
+			window.removeEventListener('focus', handleFocus);
+		};
+	}, [fetchQueueItems]);
 
 	// Handler functions
 	const handleAdd = () => {

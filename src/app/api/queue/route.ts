@@ -44,7 +44,6 @@ export async function GET(request: NextRequest) {
     const gender = searchParams.get('gender')
     const category = searchParams.get('category')
     const maritalStatus = searchParams.get('maritalStatus')
-
     const where = {
       AND: [
         search ? {

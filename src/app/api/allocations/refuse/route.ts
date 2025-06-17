@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
         maritalStatus: personnelData.maritalStatus,
         noOfAdultDependents: personnelData.noOfAdultDependents || 0,
         noOfChildDependents: personnelData.noOfChildDependents || 0,
+        dependents: (personnelData as any).dependents || [],
         currentUnit: personnelData.currentUnit,
         appointment: personnelData.appointment || '',
         dateTos: personnelData.dateTos || null,
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
         });
       } else {
         // Create new entry at sequence 1
-        await tx.queue.create({
+        const newQueueEntry = await tx.queue.create({
           data: {
             id: personnelId, // Use the original personnel ID
             fullName: queueData.fullName,
@@ -113,6 +114,7 @@ export async function POST(request: NextRequest) {
             maritalStatus: queueData.maritalStatus,
             noOfAdultDependents: queueData.noOfAdultDependents,
             noOfChildDependents: queueData.noOfChildDependents,
+            dependents: queueData.dependents,
             currentUnit: queueData.currentUnit,
             appointment: queueData.appointment,
             dateTos: queueData.dateTos ? new Date(queueData.dateTos) : null,
@@ -122,7 +124,14 @@ export async function POST(request: NextRequest) {
             sequence: 1
           }
         });
+        console.log('[REFUSE] Created new queue entry:', newQueueEntry);
       }
+
+      // Verify the queue entry exists
+      const verifyEntry = await tx.queue.findUnique({
+        where: { id: personnelId }
+      });
+      console.log('[REFUSE] Verification - Queue entry exists:', !!verifyEntry);
 
       return updatedRequest;
     }, {
@@ -156,6 +165,11 @@ interface IPersonnelData {
   appointment?: string;
   noOfAdultDependents?: number;
   noOfChildDependents?: number;
+  dependents?: Array<{
+    name: string;
+    gender: string;
+    age: number;
+  }>;
   dateTos?: string | null;
   dateSos?: string | null;
 }
