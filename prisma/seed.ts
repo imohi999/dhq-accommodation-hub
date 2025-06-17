@@ -136,11 +136,11 @@ async function main() {
       id: "c935e9e1-6829-4a5e-be78-763e5daeb670",
       sequence: 1,
       fullName: "Aisha Okafor",
-      svcNo: "AF/17127/79",
+      svcNo: "NA/17127/79",
       gender: "Female",
       armOfService: "Army",
       category: "Officer",
-      rank: "Squadron Leader",
+      rank: "Sqn Ldr",
       maritalStatus: "Married",
       noOfAdultDependents: 1,
       noOfChildDependents: 1,
@@ -157,11 +157,11 @@ async function main() {
       id: "0cc97e1e-0f52-48ad-8ea5-35a5a321dec0",
       sequence: 2,
       fullName: "Emeka Adebayo",
-      svcNo: "N/84591/22",
+      svcNo: "AF/84591/22",
       gender: "Male",
       armOfService: "Air Force",
       category: "Officer",
-      rank: "Squadron Leader",
+      rank: "Sqn Ldr",
       maritalStatus: "Single",
       noOfAdultDependents: 1,
       noOfChildDependents: 2,
@@ -179,11 +179,11 @@ async function main() {
       id: "59d3081d-9625-42e0-9ef7-0a547d39996d",
       sequence: 3,
       fullName: "Oluwaseun Balogun",
-      svcNo: "A/65461/71",
+      svcNo: "NN/65461/71",
       gender: "Male",
       armOfService: "Navy",
       category: "Officer",
-      rank: "Lieutenant Commander",
+      rank: "Lt Cdr",
       maritalStatus: "Married",
       noOfAdultDependents: 0,
       noOfChildDependents: 0,
@@ -197,11 +197,11 @@ async function main() {
       id: "e4b5fed3-7972-48c8-b08d-ee1dd6c39c6e",
       sequence: 4,
       fullName: "Ibrahim Mohammed",
-      svcNo: "AF/62775/20",
+      svcNo: "NN/62775/20",
       gender: "Male",
       armOfService: "Navy",
       category: "Officer",
-      rank: "Lieutenant",
+      rank: "Lt",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
       noOfChildDependents: 1,
@@ -217,11 +217,11 @@ async function main() {
       id: "cdebec59-931b-4565-ba8f-d677b0a362b3",
       sequence: 5,
       fullName: "Chijioke Eze",
-      svcNo: "N/56838/94",
+      svcNo: "AF/56838/94",
       gender: "Male",
       armOfService: "Air Force",
       category: "Officer",
-      rank: "Lieutenant Colonel",
+      rank: "Lt Col",
       maritalStatus: "Married",
       noOfAdultDependents: 0,
       noOfChildDependents: 0,
@@ -234,11 +234,11 @@ async function main() {
       id: "180d800e-ff6f-4cb5-83e0-0320b6377acc",
       sequence: 6,
       fullName: "Yakubu Danjuma",
-      svcNo: "N/94452/88",
+      svcNo: "AF/94452/88",
       gender: "Male",
       armOfService: "Air Force",
       category: "NCOs",
-      rank: "Staff Sergeant",
+      rank: "SSgt",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
       noOfChildDependents: 2,
@@ -255,7 +255,7 @@ async function main() {
       gender: "Female",
       armOfService: "Air Force",
       category: "NCOs",
-      rank: "Staff Sergeant",
+      rank: "SSgt",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
       noOfChildDependents: 0,
@@ -272,7 +272,7 @@ async function main() {
       gender: "Female",
       armOfService: "Air Force",
       category: "NCOs",
-      rank: "Flight Sergeant",
+      rank: "FS",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
       noOfChildDependents: 1,
@@ -319,7 +319,7 @@ async function main() {
         age: 35 + (i % 10)
       })
     }
-    
+
     // Add children based on child count
     for (let c = 0; c < noOfChildDependents; c++) {
       dependents.push({
@@ -328,7 +328,7 @@ async function main() {
         age: 5 + (c * 3)
       })
     }
-    
+
     // Add adult dependents (parents, siblings, etc)
     for (let a = 0; a < noOfAdultDependents && dependents.filter(d => d.age >= 18).length < noOfAdultDependents; a++) {
       dependents.push({
@@ -341,13 +341,13 @@ async function main() {
     additionalQueueEntries.push({
       sequence: i,
       fullName: fullName,
-      svcNo: `${['A', 'N', 'AF'][i % 3]}/${Math.floor(Math.random() * 90000) + 10000}/${Math.floor(Math.random() * 30) + 70}`,
+      svcNo: `${['NA', 'NN', 'AF'][i % 3]}/${Math.floor(Math.random() * 90000) + 10000}/${Math.floor(Math.random() * 30) + 70}`,
       gender: isMale ? 'Male' : 'Female',
       armOfService: ['Army', 'Navy', 'Air Force'][i % 3],
       category: isOfficer ? 'Officer' : 'NCOs',
       rank: isOfficer
-        ? ['Major', 'Captain', 'Squadron Leader', 'Lieutenant Colonel'][i % 4]
-        : ['Corporal', 'Sergeant', 'Staff Sergeant', 'Warrant Officer'][i % 4],
+        ? ['Maj', 'Capt', 'Sqn Ldr', 'Lt Col'][i % 4]
+        : ['Cpl', 'Sgt', 'SSgt', 'WO'][i % 4],
       maritalStatus: maritalStatus,
       noOfAdultDependents: noOfAdultDependents,
       noOfChildDependents: noOfChildDependents,
@@ -457,8 +457,8 @@ async function main() {
       flatHouseRoomName: "Flat 6",
       unitName: "Block 1 Flat 6",
       currentOccupantName: "Fatima Lawal",
-      currentOccupantRank: "Lieutenant",
-      currentOccupantServiceNumber: "A12347",
+      currentOccupantRank: "Capt",
+      currentOccupantServiceNumber: "NA/12347/88",
       occupancyStartDate: new Date("2025-06-12")
     }
   ]
@@ -482,9 +482,9 @@ async function main() {
       flatHouseRoomName: `Flat ${i}`,
       unitName: `Block 3 Flat ${i}`,
       ...(i === 2 && {
-        currentOccupantName: "Major Oluwole Adeyinka",
-        currentOccupantRank: "Major",
-        currentOccupantServiceNumber: "N34567",
+        currentOccupantName: "Oluwole Adeyinka",
+        currentOccupantRank: "Maj",
+        currentOccupantServiceNumber: "NN/34567/84",
         occupancyStartDate: new Date("2025-05-01")
       })
     })
@@ -524,9 +524,9 @@ async function main() {
       flatHouseRoomName: `Duplex ${i}`,
       unitName: `Estate A Duplex ${i}`,
       ...(i === 1 && {
-        currentOccupantName: "Col. Nkechi Okonkwo",
-        currentOccupantRank: "Colonel",
-        currentOccupantServiceNumber: "AF78901",
+        currentOccupantName: "Nkechi Okonkwo",
+        currentOccupantRank: "Col",
+        currentOccupantServiceNumber: "AF/78901/82",
         occupancyStartDate: new Date("2025-03-15")
       })
     })
@@ -559,16 +559,16 @@ async function main() {
   // Create past allocations (20 entries)
   const pastAllocations = []
   const pastOccupants = [
-    { name: "Lt. Col. Adebayo Olanrewaju", rank: "Lieutenant Colonel", svcNo: "A/45678/85" },
-    { name: "Major Hauwa Bello", rank: "Major", svcNo: "N/34567/90" },
-    { name: "Capt. Chinedu Okeke", rank: "Captain", svcNo: "AF/23456/92" },
-    { name: "Squadron Leader Folasade Akintola", rank: "Squadron Leader", svcNo: "AF/12345/88" },
-    { name: "Commander Emeka Nnamdi", rank: "Commander", svcNo: "N/67890/87" },
-    { name: "Lt. Aisha Danjuma", rank: "Lieutenant", svcNo: "A/54321/95" },
-    { name: "WO1 Babajide Ogunlana", rank: "Warrant Officer 1", svcNo: "A/98765/80" },
-    { name: "Flight Sergeant Zainab Abdullahi", rank: "Flight Sergeant", svcNo: "AF/87654/82" },
-    { name: "Lt. Obinna Chukwu", rank: "Lieutenant", svcNo: "N/76543/85" },
-    { name: "Staff Sergeant Kemi Adegbite", rank: "Staff Sergeant", svcNo: "AF/65432/89" }
+    { name: "Adebayo Olanrewaju", rank: "Lt Col", svcNo: "NA/45678/85" },
+    { name: "Hauwa Bello", rank: "Maj", svcNo: "NN/34567/90" },
+    { name: "Chinedu Okeke", rank: "Capt", svcNo: "AF/23456/92" },
+    { name: "Folasade Akintola", rank: "Sqn Ldr", svcNo: "AF/12345/88" },
+    { name: "Emeka Nnamdi", rank: "Cdr", svcNo: "NN/67890/87" },
+    { name: "Aisha Danjuma", rank: "Lt", svcNo: "NA/54321/95" },
+    { name: "Babajide Ogunlana", rank: "WO", svcNo: "NA/98765/80" },
+    { name: "Zainab Abdullahi", rank: "FS", svcNo: "AF/87654/82" },
+    { name: "Obinna Chukwu", rank: "Lt", svcNo: "NN/76543/85" },
+    { name: "Kemi Adegbite", rank: "SSgt", svcNo: "AF/65432/89" }
   ]
 
   const dhqUnits = await prisma.dhqLivingUnit.findMany({ take: 10 })
@@ -618,31 +618,46 @@ async function main() {
 
   console.log('✅ Created 20 past allocations')
 
-  // Create allocation requests (20 entries)
+  // Create allocation requests (20 entries) with unique personnel not in queue
   const allocationRequests = []
   const requestStatuses = ['approved', 'rejected', 'pending']
   const vacantUnits = await prisma.dhqLivingUnit.findMany({ where: { status: 'Vacant' }, take: 10 })
 
+  // Create unique personnel for allocation requests
+  const allocationPersonnel = [
+    { fullName: "Taiwo Adegoke", rank: "Brig Gen", svcNo: "NA/11111/75", category: "Officer", maritalStatus: "Married", phone: "+234-8011111111", currentUnit: "DHQ" },
+    { fullName: "Amina Garba", rank: "Col", svcNo: "NN/22222/78", category: "Officer", maritalStatus: "Married", phone: "+234-8022222222", currentUnit: "Naval Command" },
+    { fullName: "Peter Nwosu", rank: "Lt Col", svcNo: "AF/33333/80", category: "Officer", maritalStatus: "Single", phone: "+234-8033333333", currentUnit: "Air Defence" },
+    { fullName: "Halima Sani", rank: "Maj", svcNo: "NA/44444/82", category: "Officer", maritalStatus: "Married", phone: "+234-8044444444", currentUnit: "Medical Corps" },
+    { fullName: "Ebenezer Adebisi", rank: "Capt", svcNo: "NN/55555/85", category: "Officer", maritalStatus: "Single", phone: "+234-8055555555", currentUnit: "MPB" },
+    { fullName: "Ngozi Ibe", rank: "Sqn Ldr", svcNo: "AF/66666/83", category: "Officer", maritalStatus: "Married", phone: "+234-8066666666", currentUnit: "DHQ" },
+    { fullName: "Musa Yaro", rank: "Lt", svcNo: "NA/77777/87", category: "Officer", maritalStatus: "Single", phone: "+234-8077777777", currentUnit: "Naval Command" },
+    { fullName: "Grace Okafor", rank: "2nd Lt", svcNo: "NN/88888/90", category: "Officer", maritalStatus: "Single", phone: "+234-8088888888", currentUnit: "Air Defence" },
+    { fullName: "Abdullahi Musa", rank: "WO", svcNo: "AF/99999/79", category: "NCOs", maritalStatus: "Married", phone: "+234-8099999999", currentUnit: "Medical Corps" },
+    { fullName: "Chidinma Eze", rank: "SSgt", svcNo: "NA/10101/81", category: "NCOs", maritalStatus: "Married", phone: "+234-8010101010", currentUnit: "MPB" }
+  ]
+
   for (let i = 1; i <= 20; i++) {
     const paddedCount = generateRandomFourDigitNumber();
     const letterId = `DHQ/GAR/ABJ/${currentYear}/${paddedCount}/LOG`;
-    const queueEntry = queueData[(i - 1) % queueData.length]
+    const personnelIndex = (i - 1) % allocationPersonnel.length
+    const personnel = allocationPersonnel[personnelIndex]
     const requestedUnit = vacantUnits[(i - 1) % vacantUnits.length]
     const accommodationType = await prisma.accommodationType.findUnique({ where: { id: requestedUnit.accommodationTypeId } })
 
     allocationRequests.push({
-      personnelId: queueEntry.id,
+      personnelId: `alloc-${i}`, // Unique ID for allocation requests
       unitId: requestedUnit.id,
       letterId: letterId,
-      status: requestStatuses[i % 4],
+      status: requestStatuses[i % 3], // Use only 3 statuses (approved, rejected, pending)
       personnelData: {
-        fullName: queueEntry.fullName,
-        svcNo: queueEntry.svcNo,
-        rank: queueEntry.rank,
-        category: queueEntry.category,
-        maritalStatus: queueEntry.maritalStatus,
-        phone: queueEntry.phone,
-        currentUnit: queueEntry.currentUnit
+        fullName: personnel.fullName,
+        svcNo: personnel.svcNo,
+        rank: personnel.rank,
+        category: personnel.category,
+        maritalStatus: personnel.maritalStatus,
+        phone: personnel.phone,
+        currentUnit: personnel.currentUnit
       },
       unitData: {
         quarterName: requestedUnit.quarterName,
@@ -775,7 +790,7 @@ async function main() {
       maintenanceType: "Plumbing",
       description: "Leaking faucet in kitchen sink, constant dripping",
       maintenanceDate: new Date('2025-06-15'),
-      performedBy: "Lt. John Doe",
+      performedBy: "John Doe",
       cost: 0,
       status: "Pending",
       priority: "High",
@@ -786,7 +801,7 @@ async function main() {
       maintenanceType: "Electrical",
       description: "Power outlet not working in master bedroom",
       maintenanceDate: new Date('2025-06-14'),
-      performedBy: "Major Jane Smith",
+      performedBy: "Jane Smith",
       cost: 0,
       status: "In Progress",
       priority: "Medium",
@@ -797,7 +812,7 @@ async function main() {
       maintenanceType: "HVAC",
       description: "Air conditioner not cooling properly",
       maintenanceDate: new Date('2025-06-13'),
-      performedBy: "Col. Michael Brown",
+      performedBy: "Michael Brown",
       cost: 0,
       status: "Completed",
       priority: "High",
@@ -808,7 +823,7 @@ async function main() {
       maintenanceType: "Structural",
       description: "Crack in bathroom wall near shower area",
       maintenanceDate: new Date('2025-06-12'),
-      performedBy: "Sgt. Ahmed Hassan",
+      performedBy: "Ahmed Hassan",
       cost: 0,
       status: "Pending",
       priority: "Medium",
@@ -819,7 +834,7 @@ async function main() {
       maintenanceType: "Appliance",
       description: "Refrigerator making unusual noise",
       maintenanceDate: new Date('2025-06-10'),
-      performedBy: "Capt. Sarah Wilson",
+      performedBy: "Sarah Wilson",
       cost: 0,
       status: "In Progress",
       priority: "Low",
@@ -830,7 +845,7 @@ async function main() {
       maintenanceType: "Plumbing",
       description: "Water pressure low in bathroom shower",
       maintenanceDate: new Date('2025-06-09'),
-      performedBy: "WO1 Adebayo",
+      performedBy: "Adebayo",
       cost: 0,
       status: "Pending",
       priority: "Medium",
@@ -841,7 +856,7 @@ async function main() {
       maintenanceType: "Electrical",
       description: "Ceiling fan making noise in living room",
       maintenanceDate: new Date('2025-06-08'),
-      performedBy: "Squadron Leader Okoro",
+      performedBy: "Okoro",
       cost: 0,
       status: "Completed",
       priority: "Low",
@@ -852,7 +867,7 @@ async function main() {
       maintenanceType: "Security",
       description: "Door lock mechanism not working properly",
       maintenanceDate: new Date('2025-06-07'),
-      performedBy: "Lt. Commander Hassan",
+      performedBy: "Hassan",
       cost: 0,
       status: "Pending",
       priority: "High",

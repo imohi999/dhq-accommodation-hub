@@ -12,6 +12,18 @@ import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+// Interface for API response data (camelCase format from API)
+interface StampSettingsAPIResponse {
+	id: string;
+	stampName: string;
+	stampRank: string;
+	stampAppointment: string;
+	stampNote?: string | null;
+	isActive: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
 export const StampSettingsView = () => {
 	const [settings, setSettings] = useState<StampSettings>({
 		id: "",
@@ -30,7 +42,7 @@ export const StampSettingsView = () => {
 		data: stampSettingsData,
 		error,
 		isLoading,
-	} = useSWR<any[]>("/api/stamp-settings", fetcher);
+	} = useSWR<StampSettingsAPIResponse[]>("/api/stamp-settings", fetcher);
 
 	useEffect(() => {
 		if (error) {
@@ -132,7 +144,9 @@ export const StampSettingsView = () => {
 	return (
 		<div className='space-y-6'>
 			<div>
-				<h1 className='text-2xl font-bold text-[#1B365D]'>Stamp Settings</h1>
+				<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
+					Stamp Settings
+				</h1>
 				<p className='text-muted-foreground'>
 					Configure the stamp information for allocation letters
 				</p>

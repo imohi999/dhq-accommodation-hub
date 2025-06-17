@@ -115,7 +115,10 @@ export const ActiveAllocationsView = ({
 
 	const handleDeallocateConfirm = async () => {
 		if (deallocateDialog.unit && deallocateDialog.reason.trim()) {
-			await deallocatePersonnel(deallocateDialog.unit.id, deallocateDialog.reason);
+			await deallocatePersonnel(
+				deallocateDialog.unit.id,
+				deallocateDialog.reason
+			);
 			setDeallocateDialog({
 				isOpen: false,
 				unit: null,
@@ -385,11 +388,10 @@ export const ActiveAllocationsView = ({
 									<div className='space-y-3'>
 										<div>
 											<h3 className='text-lg font-semibold'>
-												{unit.currentOccupantName}
+												{unit.currentOccupantRank} {unit.currentOccupantName}
 											</h3>
 											<p className='text-sm text-muted-foreground'>
-												{unit.currentOccupantRank} • Svc No:{" "}
-												{unit.currentOccupantServiceNumber}
+												Svc No: {unit.currentOccupantServiceNumber}
 											</p>
 											<p className='text-sm text-muted-foreground'>
 												Occupancy Start:{" "}
@@ -476,21 +478,24 @@ export const ActiveAllocationsView = ({
 							accommodation as vacant and move them to Past Allocations.
 						</DialogDescription>
 					</DialogHeader>
-					
-					<div className="space-y-4 py-4">
-						<div className="space-y-2">
-							<Label htmlFor="reason">Reason for Posting Out *</Label>
+
+					<div className='space-y-4 py-4'>
+						<div className='space-y-2'>
+							<Label htmlFor='reason'>Reason for Posting Out *</Label>
 							<Textarea
-								id="reason"
-								placeholder="Enter reason for posting out (e.g., Posted to another unit, Retirement, Transfer, etc.)"
+								id='reason'
+								placeholder='Enter reason for posting out (e.g., Posted to another unit, Retirement, Transfer, etc.)'
 								value={deallocateDialog.reason}
 								onChange={(e) =>
-									setDeallocateDialog({ ...deallocateDialog, reason: e.target.value })
+									setDeallocateDialog({
+										...deallocateDialog,
+										reason: e.target.value,
+									})
 								}
-								className="min-h-[100px]"
+								className='min-h-[100px]'
 							/>
 							{deallocateDialog.reason.trim() === "" && (
-								<p className="text-sm text-destructive">Reason is required</p>
+								<p className='text-sm text-destructive'>Reason is required</p>
 							)}
 						</div>
 					</div>

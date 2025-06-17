@@ -16,7 +16,8 @@ export const QueueForm = ({ item, onSubmit, onCancel }: QueueFormProps) => {
     units,
     loading,
     handleInputChange,
-    handleSubmit
+    handleSubmit,
+    refetchUnits
   } = useQueueForm(item, onSubmit);
 
   return (
@@ -43,6 +44,7 @@ export const QueueForm = ({ item, onSubmit, onCancel }: QueueFormProps) => {
               formData={formData}
               units={units}
               onInputChange={handleInputChange}
+              onUnitsRefresh={refetchUnits}
             />
           </div>
 

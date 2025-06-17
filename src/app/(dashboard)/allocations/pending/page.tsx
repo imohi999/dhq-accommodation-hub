@@ -139,7 +139,9 @@ export default function PendingApproval() {
 	return (
 		<div className='space-y-6'>
 			<div>
-				<h1 className='text-2xl font-bold text-[#1B365D]'>Pending Approval</h1>
+				<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
+					Pending Approval
+				</h1>
 				<p className='text-muted-foreground'>
 					Review and approve accommodation allocation requests
 				</p>

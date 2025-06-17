@@ -43,6 +43,8 @@ export const PendingApprovalView = ({
 		{}
 	);
 
+	console.log({ requests: JSON.stringify(requests) });
+
 	const handleApproveClick = (request: APIAllocationRequest) => {
 		setConfirmDialog({
 			isOpen: true,
@@ -168,8 +170,8 @@ export const PendingApprovalView = ({
 	).length;
 	// Extract service from service number prefix
 	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("A/")) return "Army";
-		if (svcNo?.startsWith("N/")) return "Navy";
+		if (svcNo?.startsWith("NA/")) return "Army";
+		if (svcNo?.startsWith("NN/")) return "Navy";
 		if (svcNo?.startsWith("AF/")) return "Air Force";
 		return "Unknown";
 	};
@@ -292,7 +294,9 @@ export const PendingApprovalView = ({
 			{requests.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
-						<p className='text-muted-foreground'>No pending allocation requests</p>
+						<p className='text-muted-foreground'>
+							No pending allocation requests
+						</p>
 					</CardContent>
 				</Card>
 			) : (
@@ -313,10 +317,10 @@ export const PendingApprovalView = ({
 										<div className='space-y-3'>
 											<div>
 												<h3 className='text-lg font-semibold'>
+													{request.personnelData?.rank}{" "}
 													{request.personnelData.fullName}
 												</h3>
 												<p className='text-sm text-muted-foreground'>
-													{request.personnelData?.rank} •{" "}
 													{getServiceFromSvcNo(request.personnelData?.svcNo)} •{" "}
 													{request.personnelData?.currentUnit}
 												</p>
@@ -450,3 +454,238 @@ export const PendingApprovalView = ({
 		</div>
 	);
 };
+
+const datahh = [
+	{
+		id: "43d8062e-ee82-4a69-91c4-3254b53ae12b",
+		personnelId: "alloc-11",
+		unitId: "14007193-4f8b-4cab-bf69-b484c1e66951",
+		letterId: "DHQ/GAR/ABJ/2025/9487/LOG",
+		personnelData: {
+			rank: "Brig Gen",
+			phone: "+234-8011111111",
+			svcNo: "NA/11111/75",
+			category: "Officer",
+			fullName: "Taiwo Adegoke",
+			currentUnit: "DHQ",
+			maritalStatus: "Married",
+		},
+		unitData: {
+			location: "Abuja FCT",
+			unitName: "Block 4 House 3",
+			noOfRooms: 3,
+			quarterName: "Senior Officers Quarters Abuja",
+			accommodationType: "Three Bedroom Flat",
+		},
+		allocationDate: "2025-06-17T20:13:26.440Z",
+		status: "pending",
+		approvedBy: null,
+		approvedAt: null,
+		refusalReason: null,
+		createdAt: "2025-06-17T20:13:26.440Z",
+		updatedAt: "2025-06-17T20:13:26.440Z",
+		unit: {
+			id: "14007193-4f8b-4cab-bf69-b484c1e66951",
+			quarterName: "Senior Officers Quarters Abuja",
+			location: "Abuja FCT",
+			category: "Officer",
+			accommodationTypeId: "e325e19c-f673-4cb2-b36c-0345c2f9f206",
+			noOfRooms: 3,
+			status: "Vacant",
+			typeOfOccupancy: "Family",
+			bq: true,
+			noOfRoomsInBq: 1,
+			blockName: "Block 4",
+			flatHouseRoomName: "House 3",
+			unitName: "Block 4 House 3",
+			blockImageUrl: null,
+			currentOccupantId: null,
+			currentOccupantName: null,
+			currentOccupantRank: null,
+			currentOccupantServiceNumber: null,
+			occupancyStartDate: null,
+			createdAt: "2025-06-17T20:12:57.580Z",
+			updatedAt: "2025-06-17T20:12:57.580Z",
+			accommodationType: {
+				id: "e325e19c-f673-4cb2-b36c-0345c2f9f206",
+				name: "Three Bedroom Flat",
+				description: "Three bedroom apartment",
+				createdAt: "2025-06-17T20:12:43.071Z",
+			},
+		},
+	},
+	{
+		id: "cda6f159-1b2c-4915-935c-021b280e60fd",
+		personnelId: "alloc-8",
+		unitId: "6357efc0-dc22-4fbb-8b1c-7cd1a9b61ebf",
+		letterId: "DHQ/GAR/ABJ/2025/6104/LOG",
+		personnelData: {
+			rank: "2nd Lt",
+			phone: "+234-8088888888",
+			svcNo: "NN/88888/90",
+			category: "Officer",
+			fullName: "Grace Okafor",
+			currentUnit: "Air Defence",
+			maritalStatus: "Single",
+		},
+		unitData: {
+			location: "Lagos Cantonment",
+			unitName: "Block 3 Flat 5",
+			noOfRooms: 2,
+			quarterName: "Eagle Officers Quarters Lagos Cantonment",
+			accommodationType: "Two Bedroom Flat",
+		},
+		allocationDate: "2025-06-17T20:13:16.707Z",
+		status: "pending",
+		approvedBy: "admin",
+		approvedAt: "2025-06-17T20:13:16.707Z",
+		refusalReason: null,
+		createdAt: "2025-06-17T20:13:25.538Z",
+		updatedAt: "2025-06-17T20:13:25.538Z",
+		unit: {
+			id: "6357efc0-dc22-4fbb-8b1c-7cd1a9b61ebf",
+			quarterName: "Eagle Officers Quarters Lagos Cantonment",
+			location: "Lagos Cantonment",
+			category: "Officer",
+			accommodationTypeId: "644aa118-5dbb-40ef-8e9d-e79873662859",
+			noOfRooms: 2,
+			status: "Vacant",
+			typeOfOccupancy: "Family",
+			bq: false,
+			noOfRoomsInBq: 0,
+			blockName: "Block 3",
+			flatHouseRoomName: "Flat 5",
+			unitName: "Block 3 Flat 5",
+			blockImageUrl: null,
+			currentOccupantId: null,
+			currentOccupantName: null,
+			currentOccupantRank: null,
+			currentOccupantServiceNumber: null,
+			occupancyStartDate: null,
+			createdAt: "2025-06-17T20:12:56.680Z",
+			updatedAt: "2025-06-17T20:12:56.680Z",
+			accommodationType: {
+				id: "644aa118-5dbb-40ef-8e9d-e79873662859",
+				name: "Two Bedroom Flat",
+				description: "Two bedroom apartment",
+				createdAt: "2025-06-17T20:12:43.407Z",
+			},
+		},
+	},
+	{
+		id: "c16876f8-7d3c-42a6-a250-de7dc8516edf",
+		personnelId: "alloc-5",
+		unitId: "3e272d0b-cfaa-4a4f-aef1-3a2b0f52eb32",
+		letterId: "DHQ/GAR/ABJ/2025/8710/LOG",
+		personnelData: {
+			rank: "Capt",
+			phone: "+234-8055555555",
+			svcNo: "NN/55555/85",
+			category: "Officer",
+			fullName: "Ebenezer Adebisi",
+			currentUnit: "MPB",
+			maritalStatus: "Single",
+		},
+		unitData: {
+			location: "Lagos Cantonment",
+			unitName: "Block 3 Flat 3",
+			noOfRooms: 2,
+			quarterName: "Eagle Officers Quarters Lagos Cantonment",
+			accommodationType: "Two Bedroom Flat",
+		},
+		allocationDate: "2025-06-17T20:13:24.615Z",
+		status: "pending",
+		approvedBy: "admin",
+		approvedAt: "2025-06-17T20:13:15.744Z",
+		refusalReason: "Pending documentation",
+		createdAt: "2025-06-17T20:13:24.615Z",
+		updatedAt: "2025-06-17T20:13:24.615Z",
+		unit: {
+			id: "3e272d0b-cfaa-4a4f-aef1-3a2b0f52eb32",
+			quarterName: "Eagle Officers Quarters Lagos Cantonment",
+			location: "Lagos Cantonment",
+			category: "Officer",
+			accommodationTypeId: "644aa118-5dbb-40ef-8e9d-e79873662859",
+			noOfRooms: 2,
+			status: "Vacant",
+			typeOfOccupancy: "Family",
+			bq: false,
+			noOfRoomsInBq: 0,
+			blockName: "Block 3",
+			flatHouseRoomName: "Flat 3",
+			unitName: "Block 3 Flat 3",
+			blockImageUrl: null,
+			currentOccupantId: null,
+			currentOccupantName: null,
+			currentOccupantRank: null,
+			currentOccupantServiceNumber: null,
+			occupancyStartDate: null,
+			createdAt: "2025-06-17T20:12:56.097Z",
+			updatedAt: "2025-06-17T20:12:56.097Z",
+			accommodationType: {
+				id: "644aa118-5dbb-40ef-8e9d-e79873662859",
+				name: "Two Bedroom Flat",
+				description: "Two bedroom apartment",
+				createdAt: "2025-06-17T20:12:43.407Z",
+			},
+		},
+	},
+	{
+		id: "e137c72b-39cc-4116-898e-0a4197755786",
+		personnelId: "alloc-2",
+		unitId: "1f39b183-022f-4d3b-8242-0d4d45b86a07",
+		letterId: "DHQ/GAR/ABJ/2025/9378/LOG",
+		personnelData: {
+			rank: "Col",
+			phone: "+234-8022222222",
+			svcNo: "NN/22222/78",
+			category: "Officer",
+			fullName: "Amina Garba",
+			currentUnit: "Naval Command",
+			maritalStatus: "Married",
+		},
+		unitData: {
+			location: "Mogadishu Cantonment",
+			unitName: "Block 1 Flat 3",
+			noOfRooms: 1,
+			quarterName: "Dike Officers Quarters Mogadishu Cantonment",
+			accommodationType: "One Bedroom Flat",
+		},
+		allocationDate: "2025-06-17T20:13:22.553Z",
+		status: "pending",
+		approvedBy: null,
+		approvedAt: null,
+		refusalReason: null,
+		createdAt: "2025-06-17T20:13:22.553Z",
+		updatedAt: "2025-06-17T20:13:22.553Z",
+		unit: {
+			id: "1f39b183-022f-4d3b-8242-0d4d45b86a07",
+			quarterName: "Dike Officers Quarters Mogadishu Cantonment",
+			location: "Mogadishu Cantonment",
+			category: "Officer",
+			accommodationTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
+			noOfRooms: 1,
+			status: "Vacant",
+			typeOfOccupancy: "Single",
+			bq: false,
+			noOfRoomsInBq: 0,
+			blockName: "Block 1",
+			flatHouseRoomName: "Flat 3",
+			unitName: "Block 1 Flat 3",
+			blockImageUrl: null,
+			currentOccupantId: null,
+			currentOccupantName: null,
+			currentOccupantRank: null,
+			currentOccupantServiceNumber: null,
+			occupancyStartDate: null,
+			createdAt: "2025-06-17T20:12:54.036Z",
+			updatedAt: "2025-06-17T20:12:54.036Z",
+			accommodationType: {
+				id: "6775548e-9191-4e12-b8ac-626e38d15403",
+				name: "One Bedroom Flat",
+				description: "One bedroom apartment",
+				createdAt: "2025-06-17T20:12:42.489Z",
+			},
+		},
+	},
+];

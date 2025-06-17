@@ -36,7 +36,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
   const [loading, setLoading] = useState(false);
 
   // Fetch units using SWR
-  const { data: unitsData, error: unitsError } = useSWR<UnitResponse[]>(
+  const { data: unitsData, error: unitsError, mutate: refetchUnits } = useSWR<UnitResponse[]>(
     '/api/units',
     fetcher
   );
@@ -176,6 +176,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
     units,
     loading,
     handleInputChange,
-    handleSubmit
+    handleSubmit,
+    refetchUnits
   };
 };

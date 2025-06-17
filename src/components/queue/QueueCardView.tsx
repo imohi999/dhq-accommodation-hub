@@ -3,8 +3,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QueueItem } from "@/types/queue";
-import { Calendar, Phone, Users, MapPin, ChevronDown, ChevronUp } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+	Calendar,
+	Phone,
+	Users,
+	MapPin,
+	ChevronDown,
+	ChevronUp,
+} from "lucide-react";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface QueueCardViewProps {
 	queueItems: QueueItem[];
@@ -20,7 +31,7 @@ export const QueueCardView = ({
 	const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
 	const toggleCard = (id: string) => {
-		setExpandedCards(prev => {
+		setExpandedCards((prev) => {
 			const newSet = new Set(prev);
 			if (newSet.has(id)) {
 				newSet.delete(id);
@@ -47,11 +58,11 @@ export const QueueCardView = ({
 										</div>
 										<div>
 											<h3 className='text-lg font-semibold text-foreground'>
-												{item.full_name}
+												{item.rank} {item.full_name}
 											</h3>
 											<p className='text-sm text-muted-foreground'>
-												Svc No: {item.svc_no} • {item.current_unit || "No Unit"} •{" "}
-												{item.appointment || "No Appointment"}
+												Svc No: {item.svc_no} • {item.current_unit || "No Unit"}{" "}
+												• {item.appointment || "No Appointment"}
 											</p>
 										</div>
 									</div>
@@ -61,9 +72,6 @@ export const QueueCardView = ({
 											<div className='flex items-center gap-2'>
 												<Badge variant='outline' className='text-xs'>
 													{item.arm_of_service} • {item.category}
-												</Badge>
-												<Badge variant='secondary' className='text-xs'>
-													{item.rank}
 												</Badge>
 											</div>
 											<p className='text-sm text-muted-foreground'>
@@ -82,19 +90,18 @@ export const QueueCardView = ({
 											{item.dependents && item.dependents.length > 0 && (
 												<CollapsibleTrigger asChild>
 													<Button
-														variant="ghost"
-														size="sm"
+														variant='ghost'
+														size='sm'
 														onClick={() => toggleCard(item.id)}
-														className="text-xs"
-													>
+														className='text-xs'>
 														{expandedCards.has(item.id) ? (
 															<>
-																<ChevronUp className="h-3 w-3 mr-1" />
+																<ChevronUp className='h-3 w-3 mr-1' />
 																Hide Dependents
 															</>
 														) : (
 															<>
-																<ChevronDown className="h-3 w-3 mr-1" />
+																<ChevronDown className='h-3 w-3 mr-1' />
 																View Dependents
 															</>
 														)}
@@ -158,24 +165,27 @@ export const QueueCardView = ({
 							{/* Dependents List */}
 							<CollapsibleContent>
 								{item.dependents && item.dependents.length > 0 && (
-									<div className="mt-4 pt-4 border-t">
-										<h4 className="text-sm font-semibold mb-2">Dependents Details</h4>
-										<div className="space-y-2">
+									<div className='mt-4 pt-4 border-t'>
+										<h4 className='text-sm font-semibold mb-2'>
+											Dependents Details
+										</h4>
+										<div className='space-y-2'>
 											{item.dependents.map((dependent, idx) => (
 												<div
 													key={idx}
-													className="flex items-center justify-between p-2 bg-muted rounded-lg"
-												>
-													<div className="flex items-center gap-4">
-														<span className="text-sm font-medium">{dependent.name}</span>
-														<Badge variant="outline" className="text-xs">
+													className='flex items-center justify-between p-2 bg-muted rounded-lg'>
+													<div className='flex items-center gap-4'>
+														<span className='text-sm font-medium'>
+															{dependent.name}
+														</span>
+														<Badge variant='outline' className='text-xs'>
 															{dependent.gender}
 														</Badge>
-														<span className="text-sm text-muted-foreground">
+														<span className='text-sm text-muted-foreground'>
 															{dependent.age} years
 														</span>
 													</div>
-													<Badge variant="secondary" className="text-xs">
+													<Badge variant='secondary' className='text-xs'>
 														{dependent.age >= 18 ? "Adult" : "Child"}
 													</Badge>
 												</div>

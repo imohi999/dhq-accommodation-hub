@@ -48,17 +48,18 @@ const fetcher = async () => {
 
 const formatDuration = (days: number): string => {
 	if (days === 0) return "0 days";
-	
+
 	const years = Math.floor(days / 365);
 	const months = Math.floor((days % 365) / 30);
 	const remainingDays = days % 30;
-	
+
 	const parts = [];
-	if (years > 0) parts.push(`${years} year${years > 1 ? 's' : ''}`);
-	if (months > 0) parts.push(`${months} month${months > 1 ? 's' : ''}`);
-	if (remainingDays > 0) parts.push(`${remainingDays} day${remainingDays > 1 ? 's' : ''}`);
-	
-	return parts.join(', ');
+	if (years > 0) parts.push(`${years} year${years > 1 ? "s" : ""}`);
+	if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
+	if (remainingDays > 0)
+		parts.push(`${remainingDays} day${remainingDays > 1 ? "s" : ""}`);
+
+	return parts.join(", ");
 };
 
 export const PastAllocationsView = () => {
@@ -166,12 +167,13 @@ export const PastAllocationsView = () => {
 									<div className='flex justify-between items-start'>
 										<div>
 											<h3 className='text-lg font-semibold'>
+												{allocation.personnelData?.rank}{" "}
 												{allocation.personnelData?.fullName ||
 													allocation.personnelData?.full_name ||
 													"Unknown Personnel"}
 											</h3>
 											<p className='text-sm text-muted-foreground'>
-												{allocation.personnelData?.rank || "N/A"} • Svc No:{" "}
+												Svc No:{" "}
 												{allocation.personnelData?.serviceNumber ||
 													allocation.personnelData?.svc_no ||
 													allocation.personnelData?.svcNo ||
@@ -190,16 +192,13 @@ export const PastAllocationsView = () => {
 											<p>
 												{new Date(
 													allocation.allocationStartDate
+												).toLocaleDateString()}{" "}
+												to{" "}
+												{new Date(
+													allocation?.allocationEndDate as string
 												).toLocaleDateString()}
 											</p>
-											{allocation.allocationEndDate && (
-												<p>
-													to{" "}
-													{new Date(
-														allocation.allocationEndDate
-													).toLocaleDateString()}
-												</p>
-											)}
+
 											{allocation.durationDays && (
 												<p className='text-muted-foreground'>
 													Duration: {formatDuration(allocation.durationDays)}
@@ -209,9 +208,16 @@ export const PastAllocationsView = () => {
 										<div>
 											<p className='font-medium'>Previous Unit:</p>
 											<p>
-												{allocation.unitData?.quarterName || allocation.unitData?.quarter_name || "N/A"}{" "}
-												{allocation.unitData?.blockName || allocation.unitData?.block_name || ""}{" "}
-												{allocation.unitData?.flat_house_room_name || allocation.unitData?.flatHouseRoomName || allocation.unitData?.unitName || ""}
+												{allocation.unitData?.quarterName ||
+													allocation.unitData?.quarter_name ||
+													"N/A"}{" "}
+												{allocation.unitData?.blockName ||
+													allocation.unitData?.block_name ||
+													""}{" "}
+												{allocation.unitData?.flat_house_room_name ||
+													allocation.unitData?.flatHouseRoomName ||
+													allocation.unitData?.unitName ||
+													""}
 											</p>
 											{allocation.reasonForLeaving && (
 												<p className='text-muted-foreground mt-1'>
