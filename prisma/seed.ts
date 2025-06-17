@@ -46,7 +46,7 @@ async function main() {
   console.log('   Password: admin123')
   console.log('   Role: superadmin')
 
-  // Create accomodation types
+  // Create accommodation types
   const housingTypesData = [
     {
       id: "d403ff01-4ac9-40e5-bcea-8a3a04c89899",
@@ -79,7 +79,7 @@ async function main() {
     await prisma.accommodationType.create({ data: ht })
   }
 
-  console.log('✅ Created accomodation types')
+  console.log('✅ Created accommodation types')
 
   // Create units
   const unitsData = [

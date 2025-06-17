@@ -4,14 +4,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { handlePrismaError } from '@/lib/prisma-utils'
 
-// GET: Fetch all DHQ  Accommodation with accomodation types
+// GET: Fetch all DHQ  Accommodation with accommodation types
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search')
     const category = searchParams.get('category')
     const status = searchParams.get('status')
-    const accomodationTypeId = searchParams.get('accomodationTypeId')
+    const accommodationTypeId = searchParams.get('accommodationTypeId')
     const location = searchParams.get('location')
 
     const where: {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       }>
       category?: string
       status?: string
-      accomodationTypeId?: string
+      accommodationTypeId?: string
       location?: string
     } = {}
 
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     if (category) where.category = category
     if (status) where.status = status
-    if (accomodationTypeId) where.accomodationTypeId = accomodationTypeId
+    if (accommodationTypeId) where.accommodationTypeId = accommodationTypeId
     if (location) where.location = location
 
     const units = await prisma.dhqLivingUnit.findMany({
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         quarterName: body.quarterName,
         location: body.location,
         category: body.category,
-        accomodationTypeId: body.accomodationTypeId,
+        accommodationTypeId: body.accommodationTypeId,
         noOfRooms: body.noOfRooms,
         status: body.status || 'Vacant',
         typeOfOccupancy: body.typeOfOccupancy,

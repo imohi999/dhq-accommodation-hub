@@ -40,7 +40,7 @@ export async function PUT(
         quarterName: body.quarterName,
         location: body.location,
         category: body.category,
-        accomodationTypeId: body.accomodationTypeId,
+        accommodationTypeId: body.accommodationTypeId,
         noOfRooms: body.noOfRooms,
         status: body.status,
         typeOfOccupancy: body.typeOfOccupancy,

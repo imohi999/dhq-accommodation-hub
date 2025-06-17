@@ -46,7 +46,7 @@ const UserProfile: React.FC = () => {
       case 'moderator':
         return 'bg-[#4F9CDB] text-white';
       default:
-        return 'bg-gray-200 text-gray-800';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -70,17 +70,17 @@ const UserProfile: React.FC = () => {
         {profile ? (
           <>
             <div>
-              <label className="text-sm font-medium text-gray-600">Username</label>
+              <label className="text-sm font-medium text-muted-foreground">Username</label>
               <p className="text-[#1B365D] font-medium">{profile.username}</p>
             </div>
             
             <div>
-              <label className="text-sm font-medium text-gray-600">Full Name</label>
+              <label className="text-sm font-medium text-muted-foreground">Full Name</label>
               <p className="text-[#1B365D] font-medium">{profile.fullName || 'Not provided'}</p>
             </div>
             
             <div>
-              <label className="text-sm font-medium text-gray-600">Primary Role</label>
+              <label className="text-sm font-medium text-muted-foreground">Primary Role</label>
               <div className="mt-1">
                 <Badge className={getRoleColor(profile.role)}>
                   <Shield className="w-3 h-3 mr-1" />
@@ -92,10 +92,10 @@ const UserProfile: React.FC = () => {
           </>
         ) : (
           <div className="text-center">
-            <p className="text-gray-600 mb-4">Profile data will be available after account confirmation</p>
+            <p className="text-muted-foreground mb-4">Profile data will be available after account confirmation</p>
             <div className="space-y-2">
-              <p className="text-sm text-gray-500">User ID: {user?.id}</p>
-              <p className="text-sm text-gray-500">Email: {user?.email}</p>
+              <p className="text-sm text-muted-foreground">User ID: {user?.id}</p>
+              <p className="text-sm text-muted-foreground">Email: {user?.email}</p>
             </div>
           </div>
         )}

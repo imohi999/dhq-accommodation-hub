@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
           quarterName: unit.quarter_name,
           location: unit.location,
           category: unit.category,
-          accomodationTypeId: unit.accomodation_type_id,
+          accommodationTypeId: unit.accomodation_type_id,
           noOfRooms: unit.no_of_rooms,
           status: unit.status,
           typeOfOccupancy: unit.type_of_occupancy,

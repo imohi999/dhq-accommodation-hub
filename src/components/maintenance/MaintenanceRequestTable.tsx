@@ -55,35 +55,35 @@ export function MaintenanceRequestTable({
 	const getPriorityColor = (priority: string) => {
 		switch (priority) {
 			case "Emergency":
-				return "bg-red-100 text-red-800";
+				return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400";
 			case "High":
-				return "bg-orange-100 text-orange-800";
+				return "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-400";
 			case "Medium":
-				return "bg-yellow-100 text-yellow-800";
+				return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400";
 			case "Low":
-				return "bg-green-100 text-green-800";
+				return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400";
 			default:
-				return "bg-gray-100 text-gray-800";
+				return "bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-400";
 		}
 	};
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
 			case "Completed":
-				return "bg-green-100 text-green-800";
+				return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400";
 			case "In Progress":
-				return "bg-blue-100 text-blue-800";
+				return "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400";
 			case "Rejected":
-				return "bg-red-100 text-red-800";
+				return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400";
 			case "Pending":
-				return "bg-yellow-100 text-yellow-800";
+				return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400";
 			default:
-				return "bg-gray-100 text-gray-800";
+				return "bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-400";
 		}
 	};
 
 	return (
-		<div className='rounded-lg overflow-x-auto border shadow-sm bg-white'>
+		<div className='rounded-lg overflow-x-auto border shadow-sm bg-white dark:bg-card'>
 			<table className='min-w-full text-sm'>
 				<thead>
 					<tr className='bg-muted text-foreground'>
@@ -100,7 +100,7 @@ export function MaintenanceRequestTable({
 				</thead>
 				<tbody>
 					{requests.map((req) => (
-						<tr key={req.id} className='border-b hover:bg-gray-50'>
+						<tr key={req.id} className='border-b hover:bg-muted/50'>
 							<td className='p-3 font-medium'>{req.unitName}</td>
 							<td className='p-3'>{req.issueCategory}</td>
 							<td className='p-3'>

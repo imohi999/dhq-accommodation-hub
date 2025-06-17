@@ -19,7 +19,7 @@ export const fetchAccommodationById = async (id: string): Promise<DHQLivingUnitW
       quarterName: data.quarterName,
       location: data.location,
       category: data.category,
-      accomodationTypeId: data.accomodationTypeId,
+      accommodationTypeId: data.accommodationTypeId,
       noOfRooms: data.noOfRooms,
       status: data.status,
       typeOfOccupancy: data.typeOfOccupancy,
@@ -38,7 +38,7 @@ export const fetchAccommodationById = async (id: string): Promise<DHQLivingUnitW
       updatedAt: data.updatedAt,
       accommodationType: data.accommodationType,
       // Optional snake_case properties for backward compatibility
-      accomodation_type_id: data.accomodationTypeId,
+      accomodation_type_id: data.accommodationTypeId,
       no_of_rooms: data.noOfRooms,
       type_of_occupancy: data.typeOfOccupancy,
       no_of_rooms_in_bq: data.noOfRoomsInBq,

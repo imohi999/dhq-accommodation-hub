@@ -63,7 +63,7 @@ interface Personnel {
 	updatedAt: string;
 }
 
-// Interface for accomodation type
+// Interface for accommodation type
 interface AccomodationType {
 	id: string;
 	name: string;
@@ -77,7 +77,7 @@ interface Unit {
 	quarterName: string;
 	location: string;
 	category: string;
-	accomodationTypeId: string;
+	accommodationTypeId: string;
 	noOfRooms: number;
 	status: string;
 	typeOfOccupancy: string;

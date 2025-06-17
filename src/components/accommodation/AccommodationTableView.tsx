@@ -106,7 +106,7 @@ export const AccommodationTableView = ({
 			case "Occupied":
 				return "bg-red-50";
 			case "Not In Use":
-				return "bg-gray-50";
+				return "bg-muted/50";
 			default:
 				return "";
 		}

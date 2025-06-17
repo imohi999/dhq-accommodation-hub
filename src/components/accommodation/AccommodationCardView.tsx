@@ -94,7 +94,7 @@ export const AccommodationCardView = ({
 			case "Occupied":
 				return `${baseClass} bg-red-50 border-red-200`;
 			case "Not In Use":
-				return `${baseClass} bg-gray-50 border-gray-300`;
+				return `${baseClass} bg-muted/50 border-gray-300`;
 			default:
 				return baseClass;
 		}

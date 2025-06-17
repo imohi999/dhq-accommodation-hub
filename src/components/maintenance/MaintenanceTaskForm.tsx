@@ -157,11 +157,11 @@ export function MaintenanceTaskForm({
 	}
 
 	if (loading) {
-		return <div className='p-6'>Loading units...</div>;
+		return <div className='p-6 text-muted-foreground'>Loading units...</div>;
 	}
 
 	return (
-		<div className='bg-white border rounded-lg p-6 mb-6 space-y-6 shadow-lg'>
+		<div className='bg-white dark:bg-card border rounded-lg p-6 mb-6 space-y-6 shadow-lg'>
 			<form onSubmit={handleSubmit} className='space-y-4'>
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 					<div>

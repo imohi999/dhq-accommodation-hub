@@ -8,7 +8,7 @@ interface ApiAccommodationUnit {
   quarterName: string;
   location: string;
   category: string;
-  accomodationTypeId: string;
+  accommodationTypeId: string;
   noOfRooms: number;
   status: string;
   typeOfOccupancy: string;
@@ -49,7 +49,7 @@ const transformUnit = (unit: ApiAccommodationUnit): DHQLivingUnitWithHousingType
   quarterName: unit.quarterName,
   location: unit.location,
   category: unit.category,
-  accomodationTypeId: unit.accomodationTypeId,
+  accommodationTypeId: unit.accommodationTypeId,
   noOfRooms: unit.noOfRooms,
   status: unit.status,
   typeOfOccupancy: unit.typeOfOccupancy,
@@ -68,7 +68,7 @@ const transformUnit = (unit: ApiAccommodationUnit): DHQLivingUnitWithHousingType
   updatedAt: unit.updatedAt,
   accommodationType: unit.accommodationType,
   // Optional snake_case properties for backward compatibility
-  accomodation_type_id: unit.accomodationTypeId,
+  accomodation_type_id: unit.accommodationTypeId,
   no_of_rooms: unit.noOfRooms,
   type_of_occupancy: unit.typeOfOccupancy,
   no_of_rooms_in_bq: unit.noOfRoomsInBq,

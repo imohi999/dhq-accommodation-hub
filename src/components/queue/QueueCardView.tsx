@@ -23,16 +23,16 @@ export const QueueCardView = ({
 						<div className='flex items-start justify-between'>
 							<div className='flex-1'>
 								<div className='flex items-center gap-4 mb-4'>
-									<div className='flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full'>
-										<span className='text-lg font-bold text-gray-600'>
+									<div className='flex items-center justify-center w-12 h-12 bg-muted rounded-full'>
+										<span className='text-lg font-bold text-muted-foreground'>
 											#{index + 1}
 										</span>
 									</div>
 									<div>
-										<h3 className='text-lg font-semibold text-gray-900'>
+										<h3 className='text-lg font-semibold text-foreground'>
 											{item.full_name}
 										</h3>
-										<p className='text-sm text-gray-600'>
+										<p className='text-sm text-muted-foreground'>
 											Svc No: {item.svc_no} • {item.current_unit || "No Unit"} •{" "}
 											{item.appointment || "No Appointment"}
 										</p>
@@ -49,13 +49,13 @@ export const QueueCardView = ({
 												{item.rank}
 											</Badge>
 										</div>
-										<p className='text-sm text-gray-600'>
+										<p className='text-sm text-muted-foreground'>
 											{item.gender} • {item.marital_status}
 										</p>
 									</div>
 
 									<div className='space-y-2'>
-										<div className='flex items-center gap-2 text-sm text-gray-600'>
+										<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 											<Users className='h-4 w-4' />
 											<span>
 												A:{item.no_of_adult_dependents} C:
@@ -63,7 +63,7 @@ export const QueueCardView = ({
 											</span>
 										</div>
 										{item.date_tos && (
-											<div className='flex items-center gap-2 text-sm text-gray-600'>
+											<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 												<Calendar className='h-4 w-4' />
 												<span>
 													TOS: {new Date(item.date_tos).toLocaleDateString()}
@@ -71,7 +71,7 @@ export const QueueCardView = ({
 											</div>
 										)}
 										{item.date_sos && (
-											<div className='flex items-center gap-2 text-sm text-gray-600'>
+											<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 												<Calendar className='h-4 w-4' />
 												<span>
 													SOS: {new Date(item.date_sos).toLocaleDateString()}
@@ -82,12 +82,12 @@ export const QueueCardView = ({
 
 									<div className='space-y-2'>
 										{item.phone && (
-											<div className='flex items-center gap-2 text-sm text-gray-600'>
+											<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 												<Phone className='h-4 w-4' />
 												<span>{item.phone}</span>
 											</div>
 										)}
-										<div className='flex items-center gap-2 text-sm text-gray-600'>
+										<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 											<Calendar className='h-4 w-4' />
 											<span>
 												Entry Date:{" "}
@@ -121,7 +121,7 @@ export const QueueCardView = ({
 			{queueItems.length === 0 && (
 				<Card>
 					<CardContent className='p-12 text-center'>
-						<p className='text-gray-500'>
+						<p className='text-muted-foreground'>
 							No personnel found matching the current filters
 						</p>
 					</CardContent>

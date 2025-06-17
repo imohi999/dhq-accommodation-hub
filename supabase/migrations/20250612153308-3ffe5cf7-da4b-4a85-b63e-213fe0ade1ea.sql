@@ -7,7 +7,7 @@ CREATE TABLE public.accomodation_types (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- Insert the 5 predefined accomodation types
+-- Insert the 5 predefined accommodation types
 INSERT INTO public.accomodation_types (name, description) VALUES
 ('One Bedroom Self Contained', 'Single bedroom with private facilities'),
 ('One Bedroom Flat', 'One bedroom apartment'),

@@ -11,7 +11,7 @@ export interface DHQLivingUnit {
   quarterName: string;
   location: string;
   category: string;
-  accomodationTypeId: string;
+  accommodationTypeId: string;
   noOfRooms: number;
   status: string;
   typeOfOccupancy: string;

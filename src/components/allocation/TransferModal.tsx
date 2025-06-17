@@ -64,9 +64,9 @@ export const TransferModal = ({ isOpen, onClose, currentUnit }: TransferModalPro
 
           <div className="space-y-4">
             {/* Current Unit Information */}
-            <Card className="border-blue-200 bg-blue-50">
+            <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
               <CardContent className="p-4">
-                <h4 className="font-medium text-blue-900 mb-2">Current Living Unit Information</h4>
+                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Current Living Unit Information</h4>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p><span className="font-medium">Personnel:</span> {currentUnit.current_occupant_rank} {currentUnit.current_occupant_name}</p>
@@ -105,7 +105,7 @@ export const TransferModal = ({ isOpen, onClose, currentUnit }: TransferModalPro
             {availableUnits.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     No vacant {currentUnit.category.toLowerCase()} units available
                   </p>
                 </CardContent>

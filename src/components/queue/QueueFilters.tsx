@@ -47,7 +47,7 @@ export const QueueFilters = ({
 	};
 
 	return (
-		<div className='bg-white p-6 rounded-lg border mb-6'>
+		<div className='bg-white dark:bg-card p-6 rounded-lg border mb-6'>
 			<div className='flex items-center justify-between mb-4'>
 				<h3 className='text-lg font-semibold'>Filters</h3>
 				<Button

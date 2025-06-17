@@ -48,7 +48,7 @@ export default function HousingTypes() {
 		data: housingTypes = [],
 		error,
 		isLoading,
-	} = useSWR<AccomodationType[]>("/api/accomodation-types", fetcher);
+	} = useSWR<AccomodationType[]>("/api/accommodation-types", fetcher);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -62,7 +62,7 @@ export default function HousingTypes() {
 		try {
 			if (editingItem) {
 				const response = await fetch(
-					`/api/accomodation-types/${editingItem.id}`,
+					`/api/accommodation-types/${editingItem.id}`,
 					{
 						method: "PUT",
 						headers: { "Content-Type": "application/json" },
@@ -73,11 +73,12 @@ export default function HousingTypes() {
 					}
 				);
 
-				if (!response.ok) throw new Error("Failed to update accomodation type");
+				if (!response.ok)
+					throw new Error("Failed to update accommodation type");
 
 				toast.success("Accomodation type updated successfully");
 			} else {
-				const response = await fetch("/api/accomodation-types", {
+				const response = await fetch("/api/accommodation-types", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
@@ -86,7 +87,8 @@ export default function HousingTypes() {
 					}),
 				});
 
-				if (!response.ok) throw new Error("Failed to create accomodation type");
+				if (!response.ok)
+					throw new Error("Failed to create accommodation type");
 
 				toast.success("Accomodation type created successfully");
 			}
@@ -94,10 +96,10 @@ export default function HousingTypes() {
 			setShowForm(false);
 			setEditingItem(null);
 			setFormData({ name: "", description: "" });
-			mutate("/api/accomodation-types");
+			mutate("/api/accommodation-types");
 		} catch (error) {
 			console.error("Error:", error);
-			toast.error("Failed to save accomodation type");
+			toast.error("Failed to save accommodation type");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -110,24 +112,24 @@ export default function HousingTypes() {
 	};
 
 	const handleDelete = async (id: string) => {
-		if (!confirm("Are you sure you want to delete this accomodation type?")) {
+		if (!confirm("Are you sure you want to delete this accommodation type?")) {
 			return;
 		}
 
 		setIsDeleting(id);
 		try {
-			const response = await fetch(`/api/accomodation-types/${id}`, {
+			const response = await fetch(`/api/accommodation-types/${id}`, {
 				method: "DELETE",
 			});
 
-			if (!response.ok) throw new Error("Failed to delete accomodation type");
+			if (!response.ok) throw new Error("Failed to delete accommodation type");
 
 			toast.success("Accomodation type deleted successfully");
 
-			mutate("/api/accomodation-types");
+			mutate("/api/accommodation-types");
 		} catch (error) {
 			console.error("Error:", error);
-			toast.error("Failed to delete accomodation type");
+			toast.error("Failed to delete accommodation type");
 		} finally {
 			setIsDeleting(null);
 		}
@@ -145,7 +147,7 @@ export default function HousingTypes() {
 				<Card className='w-full max-w-md'>
 					<CardContent className='pt-6'>
 						<p className='text-destructive text-center'>
-							Error loading accomodation types. Please try again later.
+							Error loading accommodation types. Please try again later.
 						</p>
 					</CardContent>
 				</Card>
@@ -165,7 +167,7 @@ export default function HousingTypes() {
 						Accomodation Types
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage accomodation type categories for accommodation units
+						Manage accommodation type categories for accommodation units
 					</p>
 				</div>
 				<Dialog open={showForm} onOpenChange={setShowForm}>
@@ -186,8 +188,8 @@ export default function HousingTypes() {
 							</DialogTitle>
 							<DialogDescription>
 								{editingItem
-									? "Update the accomodation type details."
-									: "Create a new accomodation type for accommodation units."}
+									? "Update the accommodation type details."
+									: "Create a new accommodation type for accommodation units."}
 							</DialogDescription>
 						</DialogHeader>
 						<form onSubmit={handleSubmit} className='space-y-4'>
@@ -199,7 +201,7 @@ export default function HousingTypes() {
 									onChange={(e) =>
 										setFormData({ ...formData, name: e.target.value })
 									}
-									placeholder='Enter accomodation type name'
+									placeholder='Enter accommodation type name'
 									required
 								/>
 							</div>
@@ -238,7 +240,7 @@ export default function HousingTypes() {
 				<CardHeader>
 					<CardTitle>Accomodation Types</CardTitle>
 					<CardDescription>
-						Currently managing {housingTypes.length} accomodation types
+						Currently managing {housingTypes.length} accommodation types
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -285,7 +287,7 @@ export default function HousingTypes() {
 									<TableCell
 										colSpan={4}
 										className='text-center text-muted-foreground'>
-										No accomodation types found
+										No accommodation types found
 									</TableCell>
 								</TableRow>
 							)}

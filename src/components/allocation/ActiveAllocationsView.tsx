@@ -211,7 +211,7 @@ export const ActiveAllocationsView = ({
 			quarterName: unit.quarterName,
 			location: unit.location,
 			category: unit.category,
-			accomodationTypeId: unit.accomodationTypeId,
+			accommodationTypeId: unit.accommodationTypeId,
 			noOfRooms: unit.noOfRooms,
 			status: unit.status,
 			typeOfOccupancy: unit.typeOfOccupancy,
@@ -236,7 +236,7 @@ export const ActiveAllocationsView = ({
 						createdAt: unit.accommodationType.createdAt,
 				  }
 				: {
-						id: unit.accomodationTypeId,
+						id: unit.accommodationTypeId,
 						name: unit.category,
 						description: "",
 						createdAt: new Date().toISOString(),
@@ -253,7 +253,7 @@ export const ActiveAllocationsView = ({
 		(unit) => unit.category === "NCOs"
 	).length;
 
-	// Calculate by accomodation type
+	// Calculate by accommodation type
 	const housingTypeBreakdown = occupiedUnits.reduce((acc, unit) => {
 		const type = unit.accommodationType?.name || unit.category;
 		acc[type] = (acc[type] || 0) + 1;
@@ -266,7 +266,7 @@ export const ActiveAllocationsView = ({
 		return acc;
 	}, {} as Record<string, number>);
 
-	// Find the most common accomodation type
+	// Find the most common accommodation type
 	const mostCommonHousingType = Object.entries(housingTypeBreakdown).reduce(
 		(max, [type, count]) => (count > max.count ? { type, count } : max),
 		{ type: "N/A", count: 0 }

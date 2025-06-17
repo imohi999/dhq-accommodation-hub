@@ -1,15 +1,15 @@
 # DHQ Accommodation Hub
 
-A comprehensive military accommodation management system for Defence Headquarters (DHQ), built to streamline the allocation, management, and tracking of military accomodation units.
+A comprehensive military accommodation management system for Defence Headquarters (DHQ), built to streamline the allocation, management, and tracking of military accommodation units.
 
 ## 🏗️ Project Overview
 
-The DHQ Accommodation Hub is a modern web application designed to manage military accommodation requests, unit allocations, and personnel accomodation within Defence Headquarters facilities. The system provides role-based access control, real-time data management, and comprehensive reporting capabilities.
+The DHQ Accommodation Hub is a modern web application designed to manage military accommodation requests, unit allocations, and personnel accommodation within Defence Headquarters facilities. The system provides role-based access control, real-time data management, and comprehensive reporting capabilities.
 
 ### Key Features
 
 - **Queue Management**: Auto-incrementing sequence system for accommodation requests
-- **Unit Management**: Complete DHQ Accommodation inventory with accomodation types
+- **Unit Management**: Complete DHQ Accommodation inventory with accommodation types
 - **Allocation Workflow**: Request → Approval → Active → Past allocation lifecycle
 - **Transfer Management**: Personnel transfer between units with proper tracking
 - **Audit Trail**: Complete history of all allocation activities
@@ -148,7 +148,7 @@ docs/                      # Documentation
 - **users** - System users and authentication
 - **profiles** - User profiles and roles
 - **queue** - Accommodation request queue
-- **dhq_living_units** - Available accomodation units
+- **dhq_living_units** - Available accommodation units
 - **accomodation_types** - Types of accommodation
 - **allocation_requests** - Allocation requests workflow
 - **past_allocations** - Historical allocation records
