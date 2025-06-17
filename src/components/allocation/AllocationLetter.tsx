@@ -5,7 +5,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Download } from "lucide-react";
 import { useAllocation } from "@/hooks/useAllocation";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
 
@@ -23,7 +23,10 @@ export const AllocationLetter = ({
 	const { stampSettings } = useAllocation();
 	const activeStamp = stampSettings.find((stamp) => stamp.is_active);
 
-	const handlePrint = () => {
+	// Ensure proper letter ID format - use the actual letter_id from the request
+	const displayLetterId = allocationRequest.letterId || "DHQ/GAR/ABJ/00/00/LOG";
+
+	const generatePrintDocument = (forDownload = false) => {
 		const printContent = document.getElementById("allocation-letter-content");
 		if (printContent) {
 			const printWindow = window.open("", "_blank");
@@ -41,10 +44,12 @@ export const AllocationLetter = ({
 					}
 				});
 
+				const filename = `Allocation_Letter_${allocationRequest.personnelData.fullName.replace(/\s+/g, '_')}_${displayLetterId.replace(/\//g, '-')}.pdf`;
+
 				printWindow.document.write(`
           <html>
             <head>
-              <title>Allocation Letter</title>
+              <title>${forDownload ? filename : 'Allocation Letter'}</title>
               <style>
                 * {
                   margin: 0;
@@ -221,10 +226,28 @@ export const AllocationLetter = ({
 
 				// Add a small delay to ensure images are loaded
 				setTimeout(() => {
-					printWindow.print();
+					if (forDownload) {
+						// For download, we'll use the print dialog which allows saving as PDF
+						printWindow.print();
+						// Close the window after a delay to allow the print dialog to appear
+						setTimeout(() => {
+							printWindow.close();
+						}, 1000);
+					} else {
+						// For regular print
+						printWindow.print();
+					}
 				}, 500);
 			}
 		}
+	};
+
+	const handlePrint = () => {
+		generatePrintDocument(false);
+	};
+
+	const handleDownload = () => {
+		generatePrintDocument(true);
 	};
 
 	const currentDate = new Date().toLocaleDateString("en-GB", {
@@ -232,21 +255,29 @@ export const AllocationLetter = ({
 		year: "2-digit",
 	});
 
-	// Ensure proper letter ID format - use the actual letter_id from the request
-	const displayLetterId = allocationRequest.letterId || "DHQ/GAR/ABJ/00/00/LOG";
-
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
 				<DialogHeader>
 					<DialogTitle className='flex items-center justify-between'>
-						<Button
-							onClick={handlePrint}
-							size='sm'
-							className='flex items-center gap-2'>
-							<Printer className='h-4 w-4' />
-							Print
-						</Button>
+						<span className='text-lg'>Allocation Letter</span>
+						<div className='flex items-center gap-2'>
+							<Button
+								onClick={handleDownload}
+								size='sm'
+								variant='outline'
+								className='flex items-center gap-2'>
+								<Download className='h-4 w-4' />
+								Save as PDF
+							</Button>
+							<Button
+								onClick={handlePrint}
+								size='sm'
+								className='flex items-center gap-2'>
+								<Printer className='h-4 w-4' />
+								Print
+							</Button>
+						</div>
 					</DialogTitle>
 				</DialogHeader>
 
@@ -295,7 +326,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Date and Time */}
-					<div className='text-right mb-6 mr-16'>
+					<div className='text-right mb-6 mr-20'>
 						<p>{currentDate}</p>
 					</div>
 
@@ -362,7 +393,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Signature - Removed stamp image box, only text */}
-					<div className='text-right mt-12 mr-16'>
+					<div className='text-right mt-12 mr-20'>
 						{activeStamp && (
 							<div className='text-sm'>
 								<p className='font-bold'>{activeStamp.stamp_name}</p>
