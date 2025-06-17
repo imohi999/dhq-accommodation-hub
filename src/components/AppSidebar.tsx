@@ -165,7 +165,7 @@ export function AppSidebar() {
 									<SidebarMenuItem key={item.title}>
 										{item.items ? (
 											<>
-												<SidebarMenuButton className={cn(hasActiveSubItem && "bg-accent")}>
+												<SidebarMenuButton className={cn(hasActiveSubItem && "bg-primary text-primary-foreground font-bold")}>
 													<item.icon />
 													<span>{item.title}</span>
 												</SidebarMenuButton>
@@ -179,7 +179,7 @@ export function AppSidebar() {
 																	<Link 
 																		href={subItem.url}
 																		className={cn(
-																			isSubItemActive && "bg-accent text-accent-foreground font-medium"
+																			isSubItemActive && "bg-primary/20 text-primary font-bold border-l-4 border-primary pl-4"
 																		)}
 																	>
 																		{subItem.title}
@@ -195,7 +195,7 @@ export function AppSidebar() {
 												<Link 
 													href={item.url}
 													className={cn(
-														isActive && "bg-accent text-accent-foreground font-medium"
+														isActive && "bg-primary text-primary-foreground font-bold"
 													)}
 												>
 													<item.icon />
