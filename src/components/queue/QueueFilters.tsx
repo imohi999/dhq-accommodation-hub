@@ -70,7 +70,8 @@ export const QueueFilters = ({
 				</Button>
 			</div>
 
-			<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4'>
+			{/* First row: Search and Service Branch */}
+			<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
 				<div className='space-y-2'>
 					<Label htmlFor='search'>Search</Label>
 					<div className='relative'>
@@ -86,15 +87,50 @@ export const QueueFilters = ({
 				</div>
 
 				<div className='space-y-2'>
-					<Label>Gender</Label>
-					<Select value={genderFilter} onValueChange={onGenderChange}>
+					<Label>Service Branch</Label>
+					<Select value={armOfServiceFilter} onValueChange={onArmOfServiceChange}>
 						<SelectTrigger>
-							<SelectValue placeholder='All Genders' />
+							<SelectValue placeholder='All Services' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Genders</SelectItem>
-							<SelectItem value='Male'>Male</SelectItem>
-							<SelectItem value='Female'>Female</SelectItem>
+							<SelectItem value='all'>All Services</SelectItem>
+							<SelectItem value='Army'>Army</SelectItem>
+							<SelectItem value='Navy'>Navy</SelectItem>
+							<SelectItem value='Air Force'>Air Force</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+			</div>
+
+			{/* Second row: Other filters */}
+			<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4'>
+				<div className='space-y-2'>
+					<Label>Category</Label>
+					<Select value={categoryFilter} onValueChange={onCategoryChange}>
+						<SelectTrigger>
+							<SelectValue placeholder='All Categories' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Categories</SelectItem>
+							<SelectItem value='NCOs'>NCOs</SelectItem>
+							<SelectItem value='Officer'>Officer</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+
+				<div className='space-y-2'>
+					<Label>Current Unit</Label>
+					<Select value={unitFilter} onValueChange={onUnitChange}>
+						<SelectTrigger>
+							<SelectValue placeholder='All Units' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Units</SelectItem>
+							{units.map((unit) => (
+								<SelectItem key={unit.id} value={unit.name}>
+									{unit.name}
+								</SelectItem>
+							))}
 						</SelectContent>
 					</Select>
 				</div>
@@ -118,35 +154,6 @@ export const QueueFilters = ({
 				</div>
 
 				<div className='space-y-2'>
-					<Label>Category</Label>
-					<Select value={categoryFilter} onValueChange={onCategoryChange}>
-						<SelectTrigger>
-							<SelectValue placeholder='All Categories' />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value='all'>All Categories</SelectItem>
-							<SelectItem value='NCOs'>NCOs</SelectItem>
-							<SelectItem value='Officer'>Officer</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-
-				<div className='space-y-2'>
-					<Label>Service Branch</Label>
-					<Select value={armOfServiceFilter} onValueChange={onArmOfServiceChange}>
-						<SelectTrigger>
-							<SelectValue placeholder='All Services' />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value='all'>All Services</SelectItem>
-							<SelectItem value='Army'>Army</SelectItem>
-							<SelectItem value='Navy'>Navy</SelectItem>
-							<SelectItem value='Air Force'>Air Force</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-
-				<div className='space-y-2'>
 					<Label>Dependents</Label>
 					<Select value={dependentsFilter} onValueChange={onDependentsChange}>
 						<SelectTrigger>
@@ -161,18 +168,15 @@ export const QueueFilters = ({
 				</div>
 
 				<div className='space-y-2'>
-					<Label>Current Unit</Label>
-					<Select value={unitFilter} onValueChange={onUnitChange}>
+					<Label>Gender</Label>
+					<Select value={genderFilter} onValueChange={onGenderChange}>
 						<SelectTrigger>
-							<SelectValue placeholder='All Units' />
+							<SelectValue placeholder='All Genders' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Units</SelectItem>
-							{units.map((unit) => (
-								<SelectItem key={unit.id} value={unit.name}>
-									{unit.name}
-								</SelectItem>
-							))}
+							<SelectItem value='all'>All Genders</SelectItem>
+							<SelectItem value='Male'>Male</SelectItem>
+							<SelectItem value='Female'>Female</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
