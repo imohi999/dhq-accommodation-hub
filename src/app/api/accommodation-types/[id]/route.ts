@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handlePrismaError } from "@/lib/prisma-utils";
 
-// GET: Get single housing type
+// GET: Get single accomodation type
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const housingType = await prisma.housingType.findUnique({
+    const accommodationType = await prisma.accommodationType.findUnique({
       where: { id: params.id },
       include: {
         _count: {
@@ -19,18 +19,18 @@ export async function GET(
       }
     });
 
-    if (!housingType) {
-      return NextResponse.json({ error: "Housing type not found" }, { status: 404 });
+    if (!accommodationType) {
+      return NextResponse.json({ error: "Accomodation type not found" }, { status: 404 });
     }
 
-    return NextResponse.json(housingType);
+    return NextResponse.json(accommodationType);
   } catch (error) {
     const { message, status } = handlePrismaError(error);
     return NextResponse.json({ error: message }, { status });
   }
 }
 
-// PUT: Update housing type
+// PUT: Update accomodation type
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -38,37 +38,37 @@ export async function PUT(
   try {
     const body = await request.json();
 
-    const housingType = await prisma.housingType.update({
+    const accommodationType = await prisma.accommodationType.update({
       where: { id: params.id },
       data: body
     });
 
-    return NextResponse.json(housingType);
+    return NextResponse.json(accommodationType);
   } catch (error) {
     const { message, status } = handlePrismaError(error);
     return NextResponse.json({ error: message }, { status });
   }
 }
 
-// DELETE: Delete housing type
+// DELETE: Delete accomodation type
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check if housing type has units
+    // Check if accomodation type has units
     const unitCount = await prisma.dhqLivingUnit.count({
-      where: { housingTypeId: params.id }
+      where: { accomodationTypeId: params.id }
     });
 
     if (unitCount > 0) {
       return NextResponse.json(
-        { error: "Cannot delete housing type with existing units" },
+        { error: "Cannot delete accomodation type with existing units" },
         { status: 400 }
       );
     }
 
-    await prisma.housingType.delete({
+    await prisma.accommodationType.delete({
       where: { id: params.id }
     });
 

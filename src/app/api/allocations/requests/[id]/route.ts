@@ -12,7 +12,7 @@ export async function GET(
       include: {
         unit: {
           include: {
-            housingType: true
+            accommodationType: true
           }
         }
       }
@@ -58,7 +58,7 @@ export async function PATCH(
       include: {
         unit: {
           include: {
-            housingType: true
+            accommodationType: true
           }
         }
       }
@@ -75,7 +75,7 @@ export async function PATCH(
         svc_no?: string;
       }
       const personnelData = allocationRequest.personnelData as unknown as PersonnelData;
-      
+
       // Check if this personnel is already occupying another unit (transfer case)
       const currentOccupiedUnit = await prisma.dhqLivingUnit.findFirst({
         where: {

@@ -8,7 +8,7 @@ interface ApiAccommodationUnit {
   quarterName: string;
   location: string;
   category: string;
-  housingTypeId: string;
+  accomodationTypeId: string;
   noOfRooms: number;
   status: string;
   typeOfOccupancy: string;
@@ -25,7 +25,7 @@ interface ApiAccommodationUnit {
   occupancyStartDate: string | null;
   createdAt: string;
   updatedAt: string;
-  housingType?: {
+  accommodationType?: {
     id: string;
     name: string;
     description?: string | null;
@@ -49,7 +49,7 @@ const transformUnit = (unit: ApiAccommodationUnit): DHQLivingUnitWithHousingType
   quarterName: unit.quarterName,
   location: unit.location,
   category: unit.category,
-  housingTypeId: unit.housingTypeId,
+  accomodationTypeId: unit.accomodationTypeId,
   noOfRooms: unit.noOfRooms,
   status: unit.status,
   typeOfOccupancy: unit.typeOfOccupancy,
@@ -66,9 +66,9 @@ const transformUnit = (unit: ApiAccommodationUnit): DHQLivingUnitWithHousingType
   occupancyStartDate: unit.occupancyStartDate,
   createdAt: unit.createdAt,
   updatedAt: unit.updatedAt,
-  housingType: unit.housingType,
+  accommodationType: unit.accommodationType,
   // Optional snake_case properties for backward compatibility
-  housing_type_id: unit.housingTypeId,
+  accomodation_type_id: unit.accomodationTypeId,
   no_of_rooms: unit.noOfRooms,
   type_of_occupancy: unit.typeOfOccupancy,
   no_of_rooms_in_bq: unit.noOfRoomsInBq,
@@ -82,11 +82,11 @@ const transformUnit = (unit: ApiAccommodationUnit): DHQLivingUnitWithHousingType
   occupancy_start_date: unit.occupancyStartDate,
   created_at: unit.createdAt,
   updated_at: unit.updatedAt,
-  housing_type: unit.housingType ? {
-    id: unit.housingType.id,
-    name: unit.housingType.name,
-    description: unit.housingType.description,
-    createdAt: unit.housingType.createdAt
+  housing_type: unit.accommodationType ? {
+    id: unit.accommodationType.id,
+    name: unit.accommodationType.name,
+    description: unit.accommodationType.description,
+    createdAt: unit.accommodationType.createdAt
   } : undefined
 });
 

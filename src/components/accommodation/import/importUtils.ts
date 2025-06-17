@@ -6,7 +6,7 @@ export interface ImportData {
   "Quarter Name": string;
   "Location": string;
   "Category": string;
-  "Housing Type": string;
+  "Accomodation Type": string;
   "No of Rooms": string;
   "Status": string;
   "Type of Occupancy": string;
@@ -25,9 +25,9 @@ export interface ValidationError {
 
 export const requiredFields = [
   "Quarter Name",
-  "Location", 
+  "Location",
   "Category",
-  "Housing Type",
+  "Accomodation Type",
   "No of Rooms",
   "Block Name",
   "Flat/House/Room Name"
@@ -35,12 +35,12 @@ export const requiredFields = [
 
 export const validStatuses = ["Vacant", "Occupied", "Not In Use"];
 export const validOccupancyTypes = ["Single", "Shared"];
-export const validCategories = ["Men", "Officer"];
+export const validCategories = ["NCOs", "Officer"];
 
 export const parseFile = (file: File): Promise<ImportData[]> => {
   return new Promise((resolve, reject) => {
     const fileName = file.name.toLowerCase();
-    
+
     if (fileName.endsWith('.csv')) {
       Papa.parse(file, {
         header: true,
@@ -61,18 +61,18 @@ export const parseFile = (file: File): Promise<ImportData[]> => {
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-          
+
           // Convert to proper format with headers
           const headers = jsonData[0] as string[];
-          const rows = jsonData.slice(1) as any[][];
+          const rows = jsonData.slice(1) as (string | number | boolean | null)[][];
           const parsedData = rows.map(row => {
-            const obj: any = {};
+            const obj: Record<string, string | number | boolean | null> = {};
             headers.forEach((header, index) => {
               obj[header] = row[index] || '';
             });
-            return obj;
+            return obj as unknown as ImportData;
           });
-          
+
           resolve(parsedData);
         } catch (error) {
           reject(error);
@@ -87,27 +87,27 @@ export const parseFile = (file: File): Promise<ImportData[]> => {
 
 export const downloadTemplate = (housingTypes: Array<{ id: string; name: string }>) => {
   const template = [
-    ["Quarter Name", "Location", "Category", "Housing Type", "No of Rooms", "Status", "Type of Occupancy", "BQ", "No of Rooms in BQ", "Block Name", "Flat/House/Room Name", "Unit Name"],
-    ["Alpha Quarters", "North Block", "Men", housingTypes[0]?.name || "Officer Quarter", "3", "Vacant", "Single", "No", "0", "Block A", "Flat 101", "A-101"],
+    ["Quarter Name", "Location", "Category", "Accomodation Type", "No of Rooms", "Status", "Type of Occupancy", "BQ", "No of Rooms in BQ", "Block Name", "Flat/House/Room Name", "Unit Name"],
+    ["Alpha Quarters", "North Block", "NCOs", housingTypes[0]?.name || "Officer Quarter", "3", "Vacant", "Single", "No", "0", "Block A", "Flat 101", "A-101"],
     ["Officer Quarters", "South Block", "Officer", housingTypes[0]?.name || "Officer Quarter", "4", "Occupied", "Single", "Yes", "1", "Block B", "House 201", "B-201"]
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(template);
-  
+
   // Add validation comments to help users
   const comments = {
-    'C1': 'Valid values: Men, Officer',
+    'C1': 'Valid values: NCOs, Officer',
     'F1': 'Valid values: Vacant, Occupied, Not In Use',
     'G1': 'Valid values: Single, Shared',
     'H1': 'Valid values: Yes, No, true, false, 1, 0'
   };
-  
+
   Object.entries(comments).forEach(([cell, comment]) => {
     if (!ws[cell]) ws[cell] = {};
     ws[cell].c = [{ a: 'System', t: comment }];
   });
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "DHQ Living Units Template");
+  XLSX.utils.book_append_sheet(wb, ws, "DHQ  Accommodation Template");
   XLSX.writeFile(wb, "dhq_living_units_template.xlsx");
 };

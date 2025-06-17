@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handlePrismaError } from "@/lib/prisma-utils";
 
-// GET: List all housing types
+// GET: List all accomodation types
 export async function GET() {
   try {
-    const housingTypes = await prisma.housingType.findMany({
+    const housingTypes = await prisma.accommodationType.findMany({
       include: {
         _count: {
           select: {
-            livingUnits: true
+            dhq_living_units: true
           }
         }
       },
@@ -25,20 +25,20 @@ export async function GET() {
   }
 }
 
-// POST: Create new housing type
+// POST: Create new accomodation type
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, description } = body;
 
-    const housingType = await prisma.housingType.create({
+    const accommodationType = await prisma.accommodationType.create({
       data: {
         name,
         description
       }
     });
 
-    return NextResponse.json(housingType, { status: 201 });
+    return NextResponse.json(accommodationType, { status: 201 });
   } catch (error) {
     const { message, status } = handlePrismaError(error);
     return NextResponse.json({ error: message }, { status });

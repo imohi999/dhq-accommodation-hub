@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const unitId = searchParams.get("unitId");
-    
+
     if (!unitId) {
       return NextResponse.json(
         { error: "Unit ID is required" },
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       item_description: item.itemDescription,
       item_location: item.itemLocation,
       item_status: item.itemStatus,
-      note: item.note,
+      remarks: item.remarks,
       created_at: item.createdAt,
       updated_at: item.updatedAt,
     }));
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { unit_id, quantity, item_description, item_location, item_status, note } = body;
+    const { unit_id, quantity, item_description, item_location, item_status, remarks } = body;
 
     if (!unit_id || !item_description || !item_location) {
       return NextResponse.json(
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         itemDescription: item_description,
         itemLocation: item_location,
         itemStatus: item_status || "Functional",
-        note: note || null,
+        remarks: remarks || null,
       },
     });
 
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       item_description: inventory.itemDescription,
       item_location: inventory.itemLocation,
       item_status: inventory.itemStatus,
-      note: inventory.note,
+      remarks: inventory.remarks,
       created_at: inventory.createdAt,
       updated_at: inventory.updatedAt,
     };

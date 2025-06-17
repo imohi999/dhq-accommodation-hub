@@ -1,7 +1,7 @@
 
 export const RANK_OPTIONS = {
   Army: {
-    Men: [
+    NCOs: [
       "Private",
       "Lance Corporal",
       "Corporal",
@@ -26,7 +26,7 @@ export const RANK_OPTIONS = {
     ]
   },
   Navy: {
-    Men: [
+    NCOs: [
       "Ordinary Seaman",
       "Seaman",
       "Able Seaman",
@@ -37,7 +37,6 @@ export const RANK_OPTIONS = {
       "Navy Warrant Officer"
     ],
     Officer: [
-      "Midshipman",
       "Sub-Lieutenant",
       "Lieutenant",
       "Lieutenant Commander",
@@ -51,7 +50,7 @@ export const RANK_OPTIONS = {
     ]
   },
   "Air Force": {
-    Men: [
+    NCOs: [
       "Aircraftman/Aircraftwoman",
       "Lance Corporal",
       "Corporal",
@@ -62,7 +61,6 @@ export const RANK_OPTIONS = {
       "Air Warrant Officer"
     ],
     Officer: [
-      "Officer Cadet",
       "Pilot Officer",
       "Flying Officer",
       "Flight Lieutenant",
@@ -82,9 +80,9 @@ export const getRankOptions = (armOfService: string, category: string) => {
   if (!armOfService || !category) {
     return [];
   }
-  
+
   const serviceKey = armOfService as keyof typeof RANK_OPTIONS;
   const categoryKey = category as keyof typeof RANK_OPTIONS[typeof serviceKey];
-  
+
   return RANK_OPTIONS[serviceKey]?.[categoryKey] || [];
 };

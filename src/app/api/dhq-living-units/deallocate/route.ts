@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const unit = await prisma.dhqLivingUnit.findUnique({
       where: { id: unitId },
       include: {
-        housingType: true
+        accommodationType: true
       }
     });
 
@@ -51,11 +51,11 @@ export async function POST(request: NextRequest) {
             blockName: unit.blockName,
             flatHouseRoomName: unit.flatHouseRoomName,
             noOfRooms: unit.noOfRooms,
-            housingType: unit.housingType?.name || unit.category,
+            accommodationType: unit.accommodationType?.name || unit.category,
           },
           allocationStartDate: unit.occupancyStartDate || new Date(),
           allocationEndDate: new Date(),
-          durationDays: unit.occupancyStartDate 
+          durationDays: unit.occupancyStartDate
             ? Math.floor((new Date().getTime() - new Date(unit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
             : 0,
           reasonForLeaving: "Deallocated by admin",
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
           serviceNumber: unit.currentOccupantServiceNumber || "Unknown",
           startDate: unit.occupancyStartDate || new Date(),
           endDate: new Date(),
-          durationDays: unit.occupancyStartDate 
+          durationDays: unit.occupancyStartDate
             ? Math.floor((new Date().getTime() - new Date(unit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
             : 0,
           reasonForLeaving: "Deallocated by admin",
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       timeout: 10000 // 10 seconds
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: "Unit deallocated successfully",
       unitId: result.updatedUnit.id,
       pastAllocationId: result.pastAllocation.id

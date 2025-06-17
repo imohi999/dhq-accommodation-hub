@@ -46,6 +46,21 @@ const fetcher = async () => {
 	return result;
 };
 
+const formatDuration = (days: number): string => {
+	if (days === 0) return "0 days";
+	
+	const years = Math.floor(days / 365);
+	const months = Math.floor((days % 365) / 30);
+	const remainingDays = days % 30;
+	
+	const parts = [];
+	if (years > 0) parts.push(`${years} year${years > 1 ? 's' : ''}`);
+	if (months > 0) parts.push(`${months} month${months > 1 ? 's' : ''}`);
+	if (remainingDays > 0) parts.push(`${remainingDays} day${remainingDays > 1 ? 's' : ''}`);
+	
+	return parts.join(', ');
+};
+
 export const PastAllocationsView = () => {
 	const {
 		data: pastAllocations = [],
@@ -99,14 +114,15 @@ export const PastAllocationsView = () => {
 					<CardContent>
 						<div className='text-2xl font-bold'>
 							{pastAllocations.filter((a) => a.durationDays).length > 0
-								? Math.round(
-										pastAllocations
-											.filter((a) => a.durationDays)
-											.reduce((sum, a) => sum + (a.durationDays || 0), 0) /
-											pastAllocations.filter((a) => a.durationDays).length
+								? formatDuration(
+										Math.round(
+											pastAllocations
+												.filter((a) => a.durationDays)
+												.reduce((sum, a) => sum + (a.durationDays || 0), 0) /
+												pastAllocations.filter((a) => a.durationDays).length
+										)
 								  )
-								: 0}{" "}
-							days
+								: "0 days"}
 						</div>
 					</CardContent>
 				</Card>
@@ -186,7 +202,7 @@ export const PastAllocationsView = () => {
 											)}
 											{allocation.durationDays && (
 												<p className='text-muted-foreground'>
-													Duration: {allocation.durationDays} days
+													Duration: {formatDuration(allocation.durationDays)}
 												</p>
 											)}
 										</div>

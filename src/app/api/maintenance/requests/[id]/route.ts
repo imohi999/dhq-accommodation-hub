@@ -18,7 +18,7 @@ export async function PUT(
         priority: body.priorityLevel,
         performedBy: body.reportedBy,
         status: body.status,
-        notes: body.notes,
+        remarks: body.remarks,
         ...(body.reportedAt && {
           maintenanceDate: new Date(body.reportedAt)
         })
@@ -39,7 +39,7 @@ export async function PUT(
       reportedBy: updatedRequest.performedBy,
       reportedAt: updatedRequest.maintenanceDate.toISOString(),
       status: updatedRequest.status,
-      notes: updatedRequest.notes || '',
+      remarks: updatedRequest.remarks || '',
       createdAt: updatedRequest.createdAt.toISOString(),
       updatedAt: updatedRequest.updatedAt.toISOString()
     };

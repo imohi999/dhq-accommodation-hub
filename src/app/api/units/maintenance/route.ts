@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const unitId = searchParams.get("unitId");
-    
+
     if (!unitId) {
       return NextResponse.json(
         { error: "Unit ID is required" },
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       cost: item.cost,
       status: item.status,
       priority: item.priority,
-      notes: item.notes,
+      remarks: item.remarks,
       created_at: item.createdAt,
       updated_at: item.updatedAt,
     }));
@@ -49,16 +49,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      unit_id, 
-      maintenance_type, 
-      description, 
-      maintenance_date, 
-      performed_by, 
-      cost, 
-      status, 
-      priority, 
-      notes 
+    const {
+      unit_id,
+      maintenance_type,
+      description,
+      maintenance_date,
+      performed_by,
+      cost,
+      status,
+      priority,
+      remarks
     } = body;
 
     if (!unit_id || !maintenance_type || !description || !performed_by) {
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         cost: cost ? parseFloat(cost) : null,
         status: status || "Completed",
         priority: priority || "Medium",
-        notes: notes || null,
+        remarks: remarks || null,
       },
     });
 
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       cost: maintenance.cost,
       status: maintenance.status,
       priority: maintenance.priority,
-      notes: maintenance.notes,
+      remarks: maintenance.remarks,
       created_at: maintenance.createdAt,
       updated_at: maintenance.updatedAt,
     };

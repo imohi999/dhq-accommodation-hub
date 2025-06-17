@@ -27,7 +27,7 @@ export async function GET() {
       reportedBy: request.performedBy,
       reportedAt: request.maintenanceDate.toISOString(),
       status: request.status,
-      notes: request.notes || '',
+      remarks: request.remarks || '',
       createdAt: request.createdAt.toISOString(),
       updatedAt: request.updatedAt.toISOString()
     }));
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         cost: 0, // Requests start with 0 cost
         status: body.status || 'Pending',
         priority: body.priorityLevel,
-        notes: body.notes
+        remarks: body.remarks
       },
       include: {
         unit: true
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       reportedBy: newRequest.performedBy,
       reportedAt: newRequest.maintenanceDate.toISOString(),
       status: newRequest.status,
-      notes: newRequest.notes || '',
+      remarks: newRequest.remarks || '',
       createdAt: newRequest.createdAt.toISOString(),
       updatedAt: newRequest.updatedAt.toISOString()
     };

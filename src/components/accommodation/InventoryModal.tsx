@@ -32,7 +32,7 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
     item_description: '',
     item_location: '',
     item_status: 'Functional',
-    note: ''
+    remarks: ''
   });
 
   // Use SWR to fetch inventory
@@ -120,7 +120,7 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
       item_description: item.item_description,
       item_location: item.item_location,
       item_status: item.item_status,
-      note: item.note || ''
+      remarks: item.remarks || ''
     });
     setShowForm(true);
   };
@@ -132,7 +132,7 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
       item_description: '',
       item_location: '',
       item_status: 'Functional',
-      note: ''
+      remarks: ''
     });
     setShowForm(false);
   };
@@ -208,11 +208,11 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
               </div>
               
               <div>
-                <Label htmlFor="note">Note</Label>
+                <Label htmlFor="remarks">Remarks</Label>
                 <Textarea
-                  id="note"
-                  value={formData.note}
-                  onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                  id="remarks"
+                  value={formData.remarks}
+                  onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
                 />
               </div>
               
@@ -241,8 +241,8 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
                         <Badge variant="outline">Qty: {item.quantity}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">Location: {item.item_location}</p>
-                      {item.note && (
-                        <p className="text-sm text-muted-foreground">Note: {item.note}</p>
+                      {item.remarks && (
+                        <p className="text-sm text-muted-foreground">Remarks: {item.remarks}</p>
                       )}
                     </div>
                     <div className="flex gap-1">

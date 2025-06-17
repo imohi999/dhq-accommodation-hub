@@ -4,14 +4,14 @@ import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 export const fetchAccommodationById = async (id: string): Promise<DHQLivingUnitWithHousingType | null> => {
   try {
     const response = await fetch(`/api/dhq-living-units/${id}`);
-    
+
     if (!response.ok) {
       console.error("Error fetching accommodation:", response.statusText);
       return null;
     }
 
     const data = await response.json();
-    
+
     // Transform API response to match our type (include both camelCase and snake_case)
     return {
       // Required camelCase properties
@@ -19,7 +19,7 @@ export const fetchAccommodationById = async (id: string): Promise<DHQLivingUnitW
       quarterName: data.quarterName,
       location: data.location,
       category: data.category,
-      housingTypeId: data.housingTypeId,
+      accomodationTypeId: data.accomodationTypeId,
       noOfRooms: data.noOfRooms,
       status: data.status,
       typeOfOccupancy: data.typeOfOccupancy,
@@ -36,9 +36,9 @@ export const fetchAccommodationById = async (id: string): Promise<DHQLivingUnitW
       occupancyStartDate: data.occupancyStartDate,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
-      housingType: data.housingType,
+      accommodationType: data.accommodationType,
       // Optional snake_case properties for backward compatibility
-      housing_type_id: data.housingTypeId,
+      accomodation_type_id: data.accomodationTypeId,
       no_of_rooms: data.noOfRooms,
       type_of_occupancy: data.typeOfOccupancy,
       no_of_rooms_in_bq: data.noOfRoomsInBq,
@@ -52,11 +52,11 @@ export const fetchAccommodationById = async (id: string): Promise<DHQLivingUnitW
       occupancy_start_date: data.occupancyStartDate,
       created_at: data.createdAt,
       updated_at: data.updatedAt,
-      housing_type: data.housingType ? {
-        id: data.housingType.id,
-        name: data.housingType.name,
-        description: data.housingType.description,
-        createdAt: data.housingType.createdAt,
+      housing_type: data.accommodationType ? {
+        id: data.accommodationType.id,
+        name: data.accommodationType.name,
+        description: data.accommodationType.description,
+        createdAt: data.accommodationType.createdAt,
       } : undefined
     };
   } catch (error) {
@@ -67,7 +67,7 @@ export const fetchAccommodationById = async (id: string): Promise<DHQLivingUnitW
 
 // Update accommodation unit status
 export const updateAccommodationStatus = async (
-  id: string, 
+  id: string,
   updates: {
     status?: 'Vacant' | 'Occupied' | 'Not In Use';
     currentOccupantName?: string | null;

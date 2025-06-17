@@ -164,14 +164,14 @@ export const PendingApprovalView = ({
 		(r) => r.personnelData?.category === "Officer"
 	).length;
 	const menRequests = requests.filter(
-		(r) => r.personnelData?.category === "Men"
+		(r) => r.personnelData?.category === "NCOs"
 	).length;
 	// Extract service from service number prefix
 	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith('A/')) return 'Army';
-		if (svcNo?.startsWith('N/')) return 'Navy';
-		if (svcNo?.startsWith('AF/')) return 'Air Force';
-		return 'Unknown';
+		if (svcNo?.startsWith("A/")) return "Army";
+		if (svcNo?.startsWith("N/")) return "Navy";
+		if (svcNo?.startsWith("AF/")) return "Air Force";
+		return "Unknown";
 	};
 
 	const armyRequests = requests.filter(
@@ -198,7 +198,7 @@ export const PendingApprovalView = ({
 					<CardContent>
 						<div className='text-2xl font-bold'>{totalPending}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {officerRequests} | Men: {menRequests}
+							Officers: {officerRequests} | NCOs: {menRequests}
 						</p>
 					</CardContent>
 				</Card>
@@ -219,12 +219,12 @@ export const PendingApprovalView = ({
 										r.personnelData.category === "Officer"
 								).length
 							}{" "}
-							| Men:{" "}
+							| NCOs:{" "}
 							{
 								requests.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) === "Army" &&
-										r.personnelData.category === "Men"
+										r.personnelData.category === "NCOs"
 								).length
 							}
 						</p>
@@ -247,12 +247,12 @@ export const PendingApprovalView = ({
 										r.personnelData.category === "Officer"
 								).length
 							}{" "}
-							| Men:{" "}
+							| NCOs:{" "}
 							{
 								requests.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) === "Navy" &&
-										r.personnelData.category === "Men"
+										r.personnelData.category === "NCOs"
 								).length
 							}
 						</p>
@@ -271,16 +271,16 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) === "Air Force" &&
-										r.personnelData?.category === "Officer"
+										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+											"Air Force" && r.personnelData?.category === "Officer"
 								).length
 							}{" "}
-							| Men:{" "}
+							| NCOs:{" "}
 							{
 								requests.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) === "Air Force" &&
-										r.personnelData.category === "Men"
+										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+											"Air Force" && r.personnelData.category === "NCOs"
 								).length
 							}
 						</p>
@@ -316,7 +316,8 @@ export const PendingApprovalView = ({
 													{request.personnelData.fullName}
 												</h3>
 												<p className='text-sm text-muted-foreground'>
-													{request.personnelData?.rank} • {getServiceFromSvcNo(request.personnelData?.svcNo)} •{" "}
+													{request.personnelData?.rank} •{" "}
+													{getServiceFromSvcNo(request.personnelData?.svcNo)} •{" "}
 													{request.personnelData?.currentUnit}
 												</p>
 												<div className='flex items-center gap-2 mt-1'>
@@ -335,7 +336,7 @@ export const PendingApprovalView = ({
 													Letter No: {request.letterId}
 												</p>
 												<p className='text-sm text-muted-foreground'>
-													{request.unitData?.housingType} •
+													{request.unitData?.accommodationType} •
 													{request.unitData?.noOfRooms} Room(s) •
 													{request.unitData?.flatHouseRoomName}
 												</p>
@@ -375,7 +376,7 @@ export const PendingApprovalView = ({
 											loadingText='Refusing...'
 											className='flex items-center gap-2'>
 											<XCircle className='h-4 w-4' />
-											Refusal
+											Not Approved
 										</LoadingButton>
 									</div>
 								</div>

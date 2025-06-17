@@ -18,19 +18,22 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/dhq_accommodation?sch
 You can generate a secure secret using one of these methods:
 
 ### Option 1: Using OpenSSL
+
 ```bash
 openssl rand -base64 32
 ```
 
 ### Option 2: Using Node.js
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
 ### Option 3: Using an online generator
+
 Visit: https://generate-secret.vercel.app/32
 
-## Important Notes
+## Important Remarks
 
 1. **NEXTAUTH_SECRET** must be set for production deployments
 2. In development, if NEXTAUTH_SECRET is not set, NextAuth will use a default value but will show warnings

@@ -7,15 +7,15 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { 
-      maintenance_type, 
-      description, 
-      maintenance_date, 
-      performed_by, 
-      cost, 
-      status, 
-      priority, 
-      notes 
+    const {
+      maintenance_type,
+      description,
+      maintenance_date,
+      performed_by,
+      cost,
+      status,
+      priority,
+      remarks
     } = body;
 
     const maintenance = await prisma.unitMaintenance.update({
@@ -28,7 +28,7 @@ export async function PUT(
         cost: cost !== undefined ? (cost ? parseFloat(cost) : null) : undefined,
         status: status || undefined,
         priority: priority || undefined,
-        notes,
+        remarks,
       },
     });
 
@@ -43,7 +43,7 @@ export async function PUT(
       cost: maintenance.cost,
       status: maintenance.status,
       priority: maintenance.priority,
-      notes: maintenance.notes,
+      remarks: maintenance.remarks,
       created_at: maintenance.createdAt,
       updated_at: maintenance.updatedAt,
     };

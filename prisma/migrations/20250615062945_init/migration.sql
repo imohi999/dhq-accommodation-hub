@@ -102,7 +102,7 @@ CREATE TABLE "units" (
 );
 
 -- CreateTable
-CREATE TABLE "housing_types" (
+CREATE TABLE "accomodation_types" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
@@ -117,7 +117,7 @@ CREATE TABLE "dhq_living_units" (
     "quarter_name" TEXT NOT NULL,
     "location" TEXT NOT NULL,
     "category" TEXT NOT NULL,
-    "housing_type_id" TEXT NOT NULL,
+    "accomodation_type_id" TEXT NOT NULL,
     "no_of_rooms" INTEGER NOT NULL DEFAULT 0,
     "status" TEXT NOT NULL DEFAULT 'Vacant',
     "type_of_occupancy" TEXT NOT NULL DEFAULT 'Single',
@@ -180,7 +180,7 @@ CREATE TABLE "unit_inventory" (
     "item_description" TEXT NOT NULL,
     "item_location" TEXT NOT NULL,
     "item_status" TEXT NOT NULL DEFAULT 'Functional',
-    "note" TEXT,
+    "remarks" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -198,7 +198,7 @@ CREATE TABLE "unit_maintenance" (
     "cost" DOUBLE PRECISION,
     "status" TEXT NOT NULL DEFAULT 'Completed',
     "priority" TEXT NOT NULL DEFAULT 'Medium',
-    "notes" TEXT,
+    "remarks" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -303,10 +303,10 @@ CREATE INDEX "queue_svc_no_idx" ON "queue"("svc_no");
 CREATE UNIQUE INDEX "units_name_key" ON "units"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "housing_types_name_key" ON "housing_types"("name");
+CREATE UNIQUE INDEX "housing_types_name_key" ON "accomodation_types"("name");
 
 -- CreateIndex
-CREATE INDEX "dhq_living_units_housing_type_id_idx" ON "dhq_living_units"("housing_type_id");
+CREATE INDEX "dhq_living_units_housing_type_id_idx" ON "dhq_living_units"("accomodation_type_id");
 
 -- CreateIndex
 CREATE INDEX "dhq_living_units_status_idx" ON "dhq_living_units"("status");
@@ -366,7 +366,7 @@ ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_fkey" FOREIGN KEY ("
 ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_assigned_by_fkey" FOREIGN KEY ("assigned_by") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "dhq_living_units" ADD CONSTRAINT "dhq_living_units_housing_type_id_fkey" FOREIGN KEY ("housing_type_id") REFERENCES "housing_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "dhq_living_units" ADD CONSTRAINT "dhq_living_units_housing_type_id_fkey" FOREIGN KEY ("accomodation_type_id") REFERENCES "accomodation_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "unit_occupants" ADD CONSTRAINT "unit_occupants_unit_id_fkey" FOREIGN KEY ("unit_id") REFERENCES "dhq_living_units"("id") ON DELETE CASCADE ON UPDATE CASCADE;

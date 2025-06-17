@@ -18,26 +18,26 @@ export const useAccommodationFilters = (units: DHQLivingUnitWithHousingType[]) =
   const filteredUnits = useMemo(() => {
     return units.filter((unit) => {
       const matchesSearch = searchTerm === "" ||
-        Object.values(unit).some(value => 
+        Object.values(unit).some(value =>
           value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         );
-      
+
       const matchesQuarterName = quarterNameFilter === "all" || unit.quarterName === quarterNameFilter;
       const matchesLocation = locationFilter === "all" || unit.location === locationFilter;
       const matchesCategory = categoryFilter === "all" || unit.category === categoryFilter;
-      const matchesHousingType = housingTypeFilter === "all" || unit.housing_type_id === housingTypeFilter;
+      const matchesHousingType = housingTypeFilter === "all" || unit.accomodation_type_id === housingTypeFilter;
       const matchesStatus = statusFilter === "all" || unit.status === statusFilter;
       const matchesOccupancy = occupancyFilter === "all" || unit.type_of_occupancy === occupancyFilter;
       const matchesBlockName = blockNameFilter === "all" || unit.blockName === blockNameFilter;
       const matchesFlatHouseRoom = flatHouseRoomFilter === "all" || unit.flat_house_room_name === flatHouseRoomFilter;
       const matchesUnitName = unitNameFilter === "all" || unit.unit_name === unitNameFilter;
 
-      return matchesSearch && matchesQuarterName && matchesLocation && matchesCategory && 
-             matchesHousingType && matchesStatus && matchesOccupancy && matchesBlockName && 
-             matchesFlatHouseRoom && matchesUnitName;
+      return matchesSearch && matchesQuarterName && matchesLocation && matchesCategory &&
+        matchesHousingType && matchesStatus && matchesOccupancy && matchesBlockName &&
+        matchesFlatHouseRoom && matchesUnitName;
     });
-  }, [units, searchTerm, quarterNameFilter, locationFilter, categoryFilter, housingTypeFilter, 
-      statusFilter, occupancyFilter, blockNameFilter, flatHouseRoomFilter, unitNameFilter]);
+  }, [units, searchTerm, quarterNameFilter, locationFilter, categoryFilter, housingTypeFilter,
+    statusFilter, occupancyFilter, blockNameFilter, flatHouseRoomFilter, unitNameFilter]);
 
   return {
     searchTerm,

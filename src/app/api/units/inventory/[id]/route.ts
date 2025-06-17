@@ -7,7 +7,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { quantity, item_description, item_location, item_status, note } = body;
+    const { quantity, item_description, item_location, item_status, remarks } = body;
 
     const inventory = await prisma.unitInventory.update({
       where: { id: params.id },
@@ -16,7 +16,7 @@ export async function PUT(
         itemDescription: item_description || undefined,
         itemLocation: item_location || undefined,
         itemStatus: item_status || undefined,
-        note,
+        remarks,
       },
     });
 
@@ -28,7 +28,7 @@ export async function PUT(
       item_description: inventory.itemDescription,
       item_location: inventory.itemLocation,
       item_status: inventory.itemStatus,
-      note: inventory.note,
+      remarks: inventory.remarks,
       created_at: inventory.createdAt,
       updated_at: inventory.updatedAt,
     };

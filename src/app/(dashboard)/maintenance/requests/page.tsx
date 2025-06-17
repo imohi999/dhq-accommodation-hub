@@ -19,7 +19,7 @@ export interface MaintenanceRequest {
 	reportedBy: string;
 	reportedAt: string;
 	status: string;
-	notes: string;
+	remarks: string;
 	createdAt: string;
 	updatedAt: string;
 }

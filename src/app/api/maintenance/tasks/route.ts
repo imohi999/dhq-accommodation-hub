@@ -23,7 +23,7 @@ export async function GET() {
       lastPerformedDate: task.maintenanceDate.toISOString().split('T')[0],
       nextDueDate: new Date(task.maintenanceDate.getTime() + (90 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0], // 90 days later
       status: task.status,
-      notes: task.notes || '',
+      remarks: task.remarks || '',
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString()
     }));
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
           performedBy: 'System',
           status: task.status,
           priority: 'Medium',
-          notes: task.notes,
+          remarks: task.remarks,
           cost: 0
         },
         include: {

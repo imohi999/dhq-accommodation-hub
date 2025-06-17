@@ -7,7 +7,7 @@ Fields:
 	•	SvcNo: (Unique, no duplicates) 
 	•	Gender: (Dropdown: Male,Female)
 	•	ArmOfService: (Dropdown: Army, Navy, Air Force) 
-	•	Category: (Dropdown: Men,Officer) 
+	•	Category: (Dropdown: NCOs,Officer) 
 	•	Rank: (Display dropdown based on ArmOfService and Category Selected)  
 	•	Marital status: (Dropdown: Single, Married, Divorced, Widowed)
 	•	NoOfAdultDependents: (number:0-99)
@@ -20,7 +20,7 @@ Fields:
 	•	EntryDateTime: (Automatic date and time stamp)
 Rank field Options based on category & Arm of service selected: 
 ArmOfService: Army
-Category:Men
+Category:NCOs
 1. Private
 2. Lance Corporal
 3. Corporal
@@ -43,7 +43,7 @@ Category:Officers
 10. General
 11. Field Marshal
 ArmOfService: Navy
-Category:Men
+Category:NCOs
 1. Ordinary Seaman
 2. Seaman
 3. Able Seaman
@@ -66,7 +66,7 @@ Category:Officer
 10. Admiral
 11. Admiral of the Fleet
 ArmOfService: Air Force
-Category:Men
+Category:NCOs
 1. Aircraftman/Aircraftwoman
 2. Lance Corporal
 3. Corporal
@@ -92,7 +92,7 @@ Category:Officer
 
 
 
-On the Queue List card view, Include a functional Red Delete icon with confirmation before action. under the Allocate Button, Change the Allocate button color to Green. When the allocate button is clicked a pop up list of the Card and compact view only of all “Vacant” status DHQ Living units matching the Category field (same as category field in the Queue list and DHQ Living unit Dropdown: Men,Officer) of the personnel. The Cards on the Card and Compact view on the pop up list should have an “Allocate Unit” button on each unit displayed. 
+On the Queue List card view, Include a functional Red Delete icon with confirmation before action. under the Allocate Button, Change the Allocate button color to Green. When the allocate button is clicked a pop up list of the Card and compact view only of all “Vacant” status DHQ  Accommodation matching the Category field (same as category field in the Queue list and DHQ Living unit Dropdown: NCOs,Officer) of the personnel. The Cards on the Card and Compact view on the pop up list should have an “Allocate Unit” button on each unit displayed. 
 
 This button would then allocate the Living Unit to the personnel after displaying a confirmation. This action changes the status of the Living Unit to Occupied and removes the Personnel info from the Queue List to “Pending Approval” under the allocation section. This Action also generates an “Approval letter” this will be an Image displayed in a single page view. Following the format exactly as in the Allocation letter image attached. Make sure the letter is generated exactly as the attachment.
 
@@ -133,4 +133,4 @@ To understand this better the Active Allocations is a List that shows all the �
 
 
 
-The button to “Transfer” which should first prompt  for confirmation “Do you want to transfer this person to another unit” should pop up list of the Card and compact view only of all “Vacant” status DHQ Living units matching the Category field (same as category field in the Queue list and DHQ Living unit Dropdown: Men,Officer) of the personnel. The Cards on the Card and Compact view on the pop up list should have an “Allocate Unit” button on each unit displayed. This button would then allocate the Living Unit to the personnel after displaying a confirmation. This action changes the status of the allocated Living Unit to Occupied and the status of the former Living Unit to Vacant it will also log an entry into the Past Allocations list that would show cards displaying the Personnel and the period they were allocated the Living unit for and also list the new allocated Living unit as an Active Allocation.  The last button on the Active Allocations card should be “Deallocate” This button should trigger a confirmation and changes the status of the allocated Living Unit to Vacant removes the person from Active Allocations list and logs an entry into the Past Allocations list that would show cards displaying the Personnel and the period they were allocated the Living unit for.  
+The button to “Transfer” which should first prompt  for confirmation “Do you want to transfer this person to another unit” should pop up list of the Card and compact view only of all “Vacant” status DHQ  Accommodation matching the Category field (same as category field in the Queue list and DHQ Living unit Dropdown: NCOs,Officer) of the personnel. The Cards on the Card and Compact view on the pop up list should have an “Allocate Unit” button on each unit displayed. This button would then allocate the Living Unit to the personnel after displaying a confirmation. This action changes the status of the allocated Living Unit to Occupied and the status of the former Living Unit to Vacant it will also log an entry into the Past Allocations list that would show cards displaying the Personnel and the period they were allocated the Living unit for and also list the new allocated Living unit as an Active Allocation.  The last button on the Active Allocations card should be “Deallocate” This button should trigger a confirmation and changes the status of the allocated Living Unit to Vacant removes the person from Active Allocations list and logs an entry into the Past Allocations list that would show cards displaying the Personnel and the period they were allocated the Living unit for.  

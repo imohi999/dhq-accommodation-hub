@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,163 +18,174 @@ import { toast } from "react-toastify";
 // Removed Supabase import - using API instead
 
 export default function DHQLivingUnits() {
-  const { units, housingTypes, loading, refetch } = useAccommodationData();
-  const [viewMode, setViewMode] = useState<'card' | 'compact' | 'table'>('card');
-  const [showForm, setShowForm] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [editingUnit, setEditingUnit] = useState<DHQLivingUnitWithHousingType | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
-  
-  const {
-    searchTerm,
-    setSearchTerm,
-    quarterNameFilter,
-    setQuarterNameFilter,
-    locationFilter,
-    setLocationFilter,  
-    categoryFilter,
-    setCategoryFilter,
-    housingTypeFilter,
-    setHousingTypeFilter,
-    statusFilter,
-    setStatusFilter,
-    occupancyFilter,
-    setOccupancyFilter,
-    blockNameFilter,
-    setBlockNameFilter,
-    flatHouseRoomFilter,
-    setFlatHouseRoomFilter,
-    unitNameFilter,
-    setUnitNameFilter,
-    filteredUnits
-  } = useAccommodationFilters(units);
-  
-  const handleAdd = () => {
-    setEditingUnit(null);
-    setShowForm(true);
-  };
+	const { units, housingTypes, loading, refetch } = useAccommodationData();
+	const [viewMode, setViewMode] = useState<"card" | "compact" | "table">(
+		"card"
+	);
+	const [showForm, setShowForm] = useState(false);
+	const [showImportModal, setShowImportModal] = useState(false);
+	const [editingUnit, setEditingUnit] =
+		useState<DHQLivingUnitWithHousingType | null>(null);
+	const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
-  const handleEdit = (unit: DHQLivingUnitWithHousingType) => {
-    setEditingUnit(unit);
-    setShowForm(true);
-  };
+	const {
+		searchTerm,
+		setSearchTerm,
+		quarterNameFilter,
+		setQuarterNameFilter,
+		locationFilter,
+		setLocationFilter,
+		categoryFilter,
+		setCategoryFilter,
+		housingTypeFilter,
+		setHousingTypeFilter,
+		statusFilter,
+		setStatusFilter,
+		occupancyFilter,
+		setOccupancyFilter,
+		blockNameFilter,
+		setBlockNameFilter,
+		flatHouseRoomFilter,
+		setFlatHouseRoomFilter,
+		unitNameFilter,
+		setUnitNameFilter,
+		filteredUnits,
+	} = useAccommodationFilters(units);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this accommodation unit?")) {
-      return;
-    }
+	const handleAdd = () => {
+		setEditingUnit(null);
+		setShowForm(true);
+	};
 
-    setDeleteLoading(id);
-    try {
-      const response = await fetch(`/api/dhq-living-units/${id}`, {
-        method: 'DELETE',
-      });
+	const handleEdit = (unit: DHQLivingUnitWithHousingType) => {
+		setEditingUnit(unit);
+		setShowForm(true);
+	};
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Error deleting unit:", error);
-        toast.error(error.error || "Failed to delete accommodation unit");
-        return;
-      }
+	const handleDelete = async (id: string) => {
+		if (!confirm("Are you sure you want to delete this accommodation unit?")) {
+			return;
+		}
 
-      toast.success("Accommodation unit deleted successfully");
+		setDeleteLoading(id);
+		try {
+			const response = await fetch(`/api/dhq-living-units/${id}`, {
+				method: "DELETE",
+			});
 
-      refetch();
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("An unexpected error occurred");
-    } finally {
-      setDeleteLoading(null);
-    }
-  };
+			if (!response.ok) {
+				const error = await response.json();
+				console.error("Error deleting unit:", error);
+				toast.error(error.error || "Failed to delete accommodation unit");
+				return;
+			}
 
-  const handleImportComplete = () => {
-    refetch();
-    toast.success("Successfully imported accommodation units");
-  };
+			toast.success("Accommodation unit deleted successfully");
 
-  if (loading) {
-    return <LoadingState isLoading={true} children={null} />;
-  }
+			refetch();
+		} catch (error) {
+			console.error("Error:", error);
+			toast.error("An unexpected error occurred");
+		} finally {
+			setDeleteLoading(null);
+		}
+	};
 
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-[#1B365D]">DHQ Living Units</h1>
-          <p className="text-muted-foreground">
-            Manage accommodation units for military personnel
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowImportModal(true)} variant="outline" className="flex items-center gap-2">
-            <Upload className="h-4 w-4" />
-            Import
-          </Button>
-          <Button onClick={handleAdd} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add Unit
-          </Button>
-        </div>
-      </div>
+	const handleImportComplete = () => {
+		refetch();
+		toast.success("Successfully imported accommodation units");
+	};
 
-      <AccommodationSummaryCards units={filteredUnits} />
+	if (loading) {
+		return <LoadingState isLoading={true} children={null} />;
+	}
 
-      <AccommodationFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        quarterNameFilter={quarterNameFilter}
-        onQuarterNameChange={setQuarterNameFilter}
-        locationFilter={locationFilter}
-        onLocationChange={setLocationFilter}
-        categoryFilter={categoryFilter}
-        onCategoryChange={setCategoryFilter}
-        housingTypeFilter={housingTypeFilter}
-        onHousingTypeChange={setHousingTypeFilter}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-        occupancyFilter={occupancyFilter}
-        onOccupancyChange={setOccupancyFilter}
-        blockNameFilter={blockNameFilter}
-        onBlockNameChange={setBlockNameFilter}
-        flatHouseRoomFilter={flatHouseRoomFilter}
-        onFlatHouseRoomChange={setFlatHouseRoomFilter}
-        unitNameFilter={unitNameFilter}
-        onUnitNameChange={setUnitNameFilter}
-        units={units}
-        housingTypes={housingTypes}
-      />
+	return (
+		<div className='space-y-6'>
+			<div className='flex justify-between items-center'>
+				<div>
+					<h1 className='text-2xl font-bold text-[#1B365D]'>
+						DHQ Accommodation
+					</h1>
+					<p className='text-muted-foreground'>
+						Manage accommodation units for military personnel
+					</p>
+				</div>
+				<div className='flex gap-2'>
+					<Button
+						onClick={() => setShowImportModal(true)}
+						variant='outline'
+						className='flex items-center gap-2'>
+						<Upload className='h-4 w-4' />
+						Import
+					</Button>
+					<Button onClick={handleAdd} className='flex items-center gap-2'>
+						<Plus className='h-4 w-4' />
+						Add Unit
+					</Button>
+				</div>
+			</div>
 
-      <div className="flex justify-between items-center">
-        <AccommodationViewToggle viewMode={viewMode} onViewChange={setViewMode} />
-        <p className="text-sm text-muted-foreground">
-          Showing {filteredUnits.length} of {units.length} units
-        </p>
-      </div>
+			<AccommodationSummaryCards units={filteredUnits} />
 
-      {viewMode === 'table' ? (
-        <AccommodationTableView
-          units={filteredUnits}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          deleteLoading={deleteLoading}
-        />
-      ) : (
-        <AccommodationCardView
-          units={filteredUnits}
-          viewMode={viewMode}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          deleteLoading={deleteLoading}
-        />
-      )}
+			<AccommodationFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				quarterNameFilter={quarterNameFilter}
+				onQuarterNameChange={setQuarterNameFilter}
+				locationFilter={locationFilter}
+				onLocationChange={setLocationFilter}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				housingTypeFilter={housingTypeFilter}
+				onHousingTypeChange={setHousingTypeFilter}
+				statusFilter={statusFilter}
+				onStatusChange={setStatusFilter}
+				occupancyFilter={occupancyFilter}
+				onOccupancyChange={setOccupancyFilter}
+				blockNameFilter={blockNameFilter}
+				onBlockNameChange={setBlockNameFilter}
+				flatHouseRoomFilter={flatHouseRoomFilter}
+				onFlatHouseRoomChange={setFlatHouseRoomFilter}
+				unitNameFilter={unitNameFilter}
+				onUnitNameChange={setUnitNameFilter}
+				units={units}
+				housingTypes={housingTypes}
+			/>
 
-      <ImportModal
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        onImportComplete={handleImportComplete}
-        housingTypes={housingTypes}
-      />
-    </div>
-  );
+			<div className='flex justify-between items-center'>
+				<AccommodationViewToggle
+					viewMode={viewMode}
+					onViewChange={setViewMode}
+				/>
+				<p className='text-sm text-muted-foreground'>
+					Showing {filteredUnits.length} of {units.length} units
+				</p>
+			</div>
+
+			{viewMode === "table" ? (
+				<AccommodationTableView
+					units={filteredUnits}
+					onEdit={handleEdit}
+					onDelete={handleDelete}
+					deleteLoading={deleteLoading}
+				/>
+			) : (
+				<AccommodationCardView
+					units={filteredUnits}
+					viewMode={viewMode}
+					onEdit={handleEdit}
+					onDelete={handleDelete}
+					deleteLoading={deleteLoading}
+				/>
+			)}
+
+			<ImportModal
+				isOpen={showImportModal}
+				onClose={() => setShowImportModal(false)}
+				onImportComplete={handleImportComplete}
+				housingTypes={housingTypes}
+			/>
+		</div>
+	);
 }

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,28 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enums
-enum AppRole {
-  superadmin
-  admin
-  moderator
-  user
-}
-
-// User and authentication tables
 model User {
-  id                String      @id @default(uuid())
-  email             String      @unique
-  hashedPassword    String      @map("hashed_password")
-  emailVerified     DateTime?   @map("email_verified")
-  image             String?
-  accounts          Account[]
-  sessions          Session[]
-  profile           Profile?
-  rolesAssigned     UserRole[]  @relation("AssignedRoles")
-  rolesAssignedBy   UserRole[]  @relation("AssignedBy")
-  createdAt         DateTime    @default(now()) @map("created_at")
-  updatedAt         DateTime    @updatedAt @map("updated_at")
+  id              String     @id @default(uuid())
+  email           String     @unique
+  hashedPassword  String     @map("hashed_password")
+  emailVerified   DateTime?  @map("email_verified")
+  image           String?
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+  accounts        Account[]
+  profile         Profile?
+  sessions        Session[]
+  rolesAssignedBy UserRole[] @relation("AssignedBy")
+  rolesAssigned   UserRole[] @relation("AssignedRoles")
 
   @@map("users")
 }
@@ -42,12 +30,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -73,56 +61,54 @@ model Profile {
   username  String   @unique
   fullName  String?  @map("full_name")
   role      AppRole  @default(user)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([username])
   @@map("profiles")
 }
 
 model UserRole {
-  id         String    @id @default(uuid())
-  userId     String    @map("user_id")
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
   role       AppRole
-  assignedAt DateTime  @default(now()) @map("assigned_at")
-  assignedBy String?   @map("assigned_by")
-  user       User      @relation("AssignedRoles", fields: [userId], references: [id], onDelete: Cascade)
-  assigner   User?     @relation("AssignedBy", fields: [assignedBy], references: [id], onDelete: SetNull)
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  assignedBy String?  @map("assigned_by")
+  assigner   User?    @relation("AssignedBy", fields: [assignedBy], references: [id])
+  user       User     @relation("AssignedRoles", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, role])
   @@index([userId])
   @@map("user_roles")
 }
 
-// Queue management
 model Queue {
-  id                   String               @id @default(uuid())
-  sequence             Int                  @unique
-  fullName             String               @map("full_name")
-  svcNo                String               @unique @map("svc_no")
-  gender               String
-  armOfService         String               @map("arm_of_service")
-  category             String
-  rank                 String
-  maritalStatus        String               @map("marital_status")
-  noOfAdultDependents  Int                  @default(0) @map("no_of_adult_dependents")
-  noOfChildDependents  Int                  @default(0) @map("no_of_child_dependents")
-  currentUnit          String?              @map("current_unit")
-  appointment          String?
-  dateTos              DateTime?            @map("date_tos") @db.Date
-  dateSos              DateTime?            @map("date_sos") @db.Date
-  phone                String?
-  entryDateTime        DateTime             @default(now()) @map("entry_date_time")
-  createdAt            DateTime             @default(now()) @map("created_at")
-  updatedAt            DateTime             @updatedAt @map("updated_at")
+  id                  String    @id @default(uuid())
+  sequence            Int       @unique
+  fullName            String    @map("full_name")
+  svcNo               String    @unique @map("svc_no")
+  gender              String
+  armOfService        String    @map("arm_of_service")
+  category            String
+  rank                String
+  maritalStatus       String    @map("marital_status")
+  noOfAdultDependents Int       @default(0) @map("no_of_adult_dependents")
+  noOfChildDependents Int       @default(0) @map("no_of_child_dependents")
+  currentUnit         String?   @map("current_unit")
+  appointment         String?
+  dateTos             DateTime? @map("date_tos") @db.Date
+  dateSos             DateTime? @map("date_sos") @db.Date
+  phone               String?
+  entryDateTime       DateTime  @default(now()) @map("entry_date_time")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   @@index([sequence])
   @@index([svcNo])
   @@map("queue")
 }
 
-// Unit management
 model Unit {
   id          String   @id @default(uuid())
   name        String   @unique
@@ -132,48 +118,38 @@ model Unit {
   @@map("units")
 }
 
-model HousingType {
-  id           String          @id @default(uuid())
-  name         String          @unique
-  description  String?
-  livingUnits  DhqLivingUnit[]
-  createdAt    DateTime        @default(now()) @map("created_at")
-
-  @@map("housing_types")
-}
-
 model DhqLivingUnit {
-  id                        String               @id @default(uuid())
-  quarterName               String               @map("quarter_name")
-  location                  String
-  category                  String
-  housingTypeId             String               @map("housing_type_id")
-  noOfRooms                 Int                  @default(0) @map("no_of_rooms")
-  status                    String               @default("Vacant")
-  typeOfOccupancy           String               @default("Single") @map("type_of_occupancy")
-  bq                        Boolean              @default(false)
-  noOfRoomsInBq             Int                  @default(0) @map("no_of_rooms_in_bq")
-  blockName                 String               @map("block_name")
-  flatHouseRoomName         String               @map("flat_house_room_name")
-  unitName                  String?              @map("unit_name")
-  blockImageUrl             String?              @map("block_image_url")
-  currentOccupantId         String?              @map("current_occupant_id")
-  currentOccupantName       String?              @map("current_occupant_name")
-  currentOccupantRank       String?              @map("current_occupant_rank")
-  currentOccupantServiceNumber String?           @map("current_occupant_service_number")
-  occupancyStartDate        DateTime?            @map("occupancy_start_date") @db.Date
-  housingType               HousingType          @relation(fields: [housingTypeId], references: [id])
-  occupants                 UnitOccupant[]
-  history                   UnitHistory[]
-  inventory                 UnitInventory[]
-  maintenance               UnitMaintenance[]
-  allocationRequests        AllocationRequest[]
-  createdAt                 DateTime             @default(now()) @map("created_at")
-  updatedAt                 DateTime             @updatedAt @map("updated_at")
+  id                           String              @id @default(uuid())
+  quarterName                  String              @map("quarter_name")
+  location                     String
+  category                     String
+  accommodationTypeId          String              @map("accommodation_type_id")
+  noOfRooms                    Int                 @default(0) @map("no_of_rooms")
+  status                       String              @default("Vacant")
+  typeOfOccupancy              String              @default("Single") @map("type_of_occupancy")
+  bq                           Boolean             @default(false)
+  noOfRoomsInBq                Int                 @default(0) @map("no_of_rooms_in_bq")
+  blockName                    String              @map("block_name")
+  flatHouseRoomName            String              @map("flat_house_room_name")
+  unitName                     String?             @map("unit_name")
+  blockImageUrl                String?             @map("block_image_url")
+  currentOccupantId            String?             @map("current_occupant_id")
+  currentOccupantName          String?             @map("current_occupant_name")
+  currentOccupantRank          String?             @map("current_occupant_rank")
+  currentOccupantServiceNumber String?             @map("current_occupant_service_number")
+  occupancyStartDate           DateTime?           @map("occupancy_start_date") @db.Date
+  createdAt                    DateTime            @default(now()) @map("created_at")
+  updatedAt                    DateTime            @updatedAt @map("updated_at")
+  allocationRequests           AllocationRequest[]
+  accommodationType            AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
+  history                      UnitHistory[]
+  inventory                    UnitInventory[]
+  maintenance                  UnitMaintenance[]
+  occupants                    UnitOccupant[]
 
-  @@index([housingTypeId])
   @@index([status])
   @@index([unitName])
+  @@index([accommodationTypeId])
   @@map("dhq_living_units")
 }
 
@@ -188,9 +164,9 @@ model UnitOccupant {
   emergencyContact   String?       @map("emergency_contact")
   occupancyStartDate DateTime      @default(now()) @map("occupancy_start_date") @db.Date
   isCurrent          Boolean       @default(true) @map("is_current")
-  unit               DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
+  unit               DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@index([unitId])
   @@index([isCurrent])
@@ -207,8 +183,8 @@ model UnitHistory {
   endDate          DateTime?     @map("end_date") @db.Date
   durationDays     Int?          @map("duration_days")
   reasonForLeaving String?       @map("reason_for_leaving")
-  unit             DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
   createdAt        DateTime      @default(now()) @map("created_at")
+  unit             DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@index([unitId])
   @@map("unit_history")
@@ -221,51 +197,49 @@ model UnitInventory {
   itemDescription String        @map("item_description")
   itemLocation    String        @map("item_location")
   itemStatus      String        @default("Functional") @map("item_status")
-  note            String?
-  unit            DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  remarks         String?
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
+  unit            DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@index([unitId])
   @@map("unit_inventory")
 }
 
 model UnitMaintenance {
-  id               String        @id @default(uuid())
-  unitId           String        @map("unit_id")
-  maintenanceType  String        @map("maintenance_type")
-  description      String
-  maintenanceDate  DateTime      @default(now()) @map("maintenance_date") @db.Date
-  performedBy      String        @map("performed_by")
-  cost             Float?
-  status           String        @default("Completed")
-  priority         String        @default("Medium")
-  notes            String?
-  unit             DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  createdAt        DateTime      @default(now()) @map("created_at")
-  updatedAt        DateTime      @updatedAt @map("updated_at")
+  id              String        @id @default(uuid())
+  unitId          String        @map("unit_id")
+  maintenanceType String        @map("maintenance_type")
+  description     String
+  maintenanceDate DateTime      @default(now()) @map("maintenance_date") @db.Date
+  performedBy     String        @map("performed_by")
+  cost            Float?
+  status          String        @default("Completed")
+  priority        String        @default("Medium")
+  remarks         String?
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  unit            DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@index([unitId])
   @@map("unit_maintenance")
 }
 
-
-// Allocation management
 model AllocationRequest {
-  id             String           @id @default(uuid())
-  personnelId    String           @map("personnel_id")
-  unitId         String           @map("unit_id")
-  letterId       String           @unique @map("letter_id")
-  personnelData  Json             @map("personnel_data")
-  unitData       Json             @map("unit_data")
-  allocationDate DateTime         @default(now()) @map("allocation_date")
-  status         String           @default("pending")
-  approvedBy     String?          @map("approved_by")
-  approvedAt     DateTime?        @map("approved_at")
-  refusalReason  String?          @map("refusal_reason")
-  unit           DhqLivingUnit    @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
+  id             String        @id @default(uuid())
+  personnelId    String        @map("personnel_id")
+  unitId         String        @map("unit_id")
+  letterId       String        @unique @map("letter_id")
+  personnelData  Json          @map("personnel_data")
+  unitData       Json          @map("unit_data")
+  allocationDate DateTime      @default(now()) @map("allocation_date")
+  status         String        @default("pending")
+  approvedBy     String?       @map("approved_by")
+  approvedAt     DateTime?     @map("approved_at")
+  refusalReason  String?       @map("refusal_reason")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  unit           DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([personnelId])
@@ -288,19 +262,19 @@ model StampSetting {
 }
 
 model PastAllocation {
-  id                 String    @id @default(uuid())
-  personnelId        String    @map("personnel_id")
-  unitId             String    @map("unit_id")
-  letterId           String    @map("letter_id")
-  personnelData      Json      @map("personnel_data")
-  unitData           Json      @map("unit_data")
-  allocationStartDate DateTime @map("allocation_start_date") @db.Date
-  allocationEndDate  DateTime? @map("allocation_end_date") @db.Date
-  durationDays       Int?      @map("duration_days")
-  reasonForLeaving   String?   @map("reason_for_leaving")
-  deallocationDate   DateTime? @map("deallocation_date")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
+  id                  String    @id @default(uuid())
+  personnelId         String    @map("personnel_id")
+  unitId              String    @map("unit_id")
+  letterId            String    @map("letter_id")
+  personnelData       Json      @map("personnel_data")
+  unitData            Json      @map("unit_data")
+  allocationStartDate DateTime  @map("allocation_start_date") @db.Date
+  allocationEndDate   DateTime? @map("allocation_end_date") @db.Date
+  durationDays        Int?      @map("duration_days")
+  reasonForLeaving    String?   @map("reason_for_leaving")
+  deallocationDate    DateTime? @map("deallocation_date")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   @@index([personnelId])
   @@index([unitId])
@@ -308,7 +282,24 @@ model PastAllocation {
 }
 
 model AllocationSequence {
-  id    Int   @id
+  id    Int @id
   year  Int
   count Int
+}
+
+model AccommodationType {
+  id               String          @id @default(uuid())
+  name             String          @unique
+  description      String?
+  createdAt        DateTime        @default(now()) @map("created_at")
+  dhq_living_units DhqLivingUnit[]
+  
+  @@map("accommodation_types")
+}
+
+enum AppRole {
+  superadmin
+  admin
+  moderator
+  user
 }

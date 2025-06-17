@@ -18,7 +18,7 @@ export async function PUT(
         description: body.taskDescription,
         maintenanceDate: body.lastPerformedDate ? new Date(body.lastPerformedDate) : new Date(),
         status: body.status,
-        notes: body.notes
+        remarks: body.remarks
       }
     });
 

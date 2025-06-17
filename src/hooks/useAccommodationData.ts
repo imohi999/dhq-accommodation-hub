@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { DHQLivingUnitWithHousingType, HousingType } from "@/types/accommodation";
+import { DHQLivingUnitWithHousingType, AccomodationType } from "@/types/accommodation";
 import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -21,7 +21,7 @@ export const useAccommodationData = () => {
     quarterName: string;
     location: string;
     category: string;
-    housingTypeId: string;
+    accomodationTypeId: string;
     noOfRooms: number;
     status: string;
     typeOfOccupancy: string;
@@ -38,7 +38,7 @@ export const useAccommodationData = () => {
     occupancyStartDate: string | null;
     createdAt: string;
     updatedAt: string;
-    housingType?: {
+    accommodationType?: {
       id: string;
       name: string;
       description: string | null;
@@ -49,9 +49,9 @@ export const useAccommodationData = () => {
     fetcher
   );
 
-  // Fetch housing types
+  // Fetch accommodation types
   const { data: housingTypesData = [], error: housingTypesError, isLoading: housingTypesLoading } = useSWR<HousingTypeResponse[]>(
-    '/api/housing-types',
+    '/api/accommodation-types',
     fetcher
   );
 
@@ -64,8 +64,8 @@ export const useAccommodationData = () => {
 
   useEffect(() => {
     if (housingTypesError) {
-      console.error("Error fetching housing types:", housingTypesError);
-      toast.error("Failed to fetch housing types");
+      console.error("Error fetching accommodation types:", housingTypesError);
+      toast.error("Failed to fetch accommodation types");
     }
   }, [housingTypesError, toast]);
 
@@ -78,7 +78,7 @@ export const useAccommodationData = () => {
         quarterName: unit.quarterName,
         location: unit.location,
         category: unit.category,
-        housingTypeId: unit.housingTypeId,
+        accomodationTypeId: unit.accomodationTypeId,
         noOfRooms: unit.noOfRooms,
         status: unit.status,
         typeOfOccupancy: unit.typeOfOccupancy,
@@ -95,9 +95,9 @@ export const useAccommodationData = () => {
         occupancyStartDate: unit.occupancyStartDate,
         createdAt: unit.createdAt,
         updatedAt: unit.updatedAt,
-        housingType: unit.housingType,
+        accommodationType: unit.accommodationType,
         // Optional snake_case properties for backward compatibility
-        housing_type_id: unit.housingTypeId,
+        accomodation_type_id: unit.accomodationTypeId,
         no_of_rooms: unit.noOfRooms,
         type_of_occupancy: unit.typeOfOccupancy,
         no_of_rooms_in_bq: unit.noOfRoomsInBq,
@@ -111,11 +111,11 @@ export const useAccommodationData = () => {
         occupancy_start_date: unit.occupancyStartDate,
         created_at: unit.createdAt,
         updated_at: unit.updatedAt,
-        housing_type: unit.housingType ? {
-          id: unit.housingType.id,
-          name: unit.housingType.name,
-          description: unit.housingType.description,
-          createdAt: unit.housingType.createdAt,
+        housing_type: unit.accommodationType ? {
+          id: unit.accommodationType.id,
+          name: unit.accommodationType.name,
+          description: unit.accommodationType.description,
+          createdAt: unit.accommodationType.createdAt,
         } : undefined,
       }));
 
@@ -123,8 +123,8 @@ export const useAccommodationData = () => {
     }
   }, [unitsData]);
 
-  // Transform housing types
-  const housingTypes: HousingType[] = housingTypesData?.map((ht) => ({
+  // Transform accommodation types
+  const housingTypes: AccomodationType[] = housingTypesData?.map((ht) => ({
     id: ht.id,
     name: ht.name,
     description: ht.description,

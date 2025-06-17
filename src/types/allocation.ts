@@ -55,6 +55,6 @@ export interface AllocationLetterData {
     name: string;
     rank: string;
     appointment: string;
-    note?: string;
+    remarks?: string;
   };
 }

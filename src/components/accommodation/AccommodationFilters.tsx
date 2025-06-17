@@ -9,7 +9,7 @@ import {
 import { Search } from "lucide-react";
 import {
 	DHQLivingUnitWithHousingType,
-	HousingType,
+	AccomodationType,
 } from "@/types/accommodation";
 
 interface AccommodationFiltersProps {
@@ -34,7 +34,7 @@ interface AccommodationFiltersProps {
 	unitNameFilter: string;
 	onUnitNameChange: (value: string) => void;
 	units: DHQLivingUnitWithHousingType[];
-	housingTypes: HousingType[];
+	housingTypes: AccomodationType[];
 }
 
 export const AccommodationFilters = ({
@@ -142,10 +142,10 @@ export const AccommodationFilters = ({
 
 				<Select value={housingTypeFilter} onValueChange={onHousingTypeChange}>
 					<SelectTrigger>
-						<SelectValue placeholder='Housing Type' />
+						<SelectValue placeholder='Accomodationation Type' />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value='all'>All Housing Types</SelectItem>
+						<SelectItem value='all'>All Accomodation Types</SelectItem>
 						{housingTypes.map((type, index) => (
 							<SelectItem key={index} value={type.id}>
 								{type.name}

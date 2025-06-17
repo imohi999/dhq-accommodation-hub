@@ -39,7 +39,9 @@ export const TransferRequestModal = ({
 		unit: null,
 	});
 
-	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+		{}
+	);
 
 	// Filter vacant units that match the personnel's category
 	const availableUnits = units.filter(
@@ -57,7 +59,7 @@ export const TransferRequestModal = ({
 		fromUnitId: string,
 		toUnitId: string
 	): Promise<boolean> {
-		setLoadingStates(prev => ({ ...prev, [`transfer_${toUnitId}`]: true }));
+		setLoadingStates((prev) => ({ ...prev, [`transfer_${toUnitId}`]: true }));
 		try {
 			const response = await fetch("/api/allocations/transfer", {
 				method: "POST",
@@ -75,7 +77,9 @@ export const TransferRequestModal = ({
 			const result = await response.json();
 
 			// Show success toast
-			toast.success(`Transfer Successful: ${result.personnelName} has been transferred from ${result.transferDetails.from} to ${result.transferDetails.to}`);
+			toast.success(
+				`Transfer Successful: ${result.personnelName} has been transferred from ${result.transferDetails.from} to ${result.transferDetails.to}`
+			);
 
 			// Refresh the data
 			await mutate("/api/dhq-living-units?status=Occupied");
@@ -84,10 +88,17 @@ export const TransferRequestModal = ({
 			return true;
 		} catch (error) {
 			console.error("Error processing transfer:", error);
-			toast.error(`Transfer Failed: ${error instanceof Error ? error.message : "Failed to process transfer"}`);
+			toast.error(
+				`Transfer Failed: ${
+					error instanceof Error ? error.message : "Failed to process transfer"
+				}`
+			);
 			return false;
 		} finally {
-			setLoadingStates(prev => ({ ...prev, [`transfer_${toUnitId}`]: false }));
+			setLoadingStates((prev) => ({
+				...prev,
+				[`transfer_${toUnitId}`]: false,
+			}));
 		}
 	}
 
@@ -243,9 +254,9 @@ export const TransferRequestModal = ({
 															<Bed className='h-3 w-3' />
 															<span>{unit.noOfRooms} rooms</span>
 														</div>
-														{unit.housingType && (
+														{unit.accommodationType && (
 															<Badge variant='outline' className='text-xs'>
-																{unit.housingType.name}
+																{unit.accommodationType.name}
 															</Badge>
 														)}
 													</div>
@@ -255,7 +266,7 @@ export const TransferRequestModal = ({
 													size='sm'
 													onClick={() => handleRequestTransferClick(unit)}
 													loading={loadingStates[`transfer_${unit.id}`]}
-													loadingText="Selecting..."
+													loadingText='Selecting...'
 													className='flex items-center gap-2'>
 													<Home className='h-4 w-4' />
 													Select for Transfer
@@ -294,10 +305,14 @@ export const TransferRequestModal = ({
 							onClick={() => setConfirmDialog({ isOpen: false, unit: null })}>
 							Cancel
 						</Button>
-						<LoadingButton 
+						<LoadingButton
 							onClick={handleConfirmTransferRequest}
-							loading={confirmDialog.unit ? loadingStates[`transfer_${confirmDialog.unit.id}`] : false}
-							loadingText="Transferring...">
+							loading={
+								confirmDialog.unit
+									? loadingStates[`transfer_${confirmDialog.unit.id}`]
+									: false
+							}
+							loadingText='Transferring...'>
 							Confirm Transfer
 						</LoadingButton>
 					</div>

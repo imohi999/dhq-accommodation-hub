@@ -3,6 +3,7 @@
 ## 1. Tables with Columns and Types
 
 ### profiles
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `user_id` - UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL, UNIQUE
 - `username` - TEXT UNIQUE NOT NULL
@@ -12,6 +13,7 @@
 - `updated_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### user_roles
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `user_id` - UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL
 - `role` - app_role NOT NULL
@@ -20,13 +22,14 @@
 - **Unique constraint**: (user_id, role)
 
 ### queue
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `sequence` - INTEGER NOT NULL (auto-generated via trigger)
 - `full_name` - TEXT NOT NULL
 - `svc_no` - TEXT NOT NULL UNIQUE
 - `gender` - TEXT NOT NULL CHECK IN ('Male', 'Female')
 - `arm_of_service` - TEXT NOT NULL CHECK IN ('Army', 'Navy', 'Air Force')
-- `category` - TEXT NOT NULL CHECK IN ('Men', 'Officer')
+- `category` - TEXT NOT NULL CHECK IN ('NCOs', 'Officer')
 - `rank` - TEXT NOT NULL
 - `marital_status` - TEXT NOT NULL CHECK IN ('Single', 'Married', 'Divorced', 'Widowed')
 - `no_of_adult_dependents` - INTEGER NOT NULL DEFAULT 0 CHECK (>= 0 AND <= 99)
@@ -41,23 +44,26 @@
 - `updated_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### units
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `name` - TEXT NOT NULL UNIQUE
 - `description` - TEXT
 - `created_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
-### housing_types
+### accomodation_types
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `name` - TEXT NOT NULL UNIQUE
 - `description` - TEXT
 - `created_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### dhq_living_units
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `quarter_name` - TEXT NOT NULL
 - `location` - TEXT NOT NULL
 - `category` - TEXT NOT NULL
-- `housing_type_id` - UUID REFERENCES housing_types(id) NOT NULL
+- `accomodation_type_id` - UUID REFERENCES accomodation_types(id) NOT NULL
 - `no_of_rooms` - INTEGER NOT NULL DEFAULT 0
 - `status` - TEXT NOT NULL DEFAULT 'Vacant' CHECK IN ('Vacant', 'Occupied', 'Not In Use')
 - `type_of_occupancy` - TEXT NOT NULL DEFAULT 'Single' CHECK IN ('Single', 'Shared')
@@ -76,6 +82,7 @@
 - `updated_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### unit_occupants
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `unit_id` - UUID REFERENCES dhq_living_units(id) ON DELETE CASCADE
 - `full_name` - TEXT NOT NULL
@@ -90,6 +97,7 @@
 - `updated_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### unit_history
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `unit_id` - UUID REFERENCES dhq_living_units(id) ON DELETE CASCADE
 - `occupant_name` - TEXT NOT NULL
@@ -102,17 +110,19 @@
 - `created_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### unit_inventory
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `unit_id` - UUID REFERENCES dhq_living_units(id) ON DELETE CASCADE
 - `quantity` - INTEGER NOT NULL DEFAULT 1
 - `item_description` - TEXT NOT NULL
 - `item_location` - TEXT NOT NULL
 - `item_status` - TEXT NOT NULL DEFAULT 'Functional'
-- `note` - TEXT
+- `remarks` - TEXT
 - `created_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 - `updated_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### unit_maintenance
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `unit_id` - UUID REFERENCES dhq_living_units(id) ON DELETE CASCADE
 - `maintenance_type` - TEXT NOT NULL
@@ -122,11 +132,12 @@
 - `cost` - DECIMAL(10,2)
 - `status` - TEXT NOT NULL DEFAULT 'Completed'
 - `priority` - TEXT NOT NULL DEFAULT 'Medium'
-- `notes` - TEXT
+- `remarks` - TEXT
 - `created_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 - `updated_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### allocation_requests
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `personnel_id` - UUID NOT NULL REFERENCES queue(id) ON DELETE CASCADE
 - `unit_id` - UUID NOT NULL REFERENCES dhq_living_units(id) ON DELETE CASCADE
@@ -142,6 +153,7 @@
 - `updated_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### stamp_settings
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `stamp_name` - TEXT NOT NULL
 - `stamp_rank` - TEXT NOT NULL
@@ -152,6 +164,7 @@
 - `updated_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
 ### past_allocations
+
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `personnel_id` - UUID NOT NULL
 - `unit_id` - UUID NOT NULL
@@ -171,7 +184,7 @@
 1. **profiles.user_id** → auth.users(id) ON DELETE CASCADE
 2. **user_roles.user_id** → auth.users(id) ON DELETE CASCADE
 3. **user_roles.assigned_by** → auth.users(id)
-4. **dhq_living_units.housing_type_id** → housing_types(id)
+4. **dhq_living_units.accomodation_type_id** → accomodation_types(id)
 5. **unit_occupants.unit_id** → dhq_living_units(id) ON DELETE CASCADE
 6. **unit_history.unit_id** → dhq_living_units(id) ON DELETE CASCADE
 7. **unit_inventory.unit_id** → dhq_living_units(id) ON DELETE CASCADE
@@ -182,17 +195,19 @@
 ## 3. Indexes and Constraints
 
 ### Unique Constraints
+
 - profiles: username, user_id
 - user_roles: (user_id, role)
 - queue: svc_no
 - units: name
-- housing_types: name
+- accomodation_types: name
 - allocation_requests: letter_id
 
 ### Check Constraints
+
 - queue.gender IN ('Male', 'Female')
 - queue.arm_of_service IN ('Army', 'Navy', 'Air Force')
-- queue.category IN ('Men', 'Officer')
+- queue.category IN ('NCOs', 'Officer')
 - queue.marital_status IN ('Single', 'Married', 'Divorced', 'Widowed')
 - queue.no_of_adult_dependents >= 0 AND <= 99
 - queue.no_of_child_dependents >= 0 AND <= 99
@@ -201,6 +216,7 @@
 - allocation_requests.status IN ('pending', 'approved', 'refused')
 
 ### Indexes
+
 - idx_allocation_requests_status ON allocation_requests(status)
 - idx_allocation_requests_personnel_id ON allocation_requests(personnel_id)
 - idx_allocation_requests_unit_id ON allocation_requests(unit_id)
@@ -208,17 +224,20 @@
 ## 4. Special Features
 
 ### Custom Types (Enums)
+
 - **app_role**: ENUM ('superadmin', 'admin', 'moderator', 'user')
 
 ### Triggers
+
 1. **on_auth_user_created** - Creates profile and assigns role when new user signs up
 2. **trigger_generate_queue_sequence** - Auto-generates sequence number for queue entries
 3. **generate_unit_name_trigger** - Auto-generates unit_name from block_name + flat_house_room_name
 4. **reorder_queue_on_delete** - Reorders queue sequences when an entry is deleted
 
 ### Functions
-1. **has_role(_user_id UUID, _role app_role)** - Security definer function to check user roles
-2. **get_user_profile(_user_id UUID)** - Returns user profile with roles array
+
+1. **has_role(\_user_id UUID, \_role app_role)** - Security definer function to check user roles
+2. **get_user_profile(\_user_id UUID)** - Returns user profile with roles array
 3. **handle_new_user()** - Creates profile on user signup
 4. **generate_queue_sequence()** - Generates next sequence number
 5. **generate_unit_name()** - Generates unit name from block and flat names
@@ -227,7 +246,9 @@
 8. **insert_at_queue_position_one(...)** - Inserts personnel at position 1 and moves others down
 
 ### Row Level Security (RLS)
+
 All tables have RLS enabled with various policies for authenticated users:
+
 - profiles: Users can view/update own profile, superadmins can view/update all
 - user_roles: Users can view own roles, superadmins can manage all
 - queue, units: Authenticated users have full access
@@ -242,7 +263,9 @@ All tables have RLS enabled with various policies for authenticated users:
 4. **past_allocations.unit_data** - Stores historical unit data
 
 ### JSONB Structure Examples
+
 These JSONB columns typically store structured data like:
+
 ```json
 // personnel_data
 {

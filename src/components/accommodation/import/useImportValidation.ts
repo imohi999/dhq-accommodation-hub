@@ -24,7 +24,7 @@ export const useImportValidation = (housingTypes: Array<{ id: string; name: stri
     try {
       const data = await parseFile(file);
       setParsedData(data);
-      
+
       const errors: ValidationError[] = [];
       const housingTypeNames = housingTypes.map(ht => ht.name);
 
@@ -65,11 +65,11 @@ export const useImportValidation = (housingTypes: Array<{ id: string; name: stri
           });
         }
 
-        if (row["Housing Type"] && !housingTypeNames.includes(row["Housing Type"])) {
+        if (row["Accomodation Type"] && !housingTypeNames.includes(row["Accomodation Type"])) {
           errors.push({
             row: index + 2,
-            field: "Housing Type",
-            message: `Housing Type must be one of: ${housingTypeNames.join(', ')}`
+            field: "Accomodation Type",
+            message: `Accomodation Type must be one of: ${housingTypeNames.join(', ')}`
           });
         }
 
@@ -102,7 +102,7 @@ export const useImportValidation = (housingTypes: Array<{ id: string; name: stri
 
       setValidationErrors(errors);
       setValidationComplete(true);
-      
+
       if (errors.length === 0) {
         toast.success(`${data.length} records validated successfully. Ready to import.`);
       } else {

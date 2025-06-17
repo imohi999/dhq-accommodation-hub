@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         include: {
           unit: {
             include: {
-              housingType: true
+              accommodationType: true
             }
           }
         }

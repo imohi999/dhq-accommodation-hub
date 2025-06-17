@@ -56,7 +56,9 @@ export const ActiveAllocationsView = ({
 		unit: null,
 	});
 
-	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+		{}
+	);
 
 	const handleDeallocateClick = (unit: DHQLivingUnitWithHousingType) => {
 		setDeallocateDialog({
@@ -66,7 +68,7 @@ export const ActiveAllocationsView = ({
 	};
 
 	async function deallocatePersonnel(unitId: string) {
-		setLoadingStates(prev => ({ ...prev, [`deallocate_${unitId}`]: true }));
+		setLoadingStates((prev) => ({ ...prev, [`deallocate_${unitId}`]: true }));
 		try {
 			const response = await fetch("/api/dhq-living-units/deallocate", {
 				method: "POST",
@@ -99,7 +101,10 @@ export const ActiveAllocationsView = ({
 			);
 			throw error;
 		} finally {
-			setLoadingStates(prev => ({ ...prev, [`deallocate_${unitId}`]: false }));
+			setLoadingStates((prev) => ({
+				...prev,
+				[`deallocate_${unitId}`]: false,
+			}));
 		}
 	}
 
@@ -168,7 +173,7 @@ export const ActiveAllocationsView = ({
 			location: unit.location,
 			blockName: unit.blockName,
 			noOfRooms: unit.noOfRooms,
-			housingType: unit.housingType?.name || unit.category,
+			accommodationType: unit.accommodationType?.name || unit.category,
 			quarterName: unit.quarterName,
 			flatHouseRoomName: unit.flatHouseRoomName,
 		},
@@ -206,7 +211,7 @@ export const ActiveAllocationsView = ({
 			quarterName: unit.quarterName,
 			location: unit.location,
 			category: unit.category,
-			housingTypeId: unit.housingTypeId,
+			accomodationTypeId: unit.accomodationTypeId,
 			noOfRooms: unit.noOfRooms,
 			status: unit.status,
 			typeOfOccupancy: unit.typeOfOccupancy,
@@ -223,15 +228,15 @@ export const ActiveAllocationsView = ({
 			occupancyStartDate: unit.occupancyStartDate,
 			createdAt: unit.createdAt,
 			updatedAt: unit.updatedAt,
-			housingType: unit.housingType
+			accommodationType: unit.accommodationType
 				? {
-						id: unit.housingType.id,
-						name: unit.housingType.name,
-						description: unit.housingType.description || "",
-						createdAt: unit.housingType.createdAt,
+						id: unit.accommodationType.id,
+						name: unit.accommodationType.name,
+						description: unit.accommodationType.description || "",
+						createdAt: unit.accommodationType.createdAt,
 				  }
 				: {
-						id: unit.housingTypeId,
+						id: unit.accomodationTypeId,
 						name: unit.category,
 						description: "",
 						createdAt: new Date().toISOString(),
@@ -245,12 +250,12 @@ export const ActiveAllocationsView = ({
 		(unit) => unit.category === "Officer"
 	).length;
 	const menAllocations = occupiedUnits.filter(
-		(unit) => unit.category === "Men"
+		(unit) => unit.category === "NCOs"
 	).length;
 
-	// Calculate by housing type
+	// Calculate by accomodation type
 	const housingTypeBreakdown = occupiedUnits.reduce((acc, unit) => {
-		const type = unit.housingType?.name || unit.category;
+		const type = unit.accommodationType?.name || unit.category;
 		acc[type] = (acc[type] || 0) + 1;
 		return acc;
 	}, {} as Record<string, number>);
@@ -261,7 +266,7 @@ export const ActiveAllocationsView = ({
 		return acc;
 	}, {} as Record<string, number>);
 
-	// Find the most common housing type
+	// Find the most common accomodation type
 	const mostCommonHousingType = Object.entries(housingTypeBreakdown).reduce(
 		(max, [type, count]) => (count > max.count ? { type, count } : max),
 		{ type: "N/A", count: 0 }
@@ -281,7 +286,7 @@ export const ActiveAllocationsView = ({
 					<CardContent>
 						<div className='text-2xl font-bold'>{totalActiveAllocations}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {officerAllocations} | Men: {menAllocations}
+							Officers: {officerAllocations} | NCOs: {menAllocations}
 						</p>
 					</CardContent>
 				</Card>
@@ -303,7 +308,7 @@ export const ActiveAllocationsView = ({
 							%)
 						</p>
 						<p className='text-xs text-muted-foreground'>
-							Men: {menAllocations} (
+							NCOs: {menAllocations} (
 							{totalActiveAllocations > 0
 								? Math.round((menAllocations / totalActiveAllocations) * 100)
 								: 0}
@@ -404,7 +409,9 @@ export const ActiveAllocationsView = ({
 													Unit: {unit.blockName} {unit.flatHouseRoomName}
 												</p>
 												<p>Rooms: {unit.noOfRooms}</p>
-												<p>Type: {unit.housingType?.name || unit.category}</p>
+												<p>
+													Type: {unit.accommodationType?.name || unit.category}
+												</p>
 											</div>
 										</div>
 									</div>
@@ -433,10 +440,10 @@ export const ActiveAllocationsView = ({
 											size='sm'
 											onClick={() => handleDeallocateClick(unit)}
 											loading={loadingStates[`deallocate_${unit.id}`]}
-											loadingText="Deallocating..."
+											loadingText='Deallocating...'
 											className='flex items-center gap-2'>
 											<UserMinus className='h-4 w-4' />
-											Deallocate
+											Post Out
 										</LoadingButton>
 									</div>
 								</div>
@@ -446,7 +453,7 @@ export const ActiveAllocationsView = ({
 				</div>
 			)}
 
-			{/* Deallocate Confirmation Dialog */}
+			{/* Post Out Confirmation Dialog */}
 			<Dialog
 				open={deallocateDialog.isOpen}
 				onOpenChange={(open) =>
@@ -454,9 +461,9 @@ export const ActiveAllocationsView = ({
 				}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Deallocate Personnel</DialogTitle>
+						<DialogTitle>Post Out Personnel</DialogTitle>
 						<DialogDescription>
-							Are you sure you want to deallocate{" "}
+							Are you sure you want to post out{" "}
 							{deallocateDialog.unit?.currentOccupantName}? This will mark their
 							accommodation as vacant and move them to Past Allocations.
 						</DialogDescription>
@@ -469,12 +476,16 @@ export const ActiveAllocationsView = ({
 							}>
 							Cancel
 						</Button>
-						<LoadingButton 
-							variant='destructive' 
+						<LoadingButton
+							variant='destructive'
 							onClick={handleDeallocateConfirm}
-							loading={deallocateDialog.unit ? loadingStates[`deallocate_${deallocateDialog.unit.id}`] : false}
-							loadingText="Deallocating...">
-							Deallocate
+							loading={
+								deallocateDialog.unit
+									? loadingStates[`deallocate_${deallocateDialog.unit.id}`]
+									: false
+							}
+							loadingText='Deallocating...'>
+							Post Out
 						</LoadingButton>
 					</DialogFooter>
 				</DialogContent>

@@ -11,7 +11,7 @@ export async function GET(
     const unit = await prisma.dhqLivingUnit.findUnique({
       where: { id: params.id },
       include: {
-        housingType: true,
+        accommodationType: true,
       },
     })
 
@@ -40,7 +40,7 @@ export async function PUT(
         quarterName: body.quarterName,
         location: body.location,
         category: body.category,
-        housingTypeId: body.housingTypeId,
+        accomodationTypeId: body.accomodationTypeId,
         noOfRooms: body.noOfRooms,
         status: body.status,
         typeOfOccupancy: body.typeOfOccupancy,
@@ -57,7 +57,7 @@ export async function PUT(
         occupancyStartDate: body.occupancyStartDate ? new Date(body.occupancyStartDate) : null,
       },
       include: {
-        housingType: true,
+        accommodationType: true,
       },
     })
 

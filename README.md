@@ -1,15 +1,15 @@
 # DHQ Accommodation Hub
 
-A comprehensive military accommodation management system for Defence Headquarters (DHQ), built to streamline the allocation, management, and tracking of military housing units.
+A comprehensive military accommodation management system for Defence Headquarters (DHQ), built to streamline the allocation, management, and tracking of military accomodation units.
 
 ## 🏗️ Project Overview
 
-The DHQ Accommodation Hub is a modern web application designed to manage military accommodation requests, unit allocations, and personnel housing within Defence Headquarters facilities. The system provides role-based access control, real-time data management, and comprehensive reporting capabilities.
+The DHQ Accommodation Hub is a modern web application designed to manage military accommodation requests, unit allocations, and personnel accomodation within Defence Headquarters facilities. The system provides role-based access control, real-time data management, and comprehensive reporting capabilities.
 
 ### Key Features
 
 - **Queue Management**: Auto-incrementing sequence system for accommodation requests
-- **Unit Management**: Complete DHQ living units inventory with housing types
+- **Unit Management**: Complete DHQ Accommodation inventory with accomodation types
 - **Allocation Workflow**: Request → Approval → Active → Past allocation lifecycle
 - **Transfer Management**: Personnel transfer between units with proper tracking
 - **Audit Trail**: Complete history of all allocation activities
@@ -20,6 +20,7 @@ The DHQ Accommodation Hub is a modern web application designed to manage militar
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first CSS framework
@@ -28,6 +29,7 @@ The DHQ Accommodation Hub is a modern web application designed to manage militar
 - **React Hook Form** - Form handling with Zod validation
 
 ### Backend
+
 - **Next.js API Routes** - Server-side API endpoints
 - **Prisma** - Type-safe database ORM
 - **PostgreSQL** - Primary database
@@ -35,6 +37,7 @@ The DHQ Accommodation Hub is a modern web application designed to manage militar
 - **bcryptjs** - Password hashing
 
 ### Infrastructure
+
 - **Vercel** - Deployment platform
 - **Database** - PostgreSQL with connection pooling
 - **File Storage** - Next.js static assets
@@ -43,49 +46,54 @@ The DHQ Accommodation Hub is a modern web application designed to manage militar
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - PostgreSQL database
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd dhq-accommodation-hub
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Update `.env` with your configuration:
+
    ```env
    # Database
    DATABASE_URL="postgresql://username:password@localhost:5432/dhq_accommodation_hub"
-   
+
    # NextAuth.js
    NEXTAUTH_URL="http://localhost:5001"
    NEXTAUTH_SECRET="your-nextauth-secret-here"
-   
+
    # Application
    NEXT_PUBLIC_APP_URL="http://localhost:5001"
    ```
 
 4. **Set up the database**
+
    ```bash
    # Generate Prisma client
    npm run db:generate
-   
+
    # Run migrations
    npm run db:migrate
-   
+
    # Seed the database
    npm run db:seed
    ```
@@ -100,6 +108,7 @@ The application will be available at `http://localhost:5001`
 ### Default Admin Credentials
 
 After seeding, use these credentials to access the system:
+
 - **Email**: `admin@dhq.mil`
 - **Password**: `admin123`
 - **Role**: Superadmin
@@ -139,8 +148,8 @@ docs/                      # Documentation
 - **users** - System users and authentication
 - **profiles** - User profiles and roles
 - **queue** - Accommodation request queue
-- **dhq_living_units** - Available housing units
-- **housing_types** - Types of accommodation
+- **dhq_living_units** - Available accomodation units
+- **accomodation_types** - Types of accommodation
 - **allocation_requests** - Allocation requests workflow
 - **past_allocations** - Historical allocation records
 - **stamp_settings** - Digital stamp configurations
@@ -149,7 +158,7 @@ docs/                      # Documentation
 
 - Users have Profiles (1:1)
 - Queue entries link to Allocation Requests (1:1)
-- Living Units have Housing Types (N:1)
+- Living Units have Accomodation Types (N:1)
 - Allocation Requests link to Units and Queue (N:1)
 - Past Allocations store historical data
 
@@ -194,19 +203,22 @@ Active Allocation → Deallocation Request → Move to Past Allocations + Clear 
 ## 📊 Key Features
 
 ### Queue Management
+
 - Auto-incrementing sequence numbers
 - Priority-based ordering (rank, marital status, wait time)
 - Real-time queue position updates
 - Bulk operations support
 
 ### Unit Management
+
 - Comprehensive unit inventory
-- Housing type categorization
+- Accomodation type categorization
 - Occupancy tracking
 - Maintenance and inventory logs
 - Image management for blocks
 
 ### Allocation System
+
 - Digital allocation letters
 - Automated letter ID generation
 - Approval workflow with comments
@@ -214,6 +226,7 @@ Active Allocation → Deallocation Request → Move to Past Allocations + Clear 
 - Complete audit trail
 
 ### Reporting & Analytics
+
 - Summary dashboards
 - Historical allocation reports
 - Unit occupancy statistics
@@ -258,6 +271,7 @@ npm run lint            # Run ESLint
 ### Production Environment
 
 1. **Database Setup**
+
    ```bash
    # Set production DATABASE_URL
    # Run migrations
@@ -265,6 +279,7 @@ npm run lint            # Run ESLint
    ```
 
 2. **Environment Variables**
+
    - Set all required environment variables
    - Use strong secrets for NEXTAUTH_SECRET
    - Configure proper DATABASE_URL
@@ -283,6 +298,7 @@ npm run lint            # Run ESLint
 4. Set install command: `npm install`
 
 The build process automatically:
+
 - Generates Prisma client
 - Runs database migrations
 - Builds the Next.js application
@@ -290,23 +306,27 @@ The build process automatically:
 ## 📋 API Documentation
 
 ### Authentication Endpoints
+
 - `POST /api/auth/signin` - User sign in
 - `POST /api/auth/signout` - User sign out
 - `GET /api/auth/session` - Current session
 
 ### Queue Management
+
 - `GET /api/queue` - List queue entries
 - `POST /api/queue` - Create queue entry
 - `PUT /api/queue/[id]` - Update queue entry
 - `DELETE /api/queue/[id]` - Remove from queue
 
 ### Allocation Management
+
 - `GET /api/allocations/requests` - List allocation requests
 - `POST /api/allocations/requests` - Create allocation request
 - `PATCH /api/allocations/requests/[id]` - Approve/refuse request
 - `GET /api/allocations/past` - List past allocations
 
 ### Unit Management
+
 - `GET /api/dhq-living-units` - List all units
 - `GET /api/dhq-living-units/[id]` - Get unit details
 - `PUT /api/dhq-living-units/[id]` - Update unit
@@ -315,12 +335,12 @@ The build process automatically:
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `NEXTAUTH_URL` | Application URL for NextAuth | Yes |
-| `NEXTAUTH_SECRET` | Secret for JWT signing | Yes |
-| `NEXT_PUBLIC_APP_URL` | Public application URL | Yes |
+| Variable              | Description                  | Required |
+| --------------------- | ---------------------------- | -------- |
+| `DATABASE_URL`        | PostgreSQL connection string | Yes      |
+| `NEXTAUTH_URL`        | Application URL for NextAuth | Yes      |
+| `NEXTAUTH_SECRET`     | Secret for JWT signing       | Yes      |
+| `NEXT_PUBLIC_APP_URL` | Public application URL       | Yes      |
 
 ### Database Configuration
 
@@ -347,6 +367,7 @@ This project is proprietary software for Defence Headquarters use.
 ## 📞 Support
 
 For technical support or questions:
+
 - Create an issue in the repository
 - Contact the development team
 - Refer to the documentation in `/docs`

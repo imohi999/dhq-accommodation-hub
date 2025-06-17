@@ -1,5 +1,5 @@
 
-export interface HousingType {
+export interface AccomodationType {
   id: string;
   name: string;
   description?: string | null;
@@ -11,7 +11,7 @@ export interface DHQLivingUnit {
   quarterName: string;
   location: string;
   category: string;
-  housingTypeId: string;
+  accomodationTypeId: string;
   noOfRooms: number;
   status: string;
   typeOfOccupancy: string;
@@ -29,7 +29,7 @@ export interface DHQLivingUnit {
   createdAt: string;
   updatedAt: string;
   // Snake case versions for backward compatibility
-  housing_type_id?: string;
+  accomodation_type_id?: string;
   no_of_rooms?: number;
   type_of_occupancy?: string;
   no_of_rooms_in_bq?: number;
@@ -46,8 +46,8 @@ export interface DHQLivingUnit {
 }
 
 export interface DHQLivingUnitWithHousingType extends DHQLivingUnit {
-  housingType?: HousingType;
-  housing_type?: HousingType;
+  accommodationType?: AccomodationType;
+  housing_type?: AccomodationType;
 }
 
 export interface UnitOccupant {
@@ -85,7 +85,7 @@ export interface UnitInventory {
   item_description: string;
   item_location: string;
   item_status: string;
-  note?: string | null;
+  remarks?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -100,7 +100,7 @@ export interface UnitMaintenance {
   cost?: number | null;
   status: string;
   priority: string;
-  notes?: string | null;
+  remarks?: string | null;
   created_at: string;
   updated_at: string;
 }

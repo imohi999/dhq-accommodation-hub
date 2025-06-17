@@ -35,7 +35,7 @@ interface UnitData {
 	location: string;
 	blockName: string;
 	noOfRooms: number;
-	housingType: string;
+	accommodationType: string;
 	quarterName: string;
 	flatHouseRoomName: string;
 }
@@ -63,8 +63,8 @@ interface Personnel {
 	updatedAt: string;
 }
 
-// Interface for housing type
-interface HousingType {
+// Interface for accomodation type
+interface AccomodationType {
 	id: string;
 	name: string;
 	description: string;
@@ -77,7 +77,7 @@ interface Unit {
 	quarterName: string;
 	location: string;
 	category: string;
-	housingTypeId: string;
+	accomodationTypeId: string;
 	noOfRooms: number;
 	status: string;
 	typeOfOccupancy: string;
@@ -94,7 +94,7 @@ interface Unit {
 	occupancyStartDate: string | null;
 	createdAt: string;
 	updatedAt: string;
-	housingType: HousingType;
+	accommodationType: AccomodationType;
 }
 
 // Main allocation request interface from API
@@ -115,9 +115,12 @@ export interface APIAllocationRequest {
 	unit: Unit;
 }
 
-
 export default function PendingApproval() {
-	const { data = [], isLoading, mutate } = useSWR<APIAllocationRequest[]>(
+	const {
+		data = [],
+		isLoading,
+		mutate,
+	} = useSWR<APIAllocationRequest[]>(
 		"/api/allocations/requests?status=pending",
 		fetcher,
 		{
@@ -129,7 +132,7 @@ export default function PendingApproval() {
 
 	if (isLoading) {
 		return <LoadingState isLoading={true} children={null} />;
-	}	
+	}
 	// Pass the data as is
 	const pendingRequests = data;
 

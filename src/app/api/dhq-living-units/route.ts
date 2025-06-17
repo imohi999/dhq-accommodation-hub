@@ -4,14 +4,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { handlePrismaError } from '@/lib/prisma-utils'
 
-// GET: Fetch all DHQ living units with housing types
+// GET: Fetch all DHQ  Accommodation with accomodation types
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search')
     const category = searchParams.get('category')
     const status = searchParams.get('status')
-    const housingTypeId = searchParams.get('housingTypeId')
+    const accomodationTypeId = searchParams.get('accomodationTypeId')
     const location = searchParams.get('location')
 
     const where: {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       }>
       category?: string
       status?: string
-      housingTypeId?: string
+      accomodationTypeId?: string
       location?: string
     } = {}
 
@@ -38,13 +38,13 @@ export async function GET(request: NextRequest) {
 
     if (category) where.category = category
     if (status) where.status = status
-    if (housingTypeId) where.housingTypeId = housingTypeId
+    if (accomodationTypeId) where.accomodationTypeId = accomodationTypeId
     if (location) where.location = location
 
     const units = await prisma.dhqLivingUnit.findMany({
       where,
       include: {
-        housingType: true,
+        accommodationType: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -62,13 +62,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
+
     const unit = await prisma.dhqLivingUnit.create({
       data: {
         quarterName: body.quarterName,
         location: body.location,
         category: body.category,
-        housingTypeId: body.housingTypeId,
+        accomodationTypeId: body.accomodationTypeId,
         noOfRooms: body.noOfRooms,
         status: body.status || 'Vacant',
         typeOfOccupancy: body.typeOfOccupancy,
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         blockImageUrl: body.blockImageUrl,
       },
       include: {
-        housingType: true,
+        accommodationType: true,
       },
     })
 

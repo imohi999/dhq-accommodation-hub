@@ -30,7 +30,7 @@ export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest
   console.log("=== Fetching allocation requests ===");
   try {
     const response = await fetch('/api/allocations/requests');
-    
+
     if (!response.ok) {
       console.error("Error fetching allocation requests:", response.statusText);
       return null;
@@ -39,7 +39,7 @@ export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest
     const data = await response.json();
     console.log("Raw allocation requests data:", data);
     console.log("Number of allocation requests:", data?.length || 0);
-    
+
     // Transform the data to match our expected format
     const typedData = data?.map((item: AllocationRequestApiResponse) => ({
       id: item.id,
@@ -56,7 +56,7 @@ export const fetchAllocationRequestsFromDb = async (): Promise<AllocationRequest
       created_at: item.createdAt,
       updated_at: item.updatedAt
     })) || [];
-    
+
     console.log("Processed allocation requests:", typedData);
     return typedData;
   } catch (error) {
@@ -86,7 +86,7 @@ export const createAllocationRequestInDb = async (
     status: unit.status
   });
   console.log("Letter ID:", letterId);
-  
+
   try {
     // Simplify personnel data in camelCase for consistency
     const simplifiedPersonnelData = {
@@ -117,9 +117,9 @@ export const createAllocationRequestInDb = async (
       category: unit.category,
       noOfRooms: unit.no_of_rooms || unit.noOfRooms,
       status: unit.status,
-      housingType: unit.housing_type?.name || unit.housingType?.name || unit.category
+      accommodationType: unit.housing_type?.name || unit.accommodationType?.name || unit.category
     };
-    
+
     const requestData = {
       personnelId: personnel.id,
       unitId: unit.id,
@@ -127,7 +127,7 @@ export const createAllocationRequestInDb = async (
       unitData: simplifiedUnitData,
       letterId: letterId // Pass the letter ID to the API
     };
-    
+
     console.log("Simplified request data:", requestData);
 
     const response = await fetch('/api/allocations/requests', {
@@ -145,7 +145,7 @@ export const createAllocationRequestInDb = async (
 
     const data = await response.json();
     console.log("Created allocation request successfully:", data);
-    
+
     // Transform the response to match our expected format
     return {
       id: data.id,

@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.unit_inventory (
   item_description TEXT NOT NULL,
   item_location TEXT NOT NULL,
   item_status TEXT NOT NULL DEFAULT 'Functional',
-  note TEXT,
+  remarks TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS public.unit_maintenance (
   cost DECIMAL(10,2),
   status TEXT NOT NULL DEFAULT 'Completed',
   priority TEXT NOT NULL DEFAULT 'Medium',
-  notes TEXT,
+  remarks TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
@@ -83,7 +83,7 @@ SET
   current_occupant_rank = 'Captain',
   current_occupant_service_number = 'N789012',
   occupancy_start_date = '2024-03-01'
-WHERE quarter_name = 'Navy Housing' AND block_name = 'Block N1';
+WHERE quarter_name = 'Navy Accomodation' AND block_name = 'Block N1';
 
 UPDATE dhq_living_units 
 SET 
@@ -116,11 +116,11 @@ SELECT
   334,
   'Promotion and reassignment'
 FROM dhq_living_units 
-WHERE quarter_name = 'Navy Housing' AND block_name = 'Block N1'
+WHERE quarter_name = 'Navy Accomodation' AND block_name = 'Block N1'
 LIMIT 1;
 
 -- Insert dummy inventory data
-INSERT INTO unit_inventory (unit_id, quantity, item_description, item_location, item_status, note)
+INSERT INTO unit_inventory (unit_id, quantity, item_description, item_location, item_status, remarks)
 SELECT 
   id,
   1,
@@ -132,7 +132,7 @@ FROM dhq_living_units
 WHERE quarter_name = 'Alpha Quarters' AND block_name = 'Block A'
 LIMIT 1;
 
-INSERT INTO unit_inventory (unit_id, quantity, item_description, item_location, item_status, note)
+INSERT INTO unit_inventory (unit_id, quantity, item_description, item_location, item_status, remarks)
 SELECT 
   id,
   2,
@@ -144,7 +144,7 @@ FROM dhq_living_units
 WHERE quarter_name = 'Alpha Quarters' AND block_name = 'Block A'
 LIMIT 1;
 
-INSERT INTO unit_inventory (unit_id, quantity, item_description, item_location, item_status, note)
+INSERT INTO unit_inventory (unit_id, quantity, item_description, item_location, item_status, remarks)
 SELECT 
   id,
   1,
@@ -153,11 +153,11 @@ SELECT
   'Non Functional',
   'Needs replacement - reported by current occupant'
 FROM dhq_living_units 
-WHERE quarter_name = 'Navy Housing' AND block_name = 'Block N1'
+WHERE quarter_name = 'Navy Accomodation' AND block_name = 'Block N1'
 LIMIT 1;
 
 -- Insert dummy maintenance data
-INSERT INTO unit_maintenance (unit_id, maintenance_type, description, maintenance_date, performed_by, cost, status, priority, notes)
+INSERT INTO unit_maintenance (unit_id, maintenance_type, description, maintenance_date, performed_by, cost, status, priority, remarks)
 SELECT 
   id,
   'Plumbing',
@@ -172,7 +172,7 @@ FROM dhq_living_units
 WHERE quarter_name = 'Alpha Quarters' AND block_name = 'Block A'
 LIMIT 1;
 
-INSERT INTO unit_maintenance (unit_id, maintenance_type, description, maintenance_date, performed_by, cost, status, priority, notes)
+INSERT INTO unit_maintenance (unit_id, maintenance_type, description, maintenance_date, performed_by, cost, status, priority, remarks)
 SELECT 
   id,
   'Electrical',
@@ -184,10 +184,10 @@ SELECT
   'High',
   'Annual maintenance completed, filters replaced'
 FROM dhq_living_units 
-WHERE quarter_name = 'Navy Housing' AND block_name = 'Block N1'
+WHERE quarter_name = 'Navy Accomodation' AND block_name = 'Block N1'
 LIMIT 1;
 
-INSERT INTO unit_maintenance (unit_id, maintenance_type, description, maintenance_date, performed_by, cost, status, priority, notes)
+INSERT INTO unit_maintenance (unit_id, maintenance_type, description, maintenance_date, performed_by, cost, status, priority, remarks)
 SELECT 
   id,
   'General',

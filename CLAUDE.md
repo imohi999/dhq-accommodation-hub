@@ -22,6 +22,7 @@ npm run preview      # Preview production build
 ## Architecture Overview
 
 ### Technology Stack
+
 - **Frontend**: React 18.3 + TypeScript + Vite
 - **UI Components**: shadcn-ui (component library)
 - **Styling**: Tailwind CSS
@@ -35,12 +36,14 @@ npm run preview      # Preview production build
 This is a military accommodation management system with three main workflows:
 
 1. **Queue Management**: Personnel join a queue for accommodation allocation
+
    - Auto-incrementing sequence numbers
    - Priority-based ordering (rank, marital status, waiting time)
    - Real-time updates via Supabase subscriptions
 
-2. **Accommodation Units**: DHQ Living Units management
-   - Housing types: 1BR, 2BR, 3BR, Duplex, Self-contained, Boys Quarter
+2. **Accommodation Units**: DHQ Accommodation management
+
+   - Accomodation types: 1BR, 2BR, 3BR, Duplex, Self-contained, Boys Quarter
    - Occupancy tracking and history
    - Maintenance and inventory management
 
@@ -53,20 +56,24 @@ This is a military accommodation management system with three main workflows:
 ### Key Patterns
 
 **Service Layer Pattern**
+
 - All Supabase interactions go through `/src/services/`
 - Services return consistent error handling
 - Real-time subscriptions for live data updates
 
 **Custom Hooks Architecture**
+
 - Business logic lives in `/src/hooks/`
 - Hooks manage data fetching, caching, and mutations
 - Example: `useQueueData`, `useAllocationRequests`, `useAccommodationData`
 
 **Form Handling**
+
 - React Hook Form for all forms
 - Zod schemas for validation
 
 **Database Design**
+
 - Row Level Security (RLS) on all tables
 - JSONB columns for flexible data (dependents, history)
 - Trigger functions for data integrity (queue sequence management)
@@ -75,24 +82,29 @@ This is a military accommodation management system with three main workflows:
 ### Important Database Operations
 
 **Queue Position Management**
+
 - Uses RPC function `insert_at_queue_position_one` for priority insertions
 - Automatic sequence reordering via triggers
 
 **Allocation Flow**
+
 1. Create allocation request → `allocation_requests` table
 2. Admin approval → Move to `dhq_living_units` (occupied)
 3. On vacation/transfer → Move to `past_allocations`
 
 **Real-time Updates**
+
 - Subscribe to table changes for live UI updates
 - Critical for queue position changes and allocation status
 
 ### TypeScript Configuration
+
 - Path alias: `@/` maps to `./src/`
 - Relaxed type checking (be careful with null/undefined)
 - Component imports use the `@/components/ui/` pattern
 
-### Development Notes
+### Development Remarks
+
 - Lovable.dev integration for AI-assisted development
 - Component tagging in development mode for debugging
 - Supabase migrations in `/supabase/migrations/`

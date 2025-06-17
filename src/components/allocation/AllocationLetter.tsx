@@ -21,8 +21,6 @@ export const AllocationLetter = ({
 	onClose,
 	allocationRequest,
 }: AllocationLetterProps) => {
-	console.log({ allocationRequest: JSON.stringify(allocationRequest) });
-
 	const { stampSettings } = useAllocation();
 	const activeStamp = stampSettings.find((stamp) => stamp.is_active);
 
@@ -50,8 +48,6 @@ export const AllocationLetter = ({
             <head>
               <title>Allocation Letter</title>
               <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-                
                 * {
                   margin: 0;
                   padding: 0;
@@ -59,11 +55,11 @@ export const AllocationLetter = ({
                 }
                 
                 body { 
-                  font-family: 'Inter', Arial, sans-serif; 
+                  font-family: 'Times New Roman', Times, serif; 
                   margin: 0;
                   padding: 40px;
                   line-height: 1.6;
-                  font-size: 12px;
+                  font-size: 14px;
                   color: #000;
                   background: white;
                 }
@@ -164,7 +160,7 @@ export const AllocationLetter = ({
                   body { 
                     margin: 0;
                     padding: 0;
-                    font-size: 11px;
+                    font-size: 14px;
                   }
                   
                   #allocation-letter-content {
@@ -173,17 +169,17 @@ export const AllocationLetter = ({
                   }
                   
                   .text-lg {
-                    font-size: 16px;
+                    font-size: 18px;
                     line-height: 1.4;
                   }
                   
                   .text-sm {
-                    font-size: 12px;
+                    font-size: 14px;
                     line-height: 1.4;
                   }
                   
                   .text-xs {
-                    font-size: 10px;
+                    font-size: 12px;
                     line-height: 1.3;
                   }
                   
@@ -217,9 +213,8 @@ export const AllocationLetter = ({
 	};
 
 	const currentDate = new Date().toLocaleDateString("en-GB", {
-		day: "2-digit",
-		month: "2-digit",
-		year: "numeric",
+		month: "short",
+		year: "2-digit",
 	});
 
 	const currentTime = new Date().toLocaleTimeString("en-GB", {
@@ -247,7 +242,11 @@ export const AllocationLetter = ({
 
 				<div
 					id='allocation-letter-content'
-					className='p-8 bg-white text-black text-sm'>
+					className='p-8 bg-white text-black text-sm'
+					style={{
+						fontFamily: "Times New Roman, Times, serif",
+						fontSize: "14px",
+					}}>
 					{/* Header */}
 					<div className='text-center mb-6'>
 						<div className='flex justify-center mb-4'>
@@ -289,9 +288,7 @@ export const AllocationLetter = ({
 
 					{/* Date and Time */}
 					<div className='text-right mb-6'>
-						<p>
-							Date: {currentDate} Time: {currentTime}
-						</p>
+						<p>{currentDate}</p>
 					</div>
 
 					{/* Subject */}
@@ -304,16 +301,22 @@ export const AllocationLetter = ({
 					{/* Body */}
 					<div className='space-y-4 mb-8'>
 						<p>
-							I am directed to inform you that you have been allocated{" "}
-							{allocationRequest.unit.blockName},
-							{allocationRequest.unit.flatHouseRoomName}{" "}
-							{allocationRequest.unitData.quarterName},
-							{allocationRequest.unitData.location} as residential quarter{" "}
-							{allocationRequest.unit.blockName}{" "}
-							{allocationRequest.unit.flatHouseRoomName} on{" "}
-							{new Date(allocationRequest.allocationDate).toLocaleDateString(
-								"en-GB"
-							)}
+							1. I am directed to inform you that you have been allocated{" "}
+							<span className='font-bold'>{allocationRequest.unit.blockName}</span>,{" "}
+							<span className='font-bold'>{allocationRequest.unit.flatHouseRoomName}</span>{" "}
+							<span className='font-bold'>{allocationRequest.unitData.quarterName}</span>,{" "}
+							<span className='font-bold'>{allocationRequest.unitData.location}</span> as residential quarter{" "}
+							<span className='font-bold'>{allocationRequest.unit.flatHouseRoomName}</span> on{" "}
+							<span className='font-bold'>
+								{new Date(allocationRequest.allocationDate).toLocaleDateString(
+									"en-GB",
+									{
+										day: "2-digit",
+										month: "short",
+										year: "2-digit",
+									}
+								)}
+							</span>
 							. You are please requested to note that the accommodation is{" "}
 							<span className='transit-notice'>transit in nature</span> and if
 							it is unoccupied{" "}
@@ -331,11 +334,8 @@ export const AllocationLetter = ({
 
 						<p>
 							2. While wishing you a fruitful tour of duty and a happy stay in
-							your new quarters.
-						</p>
-
-						<p>
-							Please accept the assurances and esteemed regards of the Comd.
+							your new quarters. Please accept the assurances and esteemed
+							regards of the Comd.
 						</p>
 					</div>
 
@@ -353,7 +353,7 @@ export const AllocationLetter = ({
 
 					{/* Copy Section */}
 					<div className='mt-12 text-xs'>
-						<p className='font-bold'>P Copy:</p>
+						<p className='font-bold'> Copy To:</p>
 						<p>DHQ Gar Comd</p>
 					</div>
 				</div>

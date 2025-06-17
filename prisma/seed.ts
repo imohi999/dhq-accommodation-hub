@@ -17,7 +17,7 @@ async function main() {
   await prisma.unitMaintenance.deleteMany({})
   await prisma.dhqLivingUnit.deleteMany({})
   await prisma.stampSetting.deleteMany({})
-  await prisma.housingType.deleteMany({})
+  await prisma.accommodationType.deleteMany({})
   await prisma.unit.deleteMany({})
   await prisma.profile.deleteMany({})
   await prisma.user.deleteMany({})
@@ -46,7 +46,7 @@ async function main() {
   console.log('   Password: admin123')
   console.log('   Role: superadmin')
 
-  // Create housing types
+  // Create accomodation types
   const housingTypesData = [
     {
       id: "d403ff01-4ac9-40e5-bcea-8a3a04c89899",
@@ -76,10 +76,10 @@ async function main() {
   ]
 
   for (const ht of housingTypesData) {
-    await prisma.housingType.create({ data: ht })
+    await prisma.accommodationType.create({ data: ht })
   }
 
-  console.log('✅ Created housing types')
+  console.log('✅ Created accomodation types')
 
   // Create units
   const unitsData = [
@@ -207,7 +207,7 @@ async function main() {
       svcNo: "N/56838/94",
       gender: "Male",
       armOfService: "Air Force",
-      category: "Men",
+      category: "NCOs",
       rank: "Petty Officer",
       maritalStatus: "Married",
       noOfAdultDependents: 0,
@@ -224,7 +224,7 @@ async function main() {
       svcNo: "N/94452/88",
       gender: "Male",
       armOfService: "Air Force",
-      category: "Men",
+      category: "NCOs",
       rank: "Staff Sergeant",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
@@ -241,7 +241,7 @@ async function main() {
       svcNo: "AF/62542/50",
       gender: "Female",
       armOfService: "Air Force",
-      category: "Men",
+      category: "NCOs",
       rank: "Staff Sergeant",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
@@ -258,7 +258,7 @@ async function main() {
       svcNo: "AF/43765/72",
       gender: "Female",
       armOfService: "Air Force",
-      category: "Men",
+      category: "NCOs",
       rank: "Flight Sergeant",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
@@ -299,7 +299,7 @@ async function main() {
       svcNo: `${['A', 'N', 'AF'][i % 3]}/${Math.floor(Math.random() * 90000) + 10000}/${Math.floor(Math.random() * 30) + 70}`,
       gender: isMale ? 'Male' : 'Female',
       armOfService: ['Army', 'Navy', 'Air Force'][i % 3],
-      category: isOfficer ? 'Officer' : 'Men',
+      category: isOfficer ? 'Officer' : 'NCOs',
       rank: isOfficer
         ? ['Major', 'Captain', 'Squadron Leader', 'Lieutenant Colonel'][i % 4]
         : ['Corporal', 'Sergeant', 'Staff Sergeant', 'Warrant Officer'][i % 4],
@@ -319,14 +319,14 @@ async function main() {
 
   console.log('✅ Created 20 queue entries')
 
-  // Create DHQ Living Units (first batch from your data)
+  // Create DHQ  Accommodation (first batch from your data)
   const dhqLivingUnitsData = [
     {
       id: "702adbb3-ecea-4b6c-9d57-14c2fd615b9d",
       quarterName: "Dike Officers Quarters Mogadishu Cantonment",
       location: "Mogadishu Cantonment",
       category: "Officer",
-      housingTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
+      accommodationTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
       noOfRooms: 1,
       status: "Vacant",
       typeOfOccupancy: "Single",
@@ -341,7 +341,7 @@ async function main() {
       quarterName: "Dike Officers Quarters Mogadishu Cantonment",
       location: "Mogadishu Cantonment",
       category: "Officer",
-      housingTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
+      accommodationTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
       noOfRooms: 1,
       status: "Vacant",
       typeOfOccupancy: "Single",
@@ -356,7 +356,7 @@ async function main() {
       quarterName: "Dike Officers Quarters Mogadishu Cantonment",
       location: "Mogadishu Cantonment",
       category: "Officer",
-      housingTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
+      accommodationTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
       noOfRooms: 1,
       status: "Vacant",
       typeOfOccupancy: "Single",
@@ -371,7 +371,7 @@ async function main() {
       quarterName: "Dike Officers Quarters Mogadishu Cantonment",
       location: "Mogadishu Cantonment",
       category: "Officer",
-      housingTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
+      accommodationTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
       noOfRooms: 1,
       status: "Vacant",
       typeOfOccupancy: "Single",
@@ -386,7 +386,7 @@ async function main() {
       quarterName: "Dike Officers Quarters Mogadishu Cantonment",
       location: "Mogadishu Cantonment",
       category: "Officer",
-      housingTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
+      accommodationTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
       noOfRooms: 1,
       status: "Vacant",
       typeOfOccupancy: "Single",
@@ -401,7 +401,7 @@ async function main() {
       quarterName: "Dike Officers Quarters Mogadishu Cantonment",
       location: "Mogadishu Cantonment",
       category: "Officer",
-      housingTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
+      accommodationTypeId: "6775548e-9191-4e12-b8ac-626e38d15403",
       noOfRooms: 1,
       status: "Occupied",
       typeOfOccupancy: "Single",
@@ -426,7 +426,7 @@ async function main() {
       quarterName: "Eagle Officers Quarters Lagos Cantonment",
       location: "Lagos Cantonment",
       category: "Officer",
-      housingTypeId: "644aa118-5dbb-40ef-8e9d-e79873662859", // Two Bedroom Flat
+      accommodationTypeId: "644aa118-5dbb-40ef-8e9d-e79873662859", // Two Bedroom Flat
       noOfRooms: 2,
       status: i === 2 ? "Occupied" : "Vacant",
       typeOfOccupancy: "Family",
@@ -450,7 +450,7 @@ async function main() {
       quarterName: "Senior Officers Quarters Abuja",
       location: "Abuja FCT",
       category: "Officer",
-      housingTypeId: "e325e19c-f673-4cb2-b36c-0345c2f9f206", // Three Bedroom Flat
+      accommodationTypeId: "e325e19c-f673-4cb2-b36c-0345c2f9f206", // Three Bedroom Flat
       noOfRooms: 3,
       status: "Vacant",
       typeOfOccupancy: "Family",
@@ -468,7 +468,7 @@ async function main() {
       quarterName: "Command Officers Estate",
       location: "Ikeja Cantonment",
       category: "Officer",
-      housingTypeId: "d403ff01-4ac9-40e5-bcea-8a3a04c89899", // Duplex
+      accommodationTypeId: "d403ff01-4ac9-40e5-bcea-8a3a04c89899", // Duplex
       noOfRooms: 4,
       status: i === 1 ? "Occupied" : "Vacant",
       typeOfOccupancy: "Family",
@@ -486,13 +486,13 @@ async function main() {
     })
   }
 
-  // Add self-contained units for Men category (Block 6)
+  // Add self-contained units for NCOs category (Block 6)
   for (let i = 1; i <= 2; i++) {
     additionalLivingUnits.push({
       quarterName: "Other Ranks Quarters",
       location: "Mogadishu Cantonment",
-      category: "Men",
-      housingTypeId: "301e92b3-1083-4340-a800-f4e21a20b9c7", // Self Contained
+      category: "NCOs",
+      accommodationTypeId: "301e92b3-1083-4340-a800-f4e21a20b9c7", // Self Contained
       noOfRooms: 1,
       status: "Vacant",
       typeOfOccupancy: "Single",
@@ -508,7 +508,7 @@ async function main() {
     await prisma.dhqLivingUnit.create({ data: unit })
   }
 
-  console.log('✅ Created 20 DHQ living units')
+  console.log('✅ Created 20 DHQ  Accommodation')
 
   // Create past allocations (20 entries)
   const pastAllocations = []
@@ -551,13 +551,13 @@ async function main() {
         rank: occupant.rank,
         serviceNumber: occupant.svcNo,
         phone: `+234-80${Math.floor(Math.random() * 90000000) + 10000000}`,
-        category: i < 15 ? "Officer" : "Men"
+        category: i < 15 ? "Officer" : "NCOs"
       },
       unitData: {
         quarterName: unit.quarterName,
         location: unit.location,
         unitName: unit.unitName,
-        housingType: (await prisma.housingType.findUnique({ where: { id: unit.housingTypeId } }))?.name
+        accommodationType: (await prisma.accommodationType.findUnique({ where: { id: unit.accommodationTypeId } }))?.name
       },
       allocationStartDate: startDate,
       allocationEndDate: endDate,
@@ -582,7 +582,7 @@ async function main() {
     const letterId = `DHQ/GAR/ABJ/${currentYear}/${paddedCount}/LOG`;
     const queueEntry = queueData[(i - 1) % queueData.length]
     const requestedUnit = vacantUnits[(i - 1) % vacantUnits.length]
-    const housingType = await prisma.housingType.findUnique({ where: { id: requestedUnit.housingTypeId } })
+    const accommodationType = await prisma.accommodationType.findUnique({ where: { id: requestedUnit.accommodationTypeId } })
 
     allocationRequests.push({
       personnelId: queueEntry.id,
@@ -602,7 +602,7 @@ async function main() {
         quarterName: requestedUnit.quarterName,
         location: requestedUnit.location,
         unitName: requestedUnit.unitName,
-        housingType: housingType?.name,
+        accommodationType: accommodationType?.name,
         noOfRooms: requestedUnit.noOfRooms
       },
       ...(requestStatuses[i % 4] === 'approved' && {
@@ -635,7 +635,7 @@ async function main() {
       cost: 15000.00,
       status: "Completed",
       priority: "Medium",
-      notes: "All units serviced, filters replaced"
+      remarks: "All units serviced, filters replaced"
     },
     {
       unitId: dhqUnits[1].id,
@@ -646,7 +646,7 @@ async function main() {
       cost: 8500.00,
       status: "Completed",
       priority: "High",
-      notes: "Replaced faulty valve"
+      remarks: "Replaced faulty valve"
     },
     {
       unitId: dhqUnits[2].id,
@@ -657,7 +657,7 @@ async function main() {
       cost: 12000.00,
       status: "Pending",
       priority: "Medium",
-      notes: "Scheduled for next week"
+      remarks: "Scheduled for next week"
     },
     {
       unitId: dhqUnits[3].id,
@@ -668,7 +668,7 @@ async function main() {
       cost: 5000.00,
       status: "Completed",
       priority: "Low",
-      notes: "No pest activity detected"
+      remarks: "No pest activity detected"
     },
     {
       unitId: dhqUnits[4].id,
@@ -679,7 +679,7 @@ async function main() {
       cost: 25000.00,
       status: "Pending",
       priority: "Low",
-      notes: "Materials ordered"
+      remarks: "Materials ordered"
     },
     {
       unitId: dhqUnits[0].id,
@@ -690,7 +690,7 @@ async function main() {
       cost: 18000.00,
       status: "Overdue",
       priority: "High",
-      notes: "Service overdue by 5 days"
+      remarks: "Service overdue by 5 days"
     },
     {
       unitId: dhqUnits[1].id,
@@ -701,7 +701,7 @@ async function main() {
       cost: 7500.00,
       status: "Completed",
       priority: "Medium",
-      notes: "New safety glass installed"
+      remarks: "New safety glass installed"
     },
     {
       unitId: dhqUnits[2].id,
@@ -712,7 +712,7 @@ async function main() {
       cost: 10000.00,
       status: "Pending",
       priority: "Low",
-      notes: "Scheduled for end of month"
+      remarks: "Scheduled for end of month"
     }
   ]
 
@@ -733,7 +733,7 @@ async function main() {
       cost: 0,
       status: "Pending",
       priority: "High",
-      notes: "Urgent repair needed, affecting water pressure"
+      remarks: "Urgent repair needed, affecting water pressure"
     },
     {
       unitId: dhqUnits[1].id,
@@ -744,7 +744,7 @@ async function main() {
       cost: 0,
       status: "In Progress",
       priority: "Medium",
-      notes: "Electrician scheduled for tomorrow"
+      remarks: "Electrician scheduled for tomorrow"
     },
     {
       unitId: dhqUnits[2].id,
@@ -755,7 +755,7 @@ async function main() {
       cost: 0,
       status: "Completed",
       priority: "High",
-      notes: "Refrigerant refilled, system working normally"
+      remarks: "Refrigerant refilled, system working normally"
     },
     {
       unitId: dhqUnits[3].id,
@@ -766,7 +766,7 @@ async function main() {
       cost: 0,
       status: "Pending",
       priority: "Medium",
-      notes: "Needs structural assessment"
+      remarks: "Needs structural assessment"
     },
     {
       unitId: dhqUnits[4].id,
@@ -777,7 +777,7 @@ async function main() {
       cost: 0,
       status: "In Progress",
       priority: "Low",
-      notes: "Technician diagnosed compressor issue"
+      remarks: "Technician diagnosed compressor issue"
     },
     {
       unitId: dhqUnits[5] ? dhqUnits[5].id : dhqUnits[0].id,
@@ -788,7 +788,7 @@ async function main() {
       cost: 0,
       status: "Pending",
       priority: "Medium",
-      notes: "Check main water line connection"
+      remarks: "Check main water line connection"
     },
     {
       unitId: dhqUnits[6] ? dhqUnits[6].id : dhqUnits[1].id,
@@ -799,7 +799,7 @@ async function main() {
       cost: 0,
       status: "Completed",
       priority: "Low",
-      notes: "Fan motor lubricated and balanced"
+      remarks: "Fan motor lubricated and balanced"
     },
     {
       unitId: dhqUnits[7] ? dhqUnits[7].id : dhqUnits[2].id,
@@ -810,7 +810,7 @@ async function main() {
       cost: 0,
       status: "Pending",
       priority: "High",
-      notes: "Security concern - needs immediate attention"
+      remarks: "Security concern - needs immediate attention"
     }
   ]
 
@@ -828,7 +828,7 @@ async function main() {
       itemDescription: "Split Air Conditioner",
       itemLocation: "Living Room & Bedroom",
       itemStatus: "Functional",
-      note: "Recently serviced"
+      remarks: "Recently serviced"
     },
     {
       unitId: dhqUnits[0].id,
@@ -836,7 +836,7 @@ async function main() {
       itemDescription: "Refrigerator",
       itemLocation: "Kitchen",
       itemStatus: "Functional",
-      note: "Good condition"
+      remarks: "Good condition"
     },
     {
       unitId: dhqUnits[1].id,
@@ -844,7 +844,7 @@ async function main() {
       itemDescription: "Water Heater",
       itemLocation: "Bathroom",
       itemStatus: "Needs Repair",
-      note: "Heating element faulty"
+      remarks: "Heating element faulty"
     },
     {
       unitId: dhqUnits[1].id,
@@ -852,7 +852,7 @@ async function main() {
       itemDescription: "Ceiling Fan",
       itemLocation: "Living Room, Bedroom, Kitchen",
       itemStatus: "Functional",
-      note: "All working properly"
+      remarks: "All working properly"
     },
     {
       unitId: dhqUnits[2].id,
@@ -860,7 +860,7 @@ async function main() {
       itemDescription: "Washing Machine",
       itemLocation: "Utility Room",
       itemStatus: "Non-Functional",
-      note: "Motor needs replacement"
+      remarks: "Motor needs replacement"
     },
     {
       unitId: dhqUnits[3].id,
@@ -868,7 +868,7 @@ async function main() {
       itemDescription: "Smoke Detector",
       itemLocation: "Hallway & Bedroom",
       itemStatus: "Functional",
-      note: "Batteries replaced recently"
+      remarks: "Batteries replaced recently"
     }
   ]
 

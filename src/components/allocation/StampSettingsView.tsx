@@ -118,9 +118,7 @@ export const StampSettingsView = () => {
 		} catch (error) {
 			console.error("Error saving stamp settings:", error);
 			toast.error(
-				error instanceof Error
-					? error.message
-					: "Failed to save stamp settings"
+				error instanceof Error ? error.message : "Failed to save stamp settings"
 			);
 		} finally {
 			setSaving(false);
@@ -182,19 +180,22 @@ export const StampSettingsView = () => {
 					</div>
 
 					<div className='space-y-2'>
-						<Label htmlFor='stamp_note'>Stamp Note (Optional)</Label>
+						<Label htmlFor='stamp_note'>Stamp remarks (Optional)</Label>
 						<Textarea
 							id='stamp_note'
 							value={settings.stamp_note || ""}
 							onChange={(e) =>
 								setSettings({ ...settings, stamp_note: e.target.value })
 							}
-							placeholder='Enter any additional note for the stamp'
+							placeholder='Enter any additional remarks for the stamp'
 							rows={3}
 						/>
 					</div>
 
-					<LoadingButton onClick={handleSave} loading={saving} className='w-full'>
+					<LoadingButton
+						onClick={handleSave}
+						loading={saving}
+						className='w-full'>
 						{saving ? "Saving..." : "Save Stamp Settings"}
 					</LoadingButton>
 				</CardContent>

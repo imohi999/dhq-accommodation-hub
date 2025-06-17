@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       const fromUnit = await tx.dhqLivingUnit.findUnique({
         where: { id: fromUnitId },
-        include: { housingType: true }
+        include: { accommodationType: true }
       });
 
       if (!fromUnit) {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       // Get the to unit details
       const toUnit = await tx.dhqLivingUnit.findUnique({
         where: { id: toUnitId },
-        include: { housingType: true }
+        include: { accommodationType: true }
       });
 
       if (!toUnit) {
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
             blockName: fromUnit.blockName,
             flatHouseRoomName: fromUnit.flatHouseRoomName,
             noOfRooms: fromUnit.noOfRooms,
-            housingType: fromUnit.housingType?.name || fromUnit.category,
+            accommodationType: fromUnit.accommodationType?.name || fromUnit.category,
           },
           allocationStartDate: fromUnit.occupancyStartDate || new Date(),
           allocationEndDate: new Date(),
