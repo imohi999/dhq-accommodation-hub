@@ -122,7 +122,7 @@ export const TransferRequestModal = ({
 					<DialogHeader>
 						<DialogTitle>Re-allocate</DialogTitle>
 						<DialogDescription>
-							Request transfer for {currentUnit.currentOccupantName} to another
+							Request re-allocation for {currentUnit.currentOccupantName} to another
 							unit. This will proceed with immediate transfer. Showing{" "}
 							{availableUnits.length} vacant{" "}
 							{currentUnit.category.toLowerCase()} units.
