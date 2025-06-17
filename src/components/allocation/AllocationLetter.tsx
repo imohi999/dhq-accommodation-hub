@@ -84,6 +84,7 @@ export const AllocationLetter = ({
                 }
                 
                 .mb-6 { margin-bottom: 1.5rem; }
+								.text-justify { text-align: justify; }
 								.mr-20 { margin-right: 5rem; }
                 .mb-4 { margin-bottom: 1rem; }
                 .mb-8 { margin-bottom: 2rem; }
