@@ -5,6 +5,13 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 
+// Dependent schema for validation
+const dependentSchema = z.object({
+  name: z.string().min(1),
+  gender: z.enum(['Male', 'Female']),
+  age: z.number().int().min(0).max(120)
+})
+
 // Queue schema for validation
 const queueSchema = z.object({
   fullName: z.string().min(1),
@@ -16,6 +23,7 @@ const queueSchema = z.object({
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
   noOfAdultDependents: z.number().int().min(0).max(99).default(0),
   noOfChildDependents: z.number().int().min(0).max(99).default(0),
+  dependents: z.array(dependentSchema).optional(),
   currentUnit: z.string().optional(),
   appointment: z.string().optional(),
   dateTos: z.string().optional().transform(val => val ? new Date(val) : null),

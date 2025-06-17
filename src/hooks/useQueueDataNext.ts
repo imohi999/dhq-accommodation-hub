@@ -24,6 +24,11 @@ interface ApiQueueItem {
   maritalStatus: string
   noOfAdultDependents: number
   noOfChildDependents: number
+  dependents?: Array<{
+    name: string
+    gender: string
+    age: number
+  }>
   currentUnit?: string | null
   appointment?: string | null
   dateTos?: string | null

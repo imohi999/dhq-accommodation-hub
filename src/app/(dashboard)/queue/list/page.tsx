@@ -61,6 +61,7 @@ export default function QueuePage() {
 			marital_status: item.maritalStatus,
 			no_of_adult_dependents: item.noOfAdultDependents,
 			no_of_child_dependents: item.noOfChildDependents,
+			dependents: item.dependents || [],
 			current_unit: item.currentUnit ?? null,
 			appointment: item.appointment ?? null,
 			date_tos: item.dateTos ?? null,
@@ -81,6 +82,10 @@ export default function QueuePage() {
 		setCategoryFilter,
 		unitFilter,
 		setUnitFilter,
+		armOfServiceFilter,
+		setArmOfServiceFilter,
+		dependentsFilter,
+		setDependentsFilter,
 		filteredItems
 	} = useQueueFilters(transformedQueueItems);
 
@@ -140,7 +145,7 @@ export default function QueuePage() {
 		<div className="space-y-6">
 			<div className="flex justify-between items-center">
 				<div>
-					<h1 className="text-2xl font-bold text-[#1B365D]">Queue List</h1>
+					<h1 className="text-2xl font-bold text-[#1B365D] dark:text-foreground">Queue List</h1>
 					<p className="text-muted-foreground">
 						Manage the waiting list for incoming personnel
 					</p>
@@ -175,6 +180,10 @@ export default function QueuePage() {
 				onCategoryChange={setCategoryFilter}
 				unitFilter={unitFilter}
 				onUnitChange={setUnitFilter}
+				armOfServiceFilter={armOfServiceFilter}
+				onArmOfServiceChange={setArmOfServiceFilter}
+				dependentsFilter={dependentsFilter}
+				onDependentsChange={setDependentsFilter}
 				units={units}
 			/>
 

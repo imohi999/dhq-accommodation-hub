@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { QueueItem, Unit, QueueFormData } from "@/types/queue";
+import { QueueItem, Unit, QueueFormData, Dependent } from "@/types/queue";
 import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -24,6 +24,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
     marital_status: "",
     no_of_adult_dependents: 0,
     no_of_child_dependents: 0,
+    dependents: [],
     current_unit: "",
     appointment: "",
     date_tos: "",
@@ -71,6 +72,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         marital_status: item.marital_status,
         no_of_adult_dependents: item.no_of_adult_dependents,
         no_of_child_dependents: item.no_of_child_dependents,
+        dependents: item.dependents || [],
         current_unit: item.current_unit || "",
         appointment: item.appointment || "",
         date_tos: item.date_tos || "",
@@ -80,7 +82,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
     }
   }, [item]);
 
-  const handleInputChange = (field: string, value: string | number) => {
+  const handleInputChange = (field: string, value: string | number | Dependent[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -92,6 +94,18 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         ...prev,
         [field]: value,
         rank: ""
+      }));
+    }
+
+    // Update dependent counts when dependents array changes
+    if (field === "dependents" && Array.isArray(value)) {
+      const adultCount = value.filter(d => d.age >= 18).length;
+      const childCount = value.filter(d => d.age < 18).length;
+      setFormData(prev => ({
+        ...prev,
+        dependents: value,
+        no_of_adult_dependents: adultCount,
+        no_of_child_dependents: childCount
       }));
     }
   };
@@ -112,6 +126,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         maritalStatus: formData.marital_status,
         noOfAdultDependents: Number(formData.no_of_adult_dependents),
         noOfChildDependents: Number(formData.no_of_child_dependents),
+        dependents: formData.dependents || [],
         currentUnit: formData.current_unit || null,
         appointment: formData.appointment || null,
         dateTos: formData.date_tos || null,

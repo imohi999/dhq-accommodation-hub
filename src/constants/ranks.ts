@@ -31,7 +31,6 @@ export const RANK_OPTIONS = {
       "Seaman",
       "Able Seaman",
       "Leading Seaman",
-      "Petty Officer",
       "Warrant Officer",
       "Master Warrant Officer",
       "Navy Warrant Officer"

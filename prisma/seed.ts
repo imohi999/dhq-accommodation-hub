@@ -144,6 +144,10 @@ async function main() {
       maritalStatus: "Married",
       noOfAdultDependents: 1,
       noOfChildDependents: 1,
+      dependents: [
+        { name: "John Okafor", gender: "Male", age: 35 },
+        { name: "Sarah Okafor", gender: "Female", age: 8 }
+      ],
       currentUnit: "Naval Command",
       appointment: "Staff Officer",
       phone: "+234-8044233738",
@@ -161,6 +165,11 @@ async function main() {
       maritalStatus: "Single",
       noOfAdultDependents: 1,
       noOfChildDependents: 2,
+      dependents: [
+        { name: "Mary Adebayo", gender: "Female", age: 65 },
+        { name: "David Adebayo", gender: "Male", age: 12 },
+        { name: "Grace Adebayo", gender: "Female", age: 10 }
+      ],
       currentUnit: "Naval Command",
       appointment: "Staff Officer",
       phone: "+234-8093386438",
@@ -178,6 +187,7 @@ async function main() {
       maritalStatus: "Married",
       noOfAdultDependents: 0,
       noOfChildDependents: 0,
+      dependents: [],
       currentUnit: "Medical Corps",
       appointment: "Staff Officer",
       phone: "+234-8090141298",
@@ -195,6 +205,9 @@ async function main() {
       maritalStatus: "Single",
       noOfAdultDependents: 0,
       noOfChildDependents: 1,
+      dependents: [
+        { name: "Amina Mohammed", gender: "Female", age: 6 }
+      ],
       currentUnit: "Air Defence",
       appointment: "Staff Officer",
       phone: "+234-8042714278",
@@ -207,8 +220,8 @@ async function main() {
       svcNo: "N/56838/94",
       gender: "Male",
       armOfService: "Air Force",
-      category: "NCOs",
-      rank: "Petty Officer",
+      category: "Officer",
+      rank: "Lieutenant Colonel",
       maritalStatus: "Married",
       noOfAdultDependents: 0,
       noOfChildDependents: 0,
@@ -292,6 +305,38 @@ async function main() {
     const isMale = i % 2 === 0
     const nameIndex = (i - 9) % nigerianNames.length
     const fullName = isMale ? nigerianNames[nameIndex].male : nigerianNames[nameIndex].female
+    const maritalStatus = ['Single', 'Married', 'Divorced', 'Widowed'][i % 4]
+    const noOfAdultDependents = i % 3
+    const noOfChildDependents = i % 4
+
+    // Generate dependents based on marital status and dependent counts
+    const dependents = []
+    if (maritalStatus === 'Married' && !isMale) {
+      // Add spouse for married females
+      dependents.push({
+        name: `${fullName.split(' ')[1]} ${['James', 'John', 'Peter', 'Paul'][i % 4]}`,
+        gender: 'Male' as const,
+        age: 35 + (i % 10)
+      })
+    }
+    
+    // Add children based on child count
+    for (let c = 0; c < noOfChildDependents; c++) {
+      dependents.push({
+        name: `${['Emma', 'Joy', 'David', 'Grace', 'Samuel', 'Faith'][c % 6]} ${fullName.split(' ')[1]}`,
+        gender: c % 2 === 0 ? 'Male' as const : 'Female' as const,
+        age: 5 + (c * 3)
+      })
+    }
+    
+    // Add adult dependents (parents, siblings, etc)
+    for (let a = 0; a < noOfAdultDependents && dependents.filter(d => d.age >= 18).length < noOfAdultDependents; a++) {
+      dependents.push({
+        name: `${['Mr.', 'Mrs.'][a % 2]} ${fullName.split(' ')[1]}`,
+        gender: a % 2 === 0 ? 'Male' as const : 'Female' as const,
+        age: 55 + (a * 5)
+      })
+    }
 
     additionalQueueEntries.push({
       sequence: i,
@@ -303,9 +348,10 @@ async function main() {
       rank: isOfficer
         ? ['Major', 'Captain', 'Squadron Leader', 'Lieutenant Colonel'][i % 4]
         : ['Corporal', 'Sergeant', 'Staff Sergeant', 'Warrant Officer'][i % 4],
-      maritalStatus: ['Single', 'Married', 'Divorced', 'Widowed'][i % 4],
-      noOfAdultDependents: i % 3,
-      noOfChildDependents: i % 4,
+      maritalStatus: maritalStatus,
+      noOfAdultDependents: noOfAdultDependents,
+      noOfChildDependents: noOfChildDependents,
+      dependents: dependents,
       currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][i % 5],
       appointment: isOfficer ? 'Staff Officer' : 'Technician',
       phone: `+234-80${Math.floor(Math.random() * 90000000) + 10000000}`,
@@ -521,7 +567,7 @@ async function main() {
     { name: "Lt. Aisha Danjuma", rank: "Lieutenant", svcNo: "A/54321/95" },
     { name: "WO1 Babajide Ogunlana", rank: "Warrant Officer 1", svcNo: "A/98765/80" },
     { name: "Flight Sergeant Zainab Abdullahi", rank: "Flight Sergeant", svcNo: "AF/87654/82" },
-    { name: "Petty Officer Obinna Chukwu", rank: "Petty Officer", svcNo: "N/76543/85" },
+    { name: "Lt. Obinna Chukwu", rank: "Lieutenant", svcNo: "N/76543/85" },
     { name: "Staff Sergeant Kemi Adegbite", rank: "Staff Sergeant", svcNo: "AF/65432/89" }
   ]
 

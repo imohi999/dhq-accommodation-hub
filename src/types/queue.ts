@@ -1,4 +1,10 @@
 
+export interface Dependent {
+  name: string;
+  gender: string;
+  age: number;
+}
+
 export interface QueueItem {
   id: string;
   sequence: number;
@@ -11,6 +17,7 @@ export interface QueueItem {
   marital_status: string;
   no_of_adult_dependents: number;
   no_of_child_dependents: number;
+  dependents?: Dependent[];
   current_unit: string | null;
   appointment: string | null;
   date_tos: string | null;
@@ -42,6 +49,7 @@ export interface QueueFormData {
   marital_status: string;
   no_of_adult_dependents: number;
   no_of_child_dependents: number;
+  dependents?: Dependent[];
   current_unit: string;
   appointment: string;
   date_tos: string;

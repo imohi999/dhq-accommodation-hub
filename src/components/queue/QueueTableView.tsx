@@ -16,9 +16,17 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Edit, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Edit, Trash2, Eye } from "lucide-react";
 import { QueueTableControls } from "@/components/queue/QueueTableControls";
 import { QueueItem } from "@/types/queue";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 
 interface QueueTableViewProps {
 	queueItems: QueueItem[];
@@ -46,6 +54,7 @@ export const QueueTableView = ({
 			marital_status: true,
 			no_of_adult_dependents: true,
 			no_of_child_dependents: true,
+			dependents: true,
 			current_unit: true,
 			phone: true,
 			date_tos: true,
@@ -54,6 +63,7 @@ export const QueueTableView = ({
 			appointment: true,
 		}
 	);
+	const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
 
 	const handleColumnVisibilityChange = (column: string, visible: boolean) => {
 		setVisibleColumns((prev) => ({
@@ -100,6 +110,9 @@ export const QueueTableView = ({
 								{visibleColumns.no_of_child_dependents && (
 									<TableHead>Child Deps</TableHead>
 								)}
+								{visibleColumns.dependents && (
+									<TableHead>Dependents</TableHead>
+								)}
 								{visibleColumns.current_unit && <TableHead>Unit</TableHead>}
 								{visibleColumns.phone && <TableHead>Phone</TableHead>}
 								{visibleColumns.date_tos && <TableHead>Date TOS</TableHead>}
@@ -143,6 +156,23 @@ export const QueueTableView = ({
 									)}
 									{visibleColumns.no_of_child_dependents && (
 										<TableCell>{item.no_of_child_dependents}</TableCell>
+									)}
+									{visibleColumns.dependents && (
+										<TableCell>
+											{item.dependents && item.dependents.length > 0 ? (
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={() => setSelectedItem(item)}
+													className="text-xs"
+												>
+													<Eye className="h-3 w-3 mr-1" />
+													View ({item.dependents.length})
+												</Button>
+											) : (
+												<span className="text-muted-foreground">None</span>
+											)}
+										</TableCell>
 									)}
 									{visibleColumns.current_unit && (
 										<TableCell>{item.current_unit || "N/A"}</TableCell>
@@ -206,6 +236,45 @@ export const QueueTableView = ({
 					</Table>
 				</CardContent>
 			</Card>
+			
+			{/* Dependents Dialog */}
+			<Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+				<DialogContent className="max-w-2xl">
+					<DialogHeader>
+						<DialogTitle>Dependents Details</DialogTitle>
+						<DialogDescription>
+							{selectedItem?.full_name} - {selectedItem?.svc_no}
+						</DialogDescription>
+					</DialogHeader>
+					<div className="space-y-4">
+						{selectedItem?.dependents && selectedItem.dependents.length > 0 ? (
+							<div className="space-y-2">
+								{selectedItem.dependents.map((dependent, idx) => (
+									<div
+										key={idx}
+										className="flex items-center justify-between p-3 border rounded-lg"
+									>
+										<div className="flex items-center gap-4">
+											<span className="font-medium">{dependent.name}</span>
+											<Badge variant="outline" className="text-xs">
+												{dependent.gender}
+											</Badge>
+											<span className="text-sm text-muted-foreground">
+												{dependent.age} years
+											</span>
+										</div>
+										<Badge variant="secondary" className="text-xs">
+											{dependent.age >= 18 ? "Adult" : "Child"}
+										</Badge>
+									</div>
+								))}
+							</div>
+						) : (
+							<p className="text-center text-muted-foreground">No dependents</p>
+						)}
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };

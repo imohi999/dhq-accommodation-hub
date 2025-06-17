@@ -95,6 +95,7 @@ model Queue {
   maritalStatus       String    @map("marital_status")
   noOfAdultDependents Int       @default(0) @map("no_of_adult_dependents")
   noOfChildDependents Int       @default(0) @map("no_of_child_dependents")
+  dependents          Json?     @map("dependents")
   currentUnit         String?   @map("current_unit")
   appointment         String?
   dateTos             DateTime? @map("date_tos") @db.Date

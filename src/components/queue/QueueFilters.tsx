@@ -22,6 +22,10 @@ interface QueueFiltersProps {
 	onCategoryChange: (value: string) => void;
 	unitFilter: string;
 	onUnitChange: (value: string) => void;
+	armOfServiceFilter: string;
+	onArmOfServiceChange: (value: string) => void;
+	dependentsFilter: string;
+	onDependentsChange: (value: string) => void;
 	units: Unit[];
 }
 
@@ -36,6 +40,10 @@ export const QueueFilters = ({
 	onCategoryChange,
 	unitFilter,
 	onUnitChange,
+	armOfServiceFilter,
+	onArmOfServiceChange,
+	dependentsFilter,
+	onDependentsChange,
 	units,
 }: QueueFiltersProps) => {
 	const handleResetFilters = () => {
@@ -44,6 +52,8 @@ export const QueueFilters = ({
 		onMaritalStatusChange("all");
 		onCategoryChange("all");
 		onUnitChange("all");
+		onArmOfServiceChange("all");
+		onDependentsChange("all");
 	};
 
 	return (
@@ -60,7 +70,7 @@ export const QueueFilters = ({
 				</Button>
 			</div>
 
-			<div className='grid grid-cols-1 md:grid-cols-5 gap-4'>
+			<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4'>
 				<div className='space-y-2'>
 					<Label htmlFor='search'>Search</Label>
 					<div className='relative'>
@@ -117,6 +127,35 @@ export const QueueFilters = ({
 							<SelectItem value='all'>All Categories</SelectItem>
 							<SelectItem value='NCOs'>NCOs</SelectItem>
 							<SelectItem value='Officer'>Officer</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+
+				<div className='space-y-2'>
+					<Label>Service Branch</Label>
+					<Select value={armOfServiceFilter} onValueChange={onArmOfServiceChange}>
+						<SelectTrigger>
+							<SelectValue placeholder='All Services' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Services</SelectItem>
+							<SelectItem value='Army'>Army</SelectItem>
+							<SelectItem value='Navy'>Navy</SelectItem>
+							<SelectItem value='Air Force'>Air Force</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+
+				<div className='space-y-2'>
+					<Label>Dependents</Label>
+					<Select value={dependentsFilter} onValueChange={onDependentsChange}>
+						<SelectTrigger>
+							<SelectValue placeholder='All Personnel' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Personnel</SelectItem>
+							<SelectItem value='with'>With Dependents</SelectItem>
+							<SelectItem value='without'>Without Dependents</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>

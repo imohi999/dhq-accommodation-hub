@@ -7,6 +7,7 @@ import { useQueueForm } from "@/hooks/useQueueForm";
 import { PersonalInfoFields } from "@/components/queue/PersonalInfoFields";
 import { ServiceInfoFields } from "@/components/queue/ServiceInfoFields";
 import { DependentsFields } from "@/components/queue/DependentsFields";
+import { DependentsDetailsFields } from "@/components/queue/DependentsDetailsFields";
 import { UnitAndDatesFields } from "@/components/queue/UnitAndDatesFields";
 
 export const QueueForm = ({ item, onSubmit, onCancel }: QueueFormProps) => {
@@ -44,6 +45,11 @@ export const QueueForm = ({ item, onSubmit, onCancel }: QueueFormProps) => {
               onInputChange={handleInputChange}
             />
           </div>
+
+          <DependentsDetailsFields
+            dependents={formData.dependents}
+            onDependentsChange={(dependents) => handleInputChange('dependents', dependents)}
+          />
 
           <div className="flex gap-4 pt-4">
             <LoadingButton 
