@@ -104,20 +104,72 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      await tx.unitHistory.create({
+      // Mark the occupant as not current in the old unit
+      await tx.unitOccupant.updateMany({
+        where: {
+          unitId: fromUnitId,
+          isCurrent: true
+        },
         data: {
-          unitId: fromUnit.id,
-          occupantName: fromUnit.currentOccupantName || "Unknown",
+          isCurrent: false
+        }
+      });
+
+      // Get the occupant details to transfer
+      const occupantDetails = await tx.unitOccupant.findFirst({
+        where: {
+          unitId: fromUnitId,
+          serviceNumber: fromUnit.currentOccupantServiceNumber || ""
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      // Create new occupant record for the new unit
+      await tx.unitOccupant.create({
+        data: {
+          unitId: toUnitId,
+          fullName: fromUnit.currentOccupantName || "Unknown",
           rank: fromUnit.currentOccupantRank || "Unknown",
           serviceNumber: fromUnit.currentOccupantServiceNumber || "Unknown",
-          startDate: fromUnit.occupancyStartDate || new Date(),
+          phone: occupantDetails?.phone || null,
+          email: occupantDetails?.email || null,
+          emergencyContact: occupantDetails?.emergencyContact || null,
+          occupancyStartDate: new Date(),
+          isCurrent: true
+        }
+      });
+
+      // Update the existing unit history record for the old unit
+      await tx.unitHistory.updateMany({
+        where: {
+          unitId: fromUnitId,
+          endDate: null
+        },
+        data: {
           endDate: new Date(),
           durationDays: fromUnit.occupancyStartDate
             ? Math.floor((new Date().getTime() - new Date(fromUnit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
             : 0,
-          reasonForLeaving: `Transferred to ${toUnit.quarterName}`,
+          reasonForLeaving: `Transferred to ${toUnit.quarterName} ${toUnit.blockName} ${toUnit.flatHouseRoomName}`
         }
       });
+
+      // Create new unit history record for the new unit
+      await tx.unitHistory.create({
+        data: {
+          unitId: toUnitId,
+          occupantName: fromUnit.currentOccupantName || "Unknown",
+          rank: fromUnit.currentOccupantRank || "Unknown",
+          serviceNumber: fromUnit.currentOccupantServiceNumber || "Unknown",
+          startDate: new Date(),
+          endDate: null,
+          durationDays: null,
+          reasonForLeaving: null
+        }
+      });
+
 
       return {
         fromUnit,

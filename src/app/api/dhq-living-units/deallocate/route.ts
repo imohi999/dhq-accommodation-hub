@@ -4,11 +4,18 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { unitId } = body;
+    const { unitId, reason } = body;
 
     if (!unitId) {
       return NextResponse.json(
         { error: "Unit ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!reason || !reason.trim()) {
+      return NextResponse.json(
+        { error: "Reason for deallocation is required" },
         { status: 400 }
       );
     }
@@ -58,7 +65,7 @@ export async function POST(request: NextRequest) {
           durationDays: unit.occupancyStartDate
             ? Math.floor((new Date().getTime() - new Date(unit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
             : 0,
-          reasonForLeaving: "Deallocated by admin",
+          reasonForLeaving: reason.trim(),
           deallocationDate: new Date(),
         }
       });
@@ -76,25 +83,53 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Create a unit history record
-      await tx.unitHistory.create({
+      // Mark current occupant as not current
+      await tx.unitOccupant.updateMany({
+        where: {
+          unitId: unitId,
+          isCurrent: true
+        },
         data: {
-          unitId: unit.id,
-          occupantName: unit.currentOccupantName || "Unknown",
-          rank: unit.currentOccupantRank || "Unknown",
-          serviceNumber: unit.currentOccupantServiceNumber || "Unknown",
-          startDate: unit.occupancyStartDate || new Date(),
+          isCurrent: false
+        }
+      });
+
+      // Update the unit history record with end date
+      const updatedHistory = await tx.unitHistory.updateMany({
+        where: {
+          unitId: unitId,
+          endDate: null
+        },
+        data: {
           endDate: new Date(),
           durationDays: unit.occupancyStartDate
             ? Math.floor((new Date().getTime() - new Date(unit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
             : 0,
-          reasonForLeaving: "Deallocated by admin",
+          reasonForLeaving: reason.trim()
         }
       });
 
+      // If no history record was updated (edge case), create one
+      if (updatedHistory.count === 0) {
+        await tx.unitHistory.create({
+          data: {
+            unitId: unit.id,
+            occupantName: unit.currentOccupantName || "Unknown",
+            rank: unit.currentOccupantRank || "Unknown",
+            serviceNumber: unit.currentOccupantServiceNumber || "Unknown",
+            startDate: unit.occupancyStartDate || new Date(),
+            endDate: new Date(),
+            durationDays: unit.occupancyStartDate
+              ? Math.floor((new Date().getTime() - new Date(unit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
+              : 0,
+            reasonForLeaving: reason.trim(),
+          }
+        });
+      }
+
       return { updatedUnit, pastAllocation };
     }, {
-      timeout: 10000 // 10 seconds
+      timeout: 100000 // 10 seconds
     });
 
     return NextResponse.json({

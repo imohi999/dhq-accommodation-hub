@@ -10,6 +10,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
 	ArrowRightLeft,
 	UserMinus,
@@ -35,9 +37,11 @@ export const ActiveAllocationsView = ({
 	const [deallocateDialog, setDeallocateDialog] = useState<{
 		isOpen: boolean;
 		unit: DHQLivingUnitWithHousingType | null;
+		reason: string;
 	}>({
 		isOpen: false,
 		unit: null,
+		reason: "",
 	});
 
 	const [allocationLetter, setAllocationLetter] = useState<{
@@ -64,10 +68,11 @@ export const ActiveAllocationsView = ({
 		setDeallocateDialog({
 			isOpen: true,
 			unit,
+			reason: "",
 		});
 	};
 
-	async function deallocatePersonnel(unitId: string) {
+	async function deallocatePersonnel(unitId: string, reason: string) {
 		setLoadingStates((prev) => ({ ...prev, [`deallocate_${unitId}`]: true }));
 		try {
 			const response = await fetch("/api/dhq-living-units/deallocate", {
@@ -75,7 +80,7 @@ export const ActiveAllocationsView = ({
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ unitId }),
+				body: JSON.stringify({ unitId, reason }),
 			});
 
 			if (!response.ok) {
@@ -109,13 +114,14 @@ export const ActiveAllocationsView = ({
 	}
 
 	const handleDeallocateConfirm = async () => {
-		if (deallocateDialog.unit) {
-			await deallocatePersonnel(deallocateDialog.unit.id);
+		if (deallocateDialog.unit && deallocateDialog.reason.trim()) {
+			await deallocatePersonnel(deallocateDialog.unit.id, deallocateDialog.reason);
+			setDeallocateDialog({
+				isOpen: false,
+				unit: null,
+				reason: "",
+			});
 		}
-		setDeallocateDialog({
-			isOpen: false,
-			unit: null,
-		});
 	};
 
 	const handleViewLetterClick = (unit: DHQLivingUnitWithHousingType) => {
@@ -456,9 +462,11 @@ export const ActiveAllocationsView = ({
 			{/* Post Out Confirmation Dialog */}
 			<Dialog
 				open={deallocateDialog.isOpen}
-				onOpenChange={(open) =>
-					setDeallocateDialog({ ...deallocateDialog, isOpen: open })
-				}>
+				onOpenChange={(open) => {
+					if (!open) {
+						setDeallocateDialog({ isOpen: false, unit: null, reason: "" });
+					}
+				}}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Post Out Personnel</DialogTitle>
@@ -468,23 +476,43 @@ export const ActiveAllocationsView = ({
 							accommodation as vacant and move them to Past Allocations.
 						</DialogDescription>
 					</DialogHeader>
+					
+					<div className="space-y-4 py-4">
+						<div className="space-y-2">
+							<Label htmlFor="reason">Reason for Posting Out *</Label>
+							<Textarea
+								id="reason"
+								placeholder="Enter reason for posting out (e.g., Posted to another unit, Retirement, Transfer, etc.)"
+								value={deallocateDialog.reason}
+								onChange={(e) =>
+									setDeallocateDialog({ ...deallocateDialog, reason: e.target.value })
+								}
+								className="min-h-[100px]"
+							/>
+							{deallocateDialog.reason.trim() === "" && (
+								<p className="text-sm text-destructive">Reason is required</p>
+							)}
+						</div>
+					</div>
+
 					<DialogFooter>
 						<Button
 							variant='outline'
 							onClick={() =>
-								setDeallocateDialog({ isOpen: false, unit: null })
+								setDeallocateDialog({ isOpen: false, unit: null, reason: "" })
 							}>
 							Cancel
 						</Button>
 						<LoadingButton
 							variant='destructive'
 							onClick={handleDeallocateConfirm}
+							disabled={!deallocateDialog.reason.trim()}
 							loading={
 								deallocateDialog.unit
 									? loadingStates[`deallocate_${deallocateDialog.unit.id}`]
 									: false
 							}
-							loadingText='Deallocating...'>
+							loadingText='Posting Out...'>
 							Post Out
 						</LoadingButton>
 					</DialogFooter>

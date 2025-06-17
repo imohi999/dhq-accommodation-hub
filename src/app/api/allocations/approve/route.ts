@@ -57,9 +57,38 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      // Create UnitOccupant record for current occupant
+      await tx.unitOccupant.create({
+        data: {
+          unitId: unitId,
+          fullName: personnelData.fullName,
+          rank: personnelData.rank,
+          serviceNumber: personnelData.svcNo,
+          phone: personnelData.phone || null,
+          email: personnelData.email || null,
+          emergencyContact: null,
+          occupancyStartDate: new Date(),
+          isCurrent: true
+        }
+      });
+
+      // Create UnitHistory record for the new allocation
+      await tx.unitHistory.create({
+        data: {
+          unitId: unitId,
+          occupantName: personnelData.fullName,
+          rank: personnelData.rank,
+          serviceNumber: personnelData.svcNo,
+          startDate: new Date(),
+          endDate: null,
+          durationDays: null,
+          reasonForLeaving: null
+        }
+      });
+
       return updatedRequest;
     }, {
-      timeout: 10000 // 10 seconds
+      timeout: 100000 // 10 seconds
     });
 
     return NextResponse.json({ requestId }, { status: 200 });
@@ -77,4 +106,8 @@ interface IPersonnelData {
   fullName: string;
   rank: string;
   svcNo: string;
+  phone?: string;
+  currentUnit?: string;
+  armOfService?: string;
+  email?: string;
 }
