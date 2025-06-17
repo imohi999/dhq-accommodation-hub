@@ -86,6 +86,7 @@ export const AllocationLetter = ({
                 .mb-6 { margin-bottom: 1.5rem; }
 								.text-justify { text-align: justify; }
 								.mr-20 { margin-right: 5rem; }
+								.mr-24 { margin-right: 6rem; }
                 .mb-4 { margin-bottom: 1rem; }
                 .mb-8 { margin-bottom: 2rem; }
                 .mb-2 { margin-bottom: 0.5rem; }
@@ -335,7 +336,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Date and Time */}
-					<div className='text-right mb-6 mr-20'>
+					<div className='text-right mb-6 mr-24'>
 						<p>{currentDate}</p>
 					</div>
 
@@ -402,7 +403,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Signature - Removed stamp image box, only text */}
-					<div className='text-right mt-12 mr-20'>
+					<div className='text-right mt-12 mr-24'>
 						{activeStamp && (
 							<div className='text-sm'>
 								<p className='font-bold'>{activeStamp.stamp_name}</p>
