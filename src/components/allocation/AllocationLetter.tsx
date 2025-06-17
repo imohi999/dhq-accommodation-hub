@@ -44,12 +44,15 @@ export const AllocationLetter = ({
 					}
 				});
 
-				const filename = `Allocation_Letter_${allocationRequest.personnelData.fullName.replace(/\s+/g, '_')}_${displayLetterId.replace(/\//g, '-')}.pdf`;
+				const filename = `Allocation_Letter_${allocationRequest.personnelData.fullName.replace(
+					/\s+/g,
+					"_"
+				)}_${displayLetterId.replace(/\//g, "-")}.pdf`;
 
 				printWindow.document.write(`
           <html>
             <head>
-              <title>${forDownload ? filename : 'Allocation Letter'}</title>
+              <title>${forDownload ? filename : "Allocation Letter"}</title>
               <style>
                 * {
                   margin: 0;
@@ -81,6 +84,7 @@ export const AllocationLetter = ({
                 }
                 
                 .mb-6 { margin-bottom: 1.5rem; }
+								.mr-20 { margin-right: 5rem; }
                 .mb-4 { margin-bottom: 1rem; }
                 .mb-8 { margin-bottom: 2rem; }
                 .mb-2 { margin-bottom: 0.5rem; }
@@ -301,8 +305,12 @@ export const AllocationLetter = ({
 								}}
 							/>
 						</div>
-						<h1 className='text-lg font-bold leading-tight'>DEFENCE HEADQUARTERS GARRISON</h1>
-						<h2 className='text-lg font-bold leading-tight'>MOGADISHU CANTONMENT</h2>
+						<h1 className='text-lg font-bold leading-tight'>
+							DEFENCE HEADQUARTERS GARRISON
+						</h1>
+						<h2 className='text-lg font-bold leading-tight'>
+							MOGADISHU CANTONMENT
+						</h2>
 						<h3 className='text-lg font-bold leading-tight'>ABUJA</h3>
 					</div>
 
@@ -338,7 +346,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Body */}
-					<div className='space-y-4 mb-8'>
+					<div className='space-y-4 mb-8 mr-20 text-justify'>
 						<p>
 							1. I am directed to inform you that you have been allocated{" "}
 							<span className='font-bold'>
