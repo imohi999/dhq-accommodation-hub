@@ -7,9 +7,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Search, RotateCcw } from "lucide-react";
+import { Search, RotateCcw, Check, ChevronsUpDown } from "lucide-react";
 import { Unit } from "@/types/queue";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface QueueFiltersProps {
 	searchTerm: string;
@@ -46,6 +50,8 @@ export const QueueFilters = ({
 	onDependentsChange,
 	units,
 }: QueueFiltersProps) => {
+	const [unitPopoverOpen, setUnitPopoverOpen] = useState(false);
+
 	const handleResetFilters = () => {
 		onSearchChange("");
 		onGenderChange("all");
@@ -120,19 +126,62 @@ export const QueueFilters = ({
 
 				<div className='space-y-2'>
 					<Label>Current Unit</Label>
-					<Select value={unitFilter} onValueChange={onUnitChange}>
-						<SelectTrigger>
-							<SelectValue placeholder='All Units' />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value='all'>All Units</SelectItem>
-							{units.map((unit) => (
-								<SelectItem key={unit.id} value={unit.name}>
-									{unit.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					<Popover open={unitPopoverOpen} onOpenChange={setUnitPopoverOpen}>
+						<PopoverTrigger asChild>
+							<Button
+								variant="outline"
+								role="combobox"
+								aria-expanded={unitPopoverOpen}
+								className="w-full justify-between font-normal"
+							>
+								{unitFilter === "all" 
+									? "All Units" 
+									: units.find((unit) => unit.name === unitFilter)?.name || "All Units"}
+								<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-full p-0">
+							<Command>
+								<CommandInput placeholder="Search units..." />
+								<CommandEmpty>No unit found.</CommandEmpty>
+								<CommandGroup>
+									<CommandItem
+										value="all"
+										onSelect={() => {
+											onUnitChange("all");
+											setUnitPopoverOpen(false);
+										}}
+									>
+										<Check
+											className={cn(
+												"mr-2 h-4 w-4",
+												unitFilter === "all" ? "opacity-100" : "opacity-0"
+											)}
+										/>
+										All Units
+									</CommandItem>
+									{units.map((unit) => (
+										<CommandItem
+											key={unit.id}
+											value={unit.name}
+											onSelect={(currentValue) => {
+												onUnitChange(currentValue);
+												setUnitPopoverOpen(false);
+											}}
+										>
+											<Check
+												className={cn(
+													"mr-2 h-4 w-4",
+													unitFilter === unit.name ? "opacity-100" : "opacity-0"
+												)}
+											/>
+											{unit.name}
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</Command>
+						</PopoverContent>
+					</Popover>
 				</div>
 
 				<div className='space-y-2'>
