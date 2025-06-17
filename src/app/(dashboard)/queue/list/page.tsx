@@ -100,6 +100,27 @@ export default function QueuePage() {
 	const handleEdit = (item: QueueItem) => {
 		setEditingItem(item);
 		setShowForm(true);
+		// Scroll to top after form is shown
+		setTimeout(() => {
+			// Smooth scroll window to top
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+			
+			// Also smooth scroll any scrollable containers
+			const mainElement = document.querySelector('main');
+			if (mainElement) {
+				mainElement.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+			
+			// Find and smooth scroll the SidebarInset container
+			const sidebarInset = document.querySelector('.flex-1.overflow-y-auto');
+			if (sidebarInset) {
+				sidebarInset.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+			
+			// Smooth scroll on document elements
+			document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+			document.body.scrollTo({ top: 0, behavior: 'smooth' });
+		}, 100);
 	};
 
 	const handleAllocate = (item: QueueItem) => {

@@ -1,10 +1,13 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { QueueFormData, Unit } from "@/types/queue";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface UnitAndDatesFieldsProps {
   formData: QueueFormData;
@@ -13,37 +16,53 @@ interface UnitAndDatesFieldsProps {
 }
 
 export const UnitAndDatesFields = ({ formData, units, onInputChange }: UnitAndDatesFieldsProps) => {
-  const [unitSearchTerm, setUnitSearchTerm] = useState("");
-  
-  const filteredUnits = units.filter(unit => 
-    unit.name.toLowerCase().includes(unitSearchTerm.toLowerCase())
-  );
+  const [open, setOpen] = useState(false);
 
   return (
     <>
       <div className="space-y-2">
         <Label htmlFor="current_unit">Current Unit</Label>
-        <div className="relative mb-2">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search units..."
-            value={unitSearchTerm}
-            onChange={(e) => setUnitSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={formData.current_unit} onValueChange={(value) => onInputChange("current_unit", value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select unit" />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredUnits.map((unit) => (
-              <SelectItem key={unit.id} value={unit.name}>
-                {unit.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between"
+            >
+              {formData.current_unit
+                ? units.find((unit) => unit.name === formData.current_unit)?.name
+                : "Select unit..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0">
+            <Command>
+              <CommandInput placeholder="Search units..." />
+              <CommandEmpty>No unit found.</CommandEmpty>
+              <CommandGroup>
+                {units.map((unit) => (
+                  <CommandItem
+                    key={unit.id}
+                    value={unit.name}
+                    onSelect={(currentValue) => {
+                      onInputChange("current_unit", currentValue);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        formData.current_unit === unit.name ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {unit.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="space-y-2">
