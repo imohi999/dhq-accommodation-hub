@@ -25,7 +25,7 @@ export const useAccommodationFilters = (units: DHQLivingUnitWithHousingType[]) =
       const matchesQuarterName = quarterNameFilter === "all" || unit.quarterName === quarterNameFilter;
       const matchesLocation = locationFilter === "all" || unit.location === locationFilter;
       const matchesCategory = categoryFilter === "all" || unit.category === categoryFilter;
-      const matchesHousingType = housingTypeFilter === "all" || unit.accomodation_type_id === housingTypeFilter;
+      const matchesHousingType = housingTypeFilter === "all" || unit.accommodation_type_id === housingTypeFilter;
       const matchesStatus = statusFilter === "all" || unit.status === statusFilter;
       const matchesOccupancy = occupancyFilter === "all" || unit.type_of_occupancy === occupancyFilter;
       const matchesBlockName = blockNameFilter === "all" || unit.blockName === blockNameFilter;

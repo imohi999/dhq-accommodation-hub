@@ -65,11 +65,11 @@ export const useImportValidation = (housingTypes: Array<{ id: string; name: stri
           });
         }
 
-        if (row["Accomodation Type"] && !housingTypeNames.includes(row["Accomodation Type"])) {
+        if (row["Accommodation Type"] && !housingTypeNames.includes(row["Accommodation Type"])) {
           errors.push({
             row: index + 2,
-            field: "Accomodation Type",
-            message: `Accomodation Type must be one of: ${housingTypeNames.join(', ')}`
+            field: "Accommodation Type",
+            message: `Accommodation Type must be one of: ${housingTypeNames.join(', ')}`
           });
         }
 

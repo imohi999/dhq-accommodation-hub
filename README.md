@@ -149,7 +149,7 @@ docs/                      # Documentation
 - **profiles** - User profiles and roles
 - **queue** - Accommodation request queue
 - **dhq_living_units** - Available accommodation units
-- **accomodation_types** - Types of accommodation
+- **accommodation_types** - Types of accommodation
 - **allocation_requests** - Allocation requests workflow
 - **past_allocations** - Historical allocation records
 - **stamp_settings** - Digital stamp configurations
@@ -158,7 +158,7 @@ docs/                      # Documentation
 
 - Users have Profiles (1:1)
 - Queue entries link to Allocation Requests (1:1)
-- Living Units have Accomodation Types (N:1)
+- Living Units have Accommodation Types (N:1)
 - Allocation Requests link to Units and Queue (N:1)
 - Past Allocations store historical data
 
@@ -212,7 +212,7 @@ Active Allocation → Deallocation Request → Move to Past Allocations + Clear 
 ### Unit Management
 
 - Comprehensive unit inventory
-- Accomodation type categorization
+- Accommodation type categorization
 - Occupancy tracking
 - Maintenance and inventory logs
 - Image management for blocks

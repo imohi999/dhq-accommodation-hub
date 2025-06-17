@@ -84,7 +84,7 @@ export type Database = {
           current_occupant_rank: string | null
           current_occupant_service_number: string | null
           flat_house_room_name: string
-          accomodation_type_id: string
+          accommodation_type_id: string
           id: string
           location: string
           no_of_rooms: number
@@ -107,7 +107,7 @@ export type Database = {
           current_occupant_rank?: string | null
           current_occupant_service_number?: string | null
           flat_house_room_name: string
-          accomodation_type_id: string
+          accommodation_type_id: string
           id?: string
           location: string
           no_of_rooms?: number
@@ -130,7 +130,7 @@ export type Database = {
           current_occupant_rank?: string | null
           current_occupant_service_number?: string | null
           flat_house_room_name?: string
-          accomodation_type_id?: string
+          accommodation_type_id?: string
           id?: string
           location?: string
           no_of_rooms?: number
@@ -145,14 +145,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "dhq_living_units_housing_type_id_fkey"
-            columns: ["accomodation_type_id"]
+            columns: ["accommodation_type_id"]
             isOneToOne: false
-            referencedRelation: "accomodation_types"
+            referencedRelation: "accommodation_types"
             referencedColumns: ["id"]
           },
         ]
       }
-      accomodation_types: {
+      accommodation_types: {
         Row: {
           created_at: string
           description: string | null

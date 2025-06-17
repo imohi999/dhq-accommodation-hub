@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AccomodationType } from "@/types/accommodation";
+import { AccommodationType } from "@/types/accommodation";
 import { toast } from "react-toastify";
 import { LoadingState } from "@/components/ui/spinner";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -39,7 +39,9 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function HousingTypes() {
 	const [showForm, setShowForm] = useState(false);
-	const [editingItem, setEditingItem] = useState<AccomodationType | null>(null);
+	const [editingItem, setEditingItem] = useState<AccommodationType | null>(
+		null
+	);
 	const [formData, setFormData] = useState({ name: "", description: "" });
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export default function HousingTypes() {
 		data: housingTypes = [],
 		error,
 		isLoading,
-	} = useSWR<AccomodationType[]>("/api/accommodation-types", fetcher);
+	} = useSWR<AccommodationType[]>("/api/accommodation-types", fetcher);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -76,7 +78,7 @@ export default function HousingTypes() {
 				if (!response.ok)
 					throw new Error("Failed to update accommodation type");
 
-				toast.success("Accomodation type updated successfully");
+				toast.success("Accommodation type updated successfully");
 			} else {
 				const response = await fetch("/api/accommodation-types", {
 					method: "POST",
@@ -90,7 +92,7 @@ export default function HousingTypes() {
 				if (!response.ok)
 					throw new Error("Failed to create accommodation type");
 
-				toast.success("Accomodation type created successfully");
+				toast.success("Accommodation type created successfully");
 			}
 
 			setShowForm(false);
@@ -105,7 +107,7 @@ export default function HousingTypes() {
 		}
 	};
 
-	const handleEdit = (item: AccomodationType) => {
+	const handleEdit = (item: AccommodationType) => {
 		setEditingItem(item);
 		setFormData({ name: item.name, description: item.description || "" });
 		setShowForm(true);
@@ -124,7 +126,7 @@ export default function HousingTypes() {
 
 			if (!response.ok) throw new Error("Failed to delete accommodation type");
 
-			toast.success("Accomodation type deleted successfully");
+			toast.success("Accommodation type deleted successfully");
 
 			mutate("/api/accommodation-types");
 		} catch (error) {
@@ -164,7 +166,7 @@ export default function HousingTypes() {
 			<div className='flex justify-between items-center'>
 				<div>
 					<h1 className='text-2xl font-bold text-[#1B365D]'>
-						Accomodation Types
+						Accommodation Types
 					</h1>
 					<p className='text-muted-foreground'>
 						Manage accommodation type categories for accommodation units
@@ -176,15 +178,15 @@ export default function HousingTypes() {
 							onClick={() => setShowForm(true)}
 							className='flex items-center gap-2'>
 							<Plus className='h-4 w-4' />
-							Add Accomodation Type
+							Add Accommodation Type
 						</Button>
 					</DialogTrigger>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>
 								{editingItem
-									? "Edit Accomodation Type"
-									: "Add New Accomodation Type"}
+									? "Edit Accommodation Type"
+									: "Add New Accommodation Type"}
 							</DialogTitle>
 							<DialogDescription>
 								{editingItem
@@ -238,7 +240,7 @@ export default function HousingTypes() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Accomodation Types</CardTitle>
+					<CardTitle>Accommodation Types</CardTitle>
 					<CardDescription>
 						Currently managing {housingTypes.length} accommodation types
 					</CardDescription>

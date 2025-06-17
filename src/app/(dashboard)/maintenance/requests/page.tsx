@@ -91,7 +91,7 @@ export default function MaintenanceRequestsPage() {
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-2xl font-bold text-[#1B365D]'>
+					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
 						Maintenance Requests
 					</h1>
 					<p className='text-muted-foreground'>

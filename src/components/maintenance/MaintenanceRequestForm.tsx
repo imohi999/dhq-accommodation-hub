@@ -142,7 +142,7 @@ export function MaintenanceRequestForm({
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className='bg-white border rounded-lg p-6 mb-6 space-y-4 shadow-lg'>
+			className='bg-white dark:bg-card border rounded-lg p-6 mb-6 space-y-4 shadow-lg'>
 			<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 				<div>
 					<Label>Unit Name</Label>

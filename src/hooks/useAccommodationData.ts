@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { DHQLivingUnitWithHousingType, AccomodationType } from "@/types/accommodation";
+import { DHQLivingUnitWithHousingType, AccommodationType } from "@/types/accommodation";
 import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -97,7 +97,7 @@ export const useAccommodationData = () => {
         updatedAt: unit.updatedAt,
         accommodationType: unit.accommodationType,
         // Optional snake_case properties for backward compatibility
-        accomodation_type_id: unit.accommodationTypeId,
+        accommodation_type_id: unit.accommodationTypeId,
         no_of_rooms: unit.noOfRooms,
         type_of_occupancy: unit.typeOfOccupancy,
         no_of_rooms_in_bq: unit.noOfRoomsInBq,
@@ -124,7 +124,7 @@ export const useAccommodationData = () => {
   }, [unitsData]);
 
   // Transform accommodation types
-  const housingTypes: AccomodationType[] = housingTypesData?.map((ht) => ({
+  const housingTypes: AccommodationType[] = housingTypesData?.map((ht) => ({
     id: ht.id,
     name: ht.name,
     description: ht.description,

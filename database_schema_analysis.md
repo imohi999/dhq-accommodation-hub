@@ -50,7 +50,7 @@
 - `description` - TEXT
 - `created_at` - TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
-### accomodation_types
+### accommodation_types
 
 - `id` - UUID PRIMARY KEY (default: gen_random_uuid())
 - `name` - TEXT NOT NULL UNIQUE
@@ -63,7 +63,7 @@
 - `quarter_name` - TEXT NOT NULL
 - `location` - TEXT NOT NULL
 - `category` - TEXT NOT NULL
-- `accomodation_type_id` - UUID REFERENCES accomodation_types(id) NOT NULL
+- `accommodation_type_id` - UUID REFERENCES accommodation_types(id) NOT NULL
 - `no_of_rooms` - INTEGER NOT NULL DEFAULT 0
 - `status` - TEXT NOT NULL DEFAULT 'Vacant' CHECK IN ('Vacant', 'Occupied', 'Not In Use')
 - `type_of_occupancy` - TEXT NOT NULL DEFAULT 'Single' CHECK IN ('Single', 'Shared')
@@ -184,7 +184,7 @@
 1. **profiles.user_id** → auth.users(id) ON DELETE CASCADE
 2. **user_roles.user_id** → auth.users(id) ON DELETE CASCADE
 3. **user_roles.assigned_by** → auth.users(id)
-4. **dhq_living_units.accomodation_type_id** → accomodation_types(id)
+4. **dhq_living_units.accommodation_type_id** → accommodation_types(id)
 5. **unit_occupants.unit_id** → dhq_living_units(id) ON DELETE CASCADE
 6. **unit_history.unit_id** → dhq_living_units(id) ON DELETE CASCADE
 7. **unit_inventory.unit_id** → dhq_living_units(id) ON DELETE CASCADE
@@ -200,7 +200,7 @@
 - user_roles: (user_id, role)
 - queue: svc_no
 - units: name
-- accomodation_types: name
+- accommodation_types: name
 - allocation_requests: letter_id
 
 ### Check Constraints

@@ -43,7 +43,7 @@ This is a military accommodation management system with three main workflows:
 
 2. **Accommodation Units**: DHQ Accommodation management
 
-   - Accomodation types: 1BR, 2BR, 3BR, Duplex, Self-contained, Boys Quarter
+   - Accommodation types: 1BR, 2BR, 3BR, Duplex, Self-contained, Boys Quarter
    - Occupancy tracking and history
    - Maintenance and inventory management
 

@@ -6,7 +6,7 @@ export interface ImportData {
   "Quarter Name": string;
   "Location": string;
   "Category": string;
-  "Accomodation Type": string;
+  "Accommodation Type": string;
   "No of Rooms": string;
   "Status": string;
   "Type of Occupancy": string;
@@ -27,7 +27,7 @@ export const requiredFields = [
   "Quarter Name",
   "Location",
   "Category",
-  "Accomodation Type",
+  "Accommodation Type",
   "No of Rooms",
   "Block Name",
   "Flat/House/Room Name"
@@ -87,7 +87,7 @@ export const parseFile = (file: File): Promise<ImportData[]> => {
 
 export const downloadTemplate = (housingTypes: Array<{ id: string; name: string }>) => {
   const template = [
-    ["Quarter Name", "Location", "Category", "Accomodation Type", "No of Rooms", "Status", "Type of Occupancy", "BQ", "No of Rooms in BQ", "Block Name", "Flat/House/Room Name", "Unit Name"],
+    ["Quarter Name", "Location", "Category", "Accommodation Type", "No of Rooms", "Status", "Type of Occupancy", "BQ", "No of Rooms in BQ", "Block Name", "Flat/House/Room Name", "Unit Name"],
     ["Alpha Quarters", "North Block", "NCOs", housingTypes[0]?.name || "Officer Quarter", "3", "Vacant", "Single", "No", "0", "Block A", "Flat 101", "A-101"],
     ["Officer Quarters", "South Block", "Officer", housingTypes[0]?.name || "Officer Quarter", "4", "Occupied", "Single", "Yes", "1", "Block B", "House 201", "B-201"]
   ];

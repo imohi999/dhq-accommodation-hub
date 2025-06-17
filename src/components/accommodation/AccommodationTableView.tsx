@@ -37,7 +37,7 @@ export const AccommodationTableView = ({
 			"Quarter Name",
 			"Location",
 			"Category",
-			"Accomodation Type",
+			"Accommodation Type",
 			"No of Rooms",
 			"Status",
 			"Type of Occupancy",
@@ -138,7 +138,7 @@ export const AccommodationTableView = ({
 							<TableHead>Quarter Name</TableHead>
 							<TableHead>Location</TableHead>
 							<TableHead>Category</TableHead>
-							<TableHead>Accomodation Type</TableHead>
+							<TableHead>Accommodation Type</TableHead>
 							<TableHead>Rooms</TableHead>
 							<TableHead>Status</TableHead>
 							<TableHead>Occupancy</TableHead>

@@ -1,6 +1,6 @@
 
--- Create accomodation_types table
-CREATE TABLE public.accomodation_types (
+-- Create accommodation_types table
+CREATE TABLE public.accommodation_types (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
   description TEXT,
@@ -8,7 +8,7 @@ CREATE TABLE public.accomodation_types (
 );
 
 -- Insert the 5 predefined accommodation types
-INSERT INTO public.accomodation_types (name, description) VALUES
+INSERT INTO public.accommodation_types (name, description) VALUES
 ('One Bedroom Self Contained', 'Single bedroom with private facilities'),
 ('One Bedroom Flat', 'One bedroom apartment'),
 ('Two Bedroom Flat', 'Two bedroom apartment'),
@@ -21,7 +21,7 @@ CREATE TABLE public.dhq_living_units (
   quarter_name TEXT NOT NULL,
   location TEXT NOT NULL,
   category TEXT NOT NULL,
-  accomodation_type_id UUID REFERENCES public.accomodation_types(id) NOT NULL,
+  accommodation_type_id UUID REFERENCES public.accommodation_types(id) NOT NULL,
   no_of_rooms INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'Vacant' CHECK (status IN ('Vacant', 'Occupied')),
   type_of_occupancy TEXT NOT NULL DEFAULT 'Single' CHECK (type_of_occupancy IN ('Single', 'Shared')),
@@ -54,11 +54,11 @@ CREATE TRIGGER generate_unit_name_trigger
 
 -- Insert some dummy data
 INSERT INTO public.dhq_living_units (
-  quarter_name, location, category, accomodation_type_id, no_of_rooms, status, 
+  quarter_name, location, category, accommodation_type_id, no_of_rooms, status, 
   type_of_occupancy, bq, no_of_rooms_in_bq, block_name, flat_house_room_name
 ) VALUES
-('Officers Quarter A', 'Main Base', 'Officer', (SELECT id FROM accomodation_types WHERE name = 'Three Bedroom Flat'), 3, 'Occupied', 'Single', true, 2, 'Block A', 'Flat 101'),
-('Soldiers Quarter B', 'East Wing', 'NCOs', (SELECT id FROM accomodation_types WHERE name = 'One Bedroom Flat'), 1, 'Vacant', 'Single', false, 0, 'Block B', 'Room 201'),
-('Officers Quarter C', 'West Wing', 'Officer', (SELECT id FROM accomodation_types WHERE name = 'Duplex'), 4, 'Occupied', 'Single', true, 1, 'Block C', 'House 301'),
-('Navy Quarter D', 'Naval Base', 'Officer', (SELECT id FROM accomodation_types WHERE name = 'Two Bedroom Flat'), 2, 'Vacant', 'Shared', false, 0, 'Block D', 'Flat 401'),
-('Air Force Quarter E', 'Air Base', 'Officer', (SELECT id FROM accomodation_types WHERE name = 'One Bedroom Self Contained'), 1, 'Occupied', 'Single', false, 0, 'Block E', 'Unit 501');
+('Officers Quarter A', 'Main Base', 'Officer', (SELECT id FROM accommodation_types WHERE name = 'Three Bedroom Flat'), 3, 'Occupied', 'Single', true, 2, 'Block A', 'Flat 101'),
+('Soldiers Quarter B', 'East Wing', 'NCOs', (SELECT id FROM accommodation_types WHERE name = 'One Bedroom Flat'), 1, 'Vacant', 'Single', false, 0, 'Block B', 'Room 201'),
+('Officers Quarter C', 'West Wing', 'Officer', (SELECT id FROM accommodation_types WHERE name = 'Duplex'), 4, 'Occupied', 'Single', true, 1, 'Block C', 'House 301'),
+('Navy Quarter D', 'Naval Base', 'Officer', (SELECT id FROM accommodation_types WHERE name = 'Two Bedroom Flat'), 2, 'Vacant', 'Shared', false, 0, 'Block D', 'Flat 401'),
+('Air Force Quarter E', 'Air Base', 'Officer', (SELECT id FROM accommodation_types WHERE name = 'One Bedroom Self Contained'), 1, 'Occupied', 'Single', false, 0, 'Block E', 'Unit 501');

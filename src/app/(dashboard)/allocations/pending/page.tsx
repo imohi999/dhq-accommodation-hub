@@ -64,7 +64,7 @@ interface Personnel {
 }
 
 // Interface for accommodation type
-interface AccomodationType {
+interface AccommodationType {
 	id: string;
 	name: string;
 	description: string;
@@ -94,7 +94,7 @@ interface Unit {
 	occupancyStartDate: string | null;
 	createdAt: string;
 	updatedAt: string;
-	accommodationType: AccomodationType;
+	accommodationType: AccommodationType;
 }
 
 // Main allocation request interface from API

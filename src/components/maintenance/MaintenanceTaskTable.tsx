@@ -51,7 +51,7 @@ export function MaintenanceTaskTable({
 	}
 
 	return (
-		<div className='rounded-lg overflow-x-auto border shadow-sm bg-white'>
+		<div className='rounded-lg overflow-x-auto border shadow-sm dark:bg-card'>
 			<table className='min-w-full text-sm'>
 				<thead>
 					<tr className='bg-muted text-foreground'>
@@ -67,7 +67,7 @@ export function MaintenanceTaskTable({
 				</thead>
 				<tbody>
 					{tasks.map((task) => (
-						<tr key={task.id} className='border-b hover:bg-gray-50'>
+						<tr key={task.id} className='border-b hover:bg-muted/50'>
 							<td className='p-3'>{task.unitName}</td>
 							<td className='p-3 font-medium'>{task.taskName}</td>
 							<td className='p-3 max-w-xs break-words'>
@@ -87,10 +87,10 @@ export function MaintenanceTaskTable({
 								<span
 									className={`px-2 py-1 rounded-full text-xs font-medium ${
 										task.status === "Completed"
-											? "bg-green-100 text-green-800"
+											? "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"
 											: task.status === "Overdue"
-											? "bg-red-100 text-red-800"
-											: "bg-yellow-100 text-yellow-800"
+											? "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400"
+											: "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400"
 									}`}>
 									{task.status}
 								</span>

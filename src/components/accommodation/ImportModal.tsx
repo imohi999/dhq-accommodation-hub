@@ -75,14 +75,14 @@ export const ImportModal = ({
 			// Prepare data for insertion
 			const insertData = parsedData.map((row) => {
 				const accommodationType = housingTypes.find(
-					(ht) => ht.name === row["Accomodation Type"]
+					(ht) => ht.name === row["Accommodation Type"]
 				);
 
 				return {
 					quarter_name: row["Quarter Name"],
 					location: row["Location"],
 					category: row["Category"],
-					accomodation_type_id: accommodationType?.id || "",
+					accommodation_type_id: accommodationType?.id || "",
 					no_of_rooms: parseInt(row["No of Rooms"]) || 0,
 					status: row["Status"] || "Vacant",
 					type_of_occupancy: row["Type of Occupancy"] || "Single",

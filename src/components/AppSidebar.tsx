@@ -95,7 +95,7 @@ const menuItems = [
 				url: "/accommodations/units",
 			},
 			{
-				title: "Accomodation Types",
+				title: "Accommodation Types",
 				url: "/accommodations/types",
 			},
 		],

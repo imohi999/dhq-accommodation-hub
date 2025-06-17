@@ -1,5 +1,5 @@
 
-export interface AccomodationType {
+export interface AccommodationType {
   id: string;
   name: string;
   description?: string | null;
@@ -29,7 +29,7 @@ export interface DHQLivingUnit {
   createdAt: string;
   updatedAt: string;
   // Snake case versions for backward compatibility
-  accomodation_type_id?: string;
+  accommodation_type_id?: string;
   no_of_rooms?: number;
   type_of_occupancy?: string;
   no_of_rooms_in_bq?: number;
@@ -46,8 +46,8 @@ export interface DHQLivingUnit {
 }
 
 export interface DHQLivingUnitWithHousingType extends DHQLivingUnit {
-  accommodationType?: AccomodationType;
-  housing_type?: AccomodationType;
+  accommodationType?: AccommodationType;
+  housing_type?: AccommodationType;
 }
 
 export interface UnitOccupant {
