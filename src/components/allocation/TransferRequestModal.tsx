@@ -198,7 +198,7 @@ export const TransferRequestModal = ({
 						{availableUnits.length === 0 ? (
 							<Card>
 								<CardContent className='p-8 text-center'>
-									<p className='text-gray-500'>
+									<p className='text-muted-foreground'>
 										No vacant {currentUnit.category.toLowerCase()} units
 										available
 									</p>

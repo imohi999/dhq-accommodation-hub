@@ -322,7 +322,7 @@ export function MaintenanceTaskForm({
 						</div>
 					</div>
 
-					<div className='mt-2 text-sm text-gray-600'>
+					<div className='mt-2 text-sm text-muted-foreground'>
 						Selected: {selectedUnits.length} unit(s)
 					</div>
 				</div>

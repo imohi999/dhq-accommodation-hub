@@ -152,7 +152,7 @@ export const PastAllocationsView = () => {
 			{pastAllocations.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
-						<p className='text-gray-500'>No past allocations found</p>
+						<p className='text-muted-foreground'>No past allocations found</p>
 					</CardContent>
 				</Card>
 			) : (

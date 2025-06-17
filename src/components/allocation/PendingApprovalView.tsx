@@ -292,7 +292,7 @@ export const PendingApprovalView = ({
 			{requests.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
-						<p className='text-gray-500'>No pending allocation requests</p>
+						<p className='text-muted-foreground'>No pending allocation requests</p>
 					</CardContent>
 				</Card>
 			) : (

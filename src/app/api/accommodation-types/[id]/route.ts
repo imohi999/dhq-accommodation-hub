@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handlePrismaError } from "@/lib/prisma-utils";
 
-// GET: Get single accomodation type
+// GET: Get single accommodation type
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -13,14 +13,14 @@ export async function GET(
       include: {
         _count: {
           select: {
-            livingUnits: true
+            dhq_living_units: true
           }
         }
       }
     });
 
     if (!accommodationType) {
-      return NextResponse.json({ error: "Accomodation type not found" }, { status: 404 });
+      return NextResponse.json({ error: "Accommodation type not found" }, { status: 404 });
     }
 
     return NextResponse.json(accommodationType);
@@ -30,7 +30,7 @@ export async function GET(
   }
 }
 
-// PUT: Update accomodation type
+// PUT: Update accommodation type
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -50,20 +50,20 @@ export async function PUT(
   }
 }
 
-// DELETE: Delete accomodation type
+// DELETE: Delete accommodation type
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check if accomodation type has units
+    // Check if accommodation type has units
     const unitCount = await prisma.dhqLivingUnit.count({
-      where: { accomodationTypeId: params.id }
+      where: { accommodationTypeId: params.id }
     });
 
     if (unitCount > 0) {
       return NextResponse.json(
-        { error: "Cannot delete accomodation type with existing units" },
+        { error: "Cannot delete accommodation type with existing units" },
         { status: 400 }
       );
     }

@@ -367,7 +367,7 @@ export const ActiveAllocationsView = ({
 			{occupiedUnits.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
-						<p className='text-gray-500'>No active allocations</p>
+						<p className='text-muted-foreground'>No active allocations</p>
 					</CardContent>
 				</Card>
 			) : (

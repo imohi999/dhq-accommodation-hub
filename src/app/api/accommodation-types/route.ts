@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handlePrismaError } from "@/lib/prisma-utils";
 
-// GET: List all accomodation types
+// GET: List all accommodation types
 export async function GET() {
   try {
     const housingTypes = await prisma.accommodationType.findMany({
@@ -25,7 +25,7 @@ export async function GET() {
   }
 }
 
-// POST: Create new accomodation type
+// POST: Create new accommodation type
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
