@@ -38,6 +38,8 @@ import {
 	SidebarFooter,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const menuItems = [
 	{
@@ -54,7 +56,7 @@ const menuItems = [
 				url: "/queue/list",
 			},
 			{
-				title: "Quarters",
+				title: "Current Units",
 				url: "/queue/units",
 			},
 		],
@@ -135,6 +137,8 @@ const menuItems = [
 ];
 
 export function AppSidebar() {
+	const pathname = usePathname();
+
 	return (
 		<Sidebar>
 			<SidebarHeader className='border-b border-border p-4'>
@@ -153,34 +157,55 @@ export function AppSidebar() {
 				<SidebarGroup>
 					<SidebarGroupContent>
 						<SidebarMenu>
-							{menuItems.map((item) => (
-								<SidebarMenuItem key={item.title}>
-									{item.items ? (
-										<>
-											<SidebarMenuButton>
-												<item.icon />
-												<span>{item.title}</span>
+							{menuItems.map((item) => {
+								const isActive = item.url ? pathname === item.url : false;
+								const hasActiveSubItem = item.items?.some(subItem => pathname === subItem.url);
+								
+								return (
+									<SidebarMenuItem key={item.title}>
+										{item.items ? (
+											<>
+												<SidebarMenuButton className={cn(hasActiveSubItem && "bg-accent")}>
+													<item.icon />
+													<span>{item.title}</span>
+												</SidebarMenuButton>
+												<SidebarMenuSub>
+													{item.items.map((subItem) => {
+														const isSubItemActive = pathname === subItem.url;
+														
+														return (
+															<SidebarMenuSubItem key={subItem.title}>
+																<SidebarMenuSubButton asChild>
+																	<Link 
+																		href={subItem.url}
+																		className={cn(
+																			isSubItemActive && "bg-accent text-accent-foreground font-medium"
+																		)}
+																	>
+																		{subItem.title}
+																	</Link>
+																</SidebarMenuSubButton>
+															</SidebarMenuSubItem>
+														);
+													})}
+												</SidebarMenuSub>
+											</>
+										) : (
+											<SidebarMenuButton asChild>
+												<Link 
+													href={item.url}
+													className={cn(
+														isActive && "bg-accent text-accent-foreground font-medium"
+													)}
+												>
+													<item.icon />
+													<span>{item.title}</span>
+												</Link>
 											</SidebarMenuButton>
-											<SidebarMenuSub>
-												{item.items.map((subItem) => (
-													<SidebarMenuSubItem key={subItem.title}>
-														<SidebarMenuSubButton asChild>
-															<Link href={subItem.url}>{subItem.title}</Link>
-														</SidebarMenuSubButton>
-													</SidebarMenuSubItem>
-												))}
-											</SidebarMenuSub>
-										</>
-									) : (
-										<SidebarMenuButton asChild>
-											<Link href={item.url}>
-												<item.icon />
-												<span>{item.title}</span>
-											</Link>
-										</SidebarMenuButton>
-									)}
-								</SidebarMenuItem>
-							))}
+										)}
+									</SidebarMenuItem>
+								);
+							})}
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>

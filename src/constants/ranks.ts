@@ -2,86 +2,92 @@
 export const RANK_OPTIONS = {
   Army: {
     NCOs: [
-      "Private",
-      "Lance Corporal",
-      "Corporal",
-      "Sergeant",
-      "Staff Sergeant",
-      "Warrant Officer",
-      "Master Warrant Officer",
-      "Army Warrant Officer"
+      "Pte",
+      "LCpl",
+      "Cpl",
+      "Sgt",
+      "SSgt",
+      "WO",
+      "MWO",
+      "AWO"
     ],
     Officer: [
-      "Second Lieutenant",
-      "Lieutenant",
-      "Captain",
-      "Major",
-      "Lieutenant Colonel",
-      "Colonel",
-      "Brigadier General",
-      "Major General",
-      "Lieutenant General",
-      "General",
+      "2nd Lt",
+      "Lt",
+      "Capt",
+      "Maj",
+      "Lt Col",
+      "Col",
+      "Brig Gen",
+      "Maj Gen",
+      "Lt Gen",
+      "Gen",
       "Field Marshal"
     ]
   },
   Navy: {
     NCOs: [
-      "Ordinary Seaman",
-      "Seaman",
-      "Able Seaman",
-      "Leading Seaman",
-      "Warrant Officer",
-      "Master Warrant Officer",
-      "Navy Warrant Officer"
+      "OS",
+      "SM",
+      "AB",
+      "LS",
+      "PO",
+      "WO",
+      "MWO",
+      "NWO"
     ],
     Officer: [
-      "Sub-Lieutenant",
-      "Lieutenant",
-      "Lieutenant Commander",
-      "Commander",
-      "Captain",
-      "Commodore",
-      "Rear Admiral",
-      "Vice Admiral",
-      "Admiral",
-      "Admiral of the Fleet"
+      "SLt",
+      "Lt",
+      "Lt Cdr",
+      "Cdr",
+      "Capt",
+      "Cdre",
+      "R Adm",
+      "V Adm",
+      "Adm",
+      "AF"
     ]
   },
   "Air Force": {
     NCOs: [
-      "Aircraftman/Aircraftwoman",
-      "Lance Corporal",
-      "Corporal",
-      "Sergeant",
-      "Flight Sergeant",
-      "Warrant Officer",
-      "Master Warrant Officer",
-      "Air Warrant Officer"
+      "ACM/ACW",
+      "LCpl",
+      "Cpl",
+      "Sgt",
+      "FS",
+      "WO",
+      "MWO",
+      "AWO"
     ],
     Officer: [
-      "Pilot Officer",
-      "Flying Officer",
-      "Flight Lieutenant",
-      "Squadron Leader",
-      "Wing Commander",
-      "Group Captain",
-      "Air Commodore",
-      "Air Vice Marshal",
-      "Air Marshal",
-      "Air Chief Marshal",
-      "Marshal of the Air Force"
+      "Plt Offr",
+      "Fg Offr",
+      "Flt Lt",
+      "Sqn Ldr",
+      "Wg Cdr",
+      "Gp Capt",
+      "Air Cdre",
+      "AVM",
+      "Air Mshl",
+      "Air Chf Mshl",
+      "MNAF"
     ]
   }
 };
 
-export const getRankOptions = (armOfService: string, category: string) => {
+export const getRankOptions = (armOfService: string, category: string): string[] => {
   if (!armOfService || !category) {
     return [];
   }
 
-  const serviceKey = armOfService as keyof typeof RANK_OPTIONS;
-  const categoryKey = category as keyof typeof RANK_OPTIONS[typeof serviceKey];
+  const service = RANK_OPTIONS[armOfService as keyof typeof RANK_OPTIONS];
+  
+  if (!service) {
+    return [];
+  }
 
-  return RANK_OPTIONS[serviceKey]?.[categoryKey] || [];
+  const ranks = service[category as keyof typeof service];
+
+  return ranks || [];
 };

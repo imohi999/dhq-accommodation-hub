@@ -3,6 +3,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { QueueFormData, Unit } from "@/types/queue";
+import { useState } from "react";
+import { Search } from "lucide-react";
 
 interface UnitAndDatesFieldsProps {
   formData: QueueFormData;
@@ -11,16 +13,31 @@ interface UnitAndDatesFieldsProps {
 }
 
 export const UnitAndDatesFields = ({ formData, units, onInputChange }: UnitAndDatesFieldsProps) => {
+  const [unitSearchTerm, setUnitSearchTerm] = useState("");
+  
+  const filteredUnits = units.filter(unit => 
+    unit.name.toLowerCase().includes(unitSearchTerm.toLowerCase())
+  );
+
   return (
     <>
       <div className="space-y-2">
         <Label htmlFor="current_unit">Current Unit</Label>
+        <div className="relative mb-2">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search units..."
+            value={unitSearchTerm}
+            onChange={(e) => setUnitSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
         <Select value={formData.current_unit} onValueChange={(value) => onInputChange("current_unit", value)}>
           <SelectTrigger>
             <SelectValue placeholder="Select unit" />
           </SelectTrigger>
           <SelectContent>
-            {units.map((unit) => (
+            {filteredUnits.map((unit) => (
               <SelectItem key={unit.id} value={unit.name}>
                 {unit.name}
               </SelectItem>
