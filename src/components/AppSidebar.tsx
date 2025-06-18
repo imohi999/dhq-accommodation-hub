@@ -85,7 +85,7 @@ const menuItems = [
 	},
 	{
 		title: "Directory",
-		url: "/allocations/directory",
+		url: "/directory",
 		icon: Users,
 	},
 	{

@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         accommodationType: true,
+        occupants: true
       },
       orderBy: {
         createdAt: 'desc',
