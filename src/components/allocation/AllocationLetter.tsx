@@ -408,7 +408,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Signature - Removed stamp image box, only text */}
-					<div className='text-left mt-12 mr-28 flex justify-end'>
+					<div className='text-left mt-12 mr-[72px] flex justify-end'>
 						{activeStamp && (
 							<div className='text-sm'>
 								<p className='font-bold'>{activeStamp.stamp_name}</p>
