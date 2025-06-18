@@ -87,6 +87,7 @@ export const AllocationLetter = ({
 								.text-justify { text-align: justify; }
 								.mr-20 { margin-right: 5rem; }
 								.mr-24 { margin-right: 6rem; }
+								.mr-28 { margin-right: 7rem; }
                 .mb-4 { margin-bottom: 1rem; }
                 .mb-8 { margin-bottom: 2rem; }
                 .mb-2 { margin-bottom: 0.5rem; }
@@ -101,6 +102,10 @@ export const AllocationLetter = ({
                 
                 .justify-center {
                   justify-content: center;
+                }
+                
+                .justify-end {
+                  justify-content: flex-end;
                 }
                 
                 .relative {
@@ -336,7 +341,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Date and Time */}
-					<div className='text-right mb-6 mr-24'>
+					<div className='text-right mb-6 mr-28'>
 						<p>{currentDate}</p>
 					</div>
 
@@ -403,7 +408,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Signature - Removed stamp image box, only text */}
-					<div className='text-right mt-12 mr-24'>
+					<div className='text-left mt-12 mr-28 flex justify-end'>
 						{activeStamp && (
 							<div className='text-sm'>
 								<p className='font-bold'>{activeStamp.stamp_name}</p>
