@@ -20,9 +20,11 @@ import {
 	Building2,
 	Users,
 	Briefcase,
+	AlertTriangle,
 } from "lucide-react";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { AllocationLetter } from "./AllocationLetter";
+import { EvictionNotice } from "./EvictionNotice";
 import { TransferRequestModal } from "./TransferRequestModal";
 import { toast } from "react-toastify";
 import { mutate } from "swr";
@@ -53,6 +55,14 @@ export const ActiveAllocationsView = ({
 	});
 
 	const [transferModal, setTransferModal] = useState<{
+		isOpen: boolean;
+		unit: DHQLivingUnitWithHousingType | null;
+	}>({
+		isOpen: false,
+		unit: null,
+	});
+
+	const [evictionNotice, setEvictionNotice] = useState<{
 		isOpen: boolean;
 		unit: DHQLivingUnitWithHousingType | null;
 	}>({
@@ -136,6 +146,13 @@ export const ActiveAllocationsView = ({
 
 	const handleTransferClick = (unit: DHQLivingUnitWithHousingType) => {
 		setTransferModal({
+			isOpen: true,
+			unit,
+		});
+	};
+
+	const handleEvictionNoticeClick = (unit: DHQLivingUnitWithHousingType) => {
+		setEvictionNotice({
 			isOpen: true,
 			unit,
 		});
@@ -437,6 +454,15 @@ export const ActiveAllocationsView = ({
 										<Button
 											variant='outline'
 											size='sm'
+											onClick={() => handleEvictionNoticeClick(unit)}
+											className='flex items-center gap-2'>
+											<AlertTriangle className='h-4 w-4' />
+											Eviction Notice
+										</Button>
+
+										<Button
+											variant='outline'
+											size='sm'
 											onClick={() => handleTransferClick(unit)}
 											className='flex items-center gap-2'>
 											<ArrowRightLeft className='h-4 w-4' />
@@ -540,6 +566,15 @@ export const ActiveAllocationsView = ({
 					onClose={() => setTransferModal({ isOpen: false, unit: null })}
 					currentUnit={transferModal.unit}
 					mutate={mutate}
+				/>
+			)}
+
+			{/* Eviction Notice Modal */}
+			{evictionNotice.unit && (
+				<EvictionNotice
+					isOpen={evictionNotice.isOpen}
+					onClose={() => setEvictionNotice({ isOpen: false, unit: null })}
+					unit={createMockAllocationRequest(evictionNotice.unit)}
 				/>
 			)}
 		</div>
