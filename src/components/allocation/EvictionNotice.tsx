@@ -91,6 +91,7 @@ export const EvictionNotice = ({
                 .mr-20 { margin-right: 5rem; }
                 .mr-24 { margin-right: 6rem; }
                 .mr-28 { margin-right: 7rem; }
+								.mr-40 { margin-right: 10rem; }
                 .mb-4 { margin-bottom: 1rem; }
                 .mb-8 { margin-bottom: 2rem; }
                 .mb-2 { margin-bottom: 0.5rem; }
@@ -388,7 +389,7 @@ export const EvictionNotice = ({
 						</div>
 
 						{/* Signature on right */}
-						<div className='text-left flex justify-end mr-28'>
+						<div className='text-left flex justify-end mr-40'>
 							{activeStamp && (
 								<div className='text-sm'>
 									<p className='font-bold'>{activeStamp.stamp_name}</p>
