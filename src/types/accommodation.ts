@@ -93,6 +93,7 @@ export interface UnitInventory {
 export interface UnitMaintenance {
   id: string;
   unit_id: string | null;
+  record_type?: string;
   maintenance_type: string;
   description: string;
   maintenance_date: string;

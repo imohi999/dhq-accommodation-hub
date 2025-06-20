@@ -18,7 +18,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Wrench, Calendar, DollarSign } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Edit, Trash2, Wrench, Calendar, DollarSign, AlertCircle, ListChecks } from "lucide-react";
 import { toast } from "react-toastify";
 import { UnitMaintenance } from "@/types/accommodation";
 import useSWR, { mutate } from "swr";
@@ -42,6 +43,8 @@ export const MaintenanceModal = ({
 	const [showForm, setShowForm] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isDeleting, setIsDeleting] = useState<string | null>(null);
+	const [activeTab, setActiveTab] = useState("all");
+	const [recordType, setRecordType] = useState<"request" | "task" | null>(null);
 	const [formData, setFormData] = useState({
 		maintenance_type: "",
 		description: "",
@@ -81,6 +84,7 @@ export const MaintenanceModal = ({
 			const dataToSubmit = {
 				...formData,
 				unit_id: unitId,
+				record_type: recordType || (editingItem?.record_type) || "request",
 			};
 
 			if (editingItem) {
@@ -147,6 +151,7 @@ export const MaintenanceModal = ({
 
 	const handleEdit = (item: UnitMaintenance) => {
 		setEditingItem(item);
+		setRecordType(item.record_type as "request" | "task" || "request");
 		setFormData({
 			maintenance_type: item.maintenance_type,
 			description: item.description,
@@ -162,6 +167,7 @@ export const MaintenanceModal = ({
 
 	const resetForm = () => {
 		setEditingItem(null);
+		setRecordType(null);
 		setFormData({
 			maintenance_type: "",
 			description: "",
@@ -179,6 +185,110 @@ export const MaintenanceModal = ({
 		return new Date(dateString).toLocaleDateString();
 	};
 
+	const openCreateForm = (type: "request" | "task") => {
+		setRecordType(type);
+		setShowForm(true);
+		// Set appropriate defaults based on type
+		if (type === "task") {
+			setFormData(prev => ({
+				...prev,
+				status: "Scheduled",
+				maintenance_type: "Preventive Maintenance",
+			}));
+		} else {
+			setFormData(prev => ({
+				...prev,
+				status: "Pending",
+				maintenance_type: "",
+			}));
+		}
+	};
+
+	// Maintenance item component
+	const MaintenanceItem = ({ item }: { item: UnitMaintenance }) => (
+		<div className='border rounded-lg p-4'>
+			<div className='flex items-start justify-between mb-3'>
+				<div className='space-y-1'>
+					<div className='flex items-center gap-2'>
+						{item.record_type === "task" ? (
+							<ListChecks className='h-4 w-4 text-blue-600' />
+						) : (
+							<AlertCircle className='h-4 w-4 text-orange-600' />
+						)}
+						<h4 className='font-semibold'>
+							{item.maintenance_type}
+						</h4>
+						<Badge
+							variant={
+								item.status === "Completed"
+									? "default"
+									: item.status === "In Progress"
+									? "secondary"
+									: "outline"
+							}>
+							{item.status}
+						</Badge>
+						<Badge
+							variant={
+								item.priority === "High"
+									? "destructive"
+									: item.priority === "Medium"
+									? "secondary"
+									: "outline"
+							}>
+							{item.priority}
+						</Badge>
+					</div>
+					<p className='text-sm text-muted-foreground'>
+						{item.description}
+					</p>
+				</div>
+				<div className='flex gap-1'>
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={() => handleEdit(item)}>
+						<Edit className='h-3 w-3' />
+					</Button>
+					<LoadingButton
+						variant='outline'
+						size='sm'
+						onClick={() => handleDelete(item.id)}
+						loading={isDeleting === item.id}
+						disabled={!!isDeleting}>
+						<Trash2 className='h-3 w-3' />
+					</LoadingButton>
+				</div>
+			</div>
+
+			<div className='grid grid-cols-3 gap-4 text-sm'>
+				<div className='flex items-center gap-1'>
+					<Calendar className='h-3 w-3 text-muted-foreground' />
+					<span>{formatDate(item.maintenance_date)}</span>
+				</div>
+				<div>
+					<span className='text-muted-foreground'>
+						{item.record_type === "task" ? "Assigned to:" : "Reported by:"}
+					</span>{" "}
+					{item.performed_by}
+				</div>
+				{item.cost && (
+					<div className='flex items-center gap-1'>
+						<DollarSign className='h-3 w-3 text-muted-foreground' />
+						<span>{item.cost.toFixed(2)}</span>
+					</div>
+				)}
+			</div>
+
+			{item.remarks && (
+				<div className='mt-2 text-sm'>
+					<span className='text-muted-foreground'>Remarks:</span>
+					<p className='mt-1'>{item.remarks}</p>
+				</div>
+			)}
+		</div>
+	);
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className='max-w-4xl max-h-[80vh] overflow-y-auto'>
@@ -189,26 +299,48 @@ export const MaintenanceModal = ({
 					</DialogTitle>
 				</DialogHeader>
 
-				<div className='space-y-4'>
-					<div className='flex justify-between items-center'>
-						<h3 className='text-lg font-semibold'>
-							Records ({maintenance.length})
-						</h3>
-						<Button
-							onClick={() => setShowForm(true)}
-							className='flex items-center gap-2'>
-							<Plus className='h-4 w-4' />
-							Add Record
-						</Button>
+				<Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
+					<div className='flex justify-between items-center mb-4'>
+						<TabsList className='grid w-fit grid-cols-3'>
+							<TabsTrigger value='all'>All ({maintenance.length})</TabsTrigger>
+							<TabsTrigger value='requests'>
+								<AlertCircle className='h-4 w-4 mr-1' />
+								Requests ({maintenance.filter(m => m.record_type === 'request').length})
+							</TabsTrigger>
+							<TabsTrigger value='tasks'>
+								<ListChecks className='h-4 w-4 mr-1' />
+								Tasks ({maintenance.filter(m => m.record_type === 'task').length})
+							</TabsTrigger>
+						</TabsList>
+						<div className='flex gap-2'>
+							<Button
+								onClick={() => openCreateForm('request')}
+								className='flex items-center gap-2'
+								variant='outline'>
+								<AlertCircle className='h-4 w-4' />
+								New Request
+							</Button>
+							<Button
+								onClick={() => openCreateForm('task')}
+								className='flex items-center gap-2'>
+								<Plus className='h-4 w-4' />
+								New Task
+							</Button>
+						</div>
 					</div>
 
 					{showForm && (
 						<form
 							onSubmit={handleSubmit}
-							className='border rounded-lg p-4 space-y-4'>
-							<h4 className='font-semibold'>
-								{editingItem ? "Edit Record" : "Add New Record"}
-							</h4>
+							className='border rounded-lg p-4 space-y-4 mb-4'>
+							<div className='flex items-center gap-2'>
+								<h4 className='font-semibold'>
+									{editingItem ? "Edit" : "Add New"} {recordType === "task" ? "Task" : "Request"}
+								</h4>
+								<Badge variant={recordType === "task" ? "default" : "secondary"}>
+									{recordType === "task" ? "Scheduled Task" : "Maintenance Request"}
+								</Badge>
+							</div>
 
 							<div className='grid grid-cols-2 gap-4'>
 								<div>
@@ -258,7 +390,9 @@ export const MaintenanceModal = ({
 
 							<div className='grid grid-cols-2 gap-4'>
 								<div>
-									<Label htmlFor='performed_by'>Performed By</Label>
+									<Label htmlFor='performed_by'>
+										{recordType === "task" ? "Assigned To" : "Reported By"}
+									</Label>
 									<Input
 										id='performed_by'
 										value={formData.performed_by}
@@ -299,6 +433,7 @@ export const MaintenanceModal = ({
 											<SelectItem value='Completed'>Completed</SelectItem>
 											<SelectItem value='In Progress'>In Progress</SelectItem>
 											<SelectItem value='Scheduled'>Scheduled</SelectItem>
+											<SelectItem value='Pending'>Pending</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
@@ -335,7 +470,7 @@ export const MaintenanceModal = ({
 
 							<div className='flex gap-2'>
 								<LoadingButton type='submit' loading={isSubmitting}>
-									{editingItem ? "Update Record" : "Add Record"}
+									{editingItem ? "Update" : "Add"} {recordType === "task" ? "Task" : "Request"}
 								</LoadingButton>
 								<Button type='button' variant='outline' onClick={resetForm}>
 									Cancel
@@ -344,99 +479,71 @@ export const MaintenanceModal = ({
 						</form>
 					)}
 
-					<div className='space-y-3'>
+					<TabsContent value='all' className='space-y-3 mt-4'>
 						{isLoading ? (
 							<div className='text-center py-4'>
 								Loading maintenance records...
 							</div>
 						) : maintenance.length > 0 ? (
 							maintenance.map((item) => (
-								<div key={item.id} className='border rounded-lg p-4'>
-									<div className='flex items-start justify-between mb-3'>
-										<div className='space-y-1'>
-											<div className='flex items-center gap-2'>
-												<h4 className='font-semibold'>
-													{item.maintenance_type}
-												</h4>
-												<Badge
-													variant={
-														item.status === "Completed"
-															? "default"
-															: item.status === "In Progress"
-															? "secondary"
-															: "outline"
-													}>
-													{item.status}
-												</Badge>
-												<Badge
-													variant={
-														item.priority === "High"
-															? "destructive"
-															: item.priority === "Medium"
-															? "secondary"
-															: "outline"
-													}>
-													{item.priority}
-												</Badge>
-											</div>
-											<p className='text-sm text-muted-foreground'>
-												{item.description}
-											</p>
-										</div>
-										<div className='flex gap-1'>
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => handleEdit(item)}>
-												<Edit className='h-3 w-3' />
-											</Button>
-											<LoadingButton
-												variant='outline'
-												size='sm'
-												onClick={() => handleDelete(item.id)}
-												loading={isDeleting === item.id}
-												disabled={!!isDeleting}>
-												<Trash2 className='h-3 w-3' />
-											</LoadingButton>
-										</div>
-									</div>
-
-									<div className='grid grid-cols-3 gap-4 text-sm'>
-										<div className='flex items-center gap-1'>
-											<Calendar className='h-3 w-3 text-muted-foreground' />
-											<span>{formatDate(item.maintenance_date)}</span>
-										</div>
-										<div>
-											<span className='text-muted-foreground'>By:</span>{" "}
-											{item.performed_by}
-										</div>
-										{item.cost && (
-											<div className='flex items-center gap-1'>
-												<DollarSign className='h-3 w-3 text-muted-foreground' />
-												<span>{item.cost.toFixed(2)}</span>
-											</div>
-										)}
-									</div>
-
-									{item.remarks && (
-										<div className='mt-2 text-sm'>
-											<span className='text-muted-foreground'>Remarks:</span>
-											<p className='mt-1'>{item.remarks}</p>
-										</div>
-									)}
-								</div>
+								<MaintenanceItem key={item.id} item={item} />
 							))
 						) : (
 							<div className='text-center py-8 text-muted-foreground'>
 								<Wrench className='h-12 w-12 mx-auto mb-4 opacity-50' />
 								<p>No maintenance records found for this unit.</p>
-								<Button onClick={() => setShowForm(true)} className='mt-2'>
-									Add First Record
+								<div className='flex gap-2 justify-center mt-2'>
+									<Button onClick={() => openCreateForm('request')} variant='outline'>
+										Create Request
+									</Button>
+									<Button onClick={() => openCreateForm('task')}>
+										Schedule Task
+									</Button>
+								</div>
+							</div>
+						)}
+					</TabsContent>
+
+					<TabsContent value='requests' className='space-y-3 mt-4'>
+						{isLoading ? (
+							<div className='text-center py-4'>
+								Loading maintenance records...
+							</div>
+						) : maintenance.filter(m => m.record_type === 'request').length > 0 ? (
+							maintenance.filter(m => m.record_type === 'request').map((item) => (
+								<MaintenanceItem key={item.id} item={item} />
+							))
+						) : (
+							<div className='text-center py-8 text-muted-foreground'>
+								<AlertCircle className='h-12 w-12 mx-auto mb-4 opacity-50' />
+								<p>No maintenance requests found.</p>
+								<Button onClick={() => openCreateForm('request')} className='mt-2'>
+									Create First Request
 								</Button>
 							</div>
 						)}
-					</div>
-				</div>
+					</TabsContent>
+
+					<TabsContent value='tasks' className='space-y-3 mt-4'>
+						{isLoading ? (
+							<div className='text-center py-4'>
+								Loading maintenance records...
+							</div>
+						) : maintenance.filter(m => m.record_type === 'task').length > 0 ? (
+							maintenance.filter(m => m.record_type === 'task').map((item) => (
+								<MaintenanceItem key={item.id} item={item} />
+							))
+						) : (
+							<div className='text-center py-8 text-muted-foreground'>
+								<ListChecks className='h-12 w-12 mx-auto mb-4 opacity-50' />
+								<p>No scheduled maintenance tasks found.</p>
+								<Button onClick={() => openCreateForm('task')} className='mt-2'>
+									Schedule First Task
+								</Button>
+							</div>
+						)}
+					</TabsContent>
+				</Tabs>
 			</DialogContent>
 		</Dialog>
 	);

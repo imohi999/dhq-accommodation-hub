@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
     const transformedMaintenance = maintenance.map(item => ({
       id: item.id,
       unit_id: item.unitId,
+      record_type: item.recordType,
       maintenance_type: item.maintenanceType,
       description: item.description,
       maintenance_date: item.maintenanceDate.toISOString().split('T')[0],
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       unit_id,
+      record_type,
       maintenance_type,
       description,
       maintenance_date,
@@ -71,6 +73,7 @@ export async function POST(request: NextRequest) {
     const maintenance = await prisma.unitMaintenance.create({
       data: {
         unitId: unit_id,
+        recordType: record_type || "request",
         maintenanceType: maintenance_type,
         description,
         maintenanceDate: new Date(maintenance_date),
@@ -86,6 +89,7 @@ export async function POST(request: NextRequest) {
     const transformedMaintenance = {
       id: maintenance.id,
       unit_id: maintenance.unitId,
+      record_type: maintenance.recordType,
       maintenance_type: maintenance.maintenanceType,
       description: maintenance.description,
       maintenance_date: maintenance.maintenanceDate.toISOString().split('T')[0],

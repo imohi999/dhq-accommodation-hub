@@ -8,6 +8,7 @@ export async function PUT(
   try {
     const body = await request.json();
     const {
+      record_type,
       maintenance_type,
       description,
       maintenance_date,
@@ -21,6 +22,7 @@ export async function PUT(
     const maintenance = await prisma.unitMaintenance.update({
       where: { id: params.id },
       data: {
+        recordType: record_type || undefined,
         maintenanceType: maintenance_type || undefined,
         description: description || undefined,
         maintenanceDate: maintenance_date ? new Date(maintenance_date) : undefined,
@@ -36,6 +38,7 @@ export async function PUT(
     const transformedMaintenance = {
       id: maintenance.id,
       unit_id: maintenance.unitId,
+      record_type: maintenance.recordType,
       maintenance_type: maintenance.maintenanceType,
       description: maintenance.description,
       maintenance_date: maintenance.maintenanceDate.toISOString().split('T')[0],
