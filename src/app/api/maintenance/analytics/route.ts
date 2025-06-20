@@ -11,9 +11,9 @@ export async function GET() {
       }
     });
 
-    // Separate tasks (with cost > 0) from requests (cost = 0)
-    const tasks = allMaintenance.filter(item => (item.cost || 0) > 0);
-    const requests = allMaintenance.filter(item => (item.cost || 0) === 0);
+    // Separate tasks from requests based on recordType
+    const tasks = allMaintenance.filter(item => item.recordType === 'task');
+    const requests = allMaintenance.filter(item => item.recordType === 'request');
 
     // Calculate task statistics
     const taskStats = {

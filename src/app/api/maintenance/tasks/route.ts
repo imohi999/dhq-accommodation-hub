@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET: List all maintenance tasks
+// GET: List all maintenance tasks (scheduled/preventive maintenance)
 export async function GET() {
   try {
     const tasks = await prisma.unitMaintenance.findMany({
+      where: {
+        recordType: 'task'
+      },
       include: {
         unit: true
       },
@@ -57,6 +60,7 @@ export async function POST(request: NextRequest) {
       const createdTask = await prisma.unitMaintenance.create({
         data: {
           unitId: task.unitId,
+          recordType: 'task',
           maintenanceType: task.taskName,
           description: task.taskDescription,
           maintenanceDate: task.lastPerformedDate ? new Date(task.lastPerformedDate) : new Date(),

@@ -101,6 +101,7 @@ export function MaintenanceRequestForm({
 		const submitData = {
 			...form,
 			unitName: selectedUnit?.unitName || "",
+			recordType: "request",
 		};
 
 		try {
@@ -246,7 +247,7 @@ export function MaintenanceRequestForm({
 					/>
 				</div>
 				<div>
-					<Label>Remarks / Remarks</Label>
+					<Label>Remarks</Label>
 					<Input
 						value={form.remarks}
 						onChange={(e) =>

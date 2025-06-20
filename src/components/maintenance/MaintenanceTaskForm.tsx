@@ -113,6 +113,7 @@ export function MaintenanceTaskForm({
 					...form,
 					unitId: selectedUnits[0],
 					unitName: selectedUnit?.unitName || "",
+					recordType: "task",
 				};
 
 				const response = await fetch(`/api/maintenance/tasks/${initial.id}`, {
@@ -130,6 +131,7 @@ export function MaintenanceTaskForm({
 						...form,
 						unitId: unitId,
 						unitName: unit?.unitName || "",
+						recordType: "task",
 					};
 				});
 
@@ -229,7 +231,7 @@ export function MaintenanceTaskForm({
 				</div>
 
 				<div>
-					<Label>Remarks / Remarks</Label>
+					<Label>Remarks</Label>
 					<Input
 						value={form.remarks}
 						onChange={(e) =>

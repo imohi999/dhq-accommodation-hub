@@ -914,10 +914,11 @@ async function main() {
 
   console.log(`✅ Created ${allocationRequests.length} allocation requests`)
 
-  // Create maintenance records (using existing UnitMaintenance table)
+  // Create maintenance tasks (scheduled/preventive maintenance)
   const maintenanceData = [
     {
       unitId: dhqUnits[0].id,
+      recordType: "task",
       maintenanceType: "AC Servicing",
       description: "Quarterly air conditioner maintenance and filter replacement",
       maintenanceDate: new Date('2025-01-15'),
@@ -929,6 +930,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[1].id,
+      recordType: "task",
       maintenanceType: "Plumbing Repair",
       description: "Fix leaking faucet in kitchen area",
       maintenanceDate: new Date('2025-02-10'),
@@ -940,6 +942,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[2].id,
+      recordType: "task",
       maintenanceType: "Electrical Inspection",
       description: "Annual electrical safety inspection",
       maintenanceDate: new Date('2025-03-05'),
@@ -951,6 +954,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[3].id,
+      recordType: "task",
       maintenanceType: "Pest Control",
       description: "Quarterly pest control treatment",
       maintenanceDate: new Date('2025-02-20'),
@@ -962,6 +966,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[4].id,
+      recordType: "task",
       maintenanceType: "Painting",
       description: "Touch-up painting for living room walls",
       maintenanceDate: new Date('2025-04-01'),
@@ -973,6 +978,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[0].id,
+      recordType: "task",
       maintenanceType: "Generator Service",
       description: "Monthly generator maintenance and testing",
       maintenanceDate: new Date('2025-03-15'),
@@ -984,6 +990,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[1].id,
+      recordType: "task",
       maintenanceType: "Window Repair",
       description: "Replace broken window pane in bedroom",
       maintenanceDate: new Date('2025-02-25'),
@@ -995,6 +1002,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[2].id,
+      recordType: "task",
       maintenanceType: "Deep Cleaning",
       description: "Quarterly deep cleaning service",
       maintenanceDate: new Date('2025-03-30'),
@@ -1010,12 +1018,13 @@ async function main() {
     await prisma.unitMaintenance.create({ data: maintenance })
   }
 
-  console.log('✅ Created maintenance records')
+  console.log('✅ Created maintenance tasks')
 
-  // Create maintenance requests (using UnitMaintenance table with specific pattern)
+  // Create maintenance requests (user-reported issues)
   const maintenanceRequestsData = [
     {
       unitId: dhqUnits[0].id,
+      recordType: "request",
       maintenanceType: "Plumbing",
       description: "Leaking faucet in kitchen sink, constant dripping",
       maintenanceDate: new Date('2025-06-15'),
@@ -1027,6 +1036,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[1].id,
+      recordType: "request",
       maintenanceType: "Electrical",
       description: "Power outlet not working in master bedroom",
       maintenanceDate: new Date('2025-06-14'),
@@ -1038,6 +1048,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[2].id,
+      recordType: "request",
       maintenanceType: "HVAC",
       description: "Air conditioner not cooling properly",
       maintenanceDate: new Date('2025-06-13'),
@@ -1049,6 +1060,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[3].id,
+      recordType: "request",
       maintenanceType: "Structural",
       description: "Crack in bathroom wall near shower area",
       maintenanceDate: new Date('2025-06-12'),
@@ -1060,6 +1072,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[4].id,
+      recordType: "request",
       maintenanceType: "Appliance",
       description: "Refrigerator making unusual noise",
       maintenanceDate: new Date('2025-06-10'),
@@ -1071,6 +1084,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[5] ? dhqUnits[5].id : dhqUnits[0].id,
+      recordType: "request",
       maintenanceType: "Plumbing",
       description: "Water pressure low in bathroom shower",
       maintenanceDate: new Date('2025-06-09'),
@@ -1082,6 +1096,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[6] ? dhqUnits[6].id : dhqUnits[1].id,
+      recordType: "request",
       maintenanceType: "Electrical",
       description: "Ceiling fan making noise in living room",
       maintenanceDate: new Date('2025-06-08'),
@@ -1093,6 +1108,7 @@ async function main() {
     },
     {
       unitId: dhqUnits[7] ? dhqUnits[7].id : dhqUnits[2].id,
+      recordType: "request",
       maintenanceType: "Security",
       description: "Door lock mechanism not working properly",
       maintenanceDate: new Date('2025-06-07'),

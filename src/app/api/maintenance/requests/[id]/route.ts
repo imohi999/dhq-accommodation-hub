@@ -19,6 +19,7 @@ export async function PUT(
         performedBy: body.reportedBy,
         status: body.status,
         remarks: body.remarks,
+        recordType: 'request',
         ...(body.reportedAt && {
           maintenanceDate: new Date(body.reportedAt)
         })

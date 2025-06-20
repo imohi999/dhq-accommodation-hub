@@ -219,6 +219,7 @@ model UnitInventory {
 model UnitMaintenance {
   id              String        @id @default(uuid())
   unitId          String        @map("unit_id")
+  recordType      String        @default("request") @map("record_type")
   maintenanceType String        @map("maintenance_type")
   description     String
   maintenanceDate DateTime      @default(now()) @map("maintenance_date") @db.Date
@@ -232,6 +233,8 @@ model UnitMaintenance {
   unit            DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@index([unitId])
+  @@index([recordType])
+  @@index([recordType, status])
   @@map("unit_maintenance")
 }
 

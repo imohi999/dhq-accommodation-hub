@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET: List all maintenance requests (from UnitMaintenance table where cost = 0)
+// GET: List all maintenance requests (user-reported issues)
 export async function GET() {
   try {
     const requests = await prisma.unitMaintenance.findMany({
       where: {
-        cost: 0  // Requests typically have 0 cost vs completed tasks with actual costs
+        recordType: 'request'
       },
       include: {
         unit: true
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
     const newRequest = await prisma.unitMaintenance.create({
       data: {
         unitId: body.unitId,
+        recordType: 'request',
         maintenanceType: body.issueCategory,
         description: body.issueDescription,
         maintenanceDate: body.reportedAt ? new Date(body.reportedAt) : new Date(),

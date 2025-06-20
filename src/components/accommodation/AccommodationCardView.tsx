@@ -93,9 +93,9 @@ export const AccommodationCardView = ({
 		const baseClass = "overflow-hidden transition-all hover:shadow-md";
 		switch (status) {
 			case "Occupied":
-				return `${baseClass} bg-red-50 border-red-200`;
+				return `${baseClass} bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800`;
 			case "Not In Use":
-				return `${baseClass} bg-muted/50 border-gray-300`;
+				return `${baseClass} bg-muted/50 border-gray-300 dark:border-gray-700`;
 			default:
 				return baseClass;
 		}
@@ -183,28 +183,28 @@ export const AccommodationCardView = ({
 								{/* Occupant Information for Occupied Units */}
 								{unit.status === "Occupied" && unit.current_occupant_name && (
 									<div
-										className={`bg-blue-50 rounded-lg p-2 ${
+										className={`bg-blue-50 dark:bg-blue-950/30 rounded-lg p-2 ${
 											viewMode === "compact" ? "text-xs" : "text-sm"
 										}`}>
 										<div className='flex items-center gap-1 mb-1'>
-											<User className='h-3 w-3 text-blue-600' />
-											<span className='font-medium text-blue-900'>
+											<User className='h-3 w-3 text-blue-600 dark:text-blue-400' />
+											<span className='font-medium text-blue-900 dark:text-blue-100'>
 												Current Occupant
 											</span>
 										</div>
-										<p className='text-blue-800 font-medium'>
+										<p className='text-blue-800 dark:text-blue-200 font-medium'>
 											{unit.current_occupant_name}
 										</p>
-										<p className='text-blue-700'>
+										<p className='text-blue-700 dark:text-blue-300'>
 											{unit.current_occupant_rank}
 										</p>
-										<p className='text-blue-600 text-xs'>
+										<p className='text-blue-600 dark:text-blue-400 text-xs'>
 											{unit.current_occupant_service_number}
 										</p>
 										{unit.occupancy_start_date && (
 											<div className='flex items-center gap-1 mt-1'>
-												<Calendar className='h-3 w-3 text-blue-600' />
-												<span className='text-blue-600 text-xs'>
+												<Calendar className='h-3 w-3 text-blue-600 dark:text-blue-400' />
+												<span className='text-blue-600 dark:text-blue-400 text-xs'>
 													Since {formatDate(unit.occupancy_start_date)} (
 													{calculateDaysOccupied(unit.occupancy_start_date)}{" "}
 													days)
