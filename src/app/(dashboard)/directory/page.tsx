@@ -558,10 +558,13 @@ const RecordCard = ({ record }: { record: Record }) => {
 								</div>
 							)}
 
-							{/* Dependents details for queue records and pending records */}
+							{/* Dependents details for queue records, active records, and pending records */}
 							{((record.type === "queue" &&
 								record.dependents &&
 								record.dependents.length > 0) ||
+								(record.type === "active" &&
+									record.occupants?.find((o) => o.isCurrent)?.queue?.dependents &&
+									record.occupants.find((o) => o.isCurrent)?.queue?.dependents.length > 0) ||
 								(record.type === "pending" &&
 									record.queue?.dependents &&
 									record.queue.dependents.length > 0)) && (
@@ -572,6 +575,8 @@ const RecordCard = ({ record }: { record: Record }) => {
 									<div className='space-y-2'>
 										{(record?.type === "queue"
 											? record?.dependents
+											: record?.type === "active"
+											? record?.occupants?.find((o) => o.isCurrent)?.queue?.dependents || []
 											: record?.type === "pending"
 											? record?.queue?.dependents || []
 											: []

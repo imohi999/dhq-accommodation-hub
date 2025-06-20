@@ -284,7 +284,7 @@ async function main() {
     }
   ]
 
-  // Add 12 more queue entries to make 20 total
+  // Add 72 more queue entries to make 80 total
   const additionalQueueEntries = []
   const nigerianNames = [
     { male: "Adewale Ogunbiyi", female: "Fatima Abdullahi" },
@@ -467,7 +467,7 @@ async function main() {
   // Add more varied living units to make 20 total
   const additionalLivingUnits = []
 
-  // Add two bedroom flats (Block 3)
+  // Add two bedroom flats (Block 3) - 2 occupied, 3 vacant
   for (let i = 1; i <= 5; i++) {
     additionalLivingUnits.push({
       quarterName: "Eagle Officers Quarters Lagos Cantonment",
@@ -475,13 +475,19 @@ async function main() {
       category: "Officer",
       accommodationTypeId: "644aa118-5dbb-40ef-8e9d-e79873662859", // Two Bedroom Flat
       noOfRooms: 2,
-      status: i === 2 ? "Occupied" : "Vacant",
+      status: i <= 2 ? "Occupied" : "Vacant", // First 2 are occupied
       typeOfOccupancy: "Family",
       bq: false,
       noOfRoomsInBq: 0,
       blockName: "Block 3",
       flatHouseRoomName: `Flat ${i}`,
       unitName: `Block 3 Flat ${i}`,
+      ...(i === 1 && {
+        currentOccupantName: "Adewale Ogunbiyi",
+        currentOccupantRank: "Lt Col",
+        currentOccupantServiceNumber: "NA/45678/91",
+        occupancyStartDate: new Date("2025-04-15")
+      }),
       ...(i === 2 && {
         currentOccupantName: "Oluwole Adeyinka",
         currentOccupantRank: "Maj",
@@ -491,7 +497,7 @@ async function main() {
     })
   }
 
-  // Add three bedroom flats (Block 4)
+  // Add three bedroom flats (Block 4) - 3 occupied, 1 vacant
   for (let i = 1; i <= 4; i++) {
     additionalLivingUnits.push({
       quarterName: "Senior Officers Quarters Abuja",
@@ -499,17 +505,35 @@ async function main() {
       category: "Officer",
       accommodationTypeId: "e325e19c-f673-4cb2-b36c-0345c2f9f206", // Three Bedroom Flat
       noOfRooms: 3,
-      status: "Vacant",
+      status: i <= 3 ? "Occupied" : "Vacant", // First 3 are occupied
       typeOfOccupancy: "Family",
       bq: true,
       noOfRoomsInBq: 1,
       blockName: "Block 4",
       flatHouseRoomName: `House ${i}`,
-      unitName: `Block 4 House ${i}`
+      unitName: `Block 4 House ${i}`,
+      ...(i === 1 && {
+        currentOccupantName: "Chukwudi Nwosu",
+        currentOccupantRank: "Col",
+        currentOccupantServiceNumber: "NA/12345/85",
+        occupancyStartDate: new Date("2025-03-10")
+      }),
+      ...(i === 2 && {
+        currentOccupantName: "Folake Adeyemi",
+        currentOccupantRank: "Lt Col",
+        currentOccupantServiceNumber: "NN/54321/87",
+        occupancyStartDate: new Date("2025-04-01")
+      }),
+      ...(i === 3 && {
+        currentOccupantName: "Halima Suleiman",
+        currentOccupantRank: "Maj",
+        currentOccupantServiceNumber: "AF/67890/89",
+        occupancyStartDate: new Date("2025-05-10")
+      })
     })
   }
 
-  // Add duplexes (Block 5)
+  // Add duplexes (Block 5) - 1 occupied, 2 vacant 
   for (let i = 1; i <= 3; i++) {
     additionalLivingUnits.push({
       quarterName: "Command Officers Estate",
@@ -517,7 +541,7 @@ async function main() {
       category: "Officer",
       accommodationTypeId: "d403ff01-4ac9-40e5-bcea-8a3a04c89899", // Duplex
       noOfRooms: 4,
-      status: i === 1 ? "Occupied" : "Vacant",
+      status: i === 1 ? "Occupied" : "Vacant", // Only first duplex is occupied
       typeOfOccupancy: "Family",
       bq: true,
       noOfRoomsInBq: 2,
@@ -533,7 +557,7 @@ async function main() {
     })
   }
 
-  // Add self-contained units for NCOs category (Block 6)
+  // Add self-contained units for NCOs category (Block 6) - 2 occupied
   for (let i = 1; i <= 2; i++) {
     additionalLivingUnits.push({
       quarterName: "Other Ranks Quarters",
@@ -541,13 +565,25 @@ async function main() {
       category: "NCOs",
       accommodationTypeId: "301e92b3-1083-4340-a800-f4e21a20b9c7", // Self Contained
       noOfRooms: 1,
-      status: "Vacant",
+      status: "Occupied", // Both NCO units are occupied
       typeOfOccupancy: "Single",
       bq: false,
       noOfRoomsInBq: 0,
       blockName: "Block 6",
       flatHouseRoomName: `Room ${i}`,
-      unitName: `Block 6 Room ${i}`
+      unitName: `Block 6 Room ${i}`,
+      ...(i === 1 && {
+        currentOccupantName: "Yakubu Danjuma",
+        currentOccupantRank: "SSgt",
+        currentOccupantServiceNumber: "AF/94452/88",
+        occupancyStartDate: new Date("2025-05-15")
+      }),
+      ...(i === 2 && {
+        currentOccupantName: "Funke Ogunleye",
+        currentOccupantRank: "FS",
+        currentOccupantServiceNumber: "AF/62542/50",
+        occupancyStartDate: new Date("2025-05-25")
+      })
     })
   }
 
@@ -555,7 +591,7 @@ async function main() {
     await prisma.dhqLivingUnit.create({ data: unit })
   }
 
-  console.log('✅ Created 20 DHQ  Accommodation')
+  console.log('✅ Created 20 DHQ  Accommodation (10 occupied, 10 vacant)')
 
   // Create unit occupants and history for occupied units
   const occupiedUnits = await prisma.dhqLivingUnit.findMany({
@@ -566,6 +602,85 @@ async function main() {
 
   for (const unit of occupiedUnits) {
     if (unit.currentOccupantName && unit.currentOccupantServiceNumber) {
+      const unitIndex = occupiedUnits.indexOf(unit);
+      const hasDependents = unitIndex % 2 === 0; // Every other occupant has dependents
+      
+      // Generate dependents for half of the occupants
+      const dependents = [];
+      let noOfAdultDependents = 0;
+      let noOfChildDependents = 0;
+      
+      if (hasDependents) {
+        // Add spouse
+        const isMarried = true;
+        if (isMarried) {
+          const spouseGender = unit.currentOccupantName.includes("Nkechi") || 
+                              unit.currentOccupantName.includes("Amina") || 
+                              unit.currentOccupantName.includes("Folake") || 
+                              unit.currentOccupantName.includes("Bukola") ||
+                              unit.currentOccupantName.includes("Fatima") ? "Male" : "Female";
+          const spouseName = spouseGender === "Male" ? 
+            `${unit.currentOccupantName.split(' ')[1]} James` : 
+            `${unit.currentOccupantName.split(' ')[1]} Grace`;
+          
+          dependents.push({
+            name: spouseName,
+            gender: spouseGender,
+            age: 30 + unitIndex
+          });
+          noOfAdultDependents++;
+        }
+        
+        // Add children based on unit type
+        const childCount = unit.noOfRooms >= 3 ? 3 : unit.noOfRooms >= 2 ? 2 : 1;
+        noOfChildDependents = childCount;
+        
+        for (let c = 0; c < childCount; c++) {
+          dependents.push({
+            name: `${['David', 'Sarah', 'Michael', 'Joy'][c % 4]} ${unit.currentOccupantName.split(' ')[1]}`,
+            gender: c % 2 === 0 ? 'Male' : 'Female',
+            age: 5 + (c * 4)
+          });
+        }
+        
+        // Some may have elderly parents
+        if (unitIndex % 3 === 0) {
+          dependents.push({
+            name: `Mrs. ${unit.currentOccupantName.split(' ')[1]} Senior`,
+            gender: 'Female',
+            age: 65 + unitIndex
+          });
+          noOfAdultDependents++;
+        }
+      }
+      
+      // First, create a queue entry for this occupant
+      const occupantQueue = await prisma.queue.create({
+        data: {
+          sequence: 90000 + unitIndex, // High sequence numbers for seeded occupants
+          fullName: unit.currentOccupantName,
+          svcNo: `${unit.currentOccupantServiceNumber}-ACT-${unitIndex}`, // Make it unique
+          gender: unit.currentOccupantName.includes("Nkechi") || 
+                  unit.currentOccupantName.includes("Amina") || 
+                  unit.currentOccupantName.includes("Folake") || 
+                  unit.currentOccupantName.includes("Bukola") ||
+                  unit.currentOccupantName.includes("Fatima") ? 'Female' : 'Male',
+          armOfService: unit.currentOccupantServiceNumber.startsWith('NA') ? 'Army' : 
+                        unit.currentOccupantServiceNumber.startsWith('NN') ? 'Navy' : 'Air Force',
+          category: 'Officer',
+          rank: unit.currentOccupantRank || 'Unknown',
+          maritalStatus: hasDependents ? 'Married' : 'Single',
+          noOfAdultDependents: noOfAdultDependents,
+          noOfChildDependents: noOfChildDependents,
+          dependents: dependents.length > 0 ? dependents : undefined,
+          currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][unitIndex % 5],
+          appointment: 'Staff Officer',
+          entryDateTime: unit.occupancyStartDate || new Date(),
+          createdAt: unit.occupancyStartDate || new Date(),
+          updatedAt: new Date()
+        }
+      })
+
       // Create unit occupant record
       await prisma.unitOccupant.create({
         data: {
@@ -576,8 +691,15 @@ async function main() {
           phone: `+234-80${Math.floor(Math.random() * 90000000) + 10000000}`,
           occupancyStartDate: unit.occupancyStartDate || new Date(),
           isCurrent: true,
-          // Note: queueId is null for these initial occupants as they weren't from queue
-          queueId: null
+          queueId: occupantQueue.id
+        }
+      })
+
+      // Update the DhqLivingUnit to set currentOccupantId to the queueId
+      await prisma.dhqLivingUnit.update({
+        where: { id: unit.id },
+        data: {
+          currentOccupantId: occupantQueue.id
         }
       })
 
@@ -597,7 +719,7 @@ async function main() {
     }
   }
 
-  console.log('✅ Created unit occupants and history for occupied units')
+  console.log(`✅ Created unit occupants and history for occupied units (${Math.ceil(occupiedUnits.length / 2)} with dependents, ${Math.floor(occupiedUnits.length / 2)} without)`)
 
   // Create past allocations (20 entries)
   const pastAllocations = []
@@ -631,9 +753,30 @@ async function main() {
     const startDate = new Date(2023, i % 12, (i % 28) + 1)
     const endDate = new Date(2024, (i + 6) % 12, (i % 28) + 1)
 
+    // Create a queue entry for past allocation with unique service number
+    const pastQueue = await prisma.queue.create({
+      data: {
+        sequence: 80000 + i, // Past allocation sequences
+        fullName: occupant.name,
+        svcNo: `${occupant.svcNo}-PAST-${i}`, // Make it unique by adding suffix
+        gender: 'Unknown',
+        armOfService: ['Army', 'Navy', 'Air Force'][i % 3],
+        category: i < 15 ? "Officer" : "NCOs",
+        rank: occupant.rank,
+        maritalStatus: 'Unknown',
+        noOfAdultDependents: 0,
+        noOfChildDependents: 0,
+        currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][i % 5],
+        appointment: i < 15 ? 'Staff Officer' : 'Technician',
+        entryDateTime: startDate,
+        createdAt: startDate,
+        updatedAt: new Date()
+      }
+    })
+
     pastAllocations.push({
       personnelId: `past-${i}`, // Dummy ID as these are past allocations
-      queueId: null, // No queue reference for historical data
+      queueId: pastQueue.id,
       unitId: unit.id,
       letterId: letterId,
       personnelData: {

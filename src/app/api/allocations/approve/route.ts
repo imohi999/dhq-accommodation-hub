@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       await tx.unitOccupant.create({
         data: {
           unitId: unitId,
-          queueId: requestData.queueId || null,
+          queueId: requestData.queueId ,
           fullName: personnelData.fullName,
           rank: personnelData.rank,
           serviceNumber: personnelData.svcNo,

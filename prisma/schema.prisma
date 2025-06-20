@@ -107,6 +107,7 @@ model Queue {
   unitOccupants       UnitOccupant[]
   allocationRequests  AllocationRequest[]
   pastAllocations     PastAllocation[]
+  currentlyOccupying  DhqLivingUnit[]   @relation("CurrentOccupant")
 
   @@index([sequence])
   @@index([svcNo])
@@ -146,6 +147,7 @@ model DhqLivingUnit {
   updatedAt                    DateTime            @updatedAt @map("updated_at")
   allocationRequests           AllocationRequest[]
   accommodationType            AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
+  currentOccupant              Queue?              @relation("CurrentOccupant", fields: [currentOccupantId], references: [id])
   history                      UnitHistory[]
   inventory                    UnitInventory[]
   maintenance                  UnitMaintenance[]
@@ -160,7 +162,7 @@ model DhqLivingUnit {
 model UnitOccupant {
   id                 String        @id @default(uuid())
   unitId             String        @map("unit_id")
-  queueId            String?       @map("queue_id")
+  queueId            String       @map("queue_id")
   fullName           String        @map("full_name")
   rank               String
   serviceNumber      String        @map("service_number")
@@ -172,7 +174,7 @@ model UnitOccupant {
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
   unit               DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  queue              Queue?        @relation(fields: [queueId], references: [id])
+  queue              Queue        @relation(fields: [queueId], references: [id])
 
   @@index([unitId])
   @@index([isCurrent])
@@ -235,7 +237,7 @@ model UnitMaintenance {
 model AllocationRequest {
   id             String        @id @default(uuid())
   personnelId    String        @map("personnel_id")
-  queueId        String?       @map("queue_id")
+  queueId        String       @map("queue_id")
   unitId         String        @map("unit_id")
   letterId       String        @unique @map("letter_id")
   personnelData  Json          @map("personnel_data")
@@ -248,7 +250,7 @@ model AllocationRequest {
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
   unit           DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  queue          Queue?        @relation(fields: [queueId], references: [id])
+  queue          Queue        @relation(fields: [queueId], references: [id])
 
   @@index([status])
   @@index([personnelId])
@@ -275,7 +277,7 @@ model StampSetting {
 model PastAllocation {
   id                  String    @id @default(uuid())
   personnelId         String    @map("personnel_id")
-  queueId             String?   @map("queue_id")
+  queueId             String   @map("queue_id")
   unitId              String    @map("unit_id")
   letterId            String    @map("letter_id")
   personnelData       Json      @map("personnel_data")
@@ -287,7 +289,7 @@ model PastAllocation {
   deallocationDate    DateTime? @map("deallocation_date")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
-  queue               Queue?    @relation(fields: [queueId], references: [id])
+  queue               Queue    @relation(fields: [queueId], references: [id])
 
   @@index([personnelId])
   @@index([unitId])
