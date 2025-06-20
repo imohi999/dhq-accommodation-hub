@@ -76,6 +76,20 @@ interface UnitOccupant {
 	email?: string;
 	emergencyContact?: string;
 	isCurrent: boolean;
+	queue?: {
+		maritalStatus?: string;
+		category?: string;
+		gender?: string;
+		appointment?: string;
+		currentUnit?: string;
+		noOfAdultDependents?: number;
+		noOfChildDependents?: number;
+		dependents?: Array<{
+			name: string;
+			relationship: string;
+			age?: number;
+		}>;
+	};
 }
 
 interface BaseRecord {
@@ -345,8 +359,14 @@ const RecordCard = ({ record }: { record: Record }) => {
 						record.personnelData?.current_unit ||
 						record.personnelData?.currentUnit ||
 						"No Unit",
-					adultDependents: record.queue?.noOfAdultDependents || record.personnelData?.noOfAdultDependents || 0,
-					childDependents: record.queue?.noOfChildDependents || record.personnelData?.noOfChildDependents || 0,
+					adultDependents:
+						record.queue?.noOfAdultDependents ||
+						record.personnelData?.noOfAdultDependents ||
+						0,
+					childDependents:
+						record.queue?.noOfChildDependents ||
+						record.personnelData?.noOfChildDependents ||
+						0,
 					entryDate: record.createdAt,
 					// Unit details for pending allocations
 					unitDetails: {
@@ -361,7 +381,7 @@ const RecordCard = ({ record }: { record: Record }) => {
 				};
 			case "past":
 				return {
-					maritalStatus: record.personnelData?.marital_status || "N/A",
+					maritalStatus: record.personnelData?.maritalStatus || "N/A",
 					phone: record.personnelData?.phone || "N/A",
 					category: record.personnelData?.category || "N/A",
 					gender: record.personnelData?.gender || "N/A",
@@ -538,14 +558,10 @@ const RecordCard = ({ record }: { record: Record }) => {
 								</div>
 							)}
 
-							{/* Dependents details for queue records, active records with queue data, and pending records with queue data */}
+							{/* Dependents details for queue records and pending records */}
 							{((record.type === "queue" &&
 								record.dependents &&
 								record.dependents.length > 0) ||
-								(record.type === "active" &&
-									record.occupants?.find((o) => o.queue)?.queue?.dependents &&
-									record.occupants.find((o) => o.queue)?.queue?.dependents
-										.length > 0) ||
 								(record.type === "pending" &&
 									record.queue?.dependents &&
 									record.queue.dependents.length > 0)) && (
@@ -554,15 +570,12 @@ const RecordCard = ({ record }: { record: Record }) => {
 										Dependents Details
 									</h4>
 									<div className='space-y-2'>
-										{(record.type === "queue"
-											? record.dependents
-											: record.type === "active"
-											? record.occupants?.find((o) => o.queue)?.queue
-													?.dependents || []
-											: record.type === "pending"
-											? record.queue?.dependents || []
+										{(record?.type === "queue"
+											? record?.dependents
+											: record?.type === "pending"
+											? record?.queue?.dependents || []
 											: []
-										).map((dependent, idx) => (
+										)?.map((dependent: any, idx: number) => (
 											<div
 												key={idx}
 												className='flex items-center justify-between p-2 bg-muted rounded-lg'>

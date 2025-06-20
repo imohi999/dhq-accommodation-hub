@@ -1,12 +1,12 @@
 
 // Re-export all functions for backward compatibility
 export { generateLetterId } from "./letterIdApi";
-export { 
-  fetchAllocationRequestsFromDb, 
-  createAllocationRequestInDb, 
-  updateAllocationStatus 
+export {
+  fetchAllocationRequestsFromDb,
+  createAllocationRequestInDb,
+  updateAllocationStatus
 } from "./allocationRequestsApi";
 export { removeFromQueue, returnPersonnelToQueueAtPositionOne } from "./queueManagementApi";
 export { updateUnitOccupancy } from "./unitManagementApi";
 export { fetchPastAllocationsFromDb } from "./pastAllocationsApi";
-export { createTransferAllocationRequest, deallocatePersonnelFromUnit } from "./allocationTransferApi";
+export { createTransferAllocationRequest } from "./allocationTransferApi";

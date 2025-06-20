@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useOccupiedUnits as useOccupiedUnitsSWR } from "@/services/occupiedUnitsApi";
-import { createTransferAllocationRequest, deallocatePersonnelFromUnit } from "@/services/allocationApi";
+import { createTransferAllocationRequest } from "@/services/allocationApi";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 
 export const useOccupiedUnits = () => {
@@ -32,34 +32,6 @@ export const useOccupiedUnits = () => {
     }
   };
 
-  const deallocatePersonnel = async (unitId: string, reason?: string) => {
-    const unit = occupiedUnits?.find((u: DHQLivingUnitWithHousingType) => u.id === unitId);
-    if (!unit) {
-      toast.error("Unit not found");
-      return false;
-    }
-
-    const success = await deallocatePersonnelFromUnit(
-      unitId,
-      {
-        name: unit.current_occupant_name!,
-        rank: unit.current_occupant_rank!,
-        serviceNumber: unit.current_occupant_service_number!,
-      },
-      unit,
-      reason
-    );
-
-    if (success) {
-      toast.success("Personnel deallocated successfully");
-      mutate(); // Refresh data
-      return true;
-    } else {
-      toast.error("Failed to deallocate personnel");
-      return false;
-    }
-  };
-
   // Show error toast if there's an error
   useEffect(() => {
     if (error && !isLoading) {
@@ -71,7 +43,6 @@ export const useOccupiedUnits = () => {
     occupiedUnits: occupiedUnits || [],
     loading: isLoading,
     createTransferRequest,
-    deallocatePersonnel,
     refetch: mutate,
   };
 };
