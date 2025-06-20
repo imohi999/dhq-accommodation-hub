@@ -39,7 +39,7 @@ interface PersonnelData {
 	serviceNumber?: string;
 	svc_no?: string;
 	svcNo?: string;
-	marital_status?: string;
+	maritalStatus?: string;
 	phone?: string;
 	arm_of_service?: string;
 	category?: string;
@@ -47,6 +47,13 @@ interface PersonnelData {
 	appointment?: string;
 	current_unit?: string;
 	currentUnit?: string;
+	noOfChildDependents?: number;
+	noOfAdultDependents?: number;
+	dependents?: Array<{
+		name: string;
+		age: number;
+		gender: string;
+	}>;
 }
 
 interface UnitData {
@@ -138,6 +145,16 @@ interface PendingRecord extends BaseRecord {
 	unitData: UnitData;
 	letterId: string;
 	createdAt: string;
+	queue?: {
+		dependents?: Array<{
+			name: string;
+			age: number;
+			gender: string;
+		}>;
+		noOfAdultDependents?: number;
+		noOfChildDependents?: number;
+		[key: string]: any;
+	};
 }
 
 interface PastRecord extends BaseRecord {
@@ -319,7 +336,7 @@ const RecordCard = ({ record }: { record: Record }) => {
 			}
 			case "pending":
 				return {
-					maritalStatus: record.personnelData?.marital_status || "N/A",
+					maritalStatus: record.personnelData?.maritalStatus || "N/A",
 					phone: record.personnelData?.phone || "N/A",
 					category: record.personnelData?.category || "N/A",
 					gender: record.personnelData?.gender || "N/A",
@@ -328,8 +345,8 @@ const RecordCard = ({ record }: { record: Record }) => {
 						record.personnelData?.current_unit ||
 						record.personnelData?.currentUnit ||
 						"No Unit",
-					adultDependents: 0,
-					childDependents: 0,
+					adultDependents: record.queue?.noOfAdultDependents || record.personnelData?.noOfAdultDependents || 0,
+					childDependents: record.queue?.noOfChildDependents || record.personnelData?.noOfChildDependents || 0,
 					entryDate: record.createdAt,
 					// Unit details for pending allocations
 					unitDetails: {
@@ -432,9 +449,7 @@ const RecordCard = ({ record }: { record: Record }) => {
 						</div>
 
 						{/* Dependents count - show for queue records and active records with queue data */}
-						{(record.type === "queue" ||
-							(record.type === "active" &&
-								record.occupants?.find((o) => o?.queue))) && (
+						{
 							<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 								<Users className='h-4 w-4' />
 								<span>
@@ -442,7 +457,7 @@ const RecordCard = ({ record }: { record: Record }) => {
 									{additionalInfo.childDependents}
 								</span>
 							</div>
-						)}
+						}
 
 						{/* Phone number */}
 						<div className='flex items-center gap-2 text-sm text-muted-foreground'>
@@ -510,15 +525,6 @@ const RecordCard = ({ record }: { record: Record }) => {
 					{/* Expandable details section */}
 					<CollapsibleContent>
 						<div className='mt-4 pt-4 border-t space-y-2'>
-							{/* Letter ID for pending and past */}
-							{(record.type === "pending" || record.type === "past") &&
-								record.letterId && (
-									<div className='text-sm'>
-										<span className='text-muted-foreground'>Letter ID:</span>{" "}
-										{record.letterId}
-									</div>
-								)}
-
 							{/* Allocation period for past allocations */}
 							{record.type === "past" && record.allocationStartDate && (
 								<div className='text-sm'>
@@ -532,14 +538,17 @@ const RecordCard = ({ record }: { record: Record }) => {
 								</div>
 							)}
 
-							{/* Dependents details for queue records and active records with queue data */}
+							{/* Dependents details for queue records, active records with queue data, and pending records with queue data */}
 							{((record.type === "queue" &&
 								record.dependents &&
 								record.dependents.length > 0) ||
 								(record.type === "active" &&
 									record.occupants?.find((o) => o.queue)?.queue?.dependents &&
 									record.occupants.find((o) => o.queue)?.queue?.dependents
-										.length > 0)) && (
+										.length > 0) ||
+								(record.type === "pending" &&
+									record.queue?.dependents &&
+									record.queue.dependents.length > 0)) && (
 								<div>
 									<h4 className='text-sm font-semibold mb-2'>
 										Dependents Details
@@ -547,8 +556,12 @@ const RecordCard = ({ record }: { record: Record }) => {
 									<div className='space-y-2'>
 										{(record.type === "queue"
 											? record.dependents
-											: record.occupants?.find((o) => o.queue)?.queue
+											: record.type === "active"
+											? record.occupants?.find((o) => o.queue)?.queue
 													?.dependents || []
+											: record.type === "pending"
+											? record.queue?.dependents || []
+											: []
 										).map((dependent, idx) => (
 											<div
 												key={idx}
