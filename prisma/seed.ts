@@ -753,19 +753,64 @@ async function main() {
     const startDate = new Date(2023, i % 12, (i % 28) + 1)
     const endDate = new Date(2024, (i + 6) % 12, (i % 28) + 1)
 
+    // Generate realistic data for past allocations
+    const isFemale = occupant.name.includes('Hauwa') || occupant.name.includes('Folasade') || 
+                     occupant.name.includes('Aisha') || occupant.name.includes('Zainab') || 
+                     occupant.name.includes('Kemi');
+    const gender = isFemale ? 'Female' : 'Male';
+    const maritalStatuses = ['Single', 'Married', 'Divorced', 'Widowed'];
+    const maritalStatus = maritalStatuses[i % 4];
+    
+    // Some past allocations should have dependents (about 40% of them)
+    const hasDependents = i % 5 < 2; // 2 out of 5 (40%) have dependents
+    let noOfAdultDependents = 0;
+    let noOfChildDependents = 0;
+    let dependents = [];
+    
+    if (hasDependents && maritalStatus === 'Married') {
+      // Add spouse
+      noOfAdultDependents = 1;
+      dependents.push({
+        name: isFemale ? `${occupant.name.split(' ')[1]} James` : `${occupant.name.split(' ')[1]} Grace`,
+        gender: isFemale ? 'Male' : 'Female',
+        age: 30 + (i % 15)
+      });
+      
+      // Add children based on index
+      noOfChildDependents = Math.min((i % 3) + 1, 3); // 1-3 children
+      for (let c = 0; c < noOfChildDependents; c++) {
+        dependents.push({
+          name: `${['David', 'Sarah', 'Michael', 'Joy', 'Samuel', 'Faith'][c % 6]} ${occupant.name.split(' ')[1]}`,
+          gender: c % 2 === 0 ? 'Male' : 'Female',
+          age: 5 + (c * 3) + (i % 8) // Ages 5-20
+        });
+      }
+      
+      // Some may have elderly parents
+      if (i % 7 === 0) {
+        dependents.push({
+          name: `Mrs. ${occupant.name.split(' ')[1]} Senior`,
+          gender: 'Female',
+          age: 65 + (i % 10)
+        });
+        noOfAdultDependents++;
+      }
+    }
+
     // Create a queue entry for past allocation with unique service number
     const pastQueue = await prisma.queue.create({
       data: {
         sequence: 80000 + i, // Past allocation sequences
         fullName: occupant.name,
         svcNo: `${occupant.svcNo}-PAST-${i}`, // Make it unique by adding suffix
-        gender: 'Unknown',
+        gender: gender,
         armOfService: ['Army', 'Navy', 'Air Force'][i % 3],
         category: i < 15 ? "Officer" : "NCOs",
         rank: occupant.rank,
-        maritalStatus: 'Unknown',
-        noOfAdultDependents: 0,
-        noOfChildDependents: 0,
+        maritalStatus: maritalStatus,
+        noOfAdultDependents: noOfAdultDependents,
+        noOfChildDependents: noOfChildDependents,
+        dependents: dependents.length > 0 ? dependents : undefined,
         currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][i % 5],
         appointment: i < 15 ? 'Staff Officer' : 'Technician',
         entryDateTime: startDate,

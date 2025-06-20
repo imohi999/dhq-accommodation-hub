@@ -343,7 +343,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Date and Time */}
-					<div className='text-right mb-6 mr-28'>
+					<div className='text-right mb-6 mr-36'>
 						<p>{currentDate}</p>
 					</div>
 

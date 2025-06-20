@@ -31,6 +31,11 @@ import {
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { RotateCcw, Check, ChevronsUpDown } from 'lucide-react';
 
 interface PersonnelData {
 	fullName?: string;
@@ -175,9 +180,38 @@ interface PastRecord extends BaseRecord {
 	type: "past";
 	personnelData: PersonnelData;
 	unitData: UnitData;
+	unit: {
+		quarterName: string;
+		noOfRoomsInBq: number;
+		location: string;
+		category: string;
+		accommodationTypeId: string;
+		blockName: string;
+		noOfRooms: string;
+		status: string;
+		typeOfOccupancy: string;
+		bq: boolean;
+		flatHouseRoomName: string;
+		unitName: string;
+		blockImageUrl: string;
+	};
 	allocationStartDate: string;
 	allocationEndDate?: string | null;
 	letterId: string;
+	queue?: {
+		maritalStatus?: string;
+		category?: string;
+		gender?: string;
+		appointment?: string;
+		currentUnit?: string;
+		noOfAdultDependents?: number;
+		noOfChildDependents?: number;
+		dependents?: Array<{
+			name: string;
+			age: number;
+			gender: string;
+		}>;
+	};
 }
 
 type Record = QueueRecord | ActiveRecord | PendingRecord | PastRecord;
@@ -379,32 +413,68 @@ const RecordCard = ({ record }: { record: Record }) => {
 						accommodationType: record?.unitData?.accommodationType,
 					},
 				};
-			case "past":
+			case "past": {
+				// {additionalInfo.unitDetails && (
+				// 	<div className='flex items-center gap-2 text-sm text-muted-foreground'>
+				// 		<Home className='h-4 w-4' />
+				// 		<span>
+				// 			{additionalInfo.unitDetails.noOfRooms || 0} Room
+				// 			{additionalInfo.unitDetails.noOfRooms !== 1 ? "s" : ""}
+				// 		</span>
+				// 		{additionalInfo.unitDetails.bq &&
+				// 			additionalInfo.unitDetails.noOfRoomsInBq !== undefined &&
+				// 			additionalInfo.unitDetails.noOfRoomsInBq > 0 && (
+				// 				<Badge variant='secondary' className='text-xs ml-2'>
+				// 					BQ: {additionalInfo.unitDetails.noOfRoomsInBq} Room
+				// 					{additionalInfo.unitDetails.noOfRoomsInBq !== 1
+				// 						? "s"
+				// 						: ""}
+				// 				</Badge>
+				// 			)}
+				// 	</div>
+				// )}
+				// Get queue data if available, similar to active records
+				const queueData = record.queue;
 				return {
-					maritalStatus: record.personnelData?.maritalStatus || "N/A",
+					maritalStatus:
+						queueData?.maritalStatus && queueData.maritalStatus !== "Unknown"
+							? queueData.maritalStatus
+							: record.personnelData?.maritalStatus || "N/A",
 					phone: record.personnelData?.phone || "N/A",
-					category: record.personnelData?.category || "N/A",
-					gender: record.personnelData?.gender || "N/A",
-					appointment: record.personnelData?.appointment || "No Appointment",
+					category:
+						queueData?.category && queueData.category !== "Unknown"
+							? queueData.category
+							: record.personnelData?.category || "N/A",
+					gender:
+						queueData?.gender && queueData.gender !== "Unknown"
+							? queueData.gender
+							: record.personnelData?.gender || "N/A",
+					appointment:
+						queueData?.appointment && queueData.appointment !== "Unknown"
+							? queueData.appointment
+							: record.personnelData?.appointment || "No Appointment",
 					currentUnit:
+						queueData?.currentUnit ||
 						record.personnelData?.current_unit ||
 						record.personnelData?.currentUnit ||
 						"No Unit",
-					adultDependents: 0,
-					childDependents: 0,
+					// Get dependent counts from queue data if available
+					adultDependents: queueData?.noOfAdultDependents || 0,
+					childDependents: queueData?.noOfChildDependents || 0,
 					entryDate: record.allocationStartDate,
 					// Unit details for past allocations
 					unitDetails: {
-						quarterName:
-							record.unitData?.quarterName ||
-							record.unitData?.quarter_name ||
-							record.unitData?.unitName,
-						blockName: record.unitData?.block_name,
-						flatHouseRoomName:
-							record.unitData?.flat_house_room_name ||
-							record.unitData?.flatHouseRoomName,
+						location: record.unit.location,
+						quarterName: record.unit.quarterName,
+						blockName: record.unit.blockName,
+						flatHouseRoomName: record.unit.flatHouseRoomName,
+						noOfRooms: record.unit.noOfRooms,
+						bq: record.unit.bq,
+						noOfRoomsInBq: record.unit.noOfRoomsInBq,
+						accommodationType: record.unitData.accommodationType,
 					},
 				};
+			}
 			default:
 				return {
 					maritalStatus: "N/A",
@@ -545,27 +615,17 @@ const RecordCard = ({ record }: { record: Record }) => {
 					{/* Expandable details section */}
 					<CollapsibleContent>
 						<div className='mt-4 pt-4 border-t space-y-2'>
-							{/* Allocation period for past allocations */}
-							{record.type === "past" && record.allocationStartDate && (
-								<div className='text-sm'>
-									<span className='text-muted-foreground'>
-										Allocation Period:
-									</span>{" "}
-									{new Date(record.allocationStartDate).toLocaleDateString()} -{" "}
-									{record.allocationEndDate
-										? new Date(record.allocationEndDate).toLocaleDateString()
-										: "Present"}
-								</div>
-							)}
-
-							{/* Dependents details for queue records, active records, and pending records */}
+							{/* Dependents details for queue records, active records, pending records, and past records */}
 							{((record.type === "queue" &&
 								record.dependents &&
 								record.dependents.length > 0) ||
 								(record.type === "active" &&
-									record.occupants?.find((o) => o.isCurrent)?.queue?.dependents &&
-									record.occupants.find((o) => o.isCurrent)?.queue?.dependents.length > 0) ||
+									(record.occupants?.find((o) => o.isCurrent)?.queue
+										?.dependents?.length ?? 0) > 0) ||
 								(record.type === "pending" &&
+									record.queue?.dependents &&
+									record.queue.dependents.length > 0) ||
+								(record.type === "past" &&
 									record.queue?.dependents &&
 									record.queue.dependents.length > 0)) && (
 								<div>
@@ -576,8 +636,11 @@ const RecordCard = ({ record }: { record: Record }) => {
 										{(record?.type === "queue"
 											? record?.dependents
 											: record?.type === "active"
-											? record?.occupants?.find((o) => o.isCurrent)?.queue?.dependents || []
+											? record.occupants?.find((o) => o.isCurrent)?.queue
+													?.dependents || []
 											: record?.type === "pending"
+											? record?.queue?.dependents || []
+											: record?.type === "past"
 											? record?.queue?.dependents || []
 											: []
 										)?.map((dependent: any, idx: number) => (
@@ -742,6 +805,11 @@ export default function DirectoryPage() {
 	const [filterType, setFilterType] = useState<string>("all");
 	const [filterService, setFilterService] = useState<string>("all");
 	const [filterCategory, setFilterCategory] = useState<string>("all");
+	const [genderFilter, setGenderFilter] = useState('all');
+	const [maritalStatusFilter, setMaritalStatusFilter] = useState('all');
+	const [unitFilter, setUnitFilter] = useState('all');
+	const [dependentsFilter, setDependentsFilter] = useState('all');
+	const [unitPopoverOpen, setUnitPopoverOpen] = useState(false);
 
 	useEffect(() => {
 		fetchAllRecords();
@@ -801,6 +869,84 @@ export default function DirectoryPage() {
 		}
 	};
 
+	// Helper function to get additional info - used by RecordCard and filters
+	const getAdditionalInfo = (record: Record) => {
+		switch (record.type) {
+			case "queue":
+				return {
+					currentUnit: record.currentUnit || "No Unit",
+					maritalStatus: record.maritalStatus || "N/A",
+					gender: record.gender || "N/A",
+					adultDependents: record.noOfAdultDependents || 0,
+					childDependents: record.noOfChildDependents || 0,
+				};
+			case "active": {
+				const currentOccupant = record.occupants?.find((o) => o.isCurrent);
+				const queueData = currentOccupant?.queue;
+				return {
+					currentUnit: queueData?.currentUnit || "No Unit",
+					maritalStatus: queueData?.maritalStatus || "N/A",
+					gender: queueData?.gender || "N/A",
+					adultDependents: queueData?.noOfAdultDependents || 0,
+					childDependents: queueData?.noOfChildDependents || 0,
+				};
+			}
+			case "pending":
+				return {
+					currentUnit: record.personnelData?.current_unit || record.personnelData?.currentUnit || "No Unit",
+					maritalStatus: record.personnelData?.maritalStatus || "N/A",
+					gender: record.personnelData?.gender || "N/A",
+					adultDependents: record.queue?.noOfAdultDependents || record.personnelData?.noOfAdultDependents || 0,
+					childDependents: record.queue?.noOfChildDependents || record.personnelData?.noOfChildDependents || 0,
+				};
+			case "past": {
+				const queueData = record.queue;
+				return {
+					currentUnit: queueData?.currentUnit || record.personnelData?.current_unit || record.personnelData?.currentUnit || "No Unit",
+					maritalStatus: queueData?.maritalStatus && queueData.maritalStatus !== "Unknown" ? queueData.maritalStatus : record.personnelData?.maritalStatus || "N/A",
+					gender: queueData?.gender && queueData.gender !== "Unknown" ? queueData.gender : record.personnelData?.gender || "N/A",
+					adultDependents: queueData?.noOfAdultDependents || 0,
+					childDependents: queueData?.noOfChildDependents || 0,
+				};
+			}
+			default:
+				return {
+					currentUnit: "No Unit",
+					maritalStatus: "N/A",
+					gender: "N/A",
+					adultDependents: 0,
+					childDependents: 0,
+				};
+		}
+	};
+
+	// Extract unique current units from all records
+	const getUniqueCurrentUnits = () => {
+		const units = new Set<string>();
+		
+		records.forEach((record: Record) => {
+			const additionalInfo = getAdditionalInfo(record);
+			if (additionalInfo.currentUnit && additionalInfo.currentUnit !== "No Unit") {
+				units.add(additionalInfo.currentUnit);
+			}
+		});
+		
+		return Array.from(units).sort();
+	};
+	
+	const uniqueCurrentUnits = getUniqueCurrentUnits();
+
+	const handleResetFilters = () => {
+		setSearchTerm('');
+		setGenderFilter('all');
+		setMaritalStatusFilter('all');
+		setFilterCategory('all');
+		setUnitFilter('all');
+		setFilterService('all');
+		setFilterType('all');
+		setDependentsFilter('all');
+	};
+
 	const filteredRecords = records.filter((record) => {
 		const matchesSearch =
 			searchTerm === "" ||
@@ -826,7 +972,26 @@ export default function DirectoryPage() {
 		const matchesCategory =
 			filterCategory === "all" || category === filterCategory;
 
-		return matchesSearch && matchesType && matchesService && matchesCategory;
+		// Get additional info for other filters
+		const additionalInfo = getAdditionalInfo(record);
+
+		// Gender filter
+		const matchesGender = genderFilter === 'all' || additionalInfo.gender === genderFilter;
+
+		// Marital status filter
+		const matchesMaritalStatus = maritalStatusFilter === 'all' || additionalInfo.maritalStatus === maritalStatusFilter;
+
+		// Unit filter
+		const matchesUnit = unitFilter === 'all' || additionalInfo.currentUnit === unitFilter;
+
+		// Dependents filter
+		const hasDependents = (additionalInfo.adultDependents + additionalInfo.childDependents) > 0;
+		const matchesDependents = dependentsFilter === 'all' || 
+			(dependentsFilter === 'with' && hasDependents) || 
+			(dependentsFilter === 'without' && !hasDependents);
+
+		return matchesSearch && matchesType && matchesService && matchesCategory && 
+			matchesGender && matchesMaritalStatus && matchesUnit && matchesDependents;
 	});
 
 	if (loading) {
@@ -845,49 +1010,190 @@ export default function DirectoryPage() {
 
 			<ServiceSummaryCards records={records} />
 
-			<div className='flex gap-4 flex-wrap'>
-				<div className='relative flex-1 min-w-[300px]'>
-					<Search className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-					<Input
-						placeholder='Search by name, service number, rank, or unit...'
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						className='pl-10'
-					/>
+			{/* Filters Section */}
+			<div className='bg-white dark:bg-card p-6 rounded-lg border mb-6'>
+				<div className='flex items-center justify-between mb-4'>
+					<h3 className='text-lg font-semibold'>Filters</h3>
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={handleResetFilters}
+						className='flex items-center gap-2'>
+						<RotateCcw className='h-4 w-4' />
+						Reset Filters
+					</Button>
 				</div>
-				<Select value={filterType} onValueChange={setFilterType}>
-					<SelectTrigger className='w-[180px]'>
-						<SelectValue placeholder='Filter by status' />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value='all'>All Records</SelectItem>
-						<SelectItem value='queue'>In Queue</SelectItem>
-						<SelectItem value='active'>Active Allocations</SelectItem>
-						<SelectItem value='pending'>Pending Approval</SelectItem>
-						<SelectItem value='past'>Past Allocations</SelectItem>
-					</SelectContent>
-				</Select>
-				<Select value={filterService} onValueChange={setFilterService}>
-					<SelectTrigger className='w-[180px]'>
-						<SelectValue placeholder='Filter by service' />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value='all'>All Services</SelectItem>
-						<SelectItem value='Army'>Army</SelectItem>
-						<SelectItem value='Navy'>Navy</SelectItem>
-						<SelectItem value='Air Force'>Air Force</SelectItem>
-					</SelectContent>
-				</Select>
-				<Select value={filterCategory} onValueChange={setFilterCategory}>
-					<SelectTrigger className='w-[180px]'>
-						<SelectValue placeholder='Filter by category' />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value='all'>All Categories</SelectItem>
-						<SelectItem value='Officer'>Officers</SelectItem>
-						<SelectItem value='NCOs'>NCOs</SelectItem>
-					</SelectContent>
-				</Select>
+
+				{/* First row: Search and Service Branch */}
+				<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+					<div className='space-y-2'>
+						<Label htmlFor='search'>Search</Label>
+						<div className='relative'>
+							<Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4' />
+							<Input
+								id='search'
+								placeholder='Search by name, service number, rank, or unit...'
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+								className='pl-10'
+							/>
+						</div>
+					</div>
+
+					<div className='space-y-2'>
+						<Label>Service Branch</Label>
+						<Select value={filterService} onValueChange={setFilterService}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Services' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Services</SelectItem>
+								<SelectItem value='Army'>Army</SelectItem>
+								<SelectItem value='Navy'>Navy</SelectItem>
+								<SelectItem value='Air Force'>Air Force</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+				</div>
+
+				{/* Second row: Other filters */}
+				<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4'>
+					<div className='space-y-2'>
+						<Label>Status</Label>
+						<Select value={filterType} onValueChange={setFilterType}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Records' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Records</SelectItem>
+								<SelectItem value='queue'>In Queue</SelectItem>
+								<SelectItem value='active'>Active</SelectItem>
+								<SelectItem value='pending'>Pending</SelectItem>
+								<SelectItem value='past'>Past</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+
+					<div className='space-y-2'>
+						<Label>Category</Label>
+						<Select value={filterCategory} onValueChange={setFilterCategory}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Categories' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Categories</SelectItem>
+								<SelectItem value='NCOs'>NCOs</SelectItem>
+								<SelectItem value='Officer'>Officer</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+
+					<div className='space-y-2'>
+						<Label>Current Unit</Label>
+						<Popover open={unitPopoverOpen} onOpenChange={setUnitPopoverOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									variant="outline"
+									role="combobox"
+									aria-expanded={unitPopoverOpen}
+									className="w-full justify-between font-normal"
+								>
+									{unitFilter === "all" 
+										? "All Units" 
+										: unitFilter}
+									<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-full p-0">
+								<Command>
+									<CommandInput placeholder="Search units..." />
+									<CommandEmpty>No unit found.</CommandEmpty>
+									<CommandGroup>
+										<CommandItem
+											value="all"
+											onSelect={() => {
+												setUnitFilter("all");
+												setUnitPopoverOpen(false);
+											}}
+										>
+											<Check
+												className={cn(
+													"mr-2 h-4 w-4",
+													unitFilter === "all" ? "opacity-100" : "opacity-0"
+												)}
+											/>
+											All Units
+										</CommandItem>
+										{uniqueCurrentUnits.map((unit: string) => (
+											<CommandItem
+												key={unit}
+												value={unit}
+												onSelect={(currentValue) => {
+													setUnitFilter(currentValue);
+													setUnitPopoverOpen(false);
+												}}
+											>
+												<Check
+													className={cn(
+														"mr-2 h-4 w-4",
+														unitFilter === unit ? "opacity-100" : "opacity-0"
+													)}
+												/>
+												{unit}
+											</CommandItem>
+										))}
+									</CommandGroup>
+								</Command>
+							</PopoverContent>
+						</Popover>
+					</div>
+
+					<div className='space-y-2'>
+						<Label>Marital Status</Label>
+						<Select
+							value={maritalStatusFilter}
+							onValueChange={setMaritalStatusFilter}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Status' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Status</SelectItem>
+								<SelectItem value='Single'>Single</SelectItem>
+								<SelectItem value='Married'>Married</SelectItem>
+								<SelectItem value='Divorced'>Divorced</SelectItem>
+								<SelectItem value='Widowed'>Widowed</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+
+					<div className='space-y-2'>
+						<Label>Dependents</Label>
+						<Select value={dependentsFilter} onValueChange={setDependentsFilter}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Personnel' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Personnel</SelectItem>
+								<SelectItem value='with'>With Dependents</SelectItem>
+								<SelectItem value='without'>Without Dependents</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+
+					<div className='space-y-2'>
+						<Label>Gender</Label>
+						<Select value={genderFilter} onValueChange={setGenderFilter}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Genders' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Genders</SelectItem>
+								<SelectItem value='Male'>Male</SelectItem>
+								<SelectItem value='Female'>Female</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+				</div>
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>

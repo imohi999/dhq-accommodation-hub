@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from 'next/image';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -126,9 +127,11 @@ export const AccommodationCardView = ({
 						{viewMode === "card" && (
 							<div className='aspect-video bg-muted'>
 								{unit.block_image_url ? (
-									<img
+									<Image
 										src={unit.block_image_url}
 										alt={`${unit.quarterName} - ${unit.blockName}`}
+										width={400}
+										height={300}
 										className='w-full h-full object-cover'
 									/>
 								) : (

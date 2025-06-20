@@ -152,6 +152,7 @@ model DhqLivingUnit {
   inventory                    UnitInventory[]
   maintenance                  UnitMaintenance[]
   occupants                    UnitOccupant[]
+  pastAllocations              PastAllocation[]
 
   @@index([status])
   @@index([unitName])
@@ -275,21 +276,22 @@ model StampSetting {
 }
 
 model PastAllocation {
-  id                  String    @id @default(uuid())
-  personnelId         String    @map("personnel_id")
-  queueId             String   @map("queue_id")
-  unitId              String    @map("unit_id")
-  letterId            String    @map("letter_id")
-  personnelData       Json      @map("personnel_data")
-  unitData            Json      @map("unit_data")
-  allocationStartDate DateTime  @map("allocation_start_date") @db.Date
-  allocationEndDate   DateTime? @map("allocation_end_date") @db.Date
-  durationDays        Int?      @map("duration_days")
-  reasonForLeaving    String?   @map("reason_for_leaving")
-  deallocationDate    DateTime? @map("deallocation_date")
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
-  queue               Queue    @relation(fields: [queueId], references: [id])
+  id                  String        @id @default(uuid())
+  personnelId         String        @map("personnel_id")
+  queueId             String        @map("queue_id")
+  unitId              String        @map("unit_id")
+  letterId            String        @map("letter_id")
+  personnelData       Json          @map("personnel_data")
+  unitData            Json          @map("unit_data")
+  allocationStartDate DateTime      @map("allocation_start_date") @db.Date
+  allocationEndDate   DateTime?     @map("allocation_end_date") @db.Date
+  durationDays        Int?          @map("duration_days")
+  reasonForLeaving    String?       @map("reason_for_leaving")
+  deallocationDate    DateTime?     @map("deallocation_date")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+  queue               Queue         @relation(fields: [queueId], references: [id])
+  unit                DhqLivingUnit @relation(fields: [unitId], references: [id])
 
   @@index([personnelId])
   @@index([unitId])

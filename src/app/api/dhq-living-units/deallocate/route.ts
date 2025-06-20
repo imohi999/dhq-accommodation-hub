@@ -45,11 +45,16 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      // Since queueId is now required, we must have a valid occupant with queueId
+      if (!currentOccupant || !currentOccupant.queueId) {
+        throw new Error("Current occupant must have a valid queue ID for deallocation");
+      }
+
       // Create a past allocation record
       const pastAllocation = await tx.pastAllocation.create({
         data: {
           personnelId: unit.currentOccupantId || unit.id,
-          queueId: currentOccupant?.queueId || null,
+          queueId: currentOccupant.queueId,
           unitId: unit.id,
           letterId: `DHQ/DEALLOC/${new Date().getFullYear()}/${Date.now()}`,
           personnelData: {

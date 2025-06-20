@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import {
 	Calendar,
 	Home,
@@ -143,9 +144,11 @@ export function AppSidebar() {
 		<Sidebar>
 			<SidebarHeader className='border-b border-border p-4'>
 				<div className='flex items-center gap-2'>
-					<img
+					<Image
 						src='/lovable-uploads/6dea8f38-4e85-41a5-95cc-343631f1cde0.png'
 						alt='DAP Logo'
+						width={32}
+						height={32}
 						className='h-8 w-8'
 					/>
 					<div>

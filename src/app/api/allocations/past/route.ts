@@ -8,7 +8,8 @@ export async function GET() {
   try {
     const pastAllocations = await prisma.pastAllocation.findMany({
       include: {
-        queue: true
+        queue: true,
+        unit: true
       },
       orderBy: {
         updatedAt: 'desc'
@@ -20,4 +21,5 @@ export async function GET() {
     const { message, status } = handlePrismaError(error);
     return NextResponse.json({ error: message }, { status });
   }
+  
 }

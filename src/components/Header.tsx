@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { Separator } from "@/components/ui/separator"
@@ -74,9 +75,11 @@ export function Header() {
       <div className="flex flex-1 items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
-            <img 
+            <Image 
               src="/lovable-uploads/6dea8f38-4e85-41a5-95cc-343631f1cde0.png" 
               alt="DHQ Logo" 
+              width={32}
+              height={32}
               className="w-full h-full object-cover"
             />
           </div>
