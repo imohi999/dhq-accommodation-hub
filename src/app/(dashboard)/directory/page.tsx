@@ -57,6 +57,8 @@ interface UnitData {
 	flatHouseRoomName?: string;
 	blockName?: string;
 	block_name?: string;
+	accommodationType?: string;
+	noOfRooms?: number;
 }
 
 interface UnitOccupant {
@@ -287,23 +289,27 @@ const RecordCard = ({ record }: { record: Record }) => {
 			case "active": {
 				// Get phone from current occupant if available
 				const currentOccupant = record.occupants?.find((o) => o.isCurrent);
+				// Try to get queue data from any occupant (current or former) that has it
+				const occupantWithQueue = record.occupants?.find((o) => o.isCurrent);
+				const queueData = occupantWithQueue?.queue;
 				return {
-					maritalStatus: record.marital_status || "N/A",
+					maritalStatus: queueData?.maritalStatus || "N/A",
 					phone: currentOccupant?.phone || record.phone || "N/A",
-					category: record.category || "N/A",
-					gender: record.gender || "N/A",
-					appointment: record.appointment || "No Appointment",
-					currentUnit: record.current_unit || "No Unit",
-					// Active allocations don't typically have dependent counts
-					adultDependents: 0,
-					childDependents: 0,
+					category: queueData?.category || record.category || "N/A",
+					gender: queueData?.gender || "N/A",
+					appointment: queueData?.appointment || "No Appointment",
+					currentUnit: queueData?.currentUnit || "No Unit",
+					// Get dependent counts from queue data if available
+					adultDependents: queueData?.noOfAdultDependents || 0,
+					childDependents: queueData?.noOfChildDependents || 0,
 					entryDate: record.allocation_date || record.occupancyStartDate,
 					// Unit details for active allocations
 					unitDetails: {
 						location: record.location,
 						quarterName: record.quarterName || record.quarter_name,
 						blockName: record.blockName || record.block_name,
-						flatHouseRoomName: record.flatHouseRoomName || record.flat_house_room_name,
+						flatHouseRoomName:
+							record.flatHouseRoomName || record.flat_house_room_name,
 						noOfRooms: record.noOfRooms,
 						bq: record.bq,
 						noOfRoomsInBq: record.noOfRoomsInBq,
@@ -318,15 +324,22 @@ const RecordCard = ({ record }: { record: Record }) => {
 					category: record.personnelData?.category || "N/A",
 					gender: record.personnelData?.gender || "N/A",
 					appointment: record.personnelData?.appointment || "No Appointment",
-					currentUnit: record.personnelData?.current_unit || record.personnelData?.currentUnit || "No Unit",
+					currentUnit:
+						record.personnelData?.current_unit ||
+						record.personnelData?.currentUnit ||
+						"No Unit",
 					adultDependents: 0,
 					childDependents: 0,
 					entryDate: record.createdAt,
 					// Unit details for pending allocations
 					unitDetails: {
-						quarterName: record.unitData?.quarterName || record.unitData?.quarter_name || record.unitData?.unitName,
-						blockName: record.unitData?.block_name,
-						flatHouseRoomName: record.unitData?.flat_house_room_name || record.unitData?.flatHouseRoomName,
+						quarterName:
+							record.unitData?.quarterName ||
+							record.unitData?.quarter_name ||
+							record.unitData?.unitName,
+						blockName: record.unitData?.unitName,
+						noOfRooms: record?.unitData?.noOfRooms,
+						accommodationType: record?.unitData?.accommodationType,
 					},
 				};
 			case "past":
@@ -336,15 +349,23 @@ const RecordCard = ({ record }: { record: Record }) => {
 					category: record.personnelData?.category || "N/A",
 					gender: record.personnelData?.gender || "N/A",
 					appointment: record.personnelData?.appointment || "No Appointment",
-					currentUnit: record.personnelData?.current_unit || record.personnelData?.currentUnit || "No Unit",
+					currentUnit:
+						record.personnelData?.current_unit ||
+						record.personnelData?.currentUnit ||
+						"No Unit",
 					adultDependents: 0,
 					childDependents: 0,
 					entryDate: record.allocationStartDate,
 					// Unit details for past allocations
 					unitDetails: {
-						quarterName: record.unitData?.quarterName || record.unitData?.quarter_name || record.unitData?.unitName,
+						quarterName:
+							record.unitData?.quarterName ||
+							record.unitData?.quarter_name ||
+							record.unitData?.unitName,
 						blockName: record.unitData?.block_name,
-						flatHouseRoomName: record.unitData?.flat_house_room_name || record.unitData?.flatHouseRoomName,
+						flatHouseRoomName:
+							record.unitData?.flat_house_room_name ||
+							record.unitData?.flatHouseRoomName,
 					},
 				};
 			default:
@@ -368,10 +389,12 @@ const RecordCard = ({ record }: { record: Record }) => {
 	// Format unit display name consistently
 	const getUnitDisplayName = () => {
 		if (!additionalInfo.unitDetails) return null;
-		const { quarterName, blockName, flatHouseRoomName } = additionalInfo.unitDetails;
-		return [quarterName, blockName, flatHouseRoomName]
-			.filter(Boolean)
-			.join(" ") || null;
+		const { quarterName, blockName, flatHouseRoomName } =
+			additionalInfo.unitDetails;
+		return (
+			[blockName, flatHouseRoomName, quarterName].filter(Boolean).join(" ") ||
+			null
+		);
 	};
 
 	const unitDisplayName = getUnitDisplayName();
@@ -390,7 +413,8 @@ const RecordCard = ({ record }: { record: Record }) => {
 								{getStatusBadge(record.type)}
 							</div>
 							<p className='text-sm text-muted-foreground mt-1'>
-								Svc No: {serviceNumber} • {additionalInfo.currentUnit} • {additionalInfo.appointment}
+								Svc No: {serviceNumber} • {additionalInfo.currentUnit} •{" "}
+								{additionalInfo.appointment}
 							</p>
 						</div>
 					</div>
@@ -407,13 +431,18 @@ const RecordCard = ({ record }: { record: Record }) => {
 							</span>
 						</div>
 
-						{/* Dependents count - show for all types */}
-						<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-							<Users className='h-4 w-4' />
-							<span>
-								A:{additionalInfo.adultDependents} C:{additionalInfo.childDependents}
-							</span>
-						</div>
+						{/* Dependents count - show for queue records and active records with queue data */}
+						{(record.type === "queue" ||
+							(record.type === "active" &&
+								record.occupants?.find((o) => o?.queue))) && (
+							<div className='flex items-center gap-2 text-sm text-muted-foreground'>
+								<Users className='h-4 w-4' />
+								<span>
+									A:{additionalInfo.adultDependents} C:
+									{additionalInfo.childDependents}
+								</span>
+							</div>
+						)}
 
 						{/* Phone number */}
 						<div className='flex items-center gap-2 text-sm text-muted-foreground'>
@@ -441,7 +470,7 @@ const RecordCard = ({ record }: { record: Record }) => {
 						)}
 
 						{/* Room details for active allocations */}
-						{record.type === "active" && additionalInfo.unitDetails && (
+						{additionalInfo.unitDetails && (
 							<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 								<Home className='h-4 w-4' />
 								<span>
@@ -453,7 +482,9 @@ const RecordCard = ({ record }: { record: Record }) => {
 									additionalInfo.unitDetails.noOfRoomsInBq > 0 && (
 										<Badge variant='secondary' className='text-xs ml-2'>
 											BQ: {additionalInfo.unitDetails.noOfRoomsInBq} Room
-											{additionalInfo.unitDetails.noOfRoomsInBq !== 1 ? "s" : ""}
+											{additionalInfo.unitDetails.noOfRoomsInBq !== 1
+												? "s"
+												: ""}
 										</Badge>
 									)}
 							</div>
@@ -479,28 +510,14 @@ const RecordCard = ({ record }: { record: Record }) => {
 					{/* Expandable details section */}
 					<CollapsibleContent>
 						<div className='mt-4 pt-4 border-t space-y-2'>
-							{/* Additional unit details */}
-							{record.type === "active" && additionalInfo.unitDetails?.location && (
-								<div className='text-sm'>
-									<span className='text-muted-foreground'>Location:</span>{" "}
-									{additionalInfo.unitDetails.location}
-								</div>
-							)}
-							
-							{record.type === "active" && additionalInfo.unitDetails?.accommodationType && (
-								<div className='text-sm'>
-									<span className='text-muted-foreground'>Accommodation Type:</span>{" "}
-									{additionalInfo.unitDetails.accommodationType.name}
-								</div>
-							)}
-
 							{/* Letter ID for pending and past */}
-							{(record.type === "pending" || record.type === "past") && record.letterId && (
-								<div className='text-sm'>
-									<span className='text-muted-foreground'>Letter ID:</span>{" "}
-									{record.letterId}
-								</div>
-							)}
+							{(record.type === "pending" || record.type === "past") &&
+								record.letterId && (
+									<div className='text-sm'>
+										<span className='text-muted-foreground'>Letter ID:</span>{" "}
+										{record.letterId}
+									</div>
+								)}
 
 							{/* Allocation period for past allocations */}
 							{record.type === "past" && record.allocationStartDate && (
@@ -515,46 +532,46 @@ const RecordCard = ({ record }: { record: Record }) => {
 								</div>
 							)}
 
-							{/* Queue position for queue records */}
-							{record.type === "queue" && record.sequence && (
-								<div className='text-sm'>
-									<span className='text-muted-foreground'>Queue Position:</span>{" "}
-									#{record.sequence}
+							{/* Dependents details for queue records and active records with queue data */}
+							{((record.type === "queue" &&
+								record.dependents &&
+								record.dependents.length > 0) ||
+								(record.type === "active" &&
+									record.occupants?.find((o) => o.queue)?.queue?.dependents &&
+									record.occupants.find((o) => o.queue)?.queue?.dependents
+										.length > 0)) && (
+								<div>
+									<h4 className='text-sm font-semibold mb-2'>
+										Dependents Details
+									</h4>
+									<div className='space-y-2'>
+										{(record.type === "queue"
+											? record.dependents
+											: record.occupants?.find((o) => o.queue)?.queue
+													?.dependents || []
+										).map((dependent, idx) => (
+											<div
+												key={idx}
+												className='flex items-center justify-between p-2 bg-muted rounded-lg'>
+												<div className='flex items-center gap-4'>
+													<span className='text-sm font-medium'>
+														{dependent.name}
+													</span>
+													<Badge variant='outline' className='text-xs'>
+														{dependent.gender}
+													</Badge>
+													<span className='text-sm text-muted-foreground'>
+														{dependent.age} years
+													</span>
+												</div>
+												<Badge variant='secondary' className='text-xs'>
+													{dependent.age >= 18 ? "Adult" : "Child"}
+												</Badge>
+											</div>
+										))}
+									</div>
 								</div>
 							)}
-
-							{/* Dependents details for queue records */}
-							{record.type === "queue" &&
-								record.dependents &&
-								record.dependents.length > 0 && (
-									<div className='mt-4 pt-4 border-t'>
-										<h4 className='text-sm font-semibold mb-2'>
-											Dependents Details
-										</h4>
-										<div className='space-y-2'>
-											{record.dependents.map((dependent, idx) => (
-												<div
-													key={idx}
-													className='flex items-center justify-between p-2 bg-muted rounded-lg'>
-													<div className='flex items-center gap-4'>
-														<span className='text-sm font-medium'>
-															{dependent.name}
-														</span>
-														<Badge variant='outline' className='text-xs'>
-															{dependent.gender}
-														</Badge>
-														<span className='text-sm text-muted-foreground'>
-															{dependent.age} years
-														</span>
-													</div>
-													<Badge variant='secondary' className='text-xs'>
-														{dependent.age >= 18 ? "Adult" : "Child"}
-													</Badge>
-												</div>
-											))}
-										</div>
-									</div>
-								)}
 						</div>
 					</CollapsibleContent>
 				</CardContent>
