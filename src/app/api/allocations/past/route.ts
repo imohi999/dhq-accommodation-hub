@@ -7,6 +7,9 @@ import { Prisma } from "@prisma/client";
 export async function GET() {
   try {
     const pastAllocations = await prisma.pastAllocation.findMany({
+      include: {
+        queue: true
+      },
       orderBy: {
         updatedAt: 'desc'
       }
@@ -70,7 +73,8 @@ export async function POST(request: NextRequest) {
             include: {
               accommodationType: true
             }
-          }
+          },
+          queue: true
         }
       });
 
@@ -82,6 +86,7 @@ export async function POST(request: NextRequest) {
       const pastAllocation = await tx.pastAllocation.create({
         data: {
           personnelId: allocation.personnelId,
+          queueId: allocation.queueId,
           unitId: allocation.unitId,
           allocationStartDate: allocation.approvedAt || allocation.createdAt,
           allocationEndDate: new Date(),

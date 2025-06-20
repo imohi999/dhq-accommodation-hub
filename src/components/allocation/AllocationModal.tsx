@@ -283,7 +283,7 @@ export const AllocationModal = ({
 								<Home className='h-8 w-8 mx-auto mb-2 opacity-50' />
 								<p>No vacant {personnel.category} units available</p>
 								<p className='text-sm'>
-									Only units matching the personnel's category (
+									Only units matching the personnel&apos;s category (
 									{personnel.category}) are shown
 								</p>
 							</div>

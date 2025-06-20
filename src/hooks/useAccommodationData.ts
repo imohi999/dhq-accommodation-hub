@@ -60,14 +60,14 @@ export const useAccommodationData = () => {
       console.error("Error fetching units:", unitsError);
       toast.error("Failed to fetch accommodation units");
     }
-  }, [unitsError, toast]);
+  }, [unitsError]);
 
   useEffect(() => {
     if (housingTypesError) {
       console.error("Error fetching accommodation types:", housingTypesError);
       toast.error("Failed to fetch accommodation types");
     }
-  }, [housingTypesError, toast]);
+  }, [housingTypesError]);
 
   useEffect(() => {
     if (unitsData) {

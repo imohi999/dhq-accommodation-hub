@@ -185,7 +185,7 @@ export default function QueuePage() {
 	};
 
 	if (loading || unitsLoading) {
-		return <LoadingState isLoading={true} children={null} />;
+		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
 	return (

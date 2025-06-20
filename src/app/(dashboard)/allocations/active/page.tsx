@@ -18,7 +18,7 @@ export default function ActiveAllocationsPage() {
 	);
 
 	if (!data && !error) {
-		return <LoadingState isLoading={true} children={null} />;
+		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
 	if (error) {

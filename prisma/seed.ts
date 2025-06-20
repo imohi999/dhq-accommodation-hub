@@ -10,12 +10,12 @@ async function main() {
   console.log('🧹 Clearing existing data...')
   await prisma.allocationRequest.deleteMany({})
   await prisma.pastAllocation.deleteMany({})
-  await prisma.queue.deleteMany({})
   await prisma.unitOccupant.deleteMany({})
   await prisma.unitHistory.deleteMany({})
   await prisma.unitInventory.deleteMany({})
   await prisma.unitMaintenance.deleteMany({})
   await prisma.dhqLivingUnit.deleteMany({})
+  await prisma.queue.deleteMany({})
   await prisma.stampSetting.deleteMany({})
   await prisma.accommodationType.deleteMany({})
   await prisma.unit.deleteMany({})
@@ -557,6 +557,48 @@ async function main() {
 
   console.log('✅ Created 20 DHQ  Accommodation')
 
+  // Create unit occupants and history for occupied units
+  const occupiedUnits = await prisma.dhqLivingUnit.findMany({
+    where: { status: 'Occupied' }
+  })
+
+  console.log(`Creating unit occupants and history for ${occupiedUnits.length} occupied units...`)
+
+  for (const unit of occupiedUnits) {
+    if (unit.currentOccupantName && unit.currentOccupantServiceNumber) {
+      // Create unit occupant record
+      await prisma.unitOccupant.create({
+        data: {
+          unitId: unit.id,
+          fullName: unit.currentOccupantName,
+          rank: unit.currentOccupantRank || 'Unknown',
+          serviceNumber: unit.currentOccupantServiceNumber,
+          phone: `+234-80${Math.floor(Math.random() * 90000000) + 10000000}`,
+          occupancyStartDate: unit.occupancyStartDate || new Date(),
+          isCurrent: true,
+          // Note: queueId is null for these initial occupants as they weren't from queue
+          queueId: null
+        }
+      })
+
+      // Create unit history record
+      await prisma.unitHistory.create({
+        data: {
+          unitId: unit.id,
+          occupantName: unit.currentOccupantName,
+          rank: unit.currentOccupantRank || 'Unknown',
+          serviceNumber: unit.currentOccupantServiceNumber,
+          startDate: unit.occupancyStartDate || new Date(),
+          endDate: null,
+          durationDays: null,
+          reasonForLeaving: null
+        }
+      })
+    }
+  }
+
+  console.log('✅ Created unit occupants and history for occupied units')
+
   // Create past allocations (20 entries)
   const pastAllocations = []
   const pastOccupants = [
@@ -591,6 +633,7 @@ async function main() {
 
     pastAllocations.push({
       personnelId: `past-${i}`, // Dummy ID as these are past allocations
+      queueId: null, // No queue reference for historical data
       unitId: unit.id,
       letterId: letterId,
       personnelData: {
@@ -619,46 +662,46 @@ async function main() {
 
   console.log('✅ Created 20 past allocations')
 
-  // Create allocation requests (20 entries) with unique personnel not in queue
+  // Create allocation requests (10 entries) from queue personnel
   const allocationRequests = []
-  const requestStatuses = ['approved', 'rejected', 'pending']
+  const requestStatuses = ['pending', 'approved', 'refused']
   const vacantUnits = await prisma.dhqLivingUnit.findMany({ where: { status: 'Vacant' }, take: 10 })
+  
+  // Get some queue entries to create allocation requests from
+  const queueForAllocations = await prisma.queue.findMany({ 
+    take: 10,
+    orderBy: { sequence: 'asc' }
+  })
 
-  // Create unique personnel for allocation requests
-  const allocationPersonnel = [
-    { fullName: "Taiwo Adegoke", rank: "Brig Gen", svcNo: "NA/11111/75", category: "Officer", maritalStatus: "Married", phone: "+234-8011111111", currentUnit: "DHQ" },
-    { fullName: "Amina Garba", rank: "Col", svcNo: "NN/22222/78", category: "Officer", maritalStatus: "Married", phone: "+234-8022222222", currentUnit: "Naval Command" },
-    { fullName: "Peter Nwosu", rank: "Lt Col", svcNo: "AF/33333/80", category: "Officer", maritalStatus: "Single", phone: "+234-8033333333", currentUnit: "Air Defence" },
-    { fullName: "Halima Sani", rank: "Maj", svcNo: "NA/44444/82", category: "Officer", maritalStatus: "Married", phone: "+234-8044444444", currentUnit: "Medical Corps" },
-    { fullName: "Ebenezer Adebisi", rank: "Capt", svcNo: "NN/55555/85", category: "Officer", maritalStatus: "Single", phone: "+234-8055555555", currentUnit: "MPB" },
-    { fullName: "Ngozi Ibe", rank: "Sqn Ldr", svcNo: "AF/66666/83", category: "Officer", maritalStatus: "Married", phone: "+234-8066666666", currentUnit: "DHQ" },
-    { fullName: "Musa Yaro", rank: "Lt", svcNo: "NA/77777/87", category: "Officer", maritalStatus: "Single", phone: "+234-8077777777", currentUnit: "Naval Command" },
-    { fullName: "Grace Okafor", rank: "2nd Lt", svcNo: "NN/88888/90", category: "Officer", maritalStatus: "Single", phone: "+234-8088888888", currentUnit: "Air Defence" },
-    { fullName: "Abdullahi Musa", rank: "WO", svcNo: "AF/99999/79", category: "NCOs", maritalStatus: "Married", phone: "+234-8099999999", currentUnit: "Medical Corps" },
-    { fullName: "Chidinma Eze", rank: "SSgt", svcNo: "NA/10101/81", category: "NCOs", maritalStatus: "Married", phone: "+234-8010101010", currentUnit: "MPB" }
-  ]
-
-  for (let i = 1; i <= 20; i++) {
+  for (let i = 0; i < 10 && i < queueForAllocations.length; i++) {
+    const queueEntry = queueForAllocations[i]
     const paddedCount = generateRandomFourDigitNumber();
     const letterId = `DHQ/GAR/ABJ/${currentYear}/${paddedCount}/LOG`;
-    const personnelIndex = (i - 1) % allocationPersonnel.length
-    const personnel = allocationPersonnel[personnelIndex]
-    const requestedUnit = vacantUnits[(i - 1) % vacantUnits.length]
+    const requestedUnit = vacantUnits[i % vacantUnits.length]
     const accommodationType = await prisma.accommodationType.findUnique({ where: { id: requestedUnit.accommodationTypeId } })
 
     allocationRequests.push({
-      personnelId: `alloc-${i}`, // Unique ID for allocation requests
+      personnelId: queueEntry.id, // Use actual queue ID
+      queueId: queueEntry.id, // Reference to queue
       unitId: requestedUnit.id,
       letterId: letterId,
-      status: requestStatuses[i % 3], // Use only 3 statuses (approved, rejected, pending)
+      status: requestStatuses[i % 3],
       personnelData: {
-        fullName: personnel.fullName,
-        svcNo: personnel.svcNo,
-        rank: personnel.rank,
-        category: personnel.category,
-        maritalStatus: personnel.maritalStatus,
-        phone: personnel.phone,
-        currentUnit: personnel.currentUnit
+        id: queueEntry.id,
+        fullName: queueEntry.fullName,
+        svcNo: queueEntry.svcNo,
+        rank: queueEntry.rank,
+        category: queueEntry.category,
+        gender: queueEntry.gender,
+        armOfService: queueEntry.armOfService,
+        maritalStatus: queueEntry.maritalStatus,
+        noOfAdultDependents: queueEntry.noOfAdultDependents,
+        noOfChildDependents: queueEntry.noOfChildDependents,
+        phone: queueEntry.phone,
+        currentUnit: queueEntry.currentUnit,
+        appointment: queueEntry.appointment,
+        entryDateTime: queueEntry.entryDateTime,
+        sequence: queueEntry.sequence
       },
       unitData: {
         quarterName: requestedUnit.quarterName,
@@ -667,14 +710,11 @@ async function main() {
         accommodationType: accommodationType?.name,
         noOfRooms: requestedUnit.noOfRooms
       },
-      ...(requestStatuses[i % 4] === 'approved' && {
+      ...(requestStatuses[i % 3] === 'approved' && {
         approvedBy: "admin",
-        approvedAt: new Date(),
-        allocationDate: new Date()
+        approvedAt: new Date()
       }),
-      ...(requestStatuses[i % 4] === 'rejected' && {
-        approvedBy: "admin",
-        approvedAt: new Date(),
+      ...(requestStatuses[i % 3] === 'refused' && {
         refusalReason: ["Unit not suitable", "Ineligible", "Pending documentation"][i % 3]
       })
     })
@@ -684,7 +724,7 @@ async function main() {
     await prisma.allocationRequest.create({ data: request })
   }
 
-  console.log('✅ Created 20 allocation requests')
+  console.log(`✅ Created ${allocationRequests.length} allocation requests`)
 
   // Create maintenance records (using existing UnitMaintenance table)
   const maintenanceData = [

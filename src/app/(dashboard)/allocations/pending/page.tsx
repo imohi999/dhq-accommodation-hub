@@ -131,7 +131,7 @@ export default function PendingApproval() {
 	);
 
 	if (isLoading) {
-		return <LoadingState isLoading={true} children={null} />;
+		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 	// Pass the data as is
 	const pendingRequests = data;

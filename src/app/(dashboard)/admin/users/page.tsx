@@ -107,7 +107,7 @@ export default function UserManagementPage() {
   };
 
   if (isLoading) {
-    return <LoadingState isLoading={true} children={null} />;
+    return <LoadingState isLoading={true}>{null}</LoadingState>;
   }
 
   if (error) {

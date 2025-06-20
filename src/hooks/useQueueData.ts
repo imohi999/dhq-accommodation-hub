@@ -57,7 +57,7 @@ export const useQueueData = () => {
       console.error("Error fetching queue items:", queueError);
       toast.error("Failed to fetch queue items");
     }
-  }, [queueError, toast]);
+  }, [queueError]);
 
   useEffect(() => {
     if (unitsError) {

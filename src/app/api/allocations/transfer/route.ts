@@ -48,9 +48,18 @@ export async function POST(request: NextRequest) {
         throw new Error("Destination unit is not vacant");
       }
 
+      // Get current occupant's queueId before creating past allocation
+      const currentOccupant = await tx.unitOccupant.findFirst({
+        where: {
+          unitId: fromUnitId,
+          isCurrent: true
+        }
+      });
+
       const pastAllocation = await tx.pastAllocation.create({
         data: {
           personnelId: fromUnit.currentOccupantId || fromUnit.id,
+          queueId: currentOccupant?.queueId || null,
           unitId: fromUnit.id,
           letterId: `DHQ/TRANSFER/${new Date().getFullYear()}/${Date.now()}`,
           personnelData: {
@@ -130,6 +139,7 @@ export async function POST(request: NextRequest) {
       await tx.unitOccupant.create({
         data: {
           unitId: toUnitId,
+          queueId: occupantDetails?.queueId || null,
           fullName: fromUnit.currentOccupantName || "Unknown",
           rank: fromUnit.currentOccupantRank || "Unknown",
           serviceNumber: fromUnit.currentOccupantServiceNumber || "Unknown",

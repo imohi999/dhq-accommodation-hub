@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useOccupiedUnits as useOccupiedUnitsSWR } from "@/services/occupiedUnitsApi";
 import { createTransferAllocationRequest, deallocatePersonnelFromUnit } from "@/services/allocationApi";
@@ -65,7 +65,7 @@ export const useOccupiedUnits = () => {
     if (error && !isLoading) {
       toast.error("Failed to fetch occupied units");
     }
-  }, [error, isLoading, toast]);
+  }, [error, isLoading]);
 
   return {
     occupiedUnits: occupiedUnits || [],

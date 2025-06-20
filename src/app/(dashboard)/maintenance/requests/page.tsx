@@ -84,7 +84,7 @@ export default function MaintenanceRequestsPage() {
 	}
 
 	if (isLoading) {
-		return <LoadingState isLoading={true} children={null} />;
+		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
 	return (

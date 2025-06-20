@@ -45,7 +45,11 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         accommodationType: true,
-        occupants: true
+        occupants: {
+          include: {
+            queue: true
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc',

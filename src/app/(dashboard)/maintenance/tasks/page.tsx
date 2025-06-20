@@ -82,7 +82,7 @@ export default function MaintenanceTasksPage() {
 	}
 
 	if (isLoading) {
-		return <LoadingState isLoading={true} children={null} />;
+		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
 	return (

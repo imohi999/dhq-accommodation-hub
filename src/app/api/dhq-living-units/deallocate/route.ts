@@ -37,10 +37,19 @@ export async function POST(request: NextRequest) {
 
     // Start a transaction to ensure data consistency
     const result = await prisma.$transaction(async (tx) => {
+      // Get current occupant's queueId
+      const currentOccupant = await tx.unitOccupant.findFirst({
+        where: {
+          unitId: unitId,
+          isCurrent: true
+        }
+      });
+
       // Create a past allocation record
       const pastAllocation = await tx.pastAllocation.create({
         data: {
           personnelId: unit.currentOccupantId || unit.id,
+          queueId: currentOccupant?.queueId || null,
           unitId: unit.id,
           letterId: `DHQ/DEALLOC/${new Date().getFullYear()}/${Date.now()}`,
           personnelData: {

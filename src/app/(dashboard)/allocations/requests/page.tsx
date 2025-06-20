@@ -31,7 +31,7 @@ export default function AllocationRequests() {
   const approvedRequests = allocationRequests.filter(req => req.status === 'approved');
 
   if (requestsLoading || occupiedLoading) {
-    return <LoadingState isLoading={true} children={null} />;
+    return <LoadingState isLoading={true}>{null}</LoadingState>;
   }
 
   return (

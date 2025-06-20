@@ -41,7 +41,7 @@ export function MaintenanceRequestTable({
 	};
 
 	if (loading) {
-		return <LoadingState isLoading={true} children={null} />;
+		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
 	if (!requests.length) {

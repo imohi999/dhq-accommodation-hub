@@ -14,7 +14,8 @@ export async function GET(
           include: {
             accommodationType: true
           }
-        }
+        },
+        queue: true
       }
     });
 
@@ -60,7 +61,8 @@ export async function PATCH(
           include: {
             accommodationType: true
           }
-        }
+        },
+        queue: true
       }
     });
 
@@ -90,6 +92,7 @@ export async function PATCH(
         await prisma.pastAllocation.create({
           data: {
             personnelId: allocationRequest.personnelId,
+            queueId: allocationRequest.queueId,
             unitId: currentOccupiedUnit.id,
             letterId: `TRANSFER-${Date.now()}`,
             personnelData: allocationRequest.personnelData as Prisma.InputJsonValue,

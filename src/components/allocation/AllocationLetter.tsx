@@ -85,6 +85,8 @@ export const AllocationLetter = ({
                 
                 .mb-6 { margin-bottom: 1.5rem; }
 								.text-justify { text-align: justify; }
+								.mr-16 { margin-right: 4rem; }
+								.mr-18 { margin-right: 4.5rem; }
 								.mr-20 { margin-right: 5rem; }
 								.mr-24 { margin-right: 6rem; }
 								.mr-28 { margin-right: 7rem; }
@@ -322,7 +324,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Letter Reference - Display actual letter ID */}
-					<div>
+					<div className='mb-2'>
 						<p className='font-bold'>{displayLetterId}</p>
 					</div>
 
@@ -355,7 +357,8 @@ export const AllocationLetter = ({
 					{/* Body */}
 					<div className='space-y-4 mb-8 mr-20 text-justify'>
 						<p>
-							1. I am directed to inform you that you have been allocated{" "}
+							1.&nbsp;&nbsp;&nbsp;&nbsp; I am directed to inform you that you
+							have been allocated{" "}
 							<span className='font-bold'>
 								{allocationRequest.unit.blockName}
 							</span>
@@ -401,14 +404,14 @@ export const AllocationLetter = ({
 						</p>
 
 						<p>
-							2. While wishing you a fruitful tour of duty and a happy stay in
-							your new quarters. Please accept the assurances and esteemed
-							regards of the Comd.
+							2.&nbsp;&nbsp;&nbsp; While wishing you a fruitful tour of
+							duty and a happy stay in your new quarters. Please accept the
+							assurances and esteemed regards of the Comd.
 						</p>
 					</div>
 
 					{/* Signature - Removed stamp image box, only text */}
-					<div className='text-left mt-12 mr-[72px] flex justify-end'>
+					<div className='text-left mt-12 mr-16 flex justify-end'>
 						{activeStamp && (
 							<div className='text-sm'>
 								<p className='font-bold'>{activeStamp.stamp_name}</p>

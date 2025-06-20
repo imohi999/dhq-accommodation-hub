@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
           include: {
             accommodationType: true
           }
-        }
+        },
+        queue: true
       },
       orderBy: {
         createdAt: 'desc'
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       const allocationRequest = await tx.allocationRequest.create({
         data: {
           personnelId,
+          queueId: personnelId, // personnelId is actually the queue ID
           unitId,
           letterId,
           personnelData,
@@ -68,7 +70,8 @@ export async function POST(request: NextRequest) {
             include: {
               accommodationType: true
             }
-          }
+          },
+          queue: true
         }
       });
 

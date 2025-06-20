@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 
     const queue = await prisma.queue.findMany({
       where,
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     })
 
     return NextResponse.json(queue)
