@@ -17,9 +17,6 @@ import {
 	UserMinus,
 	FileText,
 	Home,
-	Building2,
-	Users,
-	Briefcase,
 	AlertTriangle,
 } from "lucide-react";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
@@ -289,13 +286,13 @@ export const ActiveAllocationsView = ({
 
 	// Calculate by service
 	const armyAllocations = occupiedUnits.filter(
-		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber) === "Army"
+		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") === "Army"
 	);
 	const navyAllocations = occupiedUnits.filter(
-		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber) === "Navy"
+		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") === "Navy"
 	);
 	const airForceAllocations = occupiedUnits.filter(
-		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber) === "Air Force"
+		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") === "Air Force"
 	);
 
 	const armyOfficers = armyAllocations.filter((unit) => unit.category === "Officer").length;

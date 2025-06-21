@@ -76,6 +76,7 @@ interface QueueData {
 	svcNo: string;
 	maritalStatus: string;
 	armOfService?: string;
+	arm_of_service?: string;
 	category?: string;
 	gender?: string;
 	noOfAdultDependents?: number;
@@ -96,7 +97,7 @@ interface ActiveData {
 	quarterName?: string;
 	quarter_name?: string;
 	location?: string;
-	noOfRooms?: number;
+	noOfRooms?: number | string;
 	bq?: boolean;
 	noOfRoomsInBq?: number;
 	accommodationType?: {
@@ -127,7 +128,7 @@ interface ActiveData {
 
 interface PendingData {
 	id: string;
-	personnelData: {
+	personnelData?: {
 		fullName?: string;
 		rank?: string;
 		serviceNumber?: string;
@@ -135,7 +136,7 @@ interface PendingData {
 		category?: string;
 		gender?: string;
 	};
-	unitData: {
+	unitData?: {
 		quarterName?: string;
 		accommodationType?: string;
 	};
@@ -153,7 +154,7 @@ interface PendingData {
 
 interface PastData {
 	id: string;
-	personnelData: {
+	personnelData?: {
 		fullName?: string;
 		rank?: string;
 		serviceNumber?: string;
@@ -161,14 +162,14 @@ interface PastData {
 		category?: string;
 		gender?: string;
 	};
-	unitData: {
+	unitData?: {
 		quarterName?: string;
 		accommodationType?: string;
 	};
-	unit: {
-		quarterName: string;
-		location: string;
-		noOfRooms: string;
+	unit?: {
+		quarterName?: string;
+		location?: string;
+		noOfRooms?: string | number;
 	};
 	allocationStartDate: string;
 	allocationEndDate?: string | null;
@@ -657,8 +658,8 @@ const DynamicChart = ({
 				</div>
 			</CardHeader>
 			<CardContent>
-				<ResponsiveContainer {...{ width: "100%", height: config.height || 300 }}>
-					{renderChart()}
+				<ResponsiveContainer width="100%" height={config.height || 300}>
+					{renderChart() || <div />}
 				</ResponsiveContainer>
 			</CardContent>
 		</Card>
@@ -703,7 +704,7 @@ export default function DirectoryAnalyticsPage() {
 			]);
 
 			// Transform queue data
-			const transformedQueue = (Array.isArray(queueData) ? queueData : queueData.data || []).map((item: QueueData) => ({
+			const transformedQueue = (Array.isArray(queueData) ? queueData : (queueData as any).data || []).map((item: QueueData) => ({
 				...item,
 				armOfService: getArmOfService(item.svcNo),
 				totalDependents: (item.noOfAdultDependents || 0) + (item.noOfChildDependents || 0),
@@ -713,8 +714,8 @@ export default function DirectoryAnalyticsPage() {
 			}));
 
 			// Transform active data
-			const transformedActive = (Array.isArray(activeData) ? activeData : activeData.data || []).map((item: ActiveData) => {
-				const currentOccupant = item.occupants?.find((o) => o.isCurrent);
+			const transformedActive = (Array.isArray(activeData) ? activeData : (activeData as any).data || []).map((item: ActiveData) => {
+				const currentOccupant = item.occupants?.find((o: any) => o.isCurrent);
 				const totalDependents = (currentOccupant?.queue?.noOfAdultDependents || 0) + (currentOccupant?.queue?.noOfChildDependents || 0);
 				return {
 					...item,
@@ -732,28 +733,28 @@ export default function DirectoryAnalyticsPage() {
 			});
 
 			// Transform pending data
-			const transformedPending = (Array.isArray(pendingData) ? pendingData : pendingData.data || []).map((item: PendingData) => ({
+			const transformedPending = (Array.isArray(pendingData) ? pendingData : (pendingData as any).data || []).map((item: PendingData) => ({
 				...item,
-				armOfService: getArmOfService(item.personnelData.serviceNumber || ""),
-				rank: item.personnelData.rank,
-				maritalStatus: item.personnelData.maritalStatus,
-				category: item.personnelData.category,
-				gender: item.personnelData.gender,
-				accommodationType: item.unitData.accommodationType,
+				armOfService: getArmOfService(item.personnelData?.serviceNumber || ""),
+				rank: item.personnelData?.rank,
+				maritalStatus: item.personnelData?.maritalStatus,
+				category: item.personnelData?.category,
+				gender: item.personnelData?.gender,
+				accommodationType: item.unitData?.accommodationType,
 				processingDays: Math.ceil((new Date().getTime() - new Date(item.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
 				createdMonth: new Date(item.createdAt).toLocaleString('default', { month: 'short' }),
 			}));
 
 			// Transform past data
-			const transformedPast = (Array.isArray(pastData) ? pastData : pastData.data || []).map((item: PastData) => ({
+			const transformedPast = (Array.isArray(pastData) ? pastData : (pastData as any).data || []).map((item: PastData) => ({
 				...item,
-				armOfService: getArmOfService(item.personnelData.serviceNumber || ""),
-				rank: item.personnelData.rank,
-				maritalStatus: item.queue?.maritalStatus || item.personnelData.maritalStatus,
-				category: item.queue?.category || item.personnelData.category,
-				gender: item.queue?.gender || item.personnelData.gender,
-				quarterName: item.unit.quarterName,
-				accommodationType: item.unitData.accommodationType,
+				armOfService: getArmOfService(item.personnelData?.serviceNumber || ""),
+				rank: item.personnelData?.rank,
+				maritalStatus: item.queue?.maritalStatus || item.personnelData?.maritalStatus,
+				category: item.queue?.category || item.personnelData?.category,
+				gender: item.queue?.gender || item.personnelData?.gender,
+				quarterName: item.unit?.quarterName,
+				accommodationType: item.unitData?.accommodationType,
 				durationCategory: 
 					!item.durationDays ? "Unknown" :
 					item.durationDays <= 30 ? "0-30 days" :
@@ -885,8 +886,8 @@ export default function DirectoryAnalyticsPage() {
 			unitsWithDependents,
 			quarterOccupancy: Object.entries(quarterOccupancy).map(([quarter, data]) => ({
 				quarter,
-				units: data.units,
-				population: data.population,
+				units: (data as { units: number; population: number }).units,
+				population: (data as { units: number; population: number }).population,
 			})),
 		};
 	};
@@ -967,11 +968,14 @@ export default function DirectoryAnalyticsPage() {
 		return {
 			avgOccupancyDuration,
 			totalDeallocations: pastData.length,
-			quarterTurnover: Object.entries(quarterTurnover).map(([quarter, data]) => ({
-				quarter,
-				turnoverCount: data.count,
-				avgDuration: data.count > 0 ? Math.round(data.totalDuration / data.count) : 0,
-			})),
+			quarterTurnover: Object.entries(quarterTurnover).map(([quarter, data]) => {
+				const typedData = data as { count: number; totalDuration: number };
+				return {
+					quarter,
+					turnoverCount: typedData.count,
+					avgDuration: typedData.count > 0 ? Math.round(typedData.totalDuration / typedData.count) : 0,
+				};
+			}),
 			monthlyTurnover,
 		};
 	};
