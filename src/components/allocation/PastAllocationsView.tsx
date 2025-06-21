@@ -11,6 +11,7 @@ interface PersonnelData {
 	serviceNumber?: string;
 	svc_no?: string;
 	svcNo?: string;
+	category?: string;
 }
 
 interface UnitData {
@@ -89,10 +90,45 @@ export const PastAllocationsView = () => {
 		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
+	// Extract service from service number prefix
+	const getServiceFromSvcNo = (svcNo: string) => {
+		if (svcNo?.startsWith("NA/")) return "Army";
+		if (svcNo?.startsWith("NN/")) return "Navy";
+		if (svcNo?.startsWith("AF/")) return "Air Force";
+		return "Unknown";
+	};
+
+	// Calculate summary statistics
+	const totalPastAllocations = pastAllocations.length;
+	const officerAllocations = pastAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "Officer"
+	).length;
+	const ncoAllocations = pastAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "NCOs"
+	).length;
+
+	// Calculate by service
+	const armyAllocations = pastAllocations.filter(
+		(allocation) => getServiceFromSvcNo(allocation.personnelData?.serviceNumber || allocation.personnelData?.svc_no || allocation.personnelData?.svcNo || "") === "Army"
+	);
+	const navyAllocations = pastAllocations.filter(
+		(allocation) => getServiceFromSvcNo(allocation.personnelData?.serviceNumber || allocation.personnelData?.svc_no || allocation.personnelData?.svcNo || "") === "Navy"
+	);
+	const airForceAllocations = pastAllocations.filter(
+		(allocation) => getServiceFromSvcNo(allocation.personnelData?.serviceNumber || allocation.personnelData?.svc_no || allocation.personnelData?.svcNo || "") === "Air Force"
+	);
+
+	const armyOfficers = armyAllocations.filter((allocation) => allocation.personnelData?.category === "Officer").length;
+	const armyNCOs = armyAllocations.filter((allocation) => allocation.personnelData?.category === "NCOs").length;
+	const navyOfficers = navyAllocations.filter((allocation) => allocation.personnelData?.category === "Officer").length;
+	const navyNCOs = navyAllocations.filter((allocation) => allocation.personnelData?.category === "NCOs").length;
+	const airForceOfficers = airForceAllocations.filter((allocation) => allocation.personnelData?.category === "Officer").length;
+	const airForceNCOs = airForceAllocations.filter((allocation) => allocation.personnelData?.category === "NCOs").length;
+
 	return (
 		<div className='space-y-6'>
 			{/* Summary Cards */}
-			<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium'>
@@ -101,51 +137,49 @@ export const PastAllocationsView = () => {
 						<Clock className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{pastAllocations.length}</div>
+						<div className='text-2xl font-bold'>{totalPastAllocations}</div>
+						<p className='text-xs text-muted-foreground'>
+							Officers: {officerAllocations} | NCOs: {ncoAllocations}
+						</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>
-							Average Duration
-						</CardTitle>
-						<User className='h-4 w-4 text-muted-foreground' />
+						<CardTitle className='text-sm font-medium'>Army</CardTitle>
+						<div className='w-4 h-4 rounded-full bg-red-500' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>
-							{pastAllocations.filter((a) => a.durationDays).length > 0
-								? formatDuration(
-										Math.round(
-											pastAllocations
-												.filter((a) => a.durationDays)
-												.reduce((sum, a) => sum + (a.durationDays || 0), 0) /
-												pastAllocations.filter((a) => a.durationDays).length
-										)
-								  )
-								: "0 days"}
-						</div>
+						<div className='text-2xl font-bold'>{armyAllocations.length}</div>
+						<p className='text-xs text-muted-foreground'>
+							Officers: {armyOfficers} | NCOs: {armyNCOs}
+						</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>
-							Completed This Year
-						</CardTitle>
-						<Home className='h-4 w-4 text-muted-foreground' />
+						<CardTitle className='text-sm font-medium'>Navy</CardTitle>
+						<div className='w-4 h-4 rounded-full bg-blue-500' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>
-							{
-								pastAllocations.filter(
-									(a) =>
-										new Date(
-											a.allocationEndDate || a.allocationStartDate
-										).getFullYear() === new Date().getFullYear()
-								).length
-							}
-						</div>
+						<div className='text-2xl font-bold'>{navyAllocations.length}</div>
+						<p className='text-xs text-muted-foreground'>
+							Officers: {navyOfficers} | NCOs: {navyNCOs}
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium'>Air Force</CardTitle>
+						<div className='w-4 h-4 rounded-full bg-cyan-500' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold'>{airForceAllocations.length}</div>
+						<p className='text-xs text-muted-foreground'>
+							Officers: {airForceOfficers} | NCOs: {airForceNCOs}
+						</p>
 					</CardContent>
 				</Card>
 			</div>

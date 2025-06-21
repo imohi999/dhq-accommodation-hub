@@ -1,6 +1,6 @@
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Users, Shield, Anchor, Plane } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 import { QueueItem } from "@/types/queue";
 
 interface QueueSummaryCardsProps {
@@ -9,61 +9,79 @@ interface QueueSummaryCardsProps {
 
 export const QueueSummaryCards = ({ queueItems }: QueueSummaryCardsProps) => {
   const totalCount = queueItems.length;
-  const armyCount = queueItems.filter(item => item.arm_of_service === "Army").length;
-  const navyCount = queueItems.filter(item => item.arm_of_service === "Navy").length;
-  const airForceCount = queueItems.filter(item => item.arm_of_service === "Air Force").length;
+  const officerCount = queueItems.filter(item => item.category === "Officer").length;
+  const ncoCount = queueItems.filter(item => item.category === "NCOs").length;
+
+  // Extract service from service number prefix
+  const getServiceFromSvcNo = (svcNo: string) => {
+    if (svcNo?.startsWith("NA/")) return "Army";
+    if (svcNo?.startsWith("NN/")) return "Navy";
+    if (svcNo?.startsWith("AF/")) return "Air Force";
+    return "Unknown";
+  };
+
+  const armyItems = queueItems.filter(item => getServiceFromSvcNo(item.svc_no) === "Army");
+  const navyItems = queueItems.filter(item => getServiceFromSvcNo(item.svc_no) === "Navy");
+  const airForceItems = queueItems.filter(item => getServiceFromSvcNo(item.svc_no) === "Air Force");
+
+  const armyOfficers = armyItems.filter(item => item.category === "Officer").length;
+  const armyNCOs = armyItems.filter(item => item.category === "NCOs").length;
+  const navyOfficers = navyItems.filter(item => item.category === "Officer").length;
+  const navyNCOs = navyItems.filter(item => item.category === "NCOs").length;
+  const airForceOfficers = airForceItems.filter(item => item.category === "Officer").length;
+  const airForceNCOs = airForceItems.filter(item => item.category === "NCOs").length;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <Card className="bg-gray-50 dark:bg-gray-900">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Queue</p>
-              <p className="text-3xl font-bold">{totalCount}</p>
-              <p className="text-sm text-muted-foreground">Awaiting Allocation</p>
-            </div>
-            <Users className="h-8 w-8 text-muted-foreground" />
-          </div>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Queue</CardTitle>
+          <Clock className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{totalCount}</div>
+          <p className="text-xs text-muted-foreground">
+            Officers: {officerCount} | NCOs: {ncoCount}
+          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-red-50 dark:bg-red-950">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-red-700 dark:text-red-300">Army</p>
-              <p className="text-3xl font-bold text-red-800 dark:text-red-200">{armyCount}</p>
-              <p className="text-sm text-red-600 dark:text-red-400">In Queue</p>
-            </div>
-            <Shield className="h-8 w-8 text-red-600 dark:text-red-400" />
-          </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Army</CardTitle>
+          <div className="w-4 h-4 rounded-full bg-red-500" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{armyItems.length}</div>
+          <p className="text-xs text-muted-foreground">
+            Officers: {armyOfficers} | NCOs: {armyNCOs}
+          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-blue-50 dark:bg-blue-950">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-blue-700 dark:text-blue-300">Navy</p>
-              <p className="text-3xl font-bold text-blue-800 dark:text-blue-200">{navyCount}</p>
-              <p className="text-sm text-blue-600 dark:text-blue-400">In Queue</p>
-            </div>
-            <Anchor className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-          </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Navy</CardTitle>
+          <div className="w-4 h-4 rounded-full bg-blue-500" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{navyItems.length}</div>
+          <p className="text-xs text-muted-foreground">
+            Officers: {navyOfficers} | NCOs: {navyNCOs}
+          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-sky-50 dark:bg-sky-950">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-sky-700 dark:text-sky-300">Air Force</p>
-              <p className="text-3xl font-bold text-sky-800 dark:text-sky-200">{airForceCount}</p>
-              <p className="text-sm text-sky-600 dark:text-sky-400">In Queue</p>
-            </div>
-            <Plane className="h-8 w-8 text-sky-600 dark:text-sky-400" />
-          </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Air Force</CardTitle>
+          <div className="w-4 h-4 rounded-full bg-cyan-500" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{airForceItems.length}</div>
+          <p className="text-xs text-muted-foreground">
+            Officers: {airForceOfficers} | NCOs: {airForceNCOs}
+          </p>
         </CardContent>
       </Card>
     </div>

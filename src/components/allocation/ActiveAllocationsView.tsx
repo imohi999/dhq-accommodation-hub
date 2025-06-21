@@ -270,33 +270,40 @@ export const ActiveAllocationsView = ({
 		},
 	});
 
+	// Extract service from service number prefix
+	const getServiceFromSvcNo = (svcNo: string) => {
+		if (svcNo?.startsWith("NA/")) return "Army";
+		if (svcNo?.startsWith("NN/")) return "Navy";
+		if (svcNo?.startsWith("AF/")) return "Air Force";
+		return "Unknown";
+	};
+
 	// Calculate summary statistics
 	const totalActiveAllocations = occupiedUnits.length;
 	const officerAllocations = occupiedUnits.filter(
 		(unit) => unit.category === "Officer"
 	).length;
-	const menAllocations = occupiedUnits.filter(
+	const ncoAllocations = occupiedUnits.filter(
 		(unit) => unit.category === "NCOs"
 	).length;
 
-	// Calculate by accommodation type
-	const housingTypeBreakdown = occupiedUnits.reduce((acc, unit) => {
-		const type = unit.accommodationType?.name || unit.category;
-		acc[type] = (acc[type] || 0) + 1;
-		return acc;
-	}, {} as Record<string, number>);
-
-	// Calculate by location
-	const locationBreakdown = occupiedUnits.reduce((acc, unit) => {
-		acc[unit.location] = (acc[unit.location] || 0) + 1;
-		return acc;
-	}, {} as Record<string, number>);
-
-	// Find the most common accommodation type
-	const mostCommonHousingType = Object.entries(housingTypeBreakdown).reduce(
-		(max, [type, count]) => (count > max.count ? { type, count } : max),
-		{ type: "N/A", count: 0 }
+	// Calculate by service
+	const armyAllocations = occupiedUnits.filter(
+		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber) === "Army"
 	);
+	const navyAllocations = occupiedUnits.filter(
+		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber) === "Navy"
+	);
+	const airForceAllocations = occupiedUnits.filter(
+		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber) === "Air Force"
+	);
+
+	const armyOfficers = armyAllocations.filter((unit) => unit.category === "Officer").length;
+	const armyNCOs = armyAllocations.filter((unit) => unit.category === "NCOs").length;
+	const navyOfficers = navyAllocations.filter((unit) => unit.category === "Officer").length;
+	const navyNCOs = navyAllocations.filter((unit) => unit.category === "NCOs").length;
+	const airForceOfficers = airForceAllocations.filter((unit) => unit.category === "Officer").length;
+	const airForceNCOs = airForceAllocations.filter((unit) => unit.category === "NCOs").length;
 
 	return (
 		<div className='space-y-6'>
@@ -312,80 +319,46 @@ export const ActiveAllocationsView = ({
 					<CardContent>
 						<div className='text-2xl font-bold'>{totalActiveAllocations}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {officerAllocations} | NCOs: {menAllocations}
+							Officers: {officerAllocations} | NCOs: {ncoAllocations}
 						</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>By Category</CardTitle>
-						<Users className='h-4 w-4 text-muted-foreground' />
+						<CardTitle className='text-sm font-medium'>Army</CardTitle>
+						<div className='w-4 h-4 rounded-full bg-red-500' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{officerAllocations}</div>
+						<div className='text-2xl font-bold'>{armyAllocations.length}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers (
-							{totalActiveAllocations > 0
-								? Math.round(
-										(officerAllocations / totalActiveAllocations) * 100
-								  )
-								: 0}
-							%)
-						</p>
-						<p className='text-xs text-muted-foreground'>
-							NCOs: {menAllocations} (
-							{totalActiveAllocations > 0
-								? Math.round((menAllocations / totalActiveAllocations) * 100)
-								: 0}
-							%)
+							Officers: {armyOfficers} | NCOs: {armyNCOs}
 						</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>
-							Most Common Type
-						</CardTitle>
-						<Building2 className='h-4 w-4 text-muted-foreground' />
+						<CardTitle className='text-sm font-medium'>Navy</CardTitle>
+						<div className='w-4 h-4 rounded-full bg-blue-500' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>
-							{mostCommonHousingType.count}
-						</div>
+						<div className='text-2xl font-bold'>{navyAllocations.length}</div>
 						<p className='text-xs text-muted-foreground'>
-							{mostCommonHousingType.type}
-						</p>
-						<p className='text-xs text-muted-foreground'>
-							{totalActiveAllocations > 0
-								? Math.round(
-										(mostCommonHousingType.count / totalActiveAllocations) * 100
-								  )
-								: 0}
-							% of allocations
+							Officers: {navyOfficers} | NCOs: {navyNCOs}
 						</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Locations</CardTitle>
-						<Briefcase className='h-4 w-4 text-muted-foreground' />
+						<CardTitle className='text-sm font-medium'>Air Force</CardTitle>
+						<div className='w-4 h-4 rounded-full bg-cyan-500' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>
-							{Object.keys(locationBreakdown).length}
-						</div>
-						<p className='text-xs text-muted-foreground'>Active locations</p>
+						<div className='text-2xl font-bold'>{airForceAllocations.length}</div>
 						<p className='text-xs text-muted-foreground'>
-							{Object.entries(locationBreakdown)
-								.slice(0, 2)
-								.map(
-									([loc, count]) =>
-										`${loc.split(" ").slice(0, 2).join(" ")}: ${count}`
-								)
-								.join(" | ")}
+							Officers: {airForceOfficers} | NCOs: {airForceNCOs}
 						</p>
 					</CardContent>
 				</Card>

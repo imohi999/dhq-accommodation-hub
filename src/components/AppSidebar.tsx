@@ -1,6 +1,6 @@
 "use client";
 
-import Image from 'next/image';
+import Image from "next/image";
 import {
 	Calendar,
 	Home,
@@ -88,6 +88,7 @@ const menuItems = [
 		title: "Directory",
 		url: "/directory",
 		icon: Users,
+		items: [{ title: "Analytics", url: "/directory/analytics" }],
 	},
 	{
 		title: "Accommodation",
@@ -162,29 +163,35 @@ export function AppSidebar() {
 						<SidebarMenu>
 							{menuItems.map((item) => {
 								const isActive = item.url ? pathname === item.url : false;
-								const hasActiveSubItem = item.items?.some(subItem => pathname === subItem.url);
-								
+								const hasActiveSubItem = item.items?.some(
+									(subItem) => pathname === subItem.url
+								);
+
 								return (
 									<SidebarMenuItem key={item.title}>
 										{item.items ? (
 											<>
-												<SidebarMenuButton className={cn(hasActiveSubItem && "bg-primary text-primary-foreground font-bold")}>
+												<SidebarMenuButton
+													className={cn(
+														hasActiveSubItem &&
+															"bg-primary text-primary-foreground font-bold"
+													)}>
 													<item.icon />
 													<span>{item.title}</span>
 												</SidebarMenuButton>
 												<SidebarMenuSub>
 													{item.items.map((subItem) => {
 														const isSubItemActive = pathname === subItem.url;
-														
+
 														return (
 															<SidebarMenuSubItem key={subItem.title}>
 																<SidebarMenuSubButton asChild>
-																	<Link 
+																	<Link
 																		href={subItem.url}
 																		className={cn(
-																			isSubItemActive && "bg-primary/20 text-primary font-bold border-l-4 border-primary pl-4"
-																		)}
-																	>
+																			isSubItemActive &&
+																				"bg-primary/20 text-primary font-bold border-l-4 border-primary pl-4"
+																		)}>
 																		{subItem.title}
 																	</Link>
 																</SidebarMenuSubButton>
@@ -195,12 +202,12 @@ export function AppSidebar() {
 											</>
 										) : (
 											<SidebarMenuButton asChild>
-												<Link 
+												<Link
 													href={item.url}
 													className={cn(
-														isActive && "bg-primary text-primary-foreground font-bold"
-													)}
-												>
+														isActive &&
+															"bg-primary text-primary-foreground font-bold"
+													)}>
 													<item.icon />
 													<span>{item.title}</span>
 												</Link>
