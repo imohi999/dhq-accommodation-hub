@@ -212,45 +212,39 @@ export function AppSidebar() {
 		const permissionMap = new Map(
 			permissions.map(p => [p.pageKey, p])
 		);
+		
+		// Debug logging
+		console.log('User permissions:', permissions);
+		console.log('Permission map:', Array.from(permissionMap.entries()));
 
 		// Filter menu items based on permissions
-		return allMenuItems.filter(item => {
-			// Check if user has permission to view this parent item
-			const parentPermission = permissionMap.get(item.key);
-			if (!parentPermission?.canView) return false;
+		return allMenuItems
+			.map(item => {
+				// Check if user has permission to view this parent item
+				const parentPermission = permissionMap.get(item.key);
+				if (!parentPermission?.canView) return null;
 
-			// If item has sub-items, filter them too
-			if (item.items) {
-				const visibleSubItems = item.items.filter(subItem => {
-					const subPermission = permissionMap.get(subItem.key);
-					return subPermission?.canView;
-				});
+				// If item has sub-items, filter them too
+				if (item.items) {
+					const visibleSubItems = item.items.filter(subItem => {
+						const subPermission = permissionMap.get(subItem.key);
+						return subPermission?.canView;
+					});
 
-				// Only include parent if it has visible sub-items
-				if (visibleSubItems.length === 0) return false;
+					// Only include parent if it has visible sub-items
+					if (visibleSubItems.length === 0) return null;
 
-				// Return parent with filtered sub-items
-				return {
-					...item,
-					items: visibleSubItems
-				};
-			}
+					// Return parent with filtered sub-items
+					return {
+						...item,
+						items: visibleSubItems
+					};
+				}
 
-			return true;
-		}).map(item => {
-			// For items with sub-items, ensure we return the filtered version
-			if (item.items) {
-				const visibleSubItems = item.items.filter(subItem => {
-					const subPermission = permissionMap.get(subItem.key);
-					return subPermission?.canView;
-				});
-				return {
-					...item,
-					items: visibleSubItems
-				};
-			}
-			return item;
-		});
+				// Return item as-is if it doesn't have sub-items
+				return item;
+			})
+			.filter(item => item !== null);
 	}, [user]);
 
 	return (
