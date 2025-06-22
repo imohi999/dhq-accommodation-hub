@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { hashPassword, createSession, setSessionCookie, getClientInfo } from '@/lib/auth-utils';
+import { hashPassword, createSession, setSessionCookie, getClientInfo, getSession } from '@/lib/auth-utils';
+import { AppRole } from '@prisma/client';
 
 const signupSchema = z.object({
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
   email: z.string().email(),
   password: z.string().min(8),
   fullName: z.string().optional(),
+  role: z.enum(['user', 'moderator', 'admin', 'superadmin']).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -22,8 +24,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { username, email, password, fullName } = validation.data;
+    const { username, email, password, fullName, role } = validation.data;
     const { ipAddress, userAgent } = getClientInfo(request);
+    
+    // Check if user is allowed to create users with specific roles
+    const session = await getSession();
+    let userRole: AppRole = AppRole.user; // Default role
+    
+    if (role && role !== 'user') {
+      // Only superadmins can create users with roles other than 'user'
+      if (!session) {
+        return NextResponse.json(
+          { error: 'Authentication required to create users with elevated roles' },
+          { status: 401 }
+        );
+      }
+      
+      const currentUser = await prisma.user.findUnique({
+        where: { id: session.userId },
+        include: { profile: true }
+      });
+      
+      if (currentUser?.profile?.role !== 'superadmin') {
+        return NextResponse.json(
+          { error: 'Only superadmins can create users with elevated roles' },
+          { status: 403 }
+        );
+      }
+      
+      userRole = role as AppRole;
+    }
 
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
@@ -49,7 +79,7 @@ export async function POST(request: NextRequest) {
         profile: {
           create: {
             fullName,
-            role: 'user',
+            role: userRole,
           },
         },
       },
@@ -58,27 +88,30 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create session
-    const token = await createSession(
-      user.id,
-      user.username,
-      user.email,
-      user.profile?.role || 'user',
-      ipAddress,
-      userAgent
-    );
+    // Only create session if this is a self-signup (not created by admin)
+    if (!session) {
+      // Create session
+      const token = await createSession(
+        user.id,
+        user.username,
+        user.email,
+        user.profile!.role,
+        ipAddress,
+        userAgent
+      );
 
-    // Set session cookie
-    await setSessionCookie(token);
+      // Set session cookie
+      await setSessionCookie(token);
+    }
 
     // Log signup action
     await prisma.auditLog.create({
       data: {
-        userId: user.id,
-        action: 'SIGNUP',
+        userId: session?.userId || user.id,
+        action: session ? 'CREATE_USER' : 'SIGNUP',
         entityType: 'user',
         entityId: user.id,
-        newData: { username, email },
+        newData: { username, email, role: userRole, createdBy: session?.username },
         ipAddress,
         userAgent,
       },
@@ -90,8 +123,8 @@ export async function POST(request: NextRequest) {
           id: user.id,
           username: user.username,
           email: user.email,
-          fullName: user.profile?.fullName,
-          role: user.profile?.role,
+          fullName: user.profile!.fullName,
+          role: user.profile!.role,
         },
       },
       { status: 201 }

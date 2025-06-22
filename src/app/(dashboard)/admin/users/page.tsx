@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { LoadingState } from '@/components/ui/spinner';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Shield } from 'lucide-react';
+import { Edit, Shield, UserPlus, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'react-toastify';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -210,8 +212,21 @@ function PermissionRow({
 export default function UserManagementPage() {
   const { user, loading: authLoading } = useAuth();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Profile | null>(null);
+  const [deletingUser, setDeletingUser] = useState<Profile | null>(null);
   const [userPermissions, setUserPermissions] = useState<Record<string, string[]>>({});
+  const [newUserData, setNewUserData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    fullName: '',
+    role: 'user'
+  });
+  const [newUserPermissions, setNewUserPermissions] = useState<Record<string, string[]>>({});
+  const [isCreating, setIsCreating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: profiles = [], error, isLoading } = useSWR<Profile[]>(
     user?.profile?.role === 'superadmin' ? '/api/profiles' : null,
@@ -276,6 +291,135 @@ export default function UserManagementPage() {
       
       return newPermissions;
     });
+  };
+
+  const handleNewUserActionChange = (pageKey: string, action: string, checked: boolean) => {
+    setNewUserPermissions(prev => {
+      const newPermissions = { ...prev };
+      const currentActions = newPermissions[pageKey] || [];
+      
+      if (checked) {
+        // Add action if not present
+        if (!currentActions.includes(action)) {
+          newPermissions[pageKey] = [...currentActions, action];
+        }
+        
+        // Auto-enable access if adding any action
+        if (action !== 'access' && !currentActions.includes('access')) {
+          newPermissions[pageKey] = ['access', ...newPermissions[pageKey]];
+        }
+        
+        // Auto-enable parent access for child pages
+        const parent = PAGES.find(p => p.children.some(c => c.key === pageKey));
+        if (parent && !newPermissions[parent.key]?.includes('access')) {
+          newPermissions[parent.key] = ['access'];
+        }
+      } else {
+        // Remove action
+        newPermissions[pageKey] = currentActions.filter(a => a !== action);
+        
+        // If removing access, remove all actions for this page
+        if (action === 'access') {
+          newPermissions[pageKey] = [];
+          
+          // Also remove access from child pages
+          const parentPage = PAGES.find(p => p.key === pageKey);
+          if (parentPage) {
+            parentPage.children.forEach(child => {
+              newPermissions[child.key] = [];
+            });
+          }
+        }
+      }
+      
+      return newPermissions;
+    });
+  };
+
+  const handleCreateUser = async () => {
+    if (!newUserData.username || !newUserData.email || !newUserData.password) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      // First create the user
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUserData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "Failed to create user");
+      } else {
+        // If user created successfully, set their permissions
+        if (Object.keys(newUserPermissions).length > 0) {
+          const permissions = Object.entries(newUserPermissions)
+            .filter(([_, actions]) => actions.length > 0)
+            .map(([pageKey, actions]) => ({
+              pageKey,
+              allowedActions: actions
+            }));
+
+          const permResponse = await fetch(`/api/profiles/${data.user.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ permissions })
+          });
+
+          if (!permResponse.ok) {
+            toast.warning("User created but failed to set permissions");
+          }
+        }
+
+        toast.success("User created successfully");
+        setIsCreateModalOpen(false);
+        setNewUserData({
+          username: '',
+          email: '',
+          password: '',
+          fullName: '',
+          role: 'user'
+        });
+        setNewUserPermissions({});
+        mutate('/api/profiles');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deletingUser) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/users/${deletingUser.userId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        toast.error(error.error || "Failed to delete user");
+      } else {
+        toast.success("User deleted successfully");
+        setIsDeleteModalOpen(false);
+        setDeletingUser(null);
+        mutate('/api/profiles');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleUpdateUser = async () => {
@@ -361,6 +505,10 @@ export default function UserManagementPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight text-foreground">User Management</h2>
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          <UserPlus className="w-4 h-4 mr-2" />
+          Create User
+        </Button>
       </div>
 
       <Card>
@@ -393,17 +541,32 @@ export default function UserManagementPage() {
                   </TableCell>
                   <TableCell>{new Date(profile.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setEditingUser(profile);
-                        setIsEditModalOpen(true);
-                      }}
-                    >
-                      <Edit className="w-3 h-3 mr-1" />
-                      Edit Permissions
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setEditingUser(profile);
+                          setIsEditModalOpen(true);
+                        }}
+                      >
+                        <Edit className="w-3 h-3 mr-1" />
+                        Edit Permissions
+                      </Button>
+                      {profile.role !== 'superadmin' && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setDeletingUser(profile);
+                            setIsDeleteModalOpen(true);
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -467,6 +630,157 @@ export default function UserManagementPage() {
               <LoadingButton onClick={handleUpdateUser} className="w-full">
                 Update Permissions
               </LoadingButton>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Create User Dialog */}
+      <Dialog open={isCreateModalOpen} onOpenChange={(open) => {
+        setIsCreateModalOpen(open);
+        if (!open) {
+          setNewUserPermissions({});
+        }
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username *</Label>
+              <Input
+                id="username"
+                value={newUserData.username}
+                onChange={(e) => setNewUserData({ ...newUserData, username: e.target.value })}
+                placeholder="Enter username"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={newUserData.email}
+                onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                placeholder="Enter email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password *</Label>
+              <Input
+                id="password"
+                type="password"
+                value={newUserData.password}
+                onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                placeholder="Enter password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                value={newUserData.fullName}
+                onChange={(e) => setNewUserData({ ...newUserData, fullName: e.target.value })}
+                placeholder="Enter full name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select
+                value={newUserData.role}
+                onValueChange={(value) => setNewUserData({ ...newUserData, role: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="moderator">Moderator</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Page Permissions</Label>
+              <p className="text-sm text-muted-foreground">Configure which actions this user can perform on each page</p>
+              <ScrollArea className="h-[300px] border rounded-md p-4">
+                <div className="space-y-1">
+                  {PAGES.map((page) => (
+                    <div key={page.key}>
+                      {/* Parent page permissions */}
+                      <PermissionRow
+                        pageKey={page.key}
+                        pageTitle={page.title}
+                        userActions={newUserPermissions[page.key] || []}
+                        onActionChange={handleNewUserActionChange}
+                      />
+                      
+                      {/* Child page permissions */}
+                      {page.children.map((child) => (
+                        <div key={child.key} className="ml-6">
+                          <PermissionRow
+                            pageKey={child.key}
+                            pageTitle={child.title}
+                            userActions={newUserPermissions[child.key] || []}
+                            onActionChange={handleNewUserActionChange}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+            
+            <LoadingButton 
+              onClick={handleCreateUser} 
+              className="w-full"
+              loading={isCreating}
+            >
+              Create User
+            </LoadingButton>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete User Dialog */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete User</DialogTitle>
+          </DialogHeader>
+          {deletingUser && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Are you sure you want to delete this user? This action cannot be undone.
+              </p>
+              <div className="space-y-2 bg-muted p-3 rounded-md">
+                <p className="text-sm font-medium">User: {deletingUser.user.username}</p>
+                <p className="text-sm text-muted-foreground">Email: {deletingUser.user.email}</p>
+                <p className="text-sm text-muted-foreground">Role: {deletingUser.role}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeletingUser(null);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <LoadingButton 
+                  onClick={handleDeleteUser} 
+                  variant="destructive"
+                  className="flex-1"
+                  loading={isDeleting}
+                >
+                  Delete User
+                </LoadingButton>
+              </div>
             </div>
           )}
         </DialogContent>
