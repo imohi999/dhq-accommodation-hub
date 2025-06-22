@@ -175,11 +175,36 @@ export default function UserManagementPage() {
   // Load permissions when editing user
   useEffect(() => {
     if (editingUser && editingUser.pagePermissions) {
-      const permissions: Record<string, PagePermission> = {};
-      editingUser.pagePermissions.forEach(perm => {
-        permissions[perm.pageKey] = perm;
+      const initialPermissions: Record<string, PagePermission> = {};
+      
+      // First, initialize all permissions as false
+      pageStructure.forEach(parent => {
+        initialPermissions[parent.key] = {
+          pageKey: parent.key,
+          pageTitle: parent.title,
+          parentKey: null,
+          canView: false,
+          canEdit: false,
+          canDelete: false
+        };
+        parent.children.forEach(child => {
+          initialPermissions[child.key] = {
+            pageKey: child.key,
+            pageTitle: child.title,
+            parentKey: parent.key,
+            canView: false,
+            canEdit: false,
+            canDelete: false
+          };
+        });
       });
-      setSelectedPermissions(permissions);
+      
+      // Then, apply the actual permissions
+      editingUser.pagePermissions.forEach(perm => {
+        initialPermissions[perm.pageKey] = perm;
+      });
+      
+      setSelectedPermissions(initialPermissions);
     }
   }, [editingUser]);
 
@@ -228,6 +253,35 @@ export default function UserManagementPage() {
             };
           }
         });
+      }
+      
+      // If enabling a child, ensure parent is also enabled
+      if (permission === 'canView' && checked) {
+        // Find if this is a child page
+        const childPage = pageStructure.find(p => 
+          p.children.some(child => child.key === pageKey)
+        );
+        if (childPage) {
+          newPermissions[childPage.key] = {
+            ...newPermissions[childPage.key],
+            canView: true
+          };
+        }
+      }
+      
+      // If disabling a parent, disable all children
+      if (permission === 'canView' && !checked) {
+        const parent = pageStructure.find(p => p.key === pageKey);
+        if (parent && parent.children.length > 0) {
+          parent.children.forEach(child => {
+            newPermissions[child.key] = {
+              ...newPermissions[child.key],
+              canView: false,
+              canEdit: false,
+              canDelete: false
+            };
+          });
+        }
       }
 
       return newPermissions;
