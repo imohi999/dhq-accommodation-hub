@@ -67,14 +67,6 @@ export default function LoginPage() {
 						<LoginForm onSubmit={handleLogin} loading={loading} />
 					</CardContent>
 				</Card>
-
-				{/* Footer */}
-				<div className='mt-8 text-center'>
-					<p className='text-sm text-muted-foreground'>
-						&copy; {new Date().getFullYear()} Defence Headquarters. All rights
-						reserved.
-					</p>
-				</div>
 			</div>
 		</div>
 	);

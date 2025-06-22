@@ -61,7 +61,7 @@ async function main() {
     { pageKey: 'directory', pageTitle: 'Directory', parentKey: null },
     { pageKey: 'analytics', pageTitle: 'Analytics', parentKey: null },
     { pageKey: 'analytics.queue', pageTitle: 'Queue Analytics', parentKey: 'analytics' },
-    { pageKey: 'analytics.pending', pageTitle: 'Pending Analytics', parentKey: 'analytics' },
+    { pageKey: 'analytics.pending', pageTitle: 'Pending Allocation Analytics', parentKey: 'analytics' },
     { pageKey: 'analytics.active-allocations', pageTitle: 'Active Allocations', parentKey: 'analytics' },
     { pageKey: 'analytics.past-allocations', pageTitle: 'Past Allocations', parentKey: 'analytics' },
     { pageKey: 'accommodation', pageTitle: 'Accommodation', parentKey: null },
@@ -658,25 +658,25 @@ async function main() {
     if (unit.currentOccupantName && unit.currentOccupantServiceNumber) {
       const unitIndex = occupiedUnits.indexOf(unit);
       const hasDependents = unitIndex % 2 === 0; // Every other occupant has dependents
-      
+
       // Generate dependents for half of the occupants
       const dependents = [];
       let noOfAdultDependents = 0;
       let noOfChildDependents = 0;
-      
+
       if (hasDependents) {
         // Add spouse
         const isMarried = true;
         if (isMarried) {
-          const spouseGender = unit.currentOccupantName.includes("Nkechi") || 
-                              unit.currentOccupantName.includes("Amina") || 
-                              unit.currentOccupantName.includes("Folake") || 
-                              unit.currentOccupantName.includes("Bukola") ||
-                              unit.currentOccupantName.includes("Fatima") ? "Male" : "Female";
-          const spouseName = spouseGender === "Male" ? 
-            `${unit.currentOccupantName.split(' ')[1]} James` : 
+          const spouseGender = unit.currentOccupantName.includes("Nkechi") ||
+            unit.currentOccupantName.includes("Amina") ||
+            unit.currentOccupantName.includes("Folake") ||
+            unit.currentOccupantName.includes("Bukola") ||
+            unit.currentOccupantName.includes("Fatima") ? "Male" : "Female";
+          const spouseName = spouseGender === "Male" ?
+            `${unit.currentOccupantName.split(' ')[1]} James` :
             `${unit.currentOccupantName.split(' ')[1]} Grace`;
-          
+
           dependents.push({
             name: spouseName,
             gender: spouseGender,
@@ -684,11 +684,11 @@ async function main() {
           });
           noOfAdultDependents++;
         }
-        
+
         // Add children based on unit type
         const childCount = unit.noOfRooms >= 3 ? 3 : unit.noOfRooms >= 2 ? 2 : 1;
         noOfChildDependents = childCount;
-        
+
         for (let c = 0; c < childCount; c++) {
           dependents.push({
             name: `${['David', 'Sarah', 'Michael', 'Joy'][c % 4]} ${unit.currentOccupantName.split(' ')[1]}`,
@@ -696,7 +696,7 @@ async function main() {
             age: 5 + (c * 4)
           });
         }
-        
+
         // Some may have elderly parents
         if (unitIndex % 3 === 0) {
           dependents.push({
@@ -707,20 +707,20 @@ async function main() {
           noOfAdultDependents++;
         }
       }
-      
+
       // First, create a queue entry for this occupant
       const occupantQueue = await prisma.queue.create({
         data: {
           sequence: 90000 + unitIndex, // High sequence numbers for seeded occupants
           fullName: unit.currentOccupantName,
           svcNo: `${unit.currentOccupantServiceNumber}-ACT-${unitIndex}`, // Make it unique
-          gender: unit.currentOccupantName.includes("Nkechi") || 
-                  unit.currentOccupantName.includes("Amina") || 
-                  unit.currentOccupantName.includes("Folake") || 
-                  unit.currentOccupantName.includes("Bukola") ||
-                  unit.currentOccupantName.includes("Fatima") ? 'Female' : 'Male',
-          armOfService: unit.currentOccupantServiceNumber.startsWith('NA') ? 'Army' : 
-                        unit.currentOccupantServiceNumber.startsWith('NN') ? 'Navy' : 'Air Force',
+          gender: unit.currentOccupantName.includes("Nkechi") ||
+            unit.currentOccupantName.includes("Amina") ||
+            unit.currentOccupantName.includes("Folake") ||
+            unit.currentOccupantName.includes("Bukola") ||
+            unit.currentOccupantName.includes("Fatima") ? 'Female' : 'Male',
+          armOfService: unit.currentOccupantServiceNumber.startsWith('NA') ? 'Army' :
+            unit.currentOccupantServiceNumber.startsWith('NN') ? 'Navy' : 'Air Force',
           category: 'Officer',
           rank: unit.currentOccupantRank || 'Unknown',
           maritalStatus: hasDependents ? 'Married' : 'Single',
@@ -808,19 +808,19 @@ async function main() {
     const endDate = new Date(2024, (i + 6) % 12, (i % 28) + 1)
 
     // Generate realistic data for past allocations
-    const isFemale = occupant.name.includes('Hauwa') || occupant.name.includes('Folasade') || 
-                     occupant.name.includes('Aisha') || occupant.name.includes('Zainab') || 
-                     occupant.name.includes('Kemi');
+    const isFemale = occupant.name.includes('Hauwa') || occupant.name.includes('Folasade') ||
+      occupant.name.includes('Aisha') || occupant.name.includes('Zainab') ||
+      occupant.name.includes('Kemi');
     const gender = isFemale ? 'Female' : 'Male';
     const maritalStatuses = ['Single', 'Married', 'Divorced', 'Widowed'];
     const maritalStatus = maritalStatuses[i % 4];
-    
+
     // Some past allocations should have dependents (about 40% of them)
     const hasDependents = i % 5 < 2; // 2 out of 5 (40%) have dependents
     let noOfAdultDependents = 0;
     let noOfChildDependents = 0;
     let dependents = [];
-    
+
     if (hasDependents && maritalStatus === 'Married') {
       // Add spouse
       noOfAdultDependents = 1;
@@ -829,7 +829,7 @@ async function main() {
         gender: isFemale ? 'Male' : 'Female',
         age: 30 + (i % 15)
       });
-      
+
       // Add children based on index
       noOfChildDependents = Math.min((i % 3) + 1, 3); // 1-3 children
       for (let c = 0; c < noOfChildDependents; c++) {
@@ -839,7 +839,7 @@ async function main() {
           age: 5 + (c * 3) + (i % 8) // Ages 5-20
         });
       }
-      
+
       // Some may have elderly parents
       if (i % 7 === 0) {
         dependents.push({
@@ -908,9 +908,9 @@ async function main() {
   const allocationRequests = []
   const requestStatuses = ['pending', 'approved', 'refused']
   const vacantUnits = await prisma.dhqLivingUnit.findMany({ where: { status: 'Vacant' }, take: 10 })
-  
+
   // Get some queue entries to create allocation requests from
-  const queueForAllocations = await prisma.queue.findMany({ 
+  const queueForAllocations = await prisma.queue.findMany({
     take: 10,
     orderBy: { sequence: 'asc' }
   })

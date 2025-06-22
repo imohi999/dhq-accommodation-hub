@@ -115,7 +115,7 @@ const allMenuItems = [
 			},
 			{
 				key: "analytics.pending",
-				title: "Pending Analytics",
+				title: "Pending Allocation Analytics",
 				url: "/analytics/pending",
 			},
 			{
@@ -203,40 +203,41 @@ export function AppSidebar() {
 		if (!user?.profile) return [];
 
 		// If user is superadmin, show all menu items
-		if (user.profile.role === 'superadmin') {
+		if (user.profile.role === "superadmin") {
 			return allMenuItems;
 		}
 
 		// Get user's page permissions
 		const permissions = user.profile.pagePermissions || [];
-		const permissionMap = new Map(
-			permissions.map(p => [p.pageKey, p])
-		);
-		
+		const permissionMap = new Map(permissions.map((p) => [p.pageKey, p]));
+
 		// Debug logging
-		console.log('User permissions:', permissions);
-		console.log('Permission map:', Array.from(permissionMap.entries()));
+		console.log("User permissions:", permissions);
+		console.log("Permission map:", Array.from(permissionMap.entries()));
 
 		// Filter menu items based on permissions
 		return allMenuItems
-			.map(item => {
+			.map((item) => {
 				// If item has sub-items, check if user has permission for any child
 				if (item.items) {
-					const visibleSubItems = item.items.filter(subItem => {
+					const visibleSubItems = item.items.filter((subItem) => {
 						const subPermission = permissionMap.get(subItem.key);
 						// Check both legacy canView and new allowedActions
-						return subPermission?.canView || 
-							   (subPermission?.allowedActions && subPermission.allowedActions.includes('access'));
+						return (
+							subPermission?.canView ||
+							(subPermission?.allowedActions &&
+								subPermission.allowedActions.includes("access"))
+						);
 					});
 
 					// If user has permission for any child, show the parent
 					if (visibleSubItems.length > 0) {
 						return {
 							...item,
-							items: visibleSubItems
+							items: visibleSubItems,
 						};
 					}
-					
+
 					// No visible children, don't show parent
 					return null;
 				}
@@ -244,14 +245,19 @@ export function AppSidebar() {
 				// For items without children, check direct permission
 				const permission = permissionMap.get(item.key);
 				// Check both legacy canView and new allowedActions
-				if (!permission?.canView && 
-					!(permission?.allowedActions && permission.allowedActions.includes('access'))) {
+				if (
+					!permission?.canView &&
+					!(
+						permission?.allowedActions &&
+						permission.allowedActions.includes("access")
+					)
+				) {
 					return null;
 				}
 
 				return item;
 			})
-			.filter(item => item !== null);
+			.filter((item) => item !== null);
 	}, [user]);
 
 	return (
