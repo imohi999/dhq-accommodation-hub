@@ -12,6 +12,7 @@ import { AccommodationViewToggle } from "@/components/accommodation/Accommodatio
 import { AccommodationCardView } from "@/components/accommodation/AccommodationCardView";
 import { AccommodationTableView } from "@/components/accommodation/AccommodationTableView";
 import { ImportModal } from "@/components/accommodation/ImportModal";
+import { AccommodationFormModal } from "@/components/accommodation/AccommodationFormModal";
 import { useAccommodationData } from "@/hooks/useAccommodationData";
 import { useAccommodationFilters } from "@/hooks/useAccommodationFilters";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
@@ -184,6 +185,14 @@ export default function DHQLivingUnits() {
 				isOpen={showImportModal}
 				onClose={() => setShowImportModal(false)}
 				onImportComplete={handleImportComplete}
+				housingTypes={housingTypes}
+			/>
+
+			<AccommodationFormModal
+				isOpen={showForm}
+				onClose={() => setShowForm(false)}
+				onSuccess={refetch}
+				editingUnit={editingUnit}
 				housingTypes={housingTypes}
 			/>
 		</div>
