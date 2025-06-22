@@ -547,10 +547,10 @@ export default function PendingAnalyticsPage() {
 						<CardTitle>Pending by Accommodation Type</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<ResponsiveContainer width='100%' height={300}>
+						<ResponsiveContainer width='100%' height={400}>
 							<BarChart data={pendingAnalytics.byAccommodationType}>
 								<CartesianGrid {...chartStyles.grid} />
-								<XAxis dataKey='name' {...chartStyles.angledAxis} />
+								<XAxis dataKey='name' {...chartStyles.angledAxis} height={100} />
 								<YAxis {...chartStyles.axis} />
 								<Tooltip
 									contentStyle={chartStyles.tooltip.contentStyle}
