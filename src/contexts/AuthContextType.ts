@@ -9,6 +9,7 @@ export interface PagePermission {
   canView: boolean;
   canEdit: boolean;
   canDelete: boolean;
+  allowedActions?: string[];
   createdAt: string;
   updatedAt: string;
 }
