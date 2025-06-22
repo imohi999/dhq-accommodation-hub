@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { ChartBuilder, ChartConfig } from "@/components/analytics/ChartBuilder";
 import { DynamicChart } from "@/components/analytics/DynamicChart";
+import { chartStyles } from "@/components/analytics/chartStyles";
 
 interface PendingData {
 	id: string;
@@ -530,7 +531,12 @@ export default function PendingAnalyticsPage() {
 										/>
 									))}
 								</Pie>
-								<Tooltip />
+								<Tooltip
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -543,28 +549,14 @@ export default function PendingAnalyticsPage() {
 					<CardContent>
 						<ResponsiveContainer width='100%' height={300}>
 							<BarChart data={pendingAnalytics.byAccommodationType}>
-								<CartesianGrid
-									strokeDasharray='3 3'
-									stroke='hsl(var(--foreground) / 0.1)'
-								/>
-								<XAxis
-									dataKey='name'
-									tick={{ fill: "hsl(var(--foreground))", fontSize: 12 }}
-									axisLine={{ stroke: "hsl(var(--foreground) / 0.5)" }}
-									textAnchor='end'
-									height={80}
-								/>
-								<YAxis
-									tick={{ fill: "hsl(var(--foreground))", fontSize: 12 }}
-									axisLine={{ stroke: "hsl(var(--foreground) / 0.5)" }}
-								/>
+								<CartesianGrid {...chartStyles.grid} />
+								<XAxis dataKey='name' {...chartStyles.angledAxis} />
+								<YAxis {...chartStyles.axis} />
 								<Tooltip
-									contentStyle={{
-										backgroundColor: "hsl(var(--background))",
-										border: "1px solid hsl(var(--border))",
-										borderRadius: "6px",
-										color: "hsl(var(--foreground))",
-									}}
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
 								/>
 								<Bar dataKey='value' fill='#ffc658' />
 							</BarChart>

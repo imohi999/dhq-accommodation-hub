@@ -431,15 +431,21 @@ export default function ActiveAllocationsAnalyticsPage() {
 					<CardTitle>Population by Quarter</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<ResponsiveContainer width='100%' height={300}>
+					<ResponsiveContainer width='100%' height={600}>
 						<BarChart data={occupancyStats.quarterOccupancy}>
 							<CartesianGrid {...chartStyles.grid} />
 							<XAxis
 								dataKey='quarter'
 								{...chartStyles.angledAxis}
+								height={180}
 							/>
 							<YAxis {...chartStyles.axis} />
-							<Tooltip {...chartStyles.tooltip} />
+							<Tooltip 
+								contentStyle={chartStyles.tooltip.contentStyle}
+								itemStyle={chartStyles.tooltip.itemStyle}
+								labelStyle={chartStyles.tooltip.labelStyle}
+								cursor={chartStyles.tooltip.cursor}
+							/>
 							<Legend {...chartStyles.legend} />
 							<Bar dataKey='units' fill='#8884d8' name='Units' />
 							<Bar
@@ -493,7 +499,12 @@ export default function ActiveAllocationsAnalyticsPage() {
 											/>
 										))}
 								</Pie>
-								<Tooltip {...chartStyles.tooltip} />
+								<Tooltip 
+								contentStyle={chartStyles.tooltip.contentStyle}
+								itemStyle={chartStyles.tooltip.itemStyle}
+								labelStyle={chartStyles.tooltip.labelStyle}
+								cursor={chartStyles.tooltip.cursor}
+							/>
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -517,9 +528,14 @@ export default function ActiveAllocationsAnalyticsPage() {
 									return acc;
 								}, [] as Array<{ name: string; value: number }>)}>
 								<CartesianGrid {...chartStyles.grid} />
-								<XAxis dataKey='name' {...chartStyles.axis} />
+								<XAxis dataKey='name' {...chartStyles.angledAxis} />
 								<YAxis {...chartStyles.axis} />
-								<Tooltip {...chartStyles.tooltip} />
+								<Tooltip 
+								contentStyle={chartStyles.tooltip.contentStyle}
+								itemStyle={chartStyles.tooltip.itemStyle}
+								labelStyle={chartStyles.tooltip.labelStyle}
+								cursor={chartStyles.tooltip.cursor}
+							/>
 								<Bar dataKey='value' fill='#00C49F' />
 							</BarChart>
 						</ResponsiveContainer>

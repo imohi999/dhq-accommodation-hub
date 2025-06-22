@@ -351,7 +351,12 @@ export default function QueueAnalyticsPage() {
 										/>
 									))}
 								</Pie>
-								<Tooltip {...chartStyles.tooltip} />
+								<Tooltip 
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -365,9 +370,14 @@ export default function QueueAnalyticsPage() {
 						<ResponsiveContainer width='100%' height={300}>
 							<BarChart data={queueAnalytics.byCategory}>
 								<CartesianGrid {...chartStyles.grid} />
-								<XAxis dataKey='name' {...chartStyles.axis} />
+								<XAxis dataKey='name' {...chartStyles.angledAxis} />
 								<YAxis {...chartStyles.axis} />
-								<Tooltip {...chartStyles.tooltip} />
+								<Tooltip 
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
 								<Bar dataKey='value' fill='#82ca9d' />
 							</BarChart>
 						</ResponsiveContainer>

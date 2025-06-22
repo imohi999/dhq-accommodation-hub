@@ -433,7 +433,12 @@ export default function PastAllocationsAnalyticsPage() {
 							<CartesianGrid {...chartStyles.grid} />
 							<XAxis dataKey='month' {...chartStyles.axis} />
 							<YAxis {...chartStyles.axis} />
-							<Tooltip {...chartStyles.tooltip} />
+							<Tooltip 
+								contentStyle={chartStyles.tooltip.contentStyle}
+								itemStyle={chartStyles.tooltip.itemStyle}
+								labelStyle={chartStyles.tooltip.labelStyle}
+								cursor={chartStyles.tooltip.cursor}
+							/>
 							<Area
 								type='monotone'
 								dataKey='deallocations'
@@ -491,7 +496,12 @@ export default function PastAllocationsAnalyticsPage() {
 										/>
 									))}
 								</Pie>
-								<Tooltip {...chartStyles.tooltip} />
+								<Tooltip 
+								contentStyle={chartStyles.tooltip.contentStyle}
+								itemStyle={chartStyles.tooltip.itemStyle}
+								labelStyle={chartStyles.tooltip.labelStyle}
+								cursor={chartStyles.tooltip.cursor}
+							/>
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -510,7 +520,12 @@ export default function PastAllocationsAnalyticsPage() {
 								<CartesianGrid {...chartStyles.grid} />
 								<XAxis dataKey='quarter' {...chartStyles.angledAxis} />
 								<YAxis {...chartStyles.axis} />
-								<Tooltip {...chartStyles.tooltip} />
+								<Tooltip 
+								contentStyle={chartStyles.tooltip.contentStyle}
+								itemStyle={chartStyles.tooltip.itemStyle}
+								labelStyle={chartStyles.tooltip.labelStyle}
+								cursor={chartStyles.tooltip.cursor}
+							/>
 								<Bar dataKey='turnoverCount' fill='#ff7300' />
 							</BarChart>
 						</ResponsiveContainer>

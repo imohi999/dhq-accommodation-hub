@@ -44,7 +44,21 @@ export const chartStyles = {
       backgroundColor: "hsl(var(--background))",
       border: "1px solid hsl(var(--border))",
       borderRadius: "6px",
-      color: "hsl(var(--foreground))"
+      color: "hsl(var(--foreground))",
+      boxShadow: "0 2px 4px hsl(var(--foreground) / 0.1)",
+      padding: "8px 12px"
+    },
+    itemStyle: {
+      color: "hsl(var(--foreground))",
+      fontSize: 12
+    },
+    labelStyle: {
+      color: "hsl(var(--foreground))",
+      fontWeight: 600,
+      marginBottom: 4
+    },
+    cursor: {
+      fill: "hsl(var(--foreground) / 0.1)"
     }
   },
   legend: {

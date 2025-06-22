@@ -177,8 +177,9 @@ export const DynamicChart = ({
 						<XAxis
 							dataKey='name'
 							{...axisStyle}
+							angle={chartData.length > 5 ? -45 : 0}
 							textAnchor={chartData.length > 5 ? "end" : "middle"}
-							height={chartData.length > 5 ? 80 : 60}
+							height={chartData.length > 5 ? 100 : 60}
 						/>
 						<YAxis {...axisStyle} width={60} />
 						{config.showTooltip && <Tooltip {...tooltipStyle} />}
@@ -196,8 +197,9 @@ export const DynamicChart = ({
 						<XAxis
 							dataKey='name'
 							{...axisStyle}
+							angle={chartData.length > 5 ? -45 : 0}
 							textAnchor={chartData.length > 5 ? "end" : "middle"}
-							height={chartData.length > 5 ? 80 : 60}
+							height={chartData.length > 5 ? 100 : 60}
 						/>
 						<YAxis {...axisStyle} width={60} />
 						{config.showTooltip && <Tooltip {...tooltipStyle} />}
@@ -240,8 +242,9 @@ export const DynamicChart = ({
 						<XAxis
 							dataKey='name'
 							{...axisStyle}
+							angle={chartData.length > 5 ? -45 : 0}
 							textAnchor={chartData.length > 5 ? "end" : "middle"}
-							height={chartData.length > 5 ? 80 : 60}
+							height={chartData.length > 5 ? 100 : 60}
 						/>
 						<YAxis {...axisStyle} width={60} />
 						{config.showTooltip && <Tooltip {...tooltipStyle} />}
@@ -265,9 +268,9 @@ export const DynamicChart = ({
 						<XAxis
 							dataKey='name'
 							{...axisStyle}
-							
+							angle={chartData.length > 5 ? -45 : 0}
 							textAnchor={chartData.length > 5 ? "end" : "middle"}
-							height={chartData.length > 5 ? 80 : 60}
+							height={chartData.length > 5 ? 100 : 60}
 						/>
 						<YAxis {...axisStyle} width={60} />
 						{config.showTooltip && <Tooltip {...tooltipStyle} />}
