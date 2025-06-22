@@ -42,121 +42,150 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useMemo } from "react";
 
-const menuItems = [
+// Define all menu items with their keys
+const allMenuItems = [
 	{
+		key: "dashboard",
 		title: "Dashboard",
 		url: "/",
 		icon: Home,
 	},
 	{
+		key: "queue",
 		title: "Queue",
 		icon: List,
 		items: [
 			{
+				key: "queue.list",
 				title: "Queue List",
 				url: "/queue/list",
 			},
 			{
+				key: "queue.units",
 				title: "Current Units",
 				url: "/queue/units",
 			},
 		],
 	},
 	{
+		key: "allocations",
 		title: "Allocations",
 		icon: CheckCircle,
 		items: [
 			{
+				key: "allocations.pending",
 				title: "Pending Approval",
 				url: "/allocations/pending",
 			},
 			{
+				key: "allocations.active",
 				title: "Active Allocations",
 				url: "/allocations/active",
 			},
 			{
+				key: "allocations.past",
 				title: "Past Allocations",
 				url: "/allocations/past",
 			},
 			{
+				key: "allocations.stamp-settings",
 				title: "Stamp Settings",
 				url: "/allocations/stamp-settings",
 			},
 		],
 	},
 	{
+		key: "directory",
 		title: "Directory",
 		url: "/directory",
 		icon: Users,
 	},
 	{
+		key: "analytics",
 		title: "Analytics",
 		icon: BarChart3,
 		items: [
 			{
+				key: "analytics.queue",
 				title: "Queue Analytics",
 				url: "/analytics/queue",
 			},
 			{
+				key: "analytics.pending",
 				title: "Pending Analytics",
 				url: "/analytics/pending",
 			},
 			{
+				key: "analytics.active-allocations",
 				title: "Active Allocations",
 				url: "/analytics/active-allocations",
 			},
 			{
+				key: "analytics.past-allocations",
 				title: "Past Allocations",
 				url: "/analytics/past-allocations",
 			},
 		],
 	},
 	{
+		key: "accommodation",
 		title: "Accommodation",
 		icon: Building,
 		items: [
 			{
+				key: "accommodation.units",
 				title: "DHQ  Accommodation",
 				url: "/accommodations/units",
 			},
 			{
+				key: "accommodation.types",
 				title: "Accommodation Types",
 				url: "/accommodations/types",
 			},
 		],
 	},
 	{
+		key: "maintenance",
 		title: "Maintenance",
 		icon: Wrench,
 		items: [
 			{
+				key: "maintenance.tasks",
 				title: "Maintenance Tasks",
 				url: "/maintenance/tasks",
 			},
 			{
+				key: "maintenance.requests",
 				title: "Maintenance Requests",
 				url: "/maintenance/requests",
 			},
 		],
 	},
 	{
+		key: "administration",
 		title: "Administration",
 		icon: ShieldCheck,
 		items: [
 			{
+				key: "administration.users",
 				title: "User Management",
 				url: "/admin/users",
 			},
 			{
+				key: "administration.roles",
 				title: "Role Profiles",
 				url: "/admin/roles",
 			},
 			{
+				key: "administration.audit-logs",
 				title: "Audit Logs",
 				url: "/admin/audit-logs",
 			},
 			{
+				key: "administration.auth-info",
 				title: "Authentication Info",
 				url: "/admin/auth-info",
 			},
@@ -166,6 +195,63 @@ const menuItems = [
 
 export function AppSidebar() {
 	const pathname = usePathname();
+	const { user } = useAuth();
+
+	// Filter menu items based on user permissions
+	const menuItems = useMemo(() => {
+		// If user is not loaded yet, return empty array
+		if (!user?.profile) return [];
+
+		// If user is superadmin, show all menu items
+		if (user.profile.role === 'superadmin') {
+			return allMenuItems;
+		}
+
+		// Get user's page permissions
+		const permissions = user.profile.pagePermissions || [];
+		const permissionMap = new Map(
+			permissions.map(p => [p.pageKey, p])
+		);
+
+		// Filter menu items based on permissions
+		return allMenuItems.filter(item => {
+			// Check if user has permission to view this parent item
+			const parentPermission = permissionMap.get(item.key);
+			if (!parentPermission?.canView) return false;
+
+			// If item has sub-items, filter them too
+			if (item.items) {
+				const visibleSubItems = item.items.filter(subItem => {
+					const subPermission = permissionMap.get(subItem.key);
+					return subPermission?.canView;
+				});
+
+				// Only include parent if it has visible sub-items
+				if (visibleSubItems.length === 0) return false;
+
+				// Return parent with filtered sub-items
+				return {
+					...item,
+					items: visibleSubItems
+				};
+			}
+
+			return true;
+		}).map(item => {
+			// For items with sub-items, ensure we return the filtered version
+			if (item.items) {
+				const visibleSubItems = item.items.filter(subItem => {
+					const subPermission = permissionMap.get(subItem.key);
+					return subPermission?.canView;
+				});
+				return {
+					...item,
+					items: visibleSubItems
+				};
+			}
+			return item;
+		});
+	}, [user]);
 
 	return (
 		<Sidebar>

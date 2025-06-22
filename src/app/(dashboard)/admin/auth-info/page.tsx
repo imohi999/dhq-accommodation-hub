@@ -115,7 +115,7 @@ export default function AuthInfoPage() {
                 <dt className="text-sm font-medium text-muted-foreground">Role</dt>
                 <dd>
                   <Badge variant="default" className="capitalize">
-                    {user?.role || 'user'}
+                    {user?.profile?.role || 'user'}
                   </Badge>
                 </dd>
               </div>

@@ -7,7 +7,7 @@ import { hash } from "bcryptjs";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, username, fullName, role } = body;
+    const { email, password, username, fullName, role, permissions } = body;
 
     // Validate required fields
     if (!email || !password || !username) {
@@ -57,13 +57,28 @@ export async function POST(request: NextRequest) {
       });
 
       // Create the profile
-      await tx.profile.create({
+      const newProfile = await tx.profile.create({
         data: {
           userId: newUser.id,
           fullName,
           role: role || 'user'
         }
       });
+
+      // Create page permissions if provided
+      if (permissions && Array.isArray(permissions)) {
+        await tx.pagePermission.createMany({
+          data: permissions.map((perm: any) => ({
+            profileId: newProfile.id,
+            pageKey: perm.pageKey,
+            pageTitle: perm.pageTitle,
+            parentKey: perm.parentKey,
+            canView: perm.canView || false,
+            canEdit: perm.canEdit || false,
+            canDelete: perm.canDelete || false
+          }))
+        });
+      }
 
       // Return user with profile
       return await tx.user.findUnique({

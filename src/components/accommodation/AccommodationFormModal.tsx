@@ -22,14 +22,14 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from "react-toastify";
 import { Save, X } from "lucide-react";
-import { DHQLivingUnitWithHousingType, HousingType } from "@/types/accommodation";
+import { DHQLivingUnitWithHousingType, AccommodationType } from "@/types/accommodation";
 
 interface AccommodationFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
   editingUnit: DHQLivingUnitWithHousingType | null;
-  housingTypes: HousingType[];
+  housingTypes: AccommodationType[];
 }
 
 export function AccommodationFormModal({

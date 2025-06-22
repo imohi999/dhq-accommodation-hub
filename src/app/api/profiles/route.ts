@@ -7,7 +7,8 @@ export async function GET() {
   try {
     const profiles = await prisma.profile.findMany({
       include: {
-        user: true
+        user: true,
+        pagePermissions: true
       },
       orderBy: {
         createdAt: 'desc'

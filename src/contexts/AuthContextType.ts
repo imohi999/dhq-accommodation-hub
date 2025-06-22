@@ -1,11 +1,37 @@
 import { createContext } from 'react';
 
+export interface PagePermission {
+  id: string;
+  profileId: string;
+  pageKey: string;
+  pageTitle: string;
+  parentKey: string | null;
+  canView: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Profile {
+  id: string;
+  userId: string;
+  fullName: string | null;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+  pagePermissions?: PagePermission[];
+}
+
 export interface User {
   id: string;
   username: string;
   email: string;
-  fullName?: string | null;
-  role?: string;
+  emailVerified: string | null;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+  profile?: Profile;
 }
 
 export interface Session {

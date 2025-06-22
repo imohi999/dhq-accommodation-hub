@@ -19,6 +19,7 @@ async function main() {
   await prisma.stampSetting.deleteMany({})
   await prisma.accommodationType.deleteMany({})
   await prisma.unit.deleteMany({})
+  await prisma.pagePermission.deleteMany({})
   await prisma.profile.deleteMany({})
   await prisma.user.deleteMany({})
 
@@ -45,6 +46,59 @@ async function main() {
   console.log('   Username: admin')
   console.log('   Password: admin123')
   console.log('   Role: superadmin')
+
+  // Define all available pages/menu items
+  const allPages = [
+    { pageKey: 'dashboard', pageTitle: 'Dashboard', parentKey: null },
+    { pageKey: 'queue', pageTitle: 'Queue', parentKey: null },
+    { pageKey: 'queue.list', pageTitle: 'Queue List', parentKey: 'queue' },
+    { pageKey: 'queue.units', pageTitle: 'Current Units', parentKey: 'queue' },
+    { pageKey: 'allocations', pageTitle: 'Allocations', parentKey: null },
+    { pageKey: 'allocations.pending', pageTitle: 'Pending Approval', parentKey: 'allocations' },
+    { pageKey: 'allocations.active', pageTitle: 'Active Allocations', parentKey: 'allocations' },
+    { pageKey: 'allocations.past', pageTitle: 'Past Allocations', parentKey: 'allocations' },
+    { pageKey: 'allocations.stamp-settings', pageTitle: 'Stamp Settings', parentKey: 'allocations' },
+    { pageKey: 'directory', pageTitle: 'Directory', parentKey: null },
+    { pageKey: 'analytics', pageTitle: 'Analytics', parentKey: null },
+    { pageKey: 'analytics.queue', pageTitle: 'Queue Analytics', parentKey: 'analytics' },
+    { pageKey: 'analytics.pending', pageTitle: 'Pending Analytics', parentKey: 'analytics' },
+    { pageKey: 'analytics.active-allocations', pageTitle: 'Active Allocations', parentKey: 'analytics' },
+    { pageKey: 'analytics.past-allocations', pageTitle: 'Past Allocations', parentKey: 'analytics' },
+    { pageKey: 'accommodation', pageTitle: 'Accommodation', parentKey: null },
+    { pageKey: 'accommodation.units', pageTitle: 'DHQ Accommodation', parentKey: 'accommodation' },
+    { pageKey: 'accommodation.types', pageTitle: 'Accommodation Types', parentKey: 'accommodation' },
+    { pageKey: 'maintenance', pageTitle: 'Maintenance', parentKey: null },
+    { pageKey: 'maintenance.tasks', pageTitle: 'Maintenance Tasks', parentKey: 'maintenance' },
+    { pageKey: 'maintenance.requests', pageTitle: 'Maintenance Requests', parentKey: 'maintenance' },
+    { pageKey: 'administration', pageTitle: 'Administration', parentKey: null },
+    { pageKey: 'administration.users', pageTitle: 'User Management', parentKey: 'administration' },
+    { pageKey: 'administration.roles', pageTitle: 'Role Profiles', parentKey: 'administration' },
+    { pageKey: 'administration.audit-logs', pageTitle: 'Audit Logs', parentKey: 'administration' },
+    { pageKey: 'administration.auth-info', pageTitle: 'Authentication Info', parentKey: 'administration' },
+  ]
+
+  // Get the admin's profile
+  const adminProfile = await prisma.profile.findUnique({
+    where: { userId: adminUser.id }
+  })
+
+  // Give superadmin all permissions
+  if (adminProfile) {
+    for (const page of allPages) {
+      await prisma.pagePermission.create({
+        data: {
+          profileId: adminProfile.id,
+          pageKey: page.pageKey,
+          pageTitle: page.pageTitle,
+          parentKey: page.parentKey,
+          canView: true,
+          canEdit: true,
+          canDelete: true
+        }
+      })
+    }
+    console.log('✅ Created page permissions for superadmin')
+  }
 
   // Create accommodation types
   const housingTypesData = [

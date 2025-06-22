@@ -61,13 +61,14 @@ model AuditLog {
 }
 
 model Profile {
-  id        String   @id @default(uuid())
-  userId    String   @unique @map("user_id")
-  fullName  String?  @map("full_name")
-  role      AppRole  @default(user)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String           @id @default(uuid())
+  userId          String           @unique @map("user_id")
+  fullName        String?          @map("full_name")
+  role            AppRole          @default(user)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pagePermissions PagePermission[]
 
   @@map("profiles")
 }
@@ -319,6 +320,25 @@ model AccommodationType {
   dhq_living_units DhqLivingUnit[]
 
   @@map("accommodation_types")
+}
+
+model PagePermission {
+  id          String   @id @default(uuid())
+  profileId   String   @map("profile_id")
+  pageKey     String   @map("page_key")
+  pageTitle   String   @map("page_title")
+  parentKey   String?  @map("parent_key")
+  canView     Boolean  @default(true) @map("can_view")
+  canEdit     Boolean  @default(false) @map("can_edit")
+  canDelete   Boolean  @default(false) @map("can_delete")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, pageKey])
+  @@index([profileId])
+  @@index([pageKey])
+  @@map("page_permissions")
 }
 
 enum AppRole {

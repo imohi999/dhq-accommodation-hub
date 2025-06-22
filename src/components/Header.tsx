@@ -53,9 +53,9 @@ export function Header() {
     window.location.href = '/login';
   };
 
-  const displayName = user?.fullName || profile?.fullName || user?.username || 'User';
+  const displayName = user?.profile?.fullName || profile?.fullName || user?.username || 'User';
   const userEmail = user?.email || '';
-  const userRole = user?.role || profile?.role || 'User';
+  const userRole = user?.profile?.role || profile?.role || 'User';
   
   // Get initials for avatar
   const getInitials = (name: string) => {

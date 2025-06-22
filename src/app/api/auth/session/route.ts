@@ -15,7 +15,13 @@ export async function GET(request: NextRequest) {
     // Get full user data
     const user = await prisma.user.findUnique({
       where: { id: session.userId },
-      include: { profile: true },
+      include: { 
+        profile: {
+          include: {
+            pagePermissions: true
+          }
+        }
+      },
     });
 
     if (!user) {
@@ -27,8 +33,19 @@ export async function GET(request: NextRequest) {
         id: user.id,
         username: user.username,
         email: user.email,
-        fullName: user.profile?.fullName,
-        role: user.profile?.role,
+        emailVerified: user.emailVerified,
+        image: user.image,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        profile: user.profile ? {
+          id: user.profile.id,
+          userId: user.profile.userId,
+          fullName: user.profile.fullName,
+          role: user.profile.role,
+          createdAt: user.profile.createdAt,
+          updatedAt: user.profile.updatedAt,
+          pagePermissions: user.profile.pagePermissions
+        } : undefined,
       },
     });
   } catch (error) {
