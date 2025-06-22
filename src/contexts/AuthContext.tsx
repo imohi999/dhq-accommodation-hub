@@ -70,28 +70,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (username: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, username: string, password: string, fullName?: string) => {
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password, fullName }),
+        body: JSON.stringify({ email, username, password, fullName }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
         console.error('Sign up error:', data.error);
-        if (data.error === 'User already exists') {
-          toast.error('User already exists. Please sign in instead.');
+        if (data.error === 'Username or email already exists') {
+          toast.error('Username or email already exists. Please sign in instead.');
         } else {
           toast.error(data.error || 'Failed to create account');
         }
         return { error: data.error };
       } else {
-        toast.success(data.message || 'Account created successfully!');
+        // Update local state after successful signup
+        setUser(data.user);
+        setSession({
+          user: data.user,
+          expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        });
+        
+        // Trigger SWR revalidation
+        await mutate('/api/auth/session');
+        
+        toast.success('Account created successfully!');
         return { error: null };
       }
     } catch (error) {

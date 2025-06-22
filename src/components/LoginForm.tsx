@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Eye, EyeOff, LogIn } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Loader2 } from 'lucide-react';
 
 interface LoginFormProps {
   onSubmit: (username: string, password: string) => Promise<void>;
@@ -22,20 +22,25 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
+        <Label htmlFor="username">
+          Username or Email
+        </Label>
         <Input
           id="username"
           type="text"
-          placeholder="Enter your username"
+          placeholder="Enter your username or email"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
           disabled={loading}
+          className="bg-background border-input"
         />
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">
+          Password
+        </Label>
         <div className="relative">
           <Input
             id="password"
@@ -45,12 +50,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={loading}
-            className="pr-10"
+            className="pr-10 bg-background border-input"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             tabIndex={-1}
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -60,12 +65,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
       
       <Button 
         type="submit" 
-        className="w-full bg-[#1B365D] hover:bg-[#14284a] text-white"
+        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-all duration-200"
         disabled={loading}
+        size="lg"
       >
         {loading ? (
           <>
-            <span className="mr-2">Signing in...</span>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <span>Signing in...</span>
           </>
         ) : (
           <>

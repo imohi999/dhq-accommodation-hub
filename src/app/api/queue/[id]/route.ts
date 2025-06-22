@@ -1,7 +1,7 @@
 // app/api/queue/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/auth-utils'
 
 interface RouteParams {
   params: {
@@ -12,7 +12,7 @@ interface RouteParams {
 // GET /api/queue/[id] - Get single queue entry
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await auth()
+    const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT /api/queue/[id] - Update queue entry
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await auth()
+    const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -66,7 +66,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/queue/[id] - Delete queue entry
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await auth()
+    const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

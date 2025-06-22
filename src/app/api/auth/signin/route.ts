@@ -1,104 +1,106 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { compare } from "bcryptjs";
-import { sign } from "jsonwebtoken";
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import { verifyPassword, createSession, setSessionCookie, getClientInfo } from '@/lib/auth-utils';
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const signinSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+});
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, password } = body;
+    const validation = signinSchema.safeParse(body);
 
-    if (!username || !password) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: "Username and password are required" },
+        { error: 'Invalid input', details: validation.error.errors },
         { status: 400 }
       );
     }
 
-    // Find user by username in profile
-    const profile = await prisma.profile.findUnique({
-      where: { username },
+    const { username, password } = validation.data;
+    const { ipAddress, userAgent } = getClientInfo(request);
+
+    // Find user by username or email
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ username }, { email: username }],
+      },
       include: {
-        user: true
-      }
+        profile: true,
+      },
     });
-
-    if (!profile) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
-    }
-
-    const user = profile.user;
 
     if (!user) {
       return NextResponse.json(
-        { error: "Invalid credentials" },
+        { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    // Check password
-    const isValidPassword = await compare(password, user.hashedPassword);
-
+    // Verify password
+    const isValidPassword = await verifyPassword(password, user.hashedPassword);
     if (!isValidPassword) {
+      // Log failed login attempt
+      await prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'FAILED_LOGIN',
+          entityType: 'user',
+          entityId: user.id,
+          newData: { username },
+          ipAddress,
+          userAgent,
+        },
+      });
+
       return NextResponse.json(
-        { error: "Invalid credentials" },
+        { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    // Generate JWT token
-    const token = sign(
-      { 
-        id: user.id, 
-        email: user.email,
-        profile: {
-          id: profile.id,
-          username: profile.username,
-          fullName: profile.fullName,
-          role: profile.role
-        }
-      },
-      JWT_SECRET,
-      { expiresIn: "24h" }
+    // Create session
+    const token = await createSession(
+      user.id,
+      user.username,
+      user.email,
+      user.profile?.role || 'user',
+      ipAddress,
+      userAgent
     );
 
-    // Remove sensitive data
-    const { hashedPassword: _, ...userWithoutPassword } = user;
+    // Set session cookie
+    await setSessionCookie(token);
 
-    // Create response with cookie
-    const response = NextResponse.json({
-      user: {
-        ...userWithoutPassword,
-        profile: {
-          id: profile.id,
-          username: profile.username,
-          fullName: profile.fullName,
-          role: profile.role
-        }
+    // Log successful login
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'LOGIN',
+        entityType: 'user',
+        entityId: user.id,
+        newData: { username: user.username, ipAddress },
+        ipAddress,
+        userAgent,
       },
-      token
     });
 
-    // Set HTTP-only cookie
-    response.cookies.set({
-      name: "auth-token",
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 // 24 hours
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.profile?.fullName,
+        role: user.profile?.role,
+      },
     });
-
-    return response;
   } catch (error) {
-    console.error("Sign in error:", error);
+    console.error('Signin error:', error);
     return NextResponse.json(
-      { error: "An error occurred during sign in" },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -1,27 +1,37 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { getSession, clearSessionCookie, deleteSession, getClientInfo } from '@/lib/auth-utils';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    // Create response
-    const response = NextResponse.json({
-      message: "Signed out successfully"
-    });
+    const session = await getSession();
+    const { ipAddress, userAgent } = getClientInfo(request);
 
-    // Clear the auth cookie
-    response.cookies.set({
-      name: "auth-token",
-      value: "",
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 0 // Expire immediately
-    });
+    if (session) {
+      // Delete session from database
+      await deleteSession(session.sessionId);
 
-    return response;
+      // Log signout action
+      await prisma.auditLog.create({
+        data: {
+          userId: session.userId,
+          action: 'LOGOUT',
+          entityType: 'user',
+          entityId: session.userId,
+          ipAddress,
+          userAgent,
+        },
+      });
+    }
+
+    // Clear session cookie
+    await clearSessionCookie();
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Sign out error:", error);
+    console.error('Signout error:', error);
     return NextResponse.json(
-      { error: "An error occurred during sign out" },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

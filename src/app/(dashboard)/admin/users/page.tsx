@@ -18,12 +18,12 @@ import { toast } from 'react-toastify';
 interface Profile {
   id: string;
   userId: string;
-  username: string;
   fullName: string | null;
   role: string;
   createdAt: string;
   user: {
     id: string;
+    username: string;
     email: string;
     emailVerified: string | null;
     createdAt: string;
@@ -207,7 +207,7 @@ export default function UserManagementPage() {
             <TableBody>
               {profiles.map((profile) => (
                 <TableRow key={profile.id}>
-                  <TableCell className="font-medium">{profile.username}</TableCell>
+                  <TableCell className="font-medium">{profile.user.username}</TableCell>
                   <TableCell>{profile.fullName || 'N/A'}</TableCell>
                   <TableCell>{profile.user.email}</TableCell>
                   <TableCell>

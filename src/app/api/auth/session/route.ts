@@ -1,54 +1,39 @@
-export const dynamic = "force-dynamic";
-
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { verify } from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/auth-utils';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get token from cookie
-    const token = request.cookies.get("auth-token")?.value;
+    const session = await getSession();
 
-    if (!token) {
+    if (!session) {
       return NextResponse.json({ user: null });
     }
 
-    // Verify token
-    const decoded = verify(token, JWT_SECRET);
-    
-    // Check if decoded is an object with id
-    if (typeof decoded === 'string' || !('id' in decoded)) {
-      return NextResponse.json({ user: null });
-    }
-
-    // Get fresh user data
+    // Get full user data
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      include: {
-        profile: true
-      }
+      where: { id: session.userId },
+      include: { profile: true },
     });
 
     if (!user) {
       return NextResponse.json({ user: null });
     }
 
-    // Remove sensitive data
-    const { hashedPassword: _, ...userWithoutPassword } = user;
-
     return NextResponse.json({
-      user: userWithoutPassword,
-      session: {
-        user: userWithoutPassword,
-        expires: 'exp' in decoded && typeof decoded.exp === 'number' 
-          ? new Date(decoded.exp * 1000).toISOString()
-          : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-      }
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.profile?.fullName,
+        role: user.profile?.role,
+      },
     });
   } catch (error) {
-    console.error("Session error:", error);
-    return NextResponse.json({ user: null });
+    console.error('Session error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

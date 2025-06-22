@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/auth-utils'
 
 // Schema for queue entry at position one
 const queuePositionOneSchema = z.object({
@@ -25,14 +25,14 @@ const queuePositionOneSchema = z.object({
 // POST /api/queue/insert-at-position-one - Insert at queue position #1
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check user role for this special operation
     const profile = await prisma.profile.findUnique({
-      where: { userId: session.user.id }
+      where: { userId: session.userId }
     })
 
     if (!profile || !['admin', 'superadmin'].includes(profile.role)) {

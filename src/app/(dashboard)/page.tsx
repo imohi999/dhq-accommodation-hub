@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/auth-utils'
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Home, FileText, CheckCircle } from 'lucide-react'
@@ -26,7 +26,7 @@ async function getDashboardStats() {
 }
 
 export default async function DashboardPage() {
-  const session = await auth()
+  const session = await getSession()
   const stats = await getDashboardStats()
 
   return (
@@ -34,7 +34,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back, {session?.user.name || session?.user.email}
+          Welcome back, {session?.username || session?.email || 'User'}
         </p>
       </div>
 

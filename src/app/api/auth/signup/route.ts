@@ -1,104 +1,105 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { hash } from "bcryptjs";
-import { AppRole } from "@prisma/client";
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import { hashPassword, createSession, setSessionCookie, getClientInfo } from '@/lib/auth-utils';
+
+const signupSchema = z.object({
+  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
+  email: z.string().email(),
+  password: z.string().min(8),
+  fullName: z.string().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, password, fullName } = body;
+    const validation = signupSchema.safeParse(body);
 
-    if (!username || !password) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: "Username and password are required" },
+        { error: 'Invalid input', details: validation.error.errors },
         { status: 400 }
       );
     }
 
-    // Construct email from username
-    const email = `${username}@dap.mil`;
+    const { username, email, password, fullName } = validation.data;
+    const { ipAddress, userAgent } = getClientInfo(request);
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ username }, { email }],
+      },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "User already exists" },
-        { status: 400 }
+        { error: 'Username or email already exists' },
+        { status: 409 }
       );
     }
 
-    // Check if username is taken
-    const existingUsername = await prisma.profile.findUnique({
-      where: { username }
+    // Create user
+    const hashedPassword = await hashPassword(password);
+    const user = await prisma.user.create({
+      data: {
+        username,
+        email,
+        hashedPassword,
+        profile: {
+          create: {
+            fullName,
+            role: 'user',
+          },
+        },
+      },
+      include: {
+        profile: true,
+      },
     });
 
-    if (existingUsername) {
-      return NextResponse.json(
-        { error: "Username is already taken" },
-        { status: 400 }
-      );
-    }
+    // Create session
+    const token = await createSession(
+      user.id,
+      user.username,
+      user.email,
+      user.profile?.role || 'user',
+      ipAddress,
+      userAgent
+    );
 
-    // Determine role based on username
-    let role: AppRole = AppRole.user;
-    if (username === 'superadmin') {
-      role = AppRole.superadmin;
-    }
+    // Set session cookie
+    await setSessionCookie(token);
 
-    // Hash the password
-    const hashedPassword = await hash(password, 12);
-
-    // Create user and profile in a transaction
-    const user = await prisma.$transaction(async (tx) => {
-      // Create the user
-      const newUser = await tx.user.create({
-        data: {
-          email,
-          hashedPassword,
-          emailVerified: new Date(),
-        }
-      });
-
-      // Create the profile
-      await tx.profile.create({
-        data: {
-          userId: newUser.id,
-          username,
-          fullName: fullName || '',
-          role
-        }
-      });
-
-      // Return user with profile
-      return await tx.user.findUnique({
-        where: { id: newUser.id },
-        include: {
-          profile: true
-        }
-      });
+    // Log signup action
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'SIGNUP',
+        entityType: 'user',
+        entityId: user.id,
+        newData: { username, email },
+        ipAddress,
+        userAgent,
+      },
     });
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "Failed to create user" },
-        { status: 500 }
-      );
-    }
-
-    // Remove sensitive data
-    const { hashedPassword: _, ...userWithoutPassword } = user;
-
-    return NextResponse.json({
-      user: userWithoutPassword,
-      message: "Account created successfully!"
-    }, { status: 201 });
-  } catch (error) {
-    console.error("Sign up error:", error);
     return NextResponse.json(
-      { error: "An error occurred during sign up" },
+      {
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          fullName: user.profile?.fullName,
+          role: user.profile?.role,
+        },
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Signup error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

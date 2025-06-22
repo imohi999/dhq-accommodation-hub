@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if username is taken
-    const existingUsername = await prisma.profile.findUnique({
+    const existingUsername = await prisma.user.findUnique({
       where: { username }
     });
 
@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
       // Create the user
       const newUser = await tx.user.create({
         data: {
+          username,
           email,
           hashedPassword,
           emailVerified: new Date(), // Since email_confirm was true in Supabase
@@ -59,7 +60,6 @@ export async function POST(request: NextRequest) {
       await tx.profile.create({
         data: {
           userId: newUser.id,
-          username,
           fullName,
           role: role || 'user'
         }

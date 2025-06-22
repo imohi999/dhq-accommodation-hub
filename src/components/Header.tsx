@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { LogOut, User, ChevronDown } from "lucide-react"
-import { signOut, useSession } from "next-auth/react"
+import { useAuth } from '@/hooks/useAuth'
 import useSWR from "swr"
 import {
   DropdownMenu,
@@ -37,10 +37,10 @@ const fetcher = (url: string) => fetch(url).then((res) => {
 });
 
 export function Header() {
-  const { data: session, status } = useSession();
+  const { user, signOut, loading } = useAuth();
   
   const { data: profile, error } = useSWR<UserProfile>(
-    session?.user?.id ? `/api/profiles/${session.user.id}` : null,
+    user?.id ? `/api/profiles/${user.id}` : null,
     fetcher
   );
 
@@ -49,12 +49,13 @@ export function Header() {
   }
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/login' });
+    await signOut();
+    window.location.href = '/login';
   };
 
-  const displayName = session?.user?.name || profile?.fullName || profile?.username || 'User';
-  const userEmail = session?.user?.email || '';
-  const userRole = profile?.role || 'User';
+  const displayName = user?.fullName || profile?.fullName || user?.username || 'User';
+  const userEmail = user?.email || '';
+  const userRole = user?.role || profile?.role || 'User';
   
   // Get initials for avatar
   const getInitials = (name: string) => {
@@ -87,14 +88,14 @@ export function Header() {
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          {status === "loading" ? (
+          {loading ? (
             <div className="h-10 w-10 animate-pulse bg-muted rounded-full" />
-          ) : session?.user ? (
+          ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 px-2">
                   <Avatar className="h-8 w-8 mr-2">
-                    <AvatarImage src={session.user.image || undefined} alt={displayName} />
+                    <AvatarImage src={undefined} alt={displayName} />
                     <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
                   </Avatar>
                   <div className="flex items-center gap-2">

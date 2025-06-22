@@ -7,21 +7,13 @@ export async function GET() {
   try {
     const profiles = await prisma.profile.findMany({
       include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            emailVerified: true,
-            createdAt: true,
-            updatedAt: true
-          }
-        }
+        user: true
       },
       orderBy: {
         createdAt: 'desc'
       }
     });
-    
+
     return NextResponse.json(profiles);
   } catch (error) {
     const { message, status } = handlePrismaError(error);

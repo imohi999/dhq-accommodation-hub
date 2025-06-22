@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks/useAuth";
 import { LoadingState } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -11,15 +11,15 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-	const { data: session, status } = useSession();
+	const { user, loading } = useAuth();
 	const router = useRouter();
 
 	useEffect(() => {
-		if (status === "loading") return; // Do nothing while loading
-		if (!session) router.push("/login"); // Redirect if not authenticated
-	}, [session, status, router]);
+		if (loading) return; // Do nothing while loading
+		if (!user) router.push("/login"); // Redirect if not authenticated
+	}, [user, loading, router]);
 
-	if (status === "loading") {
+	if (loading) {
 		return (
 			<div className='min-h-screen flex items-center justify-center bg-[#1B365D]'>
 				<LoadingState
@@ -31,7 +31,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 		);
 	}
 
-	if (!session) {
+	if (!user) {
 		return null; // Return null while redirecting
 	}
 

@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/auth-utils'
 
 export async function GET(request: NextRequest) {
   // Check authentication
-  const session = await auth()
+  const session = await getSession()
   if (!session) {
     return new Response('Unauthorized', { status: 401 })
   }

@@ -21,6 +21,7 @@ import {
 	MapPin,
 	ClipboardList,
 	Hammer,
+	ShieldCheck,
 } from "lucide-react";
 
 import {
@@ -88,7 +89,28 @@ const menuItems = [
 		title: "Directory",
 		url: "/directory",
 		icon: Users,
-		items: [{ title: "Analytics", url: "/directory/analytics" }],
+	},
+	{
+		title: "Analytics",
+		icon: BarChart3,
+		items: [
+			{
+				title: "Queue Analytics",
+				url: "/analytics/queue",
+			},
+			{
+				title: "Pending Analytics",
+				url: "/analytics/pending",
+			},
+			{
+				title: "Active Allocations",
+				url: "/analytics/active-allocations",
+			},
+			{
+				title: "Past Allocations",
+				url: "/analytics/past-allocations",
+			},
+		],
 	},
 	{
 		title: "Accommodation",
@@ -119,8 +141,8 @@ const menuItems = [
 		],
 	},
 	{
-		title: "Settings",
-		icon: Settings,
+		title: "Administration",
+		icon: ShieldCheck,
 		items: [
 			{
 				title: "User Management",
@@ -131,8 +153,12 @@ const menuItems = [
 				url: "/admin/roles",
 			},
 			{
-				title: "Audit Trail",
-				url: "/audit",
+				title: "Audit Logs",
+				url: "/admin/audit-logs",
+			},
+			{
+				title: "Authentication Info",
+				url: "/admin/auth-info",
 			},
 		],
 	},

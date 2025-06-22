@@ -3,7 +3,8 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/auth-utils'
+import { withAudit } from '@/lib/with-audit'
 
 // Dependent schema for validation
 const dependentSchema = z.object({
@@ -34,7 +35,7 @@ const queueSchema = z.object({
 // GET /api/queue - Get all queue entries
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -77,7 +78,7 @@ export async function GET(request: NextRequest) {
 // POST /api/queue - Add new queue entry
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

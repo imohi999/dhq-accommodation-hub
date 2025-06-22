@@ -2,19 +2,16 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { SessionProvider } from "next-auth/react";
-import type { Session } from "next-auth";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 import * as React from "react";
 import ToastProvider from "../contexts/ToastProvider";
+import { AuthProvider } from "../contexts/AuthContext";
 
 export function Providers({
 	children,
-	session,
 }: {
 	children: React.ReactNode;
-	session?: Session | null;
 }) {
 	const [queryClient] = useState(
 		() =>
@@ -29,7 +26,7 @@ export function Providers({
 	);
 
 	return (
-		<SessionProvider session={session} refetchInterval={0}>
+		<AuthProvider>
 			<QueryClientProvider client={queryClient}>
 				<ThemeProvider
 					attribute='class'
@@ -41,6 +38,6 @@ export function Providers({
 				</ThemeProvider>
 				<ReactQueryDevtools initialIsOpen={false} />
 			</QueryClientProvider>
-		</SessionProvider>
+		</AuthProvider>
 	);
 }
