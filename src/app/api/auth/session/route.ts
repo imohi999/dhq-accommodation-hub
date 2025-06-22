@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
     const session = await getSession();
 
     if (!session) {
+      // Add debug info in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('No session found - cookie might not be set or expired');
+      }
       return NextResponse.json({ user: null });
     }
 

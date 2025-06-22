@@ -69,7 +69,7 @@ export async function createSession(
 export async function verifySession(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    
+
     // Type guard to ensure payload has required fields
     if (
       typeof payload.userId !== 'string' ||
@@ -80,7 +80,7 @@ export async function verifySession(token: string): Promise<SessionPayload | nul
     ) {
       return null;
     }
-    
+
     // Verify session exists in database
     const session = await prisma.authSession.findUnique({
       where: { sessionToken: payload.sessionId },
@@ -116,18 +116,26 @@ export async function getSession(): Promise<SessionPayload | null> {
 
 export async function setSessionCookie(token: string) {
   const cookieStore = cookies();
+
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to false to work with HTTP in production
     sameSite: 'lax',
     maxAge: SESSION_DURATION / 1000, // Convert to seconds
     path: '/',
+    // Add domain if specified in environment
+    ...(process.env.COOKIE_DOMAIN && { domain: process.env.COOKIE_DOMAIN })
   });
 }
 
 export async function clearSessionCookie() {
   const cookieStore = cookies();
-  cookieStore.delete(SESSION_COOKIE_NAME);
+  cookieStore.delete({
+    name: SESSION_COOKIE_NAME,
+    path: '/',
+    // Add domain if specified in environment
+    ...(process.env.COOKIE_DOMAIN && { domain: process.env.COOKIE_DOMAIN })
+  });
 }
 
 export async function deleteSession(sessionId: string) {

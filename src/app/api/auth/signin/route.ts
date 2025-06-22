@@ -77,7 +77,12 @@ export async function POST(request: NextRequest) {
     );
 
     // Set session cookie
-    await setSessionCookie(token);
+    try {
+      await setSessionCookie(token);
+    } catch (cookieError) {
+      console.error('Failed to set session cookie:', cookieError);
+      // Still continue with the response as the session was created
+    }
 
     // Log successful login
     await prisma.auditLog.create({
