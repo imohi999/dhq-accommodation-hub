@@ -23,6 +23,7 @@ import {
 	RefreshCw,
 	Plus,
 } from "lucide-react";
+import { chartStyles } from "@/components/analytics/chartStyles";
 import { LoadingState } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -39,37 +40,71 @@ import { DynamicChart } from "@/components/analytics/DynamicChart";
 
 interface ActiveData {
 	id: string;
-	currentOccupantName: string;
-	currentOccupantRank: string;
-	currentOccupantServiceNumber: string;
-	quarterName?: string;
-	quarter_name?: string;
-	location?: string;
-	noOfRooms?: number | string;
-	bq?: boolean;
-	noOfRoomsInBq?: number;
-	accommodationType?: {
+	quarterName: string;
+	location: string;
+	category: string;
+	accommodationTypeId: string;
+	noOfRooms: number;
+	status: string;
+	typeOfOccupancy: string;
+	bq: boolean;
+	noOfRoomsInBq: number;
+	blockName: string;
+	flatHouseRoomName: string;
+	unitName: string;
+	blockImageUrl: string | null;
+	currentOccupantId: string | null;
+	currentOccupantName: string | null;
+	currentOccupantRank: string | null;
+	currentOccupantServiceNumber: string | null;
+	occupancyStartDate: string | null;
+	createdAt: string;
+	updatedAt: string;
+	accommodationType: {
 		id: string;
 		name: string;
+		description: string;
+		createdAt: string;
 	};
-	allocation_date?: string;
-	occupancyStartDate?: string;
-	occupants?: Array<{
+	occupants: Array<{
+		id: string;
+		unitId: string;
+		queueId: string;
 		fullName: string;
 		rank: string;
 		serviceNumber: string;
+		phone: string | null;
+		email: string | null;
+		emergencyContact: string | null;
+		occupancyStartDate: string;
 		isCurrent: boolean;
-		queue?: {
-			maritalStatus?: string;
-			category?: string;
-			gender?: string;
-			noOfAdultDependents?: number;
-			noOfChildDependents?: number;
-			dependents?: Array<{
+		createdAt: string;
+		updatedAt: string;
+		queue: {
+			id: string;
+			sequence: number;
+			fullName: string;
+			svcNo: string;
+			gender: string;
+			armOfService: string;
+			category: string;
+			rank: string;
+			maritalStatus: string;
+			noOfAdultDependents: number;
+			noOfChildDependents: number;
+			currentUnit: string | null;
+			appointment: string | null;
+			dateTos: string | null;
+			dateSos: string | null;
+			phone: string | null;
+			entryDateTime: string;
+			createdAt: string;
+			updatedAt: string;
+			dependents: Array<{
 				name: string;
 				age: number;
 				gender: string;
-			}>;
+			}> | null;
 		};
 	}>;
 }
@@ -125,22 +160,24 @@ export default function ActiveAllocationsAnalyticsPage() {
 			const transformedActive = (
 				Array.isArray(data) ? data : (data as any).data || []
 			).map((item: ActiveData) => {
-				const currentOccupant = item.occupants?.find((o: any) => o.isCurrent);
+				const currentOccupant = item.occupants?.find((o) => o.isCurrent);
 				const totalDependents =
 					(currentOccupant?.queue?.noOfAdultDependents || 0) +
 					(currentOccupant?.queue?.noOfChildDependents || 0);
 				return {
 					...item,
-					armOfService: getArmOfService(item.currentOccupantServiceNumber),
-					rank: item.currentOccupantRank,
+					armOfService: getArmOfService(item.currentOccupantServiceNumber || ""),
+					rank: item.currentOccupantRank || "",
 					maritalStatus: currentOccupant?.queue?.maritalStatus || "Unknown",
-					category: currentOccupant?.queue?.category || "Unknown",
+					personnelCategory: currentOccupant?.queue?.category || item.category || "Unknown",
 					gender: currentOccupant?.queue?.gender || "Unknown",
 					totalDependents,
 					population: 1 + totalDependents,
-					quarterName: item.quarterName || item.quarter_name || "Unknown",
+					quarterName: item.quarterName || "Unknown",
 					accommodationType: item.accommodationType?.name || "Unknown",
 					hasBQ: item.bq ? "Yes" : "No",
+					occupantName: item.currentOccupantName || "Unknown",
+					serviceNumber: item.currentOccupantServiceNumber || "Unknown",
 				};
 			});
 
@@ -169,7 +206,7 @@ export default function ActiveAllocationsAnalyticsPage() {
 		}).length;
 
 		const quarterOccupancy = activeData.reduce((acc, unit) => {
-			const quarterName = unit.quarterName || unit.quarter_name || "Unknown";
+			const quarterName = unit.quarterName || "Unknown";
 			const currentOccupant = unit.occupants?.find((o: any) => o.isCurrent);
 			const population =
 				1 +
@@ -396,16 +433,14 @@ export default function ActiveAllocationsAnalyticsPage() {
 				<CardContent>
 					<ResponsiveContainer width='100%' height={300}>
 						<BarChart data={occupancyStats.quarterOccupancy}>
-							<CartesianGrid strokeDasharray='3 3' />
+							<CartesianGrid {...chartStyles.grid} />
 							<XAxis
 								dataKey='quarter'
-								angle={-45}
-								textAnchor='end'
-								height={100}
+								{...chartStyles.angledAxis}
 							/>
-							<YAxis />
-							<Tooltip />
-							<Legend />
+							<YAxis {...chartStyles.axis} />
+							<Tooltip {...chartStyles.tooltip} />
+							<Legend {...chartStyles.legend} />
 							<Bar dataKey='units' fill='#8884d8' name='Units' />
 							<Bar
 								dataKey='population'
@@ -428,7 +463,7 @@ export default function ActiveAllocationsAnalyticsPage() {
 								<Pie
 									data={activeData.reduce((acc, unit) => {
 										const type = unit.accommodationType || "Unknown";
-										const existing = acc.find((item) => item.name === type);
+										const existing = acc.find((item: { name: string; value: number }) => item.name === type);
 										if (existing) {
 											existing.value++;
 										} else {
@@ -451,14 +486,14 @@ export default function ActiveAllocationsAnalyticsPage() {
 											if (!acc.includes(type)) acc.push(type);
 											return acc;
 										}, [] as string[])
-										.map((entry, index) => (
+										.map((entry: string, index: number) => (
 											<Cell
 												key={`cell-${index}`}
 												fill={COLORS[index % COLORS.length]}
 											/>
 										))}
 								</Pie>
-								<Tooltip />
+								<Tooltip {...chartStyles.tooltip} />
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -473,7 +508,7 @@ export default function ActiveAllocationsAnalyticsPage() {
 							<BarChart
 								data={activeData.reduce((acc, unit) => {
 									const arm = unit.armOfService || "Unknown";
-									const existing = acc.find((item) => item.name === arm);
+									const existing = acc.find((item: { name: string; value: number }) => item.name === arm);
 									if (existing) {
 										existing.value++;
 									} else {
@@ -481,10 +516,10 @@ export default function ActiveAllocationsAnalyticsPage() {
 									}
 									return acc;
 								}, [] as Array<{ name: string; value: number }>)}>
-								<CartesianGrid strokeDasharray='3 3' />
-								<XAxis dataKey='name' />
-								<YAxis />
-								<Tooltip />
+								<CartesianGrid {...chartStyles.grid} />
+								<XAxis dataKey='name' {...chartStyles.axis} />
+								<YAxis {...chartStyles.axis} />
+								<Tooltip {...chartStyles.tooltip} />
 								<Bar dataKey='value' fill='#00C49F' />
 							</BarChart>
 						</ResponsiveContainer>

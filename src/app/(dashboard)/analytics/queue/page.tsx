@@ -29,26 +29,33 @@ import {
 } from "@/components/ui/dialog";
 import { ChartBuilder, ChartConfig } from "@/components/analytics/ChartBuilder";
 import { DynamicChart } from "@/components/analytics/DynamicChart";
+import { chartStyles } from "@/components/analytics/chartStyles";
 
 interface QueueData {
 	id: string;
 	sequence: number;
 	fullName: string;
-	rank: string;
 	svcNo: string;
+	gender: string;
+	armOfService: string;
+	category: string;
+	rank: string;
 	maritalStatus: string;
-	armOfService?: string;
-	arm_of_service?: string;
-	category?: string;
-	gender?: string;
-	noOfAdultDependents?: number;
-	noOfChildDependents?: number;
+	noOfAdultDependents: number;
+	noOfChildDependents: number;
+	currentUnit: string | null;
+	appointment: string | null;
+	dateTos: string | null;
+	dateSos: string | null;
+	phone: string | null;
 	entryDateTime: string;
-	dependents?: Array<{
+	createdAt: string;
+	updatedAt: string;
+	dependents: Array<{
 		name: string;
 		age: number;
 		gender: string;
-	}>;
+	}> | null;
 }
 
 const COLORS = [
@@ -103,9 +110,8 @@ export default function QueueAnalyticsPage() {
 				Array.isArray(data) ? data : (data as any).data || []
 			).map((item: QueueData) => ({
 				...item,
-				armOfService: getArmOfService(item.svcNo),
-				totalDependents:
-					(item.noOfAdultDependents || 0) + (item.noOfChildDependents || 0),
+				// Use armOfService directly from API, no need to derive it
+				totalDependents: item.noOfAdultDependents + item.noOfChildDependents,
 				waitDays: Math.ceil(
 					(new Date().getTime() - new Date(item.entryDateTime).getTime()) /
 						(1000 * 60 * 60 * 24)
@@ -114,6 +120,12 @@ export default function QueueAnalyticsPage() {
 					month: "short",
 				}),
 				entryYear: new Date(item.entryDateTime).getFullYear(),
+				// Additional computed fields for analytics
+				hasDependents: (item.noOfAdultDependents + item.noOfChildDependents) > 0,
+				dependentCategory: 
+					item.noOfAdultDependents > 0 && item.noOfChildDependents > 0 ? "Both" :
+					item.noOfAdultDependents > 0 ? "Adults Only" :
+					item.noOfChildDependents > 0 ? "Children Only" : "None",
 			}));
 
 			setQueueData(transformedQueue);
@@ -145,7 +157,7 @@ export default function QueueAnalyticsPage() {
 				: 0;
 
 		const byArm = queueData.reduce((acc, person) => {
-			const arm = getArmOfService(person.svcNo);
+			const arm = person.armOfService || "Unknown";
 			acc[arm] = (acc[arm] || 0) + 1;
 			return acc;
 		}, {} as Record<string, number>);
@@ -339,7 +351,7 @@ export default function QueueAnalyticsPage() {
 										/>
 									))}
 								</Pie>
-								<Tooltip />
+								<Tooltip {...chartStyles.tooltip} />
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -352,10 +364,10 @@ export default function QueueAnalyticsPage() {
 					<CardContent>
 						<ResponsiveContainer width='100%' height={300}>
 							<BarChart data={queueAnalytics.byCategory}>
-								<CartesianGrid strokeDasharray='3 3' />
-								<XAxis dataKey='name' />
-								<YAxis />
-								<Tooltip />
+								<CartesianGrid {...chartStyles.grid} />
+								<XAxis dataKey='name' {...chartStyles.axis} />
+								<YAxis {...chartStyles.axis} />
+								<Tooltip {...chartStyles.tooltip} />
 								<Bar dataKey='value' fill='#82ca9d' />
 							</BarChart>
 						</ResponsiveContainer>

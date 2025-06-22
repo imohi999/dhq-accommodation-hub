@@ -14,6 +14,8 @@ import {
 	Tooltip,
 	Legend,
 	ResponsiveContainer,
+	LineChart,
+	Line,
 } from "recharts";
 import { Users, Clock, Shield, Activity, RefreshCw, Plus } from "lucide-react";
 import { LoadingState } from "@/components/ui/spinner";
@@ -32,27 +34,95 @@ import { DynamicChart } from "@/components/analytics/DynamicChart";
 
 interface PendingData {
 	id: string;
-	personnelData?: {
-		fullName?: string;
-		rank?: string;
-		serviceNumber?: string;
-		maritalStatus?: string;
-		category?: string;
-		gender?: string;
+	personnelId: string;
+	queueId: string;
+	unitId: string;
+	letterId: string;
+	personnelData: {
+		id: string;
+		rank: string;
+		phone: string;
+		svcNo: string;
+		gender: string;
+		category: string;
+		fullName: string;
+		sequence: number;
+		appointment: string;
+		currentUnit: string;
+		armOfService: string;
+		entryDateTime: string;
+		maritalStatus: string;
+		noOfAdultDependents: number;
+		noOfChildDependents: number;
 	};
-	unitData?: {
-		quarterName?: string;
-		accommodationType?: string;
+	unitData: {
+		location: string;
+		unitName: string;
+		noOfRooms: number;
+		quarterName: string;
+		accommodationType: string;
 	};
+	allocationDate: string;
+	status: string;
+	approvedBy: string | null;
+	approvedAt: string | null;
+	refusalReason: string | null;
 	createdAt: string;
-	queue?: {
-		dependents?: Array<{
+	updatedAt: string;
+	unit: {
+		id: string;
+		quarterName: string;
+		location: string;
+		category: string;
+		accommodationTypeId: string;
+		noOfRooms: number;
+		status: string;
+		typeOfOccupancy: string;
+		bq: boolean;
+		noOfRoomsInBq: number;
+		blockName: string;
+		flatHouseRoomName: string;
+		unitName: string;
+		blockImageUrl: string | null;
+		currentOccupantId: string | null;
+		currentOccupantName: string | null;
+		currentOccupantRank: string | null;
+		currentOccupantServiceNumber: string | null;
+		occupancyStartDate: string | null;
+		createdAt: string;
+		updatedAt: string;
+		accommodationType: {
+			id: string;
+			name: string;
+			description: string;
+			createdAt: string;
+		};
+	};
+	queue: {
+		id: string;
+		sequence: number;
+		fullName: string;
+		svcNo: string;
+		gender: string;
+		armOfService: string;
+		category: string;
+		rank: string;
+		maritalStatus: string;
+		noOfAdultDependents: number;
+		noOfChildDependents: number;
+		currentUnit: string;
+		appointment: string;
+		dateTos: string | null;
+		dateSos: string | null;
+		phone: string;
+		entryDateTime: string;
+		createdAt: string;
+		updatedAt: string;
+		dependents: Array<{
 			name: string;
 			age: number;
 			gender: string;
-		}>;
-		noOfAdultDependents?: number;
-		noOfChildDependents?: number;
+		}> | null;
 	};
 }
 
@@ -66,21 +136,6 @@ const COLORS = [
 	"#FF8042",
 	"#0088FE",
 ];
-
-const getArmOfService = (serviceNumber: string): string => {
-	if (!serviceNumber) return "Unknown";
-	const prefix = serviceNumber.substring(0, 3).toUpperCase();
-	switch (prefix) {
-		case "NA/":
-			return "Army";
-		case "NN/":
-			return "Navy";
-		case "AF/":
-			return "Air Force";
-		default:
-			return "Unknown";
-	}
-};
 
 export default function PendingAnalyticsPage() {
 	const [loading, setLoading] = useState(true);
@@ -108,12 +163,18 @@ export default function PendingAnalyticsPage() {
 				Array.isArray(data) ? data : (data as any).data || []
 			).map((item: PendingData) => ({
 				...item,
-				armOfService: getArmOfService(item.personnelData?.serviceNumber || ""),
-				rank: item.personnelData?.rank,
-				maritalStatus: item.personnelData?.maritalStatus,
-				category: item.personnelData?.category,
-				gender: item.personnelData?.gender,
-				accommodationType: item.unitData?.accommodationType,
+				armOfService:
+					item.personnelData?.armOfService ||
+					item.queue?.armOfService ||
+					"Unknown",
+				rank: item.personnelData?.rank || item.queue?.rank,
+				maritalStatus:
+					item.personnelData?.maritalStatus || item.queue?.maritalStatus,
+				category: item.personnelData?.category || item.queue?.category,
+				gender: item.personnelData?.gender || item.queue?.gender,
+				accommodationType:
+					item.unitData?.accommodationType ||
+					item.unit?.accommodationType?.name,
 				processingDays: Math.ceil(
 					(new Date().getTime() - new Date(item.createdAt).getTime()) /
 						(1000 * 60 * 60 * 24)
@@ -121,6 +182,22 @@ export default function PendingAnalyticsPage() {
 				createdMonth: new Date(item.createdAt).toLocaleString("default", {
 					month: "short",
 				}),
+				fullName: item.personnelData?.fullName || item.queue?.fullName,
+				serviceNumber: item.personnelData?.svcNo || item.queue?.svcNo,
+				currentUnit: item.personnelData?.currentUnit || item.queue?.currentUnit,
+				appointment: item.personnelData?.appointment || item.queue?.appointment,
+				location: item.unitData?.location || item.unit?.location,
+				quarterName: item.unitData?.quarterName || item.unit?.quarterName,
+				unitName: item.unitData?.unitName || item.unit?.unitName,
+				noOfRooms: item.unitData?.noOfRooms || item.unit?.noOfRooms,
+				totalDependents:
+					(item.queue?.noOfAdultDependents || 0) +
+					(item.queue?.noOfChildDependents || 0),
+				waitingTimeDays: Math.ceil(
+					(new Date().getTime() -
+						new Date(item.queue?.entryDateTime || item.createdAt).getTime()) /
+						(1000 * 60 * 60 * 24)
+				),
 			}));
 
 			setPendingData(transformedPending);
@@ -150,6 +227,14 @@ export default function PendingAnalyticsPage() {
 				  )
 				: 0;
 
+		const avgWaitingTime =
+			pendingData.length > 0
+				? Math.round(
+						pendingData.reduce((acc, p) => acc + (p.waitingTimeDays || 0), 0) /
+							pendingData.length
+				  )
+				: 0;
+
 		const officers = pendingData.filter((p) => p.category === "Officer").length;
 		const ncos = pendingData.filter((p) => p.category === "NCOs").length;
 
@@ -159,21 +244,102 @@ export default function PendingAnalyticsPage() {
 			return acc;
 		}, {} as Record<string, number>);
 
+		const byCategory = pendingData.reduce((acc, person) => {
+			const category = person.category || "Unknown";
+			acc[category] = (acc[category] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
 		const byAccommodationType = pendingData.reduce((acc, item) => {
 			const type = item.accommodationType || "Unknown";
 			acc[type] = (acc[type] || 0) + 1;
 			return acc;
 		}, {} as Record<string, number>);
 
+		const byMaritalStatus = pendingData.reduce((acc, person) => {
+			const status = person.maritalStatus || "Unknown";
+			acc[status] = (acc[status] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		const byLocation = pendingData.reduce((acc, item) => {
+			const location = item.location || "Unknown";
+			acc[location] = (acc[location] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		const byGender = pendingData.reduce((acc, person) => {
+			const gender = person.gender || "Unknown";
+			acc[gender] = (acc[gender] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		const withDependents = pendingData.filter(
+			(p) => p.totalDependents > 0
+		).length;
+		const withoutDependents = pendingData.filter(
+			(p) => p.totalDependents === 0
+		).length;
+
+		// Calculate monthly trends
+		const monthlyTrends = pendingData.reduce((acc, item) => {
+			const month = item.createdMonth;
+			acc[month] = (acc[month] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		// Calculate average dependents by marital status
+		const avgDependentsByStatus = (
+			Object.entries(
+				pendingData.reduce((acc, item) => {
+					const status = item.maritalStatus || "Unknown";
+					if (!acc[status]) {
+						acc[status] = { total: 0, count: 0 };
+					}
+					acc[status].total += item.totalDependents || 0;
+					acc[status].count += 1;
+					return acc;
+				}, {} as Record<string, { total: number; count: number }>)
+			) as [string, { total: number; count: number }][]
+		).map(([status, data]) => ({
+			name: status,
+			avgDependents:
+				data.count > 0 ? parseFloat((data.total / data.count).toFixed(1)) : 0,
+		}));
+
 		return {
 			totalPending,
 			avgProcessingTime,
+			avgWaitingTime,
 			officers,
 			ncos,
+			withDependents,
+			withoutDependents,
 			byArm: Object.entries(byArm).map(([name, value]) => ({ name, value })),
+			byCategory: Object.entries(byCategory).map(([name, value]) => ({
+				name,
+				value,
+			})),
 			byAccommodationType: Object.entries(byAccommodationType).map(
 				([name, value]) => ({ name, value })
 			),
+			byMaritalStatus: Object.entries(byMaritalStatus).map(([name, value]) => ({
+				name,
+				value,
+			})),
+			byLocation: Object.entries(byLocation).map(([name, value]) => ({
+				name,
+				value,
+			})),
+			byGender: Object.entries(byGender).map(([name, value]) => ({
+				name,
+				value,
+			})),
+			monthlyTrends: Object.entries(monthlyTrends).map(([name, value]) => ({
+				name,
+				value,
+			})),
+			avgDependentsByStatus,
 		};
 	};
 
@@ -202,6 +368,24 @@ export default function PendingAnalyticsPage() {
 	const handleEditChart = (chart: ChartConfig) => {
 		setEditingChart(chart);
 		setShowChartBuilder(true);
+	};
+
+	const getProcessingTimeDistribution = () => {
+		const ranges = [
+			{ range: "0-2 days", min: 0, max: 2, count: 0 },
+			{ range: "3-5 days", min: 3, max: 5, count: 0 },
+			{ range: "6-10 days", min: 6, max: 10, count: 0 },
+			{ range: "11-20 days", min: 11, max: 20, count: 0 },
+			{ range: "20+ days", min: 21, max: Infinity, count: 0 },
+		];
+
+		pendingData.forEach((item) => {
+			const days = item.processingDays || 0;
+			const range = ranges.find((r) => days >= r.min && days <= r.max);
+			if (range) range.count++;
+		});
+
+		return ranges;
 	};
 
 	if (loading) {
@@ -359,10 +543,29 @@ export default function PendingAnalyticsPage() {
 					<CardContent>
 						<ResponsiveContainer width='100%' height={300}>
 							<BarChart data={pendingAnalytics.byAccommodationType}>
-								<CartesianGrid strokeDasharray='3 3' />
-								<XAxis dataKey='name' />
-								<YAxis />
-								<Tooltip />
+								<CartesianGrid
+									strokeDasharray='3 3'
+									stroke='hsl(var(--foreground) / 0.1)'
+								/>
+								<XAxis
+									dataKey='name'
+									tick={{ fill: "hsl(var(--foreground))", fontSize: 12 }}
+									axisLine={{ stroke: "hsl(var(--foreground) / 0.5)" }}
+									textAnchor='end'
+									height={80}
+								/>
+								<YAxis
+									tick={{ fill: "hsl(var(--foreground))", fontSize: 12 }}
+									axisLine={{ stroke: "hsl(var(--foreground) / 0.5)" }}
+								/>
+								<Tooltip
+									contentStyle={{
+										backgroundColor: "hsl(var(--background))",
+										border: "1px solid hsl(var(--border))",
+										borderRadius: "6px",
+										color: "hsl(var(--foreground))",
+									}}
+								/>
 								<Bar dataKey='value' fill='#ffc658' />
 							</BarChart>
 						</ResponsiveContainer>

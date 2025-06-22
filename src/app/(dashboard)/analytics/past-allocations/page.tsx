@@ -16,6 +16,8 @@ import {
 	Tooltip,
 	Legend,
 	ResponsiveContainer,
+	LineChart,
+	Line,
 } from "recharts";
 import {
 	Archive,
@@ -38,40 +40,61 @@ import {
 } from "@/components/ui/dialog";
 import { ChartBuilder, ChartConfig } from "@/components/analytics/ChartBuilder";
 import { DynamicChart } from "@/components/analytics/DynamicChart";
+import { chartStyles } from "@/components/analytics/chartStyles";
 
 interface PastData {
 	id: string;
 	personnelData?: {
-		fullName?: string;
 		rank?: string;
+		phone?: string;
+		category?: string;
+		fullName?: string;
 		serviceNumber?: string;
 		maritalStatus?: string;
-		category?: string;
 		gender?: string;
 	};
 	unitData?: {
+		location?: string;
+		unitName?: string;
 		quarterName?: string;
 		accommodationType?: string;
+		noOfRooms?: number;
 	};
 	unit?: {
 		quarterName?: string;
 		location?: string;
-		noOfRooms?: string | number;
+		noOfRooms?: number;
+		status?: string;
+		typeOfOccupancy?: string;
+		bq?: boolean;
+		noOfRoomsInBq?: number;
+		blockName?: string;
+		flatHouseRoomName?: string;
+		unitName?: string;
 	};
 	allocationStartDate: string;
 	allocationEndDate?: string | null;
 	durationDays?: number;
+	reasonForLeaving?: string;
 	queue?: {
-		maritalStatus?: string;
-		category?: string;
+		id?: string;
+		sequence?: number;
+		fullName?: string;
+		svcNo?: string;
 		gender?: string;
+		armOfService?: string;
+		category?: string;
+		rank?: string;
+		maritalStatus?: string;
 		noOfAdultDependents?: number;
 		noOfChildDependents?: number;
+		currentUnit?: string;
+		appointment?: string;
 		dependents?: Array<{
 			name: string;
 			age: number;
 			gender: string;
-		}>;
+		}> | null;
 	};
 }
 
@@ -127,14 +150,21 @@ export default function PastAllocationsAnalyticsPage() {
 				Array.isArray(data) ? data : (data as any).data || []
 			).map((item: PastData) => ({
 				...item,
-				armOfService: getArmOfService(item.personnelData?.serviceNumber || ""),
-				rank: item.personnelData?.rank,
+				armOfService: getArmOfService(
+					item.personnelData?.serviceNumber || item.queue?.svcNo || ""
+				),
+				rank: item.personnelData?.rank || item.queue?.rank,
 				maritalStatus:
 					item.queue?.maritalStatus || item.personnelData?.maritalStatus,
 				category: item.queue?.category || item.personnelData?.category,
 				gender: item.queue?.gender || item.personnelData?.gender,
-				quarterName: item.unit?.quarterName,
+				quarterName: item.unit?.quarterName || item.unitData?.quarterName,
+				location: item.unit?.location || item.unitData?.location,
 				accommodationType: item.unitData?.accommodationType,
+				noOfRooms: item.unit?.noOfRooms || item.unitData?.noOfRooms,
+				totalDependents:
+					(item.queue?.noOfAdultDependents || 0) +
+					(item.queue?.noOfChildDependents || 0),
 				durationCategory: !item.durationDays
 					? "Unknown"
 					: item.durationDays <= 30
@@ -146,6 +176,14 @@ export default function PastAllocationsAnalyticsPage() {
 					: item.durationDays <= 365
 					? "181-365 days"
 					: ">365 days",
+				startMonth: item.allocationStartDate
+					? new Date(item.allocationStartDate).toLocaleString("default", {
+							month: "short",
+					  })
+					: "Unknown",
+				startYear: item.allocationStartDate
+					? new Date(item.allocationStartDate).getFullYear()
+					: new Date().getFullYear(),
 				endMonth: item.allocationEndDate
 					? new Date(item.allocationEndDate).toLocaleString("default", {
 							month: "short",
@@ -392,10 +430,10 @@ export default function PastAllocationsAnalyticsPage() {
 				<CardContent>
 					<ResponsiveContainer width='100%' height={300}>
 						<AreaChart data={turnoverStats.monthlyTurnover}>
-							<CartesianGrid strokeDasharray='3 3' />
-							<XAxis dataKey='month' />
-							<YAxis />
-							<Tooltip />
+							<CartesianGrid {...chartStyles.grid} />
+							<XAxis dataKey='month' {...chartStyles.axis} />
+							<YAxis {...chartStyles.axis} />
+							<Tooltip {...chartStyles.tooltip} />
 							<Area
 								type='monotone'
 								dataKey='deallocations'
@@ -420,7 +458,8 @@ export default function PastAllocationsAnalyticsPage() {
 									data={pastData.reduce((acc, item) => {
 										const category = item.durationCategory || "Unknown";
 										const existing = acc.find(
-											(entry) => entry.name === category
+											(entry: { name: string; value: number }) =>
+												entry.name === category
 										);
 										if (existing) {
 											existing.value++;
@@ -452,7 +491,7 @@ export default function PastAllocationsAnalyticsPage() {
 										/>
 									))}
 								</Pie>
-								<Tooltip />
+								<Tooltip {...chartStyles.tooltip} />
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -468,15 +507,10 @@ export default function PastAllocationsAnalyticsPage() {
 								data={turnoverStats.quarterTurnover
 									.sort((a, b) => b.turnoverCount - a.turnoverCount)
 									.slice(0, 10)}>
-								<CartesianGrid strokeDasharray='3 3' />
-								<XAxis
-									dataKey='quarter'
-									angle={-45}
-									textAnchor='end'
-									height={100}
-								/>
-								<YAxis />
-								<Tooltip />
+								<CartesianGrid {...chartStyles.grid} />
+								<XAxis dataKey='quarter' {...chartStyles.angledAxis} />
+								<YAxis {...chartStyles.axis} />
+								<Tooltip {...chartStyles.tooltip} />
 								<Bar dataKey='turnoverCount' fill='#ff7300' />
 							</BarChart>
 						</ResponsiveContainer>
