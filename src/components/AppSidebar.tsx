@@ -224,7 +224,9 @@ export function AppSidebar() {
 				if (item.items) {
 					const visibleSubItems = item.items.filter(subItem => {
 						const subPermission = permissionMap.get(subItem.key);
-						return subPermission?.canView;
+						// Check both legacy canView and new allowedActions
+						return subPermission?.canView || 
+							   (subPermission?.allowedActions && subPermission.allowedActions.includes('access'));
 					});
 
 					// If user has permission for any child, show the parent
@@ -241,7 +243,11 @@ export function AppSidebar() {
 
 				// For items without children, check direct permission
 				const permission = permissionMap.get(item.key);
-				if (!permission?.canView) return null;
+				// Check both legacy canView and new allowedActions
+				if (!permission?.canView && 
+					!(permission?.allowedActions && permission.allowedActions.includes('access'))) {
+					return null;
+				}
 
 				return item;
 			})

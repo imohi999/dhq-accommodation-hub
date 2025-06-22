@@ -30,8 +30,8 @@ export default function LoginPage() {
 			}
 
 			if (!result.error) {
-				router.push("/");
-				router.refresh();
+				// Use window.location for more reliable redirect
+				window.location.href = "/";
 			}
 		} catch (error) {
 			console.log(error);
