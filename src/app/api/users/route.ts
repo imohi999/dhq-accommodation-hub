@@ -67,17 +67,24 @@ export async function POST(request: NextRequest) {
 
       // Create page permissions if provided
       if (permissions && Array.isArray(permissions)) {
-        await tx.pagePermission.createMany({
-          data: permissions.map((perm: any) => ({
-            profileId: newProfile.id,
-            pageKey: perm.pageKey,
-            pageTitle: perm.pageTitle,
-            parentKey: perm.parentKey,
-            canView: perm.canView || false,
-            canEdit: perm.canEdit || false,
-            canDelete: perm.canDelete || false
-          }))
-        });
+        // Filter out invalid permissions (ones without pageKey)
+        const validPermissions = permissions.filter((perm: any) => 
+          perm.pageKey && perm.pageTitle
+        );
+        
+        if (validPermissions.length > 0) {
+          await tx.pagePermission.createMany({
+            data: validPermissions.map((perm: any) => ({
+              profileId: newProfile.id,
+              pageKey: perm.pageKey,
+              pageTitle: perm.pageTitle,
+              parentKey: perm.parentKey || null,
+              canView: perm.canView || false,
+              canEdit: perm.canEdit || false,
+              canDelete: perm.canDelete || false
+            }))
+          });
+        }
       }
 
       // Return user with profile
