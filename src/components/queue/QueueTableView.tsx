@@ -33,6 +33,8 @@ interface QueueTableViewProps {
 	onEdit: (item: QueueItem) => void;
 	onDelete: (id: string) => void;
 	deletingIds?: Set<string>;
+	canEdit?: boolean;
+	canDelete?: boolean;
 }
 
 export const QueueTableView = ({
@@ -40,6 +42,8 @@ export const QueueTableView = ({
 	onEdit,
 	onDelete,
 	deletingIds = new Set(),
+	canEdit = true,
+	canDelete = true,
 }: QueueTableViewProps) => {
 	// Column visibility state - all visible by default
 	const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(
@@ -204,19 +208,23 @@ export const QueueTableView = ({
 									)}
 									<TableCell>
 										<div className='flex gap-2'>
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => onEdit(item)}>
-												<Edit className='h-3 w-3' />
-											</Button>
-											<LoadingButton
-												variant='outline'
-												size='sm'
-												loading={deletingIds.has(item.id)}
-												onClick={() => onDelete(item.id)}>
-												<Trash2 className='h-3 w-3' />
-											</LoadingButton>
+											{canEdit && (
+												<Button
+													variant='outline'
+													size='sm'
+													onClick={() => onEdit(item)}>
+													<Edit className='h-3 w-3' />
+												</Button>
+											)}
+											{canDelete && (
+												<LoadingButton
+													variant='outline'
+													size='sm'
+													loading={deletingIds.has(item.id)}
+													onClick={() => onDelete(item.id)}>
+													<Trash2 className='h-3 w-3' />
+												</LoadingButton>
+											)}
 										</div>
 									</TableCell>
 								</TableRow>

@@ -63,7 +63,7 @@ export async function PUT(
       if (permissions && Array.isArray(permissions)) {
         // Filter out invalid permissions (ones without pageKey)
         const validPermissions = permissions.filter((perm: any) => 
-          perm.pageKey && perm.pageTitle
+          perm.pageKey && perm.allowedActions && Array.isArray(perm.allowedActions)
         );
         
         if (validPermissions.length > 0) {
@@ -71,11 +71,13 @@ export async function PUT(
             data: validPermissions.map((perm: any) => ({
               profileId: profile.id,
               pageKey: perm.pageKey,
-              pageTitle: perm.pageTitle,
+              pageTitle: perm.pageTitle || perm.pageKey,
               parentKey: perm.parentKey || null,
-              canView: perm.canView || false,
-              canEdit: perm.canEdit || false,
-              canDelete: perm.canDelete || false
+              allowedActions: perm.allowedActions,
+              // Keep legacy fields for backward compatibility
+              canView: perm.allowedActions.includes('access') || perm.canView || false,
+              canEdit: perm.allowedActions.includes('edit') || perm.canEdit || false,
+              canDelete: perm.allowedActions.includes('delete') || perm.canDelete || false
             }))
           });
         }

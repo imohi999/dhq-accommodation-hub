@@ -23,6 +23,9 @@ interface AccommodationTableViewProps {
 	onEdit: (unit: DHQLivingUnitWithHousingType) => void;
 	onDelete: (id: string) => void;
 	deleteLoading?: string | null;
+	canEdit?: boolean;
+	canDelete?: boolean;
+	canExport?: boolean;
 }
 
 export const AccommodationTableView = ({
@@ -30,6 +33,9 @@ export const AccommodationTableView = ({
 	onEdit,
 	onDelete,
 	deleteLoading,
+	canEdit = true,
+	canDelete = true,
+	canExport = true,
 }: AccommodationTableViewProps) => {
 	const handleExport = () => {
 		// Create CSV content
@@ -122,13 +128,15 @@ export const AccommodationTableView = ({
 							Currently showing {units.length} accommodation quarters
 						</CardDescription>
 					</div>
-					<Button
-						onClick={handleExport}
-						variant='outline'
-						className='flex items-center gap-2'>
-						<Download className='h-4 w-4' />
-						Export CSV
-					</Button>
+					{canExport && (
+						<Button
+							onClick={handleExport}
+							variant='outline'
+							className='flex items-center gap-2'>
+							<Download className='h-4 w-4' />
+							Export CSV
+						</Button>
+					)}
 				</div>
 			</CardHeader>
 			<CardContent>
@@ -196,18 +204,22 @@ export const AccommodationTableView = ({
 								</TableCell>
 								<TableCell>
 									<div className='flex gap-2'>
-										<Button
-											variant='outline'
-											size='sm'
-											onClick={() => onEdit(unit)}>
-											<Edit className='h-3 w-3' />
-										</Button>
-										<Button
-											variant='outline'
-											size='sm'
-											onClick={() => onDelete(unit.id)}>
-											<Trash2 className='h-3 w-3' />
-										</Button>
+										{canEdit && (
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => onEdit(unit)}>
+												<Edit className='h-3 w-3' />
+											</Button>
+										)}
+										{canDelete && (
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => onDelete(unit.id)}>
+												<Trash2 className='h-3 w-3' />
+											</Button>
+										)}
 									</div>
 								</TableCell>
 							</TableRow>

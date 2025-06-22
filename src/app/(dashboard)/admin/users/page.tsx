@@ -6,49 +6,82 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { LoadingState } from '@/components/ui/spinner';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { UserPlus, Edit, Trash2, Shield, Lock, Eye, EyeOff } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Edit, Shield } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'react-toastify';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/useAuth';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-interface PagePermission {
-  pageKey: string;
-  pageTitle: string;
-  parentKey: string | null;
-  canView: boolean;
-  canEdit: boolean;
-  canDelete: boolean;
-}
+// REAL ACTIONS based on actual dashboard pages
+const PAGE_ACTIONS = {
+  'dashboard': ['access'],
+  'queue': ['access'],
+  'queue.list': ['access', 'add_queue', 'edit', 'delete', 'allocate', 'export'],
+  'queue.units': ['access', 'add_quarters', 'edit', 'delete'],
+  'allocations': ['access'],
+  'allocations.pending': ['access', 'view_letter', 'approve', 'refuse'],
+  'allocations.active': ['access', 'view_letter', 'ejection_notice', 'transfer', 'post_out'],
+  'allocations.past': ['access', 'view_letter'],
+  'allocations.stamp-settings': ['access', 'add_stamp', 'edit', 'delete'],
+  'directory': ['access', 'export_data'],
+  'analytics': ['access'],
+  'analytics.queue': ['access', 'export_report'],
+  'analytics.pending': ['access', 'export_report'],
+  'analytics.active-allocations': ['access', 'export_report'],
+  'analytics.past-allocations': ['access', 'export_report'],
+  'accommodation': ['access'],
+  'accommodation.units': ['access', 'add_quarters', 'edit', 'delete', 'import', 'export', 'view_history', 'maintenance_request', 'inventory'],
+  'accommodation.types': ['access', 'add_type', 'edit', 'delete'],
+  'maintenance': ['access'],
+  'maintenance.tasks': ['access', 'new_task', 'edit', 'delete', 'mark_complete'],
+  'maintenance.requests': ['access', 'new_request', 'edit', 'delete', 'approve'],
+  'administration': ['access'],
+  'administration.users': ['access', 'create_user', 'edit_permissions', 'delete_user'],
+  'administration.roles': ['access', 'create_role', 'edit', 'delete'],
+  'administration.audit-logs': ['access', 'export_logs'],
+  'administration.auth-info': ['access', 'manage_sessions']
+};
 
-interface Profile {
-  id: string;
-  userId: string;
-  fullName: string | null;
-  role: string;
-  createdAt: string;
-  pagePermissions?: PagePermission[];
-  user: {
-    id: string;
-    username: string;
-    email: string;
-    emailVerified: string | null;
-    createdAt: string;
-    updatedAt: string;
-  };
-}
+// User-friendly action names
+const ACTION_LABELS = {
+  'access': 'Access',
+  'add_queue': 'Add Queue',
+  'edit': 'Edit',
+  'delete': 'Delete',
+  'allocate': 'Allocate',
+  'export': 'Export',
+  'add_quarters': 'Add Quarters',
+  'view_letter': 'View Letter',
+  'approve': 'Approve',
+  'refuse': 'Refuse',
+  'ejection_notice': 'Ejection Notice',
+  'transfer': 'Transfer',
+  'post_out': 'Post Out',
+  'add_stamp': 'Add Stamp',
+  'import': 'Import',
+  'view_history': 'View History',
+  'maintenance_request': 'Maintenance Request',
+  'inventory': 'Inventory',
+  'add_type': 'Add Type',
+  'new_request': 'New Request',
+  'new_task': 'New Task',
+  'mark_complete': 'Mark Complete',
+  'create_user': 'Create User',
+  'edit_permissions': 'Edit Permissions',
+  'delete_user': 'Delete User',
+  'create_role': 'Create Role',
+  'export_logs': 'Export Logs',
+  'manage_sessions': 'Manage Sessions',
+  'export_report': 'Export Report',
+  'export_data': 'Export Data'
+};
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-// Define all available pages structure
-const pageStructure = [
+// Page structure for hierarchy
+const PAGES = [
   {
     key: 'dashboard',
     title: 'Dashboard',
@@ -115,260 +148,167 @@ const pageStructure = [
   }
 ];
 
+interface Profile {
+  id: string;
+  userId: string;
+  fullName: string | null;
+  role: string;
+  createdAt: string;
+  pagePermissions?: {
+    pageKey: string;
+    allowedActions: string[];
+  }[];
+  user: {
+    id: string;
+    username: string;
+    email: string;
+    emailVerified: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+// Simple permission row component
+function PermissionRow({ 
+  pageKey, 
+  pageTitle, 
+  userActions, 
+  onActionChange 
+}: {
+  pageKey: string;
+  pageTitle: string;
+  userActions: string[];
+  onActionChange: (pageKey: string, action: string, checked: boolean) => void;
+}) {
+  const availableActions = PAGE_ACTIONS[pageKey as keyof typeof PAGE_ACTIONS] || ['access'];
+  
+  return (
+    <div className="flex items-start justify-between py-3 border-b">
+      <div className="flex-1">
+        <h4 className="font-medium text-sm">{pageTitle}</h4>
+        <p className="text-xs text-muted-foreground mt-1">
+          {availableActions.length} action{availableActions.length !== 1 ? 's' : ''} available
+        </p>
+      </div>
+      <div className="flex items-center space-x-3 flex-wrap gap-2 max-w-md">
+        {availableActions.map(action => (
+          <div key={action} className="flex items-center space-x-1">
+            <Checkbox
+              checked={userActions.includes(action)}
+              onCheckedChange={(checked) => onActionChange(pageKey, action, !!checked)}
+            />
+            <Label className="text-xs whitespace-nowrap">{ACTION_LABELS[action as keyof typeof ACTION_LABELS]}</Label>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function UserManagementPage() {
   const { user, loading: authLoading } = useAuth();
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [editLoading, setEditLoading] = useState<string | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
-  const [selectedPermissions, setSelectedPermissions] = useState<Record<string, PagePermission>>({});
   const [editingUser, setEditingUser] = useState<Profile | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [newUser, setNewUser] = useState({
-    username: '',
-    fullName: '',
-    role: 'user',
-    password: ''
-  });
+  const [userPermissions, setUserPermissions] = useState<Record<string, string[]>>({});
 
   const { data: profiles = [], error, isLoading } = useSWR<Profile[]>(
     user?.profile?.role === 'superadmin' ? '/api/profiles' : null,
     fetcher
   );
 
-  if (error) {
-    console.error('Error fetching profiles:', error);
-  }
-
-  // Check if user is superadmin
   const isSuperAdmin = user?.profile?.role === 'superadmin';
 
-  // Initialize permissions when creating new user
+  // Load user permissions when editing
   useEffect(() => {
-    if (isCreateModalOpen) {
-      const initialPermissions: Record<string, PagePermission> = {};
-      pageStructure.forEach(parent => {
-        initialPermissions[parent.key] = {
-          pageKey: parent.key,
-          pageTitle: parent.title,
-          parentKey: null,
-          canView: false,
-          canEdit: false,
-          canDelete: false
-        };
-        parent.children.forEach(child => {
-          initialPermissions[child.key] = {
-            pageKey: child.key,
-            pageTitle: child.title,
-            parentKey: parent.key,
-            canView: false,
-            canEdit: false,
-            canDelete: false
-          };
+    if (editingUser) {
+      const permissions: Record<string, string[]> = {};
+      
+      if (editingUser.pagePermissions) {
+        editingUser.pagePermissions.forEach(perm => {
+          permissions[perm.pageKey] = perm.allowedActions || [];
         });
-      });
-      setSelectedPermissions(initialPermissions);
-    }
-  }, [isCreateModalOpen]);
-
-  // Load permissions when editing user
-  useEffect(() => {
-    if (editingUser && editingUser.pagePermissions) {
-      const initialPermissions: Record<string, PagePermission> = {};
+      }
       
-      // First, initialize all permissions as false
-      pageStructure.forEach(parent => {
-        initialPermissions[parent.key] = {
-          pageKey: parent.key,
-          pageTitle: parent.title,
-          parentKey: null,
-          canView: false,
-          canEdit: false,
-          canDelete: false
-        };
-        parent.children.forEach(child => {
-          initialPermissions[child.key] = {
-            pageKey: child.key,
-            pageTitle: child.title,
-            parentKey: parent.key,
-            canView: false,
-            canEdit: false,
-            canDelete: false
-          };
-        });
-      });
-      
-      // Then, apply the actual permissions
-      editingUser.pagePermissions.forEach(perm => {
-        initialPermissions[perm.pageKey] = perm;
-      });
-      
-      setSelectedPermissions(initialPermissions);
+      setUserPermissions(permissions);
     }
   }, [editingUser]);
 
-  const handlePermissionChange = (pageKey: string, permission: 'canView' | 'canEdit' | 'canDelete', checked: boolean) => {
-    setSelectedPermissions(prev => {
+  const handleActionChange = (pageKey: string, action: string, checked: boolean) => {
+    setUserPermissions(prev => {
       const newPermissions = { ...prev };
+      const currentActions = newPermissions[pageKey] || [];
       
-      // If enabling edit or delete, also enable view
-      if ((permission === 'canEdit' || permission === 'canDelete') && checked) {
-        newPermissions[pageKey] = {
-          ...newPermissions[pageKey],
-          canView: true,
-          [permission]: checked
-        };
-      } else if (permission === 'canView' && !checked) {
-        // If disabling view, also disable edit and delete
-        newPermissions[pageKey] = {
-          ...newPermissions[pageKey],
-          canView: false,
-          canEdit: false,
-          canDelete: false
-        };
+      if (checked) {
+        // Add action if not present
+        if (!currentActions.includes(action)) {
+          newPermissions[pageKey] = [...currentActions, action];
+        }
+        
+        // Auto-enable access if adding any action
+        if (action !== 'access' && !currentActions.includes('access')) {
+          newPermissions[pageKey] = ['access', ...newPermissions[pageKey]];
+        }
+        
+        // Auto-enable parent access for child pages
+        const parent = PAGES.find(p => p.children.some(c => c.key === pageKey));
+        if (parent && !newPermissions[parent.key]?.includes('access')) {
+          newPermissions[parent.key] = ['access'];
+        }
       } else {
-        newPermissions[pageKey] = {
-          ...newPermissions[pageKey],
-          [permission]: checked
-        };
-      }
-
-      // Handle parent-child relationships
-      const parentPage = pageStructure.find(p => p.key === pageKey);
-      if (parentPage && parentPage.children.length > 0) {
-        // If parent is checked/unchecked, update all children
-        parentPage.children.forEach(child => {
-          if (permission === 'canView' && !checked) {
-            newPermissions[child.key] = {
-              ...newPermissions[child.key],
-              canView: false,
-              canEdit: false,
-              canDelete: false
-            };
-          } else if (permission === 'canView' && checked) {
-            newPermissions[child.key] = {
-              ...newPermissions[child.key],
-              canView: true
-            };
+        // Remove action
+        newPermissions[pageKey] = currentActions.filter(a => a !== action);
+        
+        // If removing access, remove all actions for this page
+        if (action === 'access') {
+          newPermissions[pageKey] = [];
+          
+          // Also remove access from child pages
+          const parentPage = PAGES.find(p => p.key === pageKey);
+          if (parentPage) {
+            parentPage.children.forEach(child => {
+              newPermissions[child.key] = [];
+            });
           }
-        });
-      }
-      
-      // If enabling a child, ensure parent is also enabled
-      if (permission === 'canView' && checked) {
-        // Find if this is a child page
-        const childPage = pageStructure.find(p => 
-          p.children.some(child => child.key === pageKey)
-        );
-        if (childPage) {
-          newPermissions[childPage.key] = {
-            ...newPermissions[childPage.key],
-            canView: true
-          };
         }
       }
       
-      // If disabling a parent, disable all children
-      if (permission === 'canView' && !checked) {
-        const parent = pageStructure.find(p => p.key === pageKey);
-        if (parent && parent.children.length > 0) {
-          parent.children.forEach(child => {
-            newPermissions[child.key] = {
-              ...newPermissions[child.key],
-              canView: false,
-              canEdit: false,
-              canDelete: false
-            };
-          });
-        }
-      }
-
       return newPermissions;
     });
   };
 
-  const handleCreateUser = async () => {
-    if (!newUser.username || !newUser.password) {
-      toast.error("Username and password are required");
-      return;
-    }
-
-    setCreating(true);
-    try {
-      const email = `${newUser.username}@dap.mil`;
-      
-      // Convert selectedPermissions to array format
-      const permissions = Object.values(selectedPermissions).filter(p => p.canView);
-      
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password: newUser.password,
-          username: newUser.username,
-          fullName: newUser.fullName,
-          role: newUser.role,
-          permissions: permissions
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Error creating user:', error);
-        toast.error(error.error || "Failed to create user");
-      } else {
-        toast.success("User created successfully");
-        setNewUser({ username: '', fullName: '', role: 'user', password: '' });
-        setSelectedPermissions({});
-        setIsCreateModalOpen(false);
-        mutate('/api/profiles');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error("An unexpected error occurred");
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const handleEditUser = async () => {
+  const handleUpdateUser = async () => {
     if (!editingUser) return;
 
-    setEditLoading(editingUser.id);
     try {
-      // Convert selectedPermissions to array format
-      const permissions = Object.values(selectedPermissions).filter(p => p.canView);
-      
+      // Convert permissions to API format
+      const permissions = Object.entries(userPermissions)
+        .filter(([_, actions]) => actions.length > 0)
+        .map(([pageKey, actions]) => ({
+          pageKey,
+          allowedActions: actions
+        }));
+
       const response = await fetch(`/api/profiles/${editingUser.userId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          permissions: permissions
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ permissions })
       });
 
       if (!response.ok) {
         const error = await response.json();
-        console.error('Error updating user:', error);
-        toast.error(error.error || "Failed to update user permissions");
+        toast.error(error.error || "Failed to update permissions");
       } else {
-        toast.success("User permissions updated successfully");
+        toast.success("Permissions updated successfully");
         setIsEditModalOpen(false);
         setEditingUser(null);
-        setSelectedPermissions({});
+        setUserPermissions({});
         mutate('/api/profiles');
       }
     } catch (error) {
       console.error('Error:', error);
       toast.error("An unexpected error occurred");
-    } finally {
-      setEditLoading(null);
     }
   };
 
@@ -421,173 +361,6 @@ export default function UserManagementPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight text-foreground">User Management</h2>
-        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Create User
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create New User</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    value={newUser.username}
-                    onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-                    placeholder="Enter username"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    value={newUser.fullName}
-                    onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
-                    placeholder="Enter full name"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={newUser.password}
-                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                      placeholder="Enter password"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="moderator">Moderator</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="superadmin">Super Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Page Permissions</Label>
-                <p className="text-sm text-muted-foreground">Select which pages this user can access</p>
-                <ScrollArea className="h-[300px] border rounded-md p-4">
-                  <Accordion type="multiple" className="w-full">
-                    {pageStructure.map((parent) => (
-                      <AccordionItem key={parent.key} value={parent.key}>
-                        <AccordionTrigger className="hover:no-underline">
-                          <div className="flex items-center justify-between w-full pr-4">
-                            <span>{parent.title}</span>
-                            <div className="flex items-center space-x-4" onClick={(e) => e.stopPropagation()}>
-                              <div className="flex items-center space-x-1">
-                                <Checkbox
-                                  checked={selectedPermissions[parent.key]?.canView || false}
-                                  onCheckedChange={(checked) => 
-                                    handlePermissionChange(parent.key, 'canView', checked as boolean)
-                                  }
-                                />
-                                <Label className="text-xs">View</Label>
-                              </div>
-                              {parent.children.length === 0 && (
-                                <>
-                                  <div className="flex items-center space-x-1">
-                                    <Checkbox
-                                      checked={selectedPermissions[parent.key]?.canEdit || false}
-                                      onCheckedChange={(checked) => 
-                                        handlePermissionChange(parent.key, 'canEdit', checked as boolean)
-                                      }
-                                    />
-                                    <Label className="text-xs">Edit</Label>
-                                  </div>
-                                  <div className="flex items-center space-x-1">
-                                    <Checkbox
-                                      checked={selectedPermissions[parent.key]?.canDelete || false}
-                                      onCheckedChange={(checked) => 
-                                        handlePermissionChange(parent.key, 'canDelete', checked as boolean)
-                                      }
-                                    />
-                                    <Label className="text-xs">Delete</Label>
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </AccordionTrigger>
-                        {parent.children.length > 0 && (
-                          <AccordionContent>
-                            <div className="space-y-2 pl-4">
-                              {parent.children.map((child) => (
-                                <div key={child.key} className="flex items-center justify-between py-2">
-                                  <span className="text-sm">{child.title}</span>
-                                  <div className="flex items-center space-x-4">
-                                    <div className="flex items-center space-x-1">
-                                      <Checkbox
-                                        checked={selectedPermissions[child.key]?.canView || false}
-                                        onCheckedChange={(checked) => 
-                                          handlePermissionChange(child.key, 'canView', checked as boolean)
-                                        }
-                                      />
-                                      <Label className="text-xs">View</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                      <Checkbox
-                                        checked={selectedPermissions[child.key]?.canEdit || false}
-                                        onCheckedChange={(checked) => 
-                                          handlePermissionChange(child.key, 'canEdit', checked as boolean)
-                                        }
-                                      />
-                                      <Label className="text-xs">Edit</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                      <Checkbox
-                                        checked={selectedPermissions[child.key]?.canDelete || false}
-                                        onCheckedChange={(checked) => 
-                                          handlePermissionChange(child.key, 'canDelete', checked as boolean)
-                                        }
-                                      />
-                                      <Label className="text-xs">Delete</Label>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        )}
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </ScrollArea>
-              </div>
-              
-              <LoadingButton onClick={handleCreateUser} className="w-full" loading={creating}>
-                Create User
-              </LoadingButton>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
       <Card>
@@ -620,49 +393,34 @@ export default function UserManagementPage() {
                   </TableCell>
                   <TableCell>{new Date(profile.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
-                      <LoadingButton 
-                        variant="outline" 
-                        size="sm"
-                        loading={editLoading === profile.id}
-                        onClick={() => {
-                          setEditingUser(profile);
-                          setIsEditModalOpen(true);
-                        }}
-                      >
-                        <Edit className="w-3 h-3" />
-                      </LoadingButton>
-                      <LoadingButton 
-                        variant="outline" 
-                        size="sm"
-                        loading={deleteLoading === profile.id}
-                        onClick={() => {
-                          setDeleteLoading(profile.id);
-                          // TODO: Implement delete functionality
-                          setTimeout(() => setDeleteLoading(null), 1000);
-                        }}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </LoadingButton>
-                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setEditingUser(profile);
+                        setIsEditModalOpen(true);
+                      }}
+                    >
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edit Permissions
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
-              {profiles.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    No users found
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
       
-      {/* Edit User Dialog */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      {/* Edit Permissions Dialog */}
+      <Dialog open={isEditModalOpen} onOpenChange={(open) => {
+        setIsEditModalOpen(open);
+        if (!open) {
+          setEditingUser(null);
+          setUserPermissions({});
+        }
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit User Permissions</DialogTitle>
           </DialogHeader>
@@ -676,96 +434,37 @@ export default function UserManagementPage() {
               
               <div className="space-y-2">
                 <Label>Page Permissions</Label>
-                <p className="text-sm text-muted-foreground">Select which pages this user can access</p>
-                <ScrollArea className="h-[300px] border rounded-md p-4">
-                  <Accordion type="multiple" className="w-full">
-                    {pageStructure.map((parent) => (
-                      <AccordionItem key={parent.key} value={parent.key}>
-                        <AccordionTrigger className="hover:no-underline">
-                          <div className="flex items-center justify-between w-full pr-4">
-                            <span>{parent.title}</span>
-                            <div className="flex items-center space-x-4" onClick={(e) => e.stopPropagation()}>
-                              <div className="flex items-center space-x-1">
-                                <Checkbox
-                                  checked={selectedPermissions[parent.key]?.canView || false}
-                                  onCheckedChange={(checked) => 
-                                    handlePermissionChange(parent.key, 'canView', checked as boolean)
-                                  }
-                                />
-                                <Label className="text-xs">View</Label>
-                              </div>
-                              {parent.children.length === 0 && (
-                                <>
-                                  <div className="flex items-center space-x-1">
-                                    <Checkbox
-                                      checked={selectedPermissions[parent.key]?.canEdit || false}
-                                      onCheckedChange={(checked) => 
-                                        handlePermissionChange(parent.key, 'canEdit', checked as boolean)
-                                      }
-                                    />
-                                    <Label className="text-xs">Edit</Label>
-                                  </div>
-                                  <div className="flex items-center space-x-1">
-                                    <Checkbox
-                                      checked={selectedPermissions[parent.key]?.canDelete || false}
-                                      onCheckedChange={(checked) => 
-                                        handlePermissionChange(parent.key, 'canDelete', checked as boolean)
-                                      }
-                                    />
-                                    <Label className="text-xs">Delete</Label>
-                                  </div>
-                                </>
-                              )}
-                            </div>
+                <p className="text-sm text-muted-foreground">Configure which actions this user can perform on each page</p>
+                <ScrollArea className="h-[400px] border rounded-md p-4">
+                  <div className="space-y-1">
+                    {PAGES.map((page) => (
+                      <div key={page.key}>
+                        {/* Parent page permissions */}
+                        <PermissionRow
+                          pageKey={page.key}
+                          pageTitle={page.title}
+                          userActions={userPermissions[page.key] || []}
+                          onActionChange={handleActionChange}
+                        />
+                        
+                        {/* Child page permissions */}
+                        {page.children.map((child) => (
+                          <div key={child.key} className="ml-6">
+                            <PermissionRow
+                              pageKey={child.key}
+                              pageTitle={child.title}
+                              userActions={userPermissions[child.key] || []}
+                              onActionChange={handleActionChange}
+                            />
                           </div>
-                        </AccordionTrigger>
-                        {parent.children.length > 0 && (
-                          <AccordionContent>
-                            <div className="space-y-2 pl-4">
-                              {parent.children.map((child) => (
-                                <div key={child.key} className="flex items-center justify-between py-2">
-                                  <span className="text-sm">{child.title}</span>
-                                  <div className="flex items-center space-x-4">
-                                    <div className="flex items-center space-x-1">
-                                      <Checkbox
-                                        checked={selectedPermissions[child.key]?.canView || false}
-                                        onCheckedChange={(checked) => 
-                                          handlePermissionChange(child.key, 'canView', checked as boolean)
-                                        }
-                                      />
-                                      <Label className="text-xs">View</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                      <Checkbox
-                                        checked={selectedPermissions[child.key]?.canEdit || false}
-                                        onCheckedChange={(checked) => 
-                                          handlePermissionChange(child.key, 'canEdit', checked as boolean)
-                                        }
-                                      />
-                                      <Label className="text-xs">Edit</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                      <Checkbox
-                                        checked={selectedPermissions[child.key]?.canDelete || false}
-                                        onCheckedChange={(checked) => 
-                                          handlePermissionChange(child.key, 'canDelete', checked as boolean)
-                                        }
-                                      />
-                                      <Label className="text-xs">Delete</Label>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        )}
-                      </AccordionItem>
+                        ))}
+                      </div>
                     ))}
-                  </Accordion>
+                  </div>
                 </ScrollArea>
               </div>
               
-              <LoadingButton onClick={handleEditUser} className="w-full" loading={editLoading === editingUser.id}>
+              <LoadingButton onClick={handleUpdateUser} className="w-full">
                 Update Permissions
               </LoadingButton>
             </div>

@@ -34,10 +34,17 @@ import { AccommodationType } from "@/types/accommodation";
 import { toast } from "react-toastify";
 import { LoadingState } from "@/components/ui/spinner";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function HousingTypes() {
+	// Permission checks
+	const { hasPermission } = usePermissions();
+	const canAddType = hasPermission('accommodation.types', 'add_type');
+	const canEdit = hasPermission('accommodation.types', 'edit');
+	const canDelete = hasPermission('accommodation.types', 'delete');
+
 	const [showForm, setShowForm] = useState(false);
 	const [editingItem, setEditingItem] = useState<AccommodationType | null>(
 		null
@@ -172,15 +179,16 @@ export default function HousingTypes() {
 						Manage accommodation type categories for accommodation quarters
 					</p>
 				</div>
-				<Dialog open={showForm} onOpenChange={setShowForm}>
-					<DialogTrigger asChild>
-						<Button
-							onClick={() => setShowForm(true)}
-							className='flex items-center gap-2'>
-							<Plus className='h-4 w-4' />
-							Add Accommodation Type
-						</Button>
-					</DialogTrigger>
+				{canAddType && (
+					<Dialog open={showForm} onOpenChange={setShowForm}>
+						<DialogTrigger asChild>
+							<Button
+								onClick={() => setShowForm(true)}
+								className='flex items-center gap-2'>
+								<Plus className='h-4 w-4' />
+								Add Accommodation Type
+							</Button>
+						</DialogTrigger>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>
@@ -236,6 +244,7 @@ export default function HousingTypes() {
 						</form>
 					</DialogContent>
 				</Dialog>
+			)}
 			</div>
 
 			<Card>
@@ -265,21 +274,25 @@ export default function HousingTypes() {
 									</TableCell>
 									<TableCell>
 										<div className='flex gap-2'>
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => handleEdit(item)}
-												disabled={isDeleting === item.id}>
-												<Edit className='h-3 w-3' />
-											</Button>
-											<LoadingButton
-												variant='outline'
-												size='sm'
-												onClick={() => handleDelete(item.id)}
-												loading={isDeleting === item.id}
-												disabled={isDeleting !== null}>
-												<Trash2 className='h-3 w-3' />
-											</LoadingButton>
+											{canEdit && (
+												<Button
+													variant='outline'
+													size='sm'
+													onClick={() => handleEdit(item)}
+													disabled={isDeleting === item.id}>
+													<Edit className='h-3 w-3' />
+												</Button>
+											)}
+											{canDelete && (
+												<LoadingButton
+													variant='outline'
+													size='sm'
+													onClick={() => handleDelete(item.id)}
+													loading={isDeleting === item.id}
+													disabled={isDeleting !== null}>
+													<Trash2 className='h-3 w-3' />
+												</LoadingButton>
+											)}
 										</div>
 									</TableCell>
 								</TableRow>

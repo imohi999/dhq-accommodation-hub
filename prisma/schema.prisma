@@ -323,21 +323,23 @@ model AccommodationType {
 }
 
 model PagePermission {
-  id          String   @id @default(uuid())
-  profileId   String   @map("profile_id")
-  pageKey     String   @map("page_key")
-  pageTitle   String   @map("page_title")
-  parentKey   String?  @map("parent_key")
-  canView     Boolean  @default(true) @map("can_view")
-  canEdit     Boolean  @default(false) @map("can_edit")
-  canDelete   Boolean  @default(false) @map("can_delete")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  id             String   @id @default(uuid())
+  profileId      String   @map("profile_id")
+  pageKey        String   @map("page_key")
+  pageTitle      String   @map("page_title")
+  parentKey      String?  @map("parent_key")
+  canView        Boolean  @default(true) @map("can_view")
+  canEdit        Boolean  @default(false) @map("can_edit")
+  canDelete      Boolean  @default(false) @map("can_delete")
+  allowedActions String[] @default([]) @map("allowed_actions")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  profile        Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, pageKey])
   @@index([profileId])
   @@index([pageKey])
+  @@index([allowedActions])
   @@map("page_permissions")
 }
 

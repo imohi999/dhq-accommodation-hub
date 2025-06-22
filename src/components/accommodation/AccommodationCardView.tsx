@@ -30,6 +30,11 @@ interface AccommodationCardViewProps {
 	onEdit: (unit: DHQLivingUnitWithHousingType) => void;
 	onDelete: (id: string) => void;
 	deleteLoading?: string | null;
+	canEdit?: boolean;
+	canDelete?: boolean;
+	canViewHistory?: boolean;
+	canMaintenanceRequest?: boolean;
+	canInventory?: boolean;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -40,6 +45,11 @@ export const AccommodationCardView = ({
 	onEdit,
 	onDelete,
 	deleteLoading,
+	canEdit = true,
+	canDelete = true,
+	canViewHistory = true,
+	canMaintenanceRequest = true,
+	canInventory = true,
 }: AccommodationCardViewProps) => {
 	const [selectedUnit, setSelectedUnit] =
 		useState<DHQLivingUnitWithHousingType | null>(null);
@@ -249,65 +259,75 @@ export const AccommodationCardView = ({
 									className={`grid gap-1 pt-2 ${
 										viewMode === "card" ? "grid-cols-2" : "grid-cols-2"
 									}`}>
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => handleHistoryClick(unit)}
-										className='flex items-center gap-1'>
-										<History className='h-3 w-3' />
-										<span
-											className={`${viewMode === "compact" ? "text-xs" : ""}`}>
-											History
-										</span>
-									</Button>
+									{canViewHistory && (
+										<Button
+											variant='outline'
+											size='sm'
+											onClick={() => handleHistoryClick(unit)}
+											className='flex items-center gap-1'>
+											<History className='h-3 w-3' />
+											<span
+												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												History
+											</span>
+										</Button>
+									)}
 
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => handleInventoryClick(unit)}
-										className='flex items-center gap-1'>
-										<Package className='h-3 w-3' />
-										<span
-											className={`${viewMode === "compact" ? "text-xs" : ""}`}>
-											Inventory
-										</span>
-									</Button>
+									{canInventory && (
+										<Button
+											variant='outline'
+											size='sm'
+											onClick={() => handleInventoryClick(unit)}
+											className='flex items-center gap-1'>
+											<Package className='h-3 w-3' />
+											<span
+												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												Inventory
+											</span>
+										</Button>
+									)}
 
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => handleMaintenanceClick(unit)}
-										className='flex items-center gap-1'>
-										<Wrench className='h-3 w-3' />
-										<span
-											className={`${viewMode === "compact" ? "text-xs" : ""}`}>
-											Maintenance
-										</span>
-									</Button>
+									{canMaintenanceRequest && (
+										<Button
+											variant='outline'
+											size='sm'
+											onClick={() => handleMaintenanceClick(unit)}
+											className='flex items-center gap-1'>
+											<Wrench className='h-3 w-3' />
+											<span
+												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												Maintenance
+											</span>
+										</Button>
+									)}
 
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => onEdit(unit)}
-										className='flex items-center gap-1'>
-										<Edit className='h-3 w-3' />
-										<span
-											className={`${viewMode === "compact" ? "text-xs" : ""}`}>
-											Edit
-										</span>
-									</Button>
+									{canEdit && (
+										<Button
+											variant='outline'
+											size='sm'
+											onClick={() => onEdit(unit)}
+											className='flex items-center gap-1'>
+											<Edit className='h-3 w-3' />
+											<span
+												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												Edit
+											</span>
+										</Button>
+									)}
 
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => onDelete(unit.id)}
-										className='flex items-center gap-1 col-span-2'>
-										<Trash2 className='h-3 w-3' />
-										<span
-											className={`${viewMode === "compact" ? "text-xs" : ""}`}>
-											Delete
-										</span>
-									</Button>
+									{canDelete && (
+										<Button
+											variant='outline'
+											size='sm'
+											onClick={() => onDelete(unit.id)}
+											className='flex items-center gap-1 col-span-2'>
+											<Trash2 className='h-3 w-3' />
+											<span
+												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												Delete
+											</span>
+										</Button>
+									)}
 								</div>
 							</div>
 						</CardContent>

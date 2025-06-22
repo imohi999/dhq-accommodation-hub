@@ -5,6 +5,7 @@ import { LoadingState } from "@/components/ui/spinner";
 import { PendingApprovalView } from "@/components/allocation/PendingApprovalView";
 import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -116,6 +117,9 @@ export interface APIAllocationRequest {
 }
 
 export default function PendingApproval() {
+	// Permission checks
+	const { canViewLetter, canApprove, canRefuse } = usePermissions();
+
 	const {
 		data = [],
 		isLoading,
@@ -146,7 +150,13 @@ export default function PendingApproval() {
 					Review and approve accommodation allocation requests
 				</p>
 			</div>
-			<PendingApprovalView requests={pendingRequests} mutate={mutate} />
+			<PendingApprovalView 
+				requests={pendingRequests} 
+				mutate={mutate}
+				canViewLetter={canViewLetter('allocations.pending')}
+				canApprove={canApprove('allocations.pending')}
+				canRefuse={canRefuse()}
+			/>
 		</div>
 	);
 }

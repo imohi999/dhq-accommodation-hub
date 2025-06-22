@@ -16,9 +16,22 @@ import { AccommodationFormModal } from "@/components/accommodation/Accommodation
 import { useAccommodationData } from "@/hooks/useAccommodationData";
 import { useAccommodationFilters } from "@/hooks/useAccommodationFilters";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
+import { usePermissions } from "@/hooks/usePermissions";
 // Removed Supabase import - using API instead
 
 export default function DHQLivingUnits() {
+	// Permission checks
+	const { 
+		canAddQuarters, 
+		canEdit, 
+		canDelete, 
+		canImport, 
+		canExportAccommodation,
+		canViewHistory,
+		canMaintenanceRequest,
+		canInventory 
+	} = usePermissions();
+
 	const { units, housingTypes, loading, refetch } = useAccommodationData();
 	const [viewMode, setViewMode] = useState<"card" | "compact" | "table">(
 		"card"
@@ -113,17 +126,21 @@ export default function DHQLivingUnits() {
 					</p>
 				</div>
 				<div className='flex gap-2'>
-					<Button
-						onClick={() => setShowImportModal(true)}
-						variant='outline'
-						className='flex items-center gap-2'>
-						<Upload className='h-4 w-4' />
-						Import
-					</Button>
-					<Button onClick={handleAdd} className='flex items-center gap-2'>
-						<Plus className='h-4 w-4' />
-						Add Quarters
-					</Button>
+					{canImport() && (
+						<Button
+							onClick={() => setShowImportModal(true)}
+							variant='outline'
+							className='flex items-center gap-2'>
+							<Upload className='h-4 w-4' />
+							Import
+						</Button>
+					)}
+					{canAddQuarters() && (
+						<Button onClick={handleAdd} className='flex items-center gap-2'>
+							<Plus className='h-4 w-4' />
+							Add Quarters
+						</Button>
+					)}
 				</div>
 			</div>
 
@@ -170,6 +187,9 @@ export default function DHQLivingUnits() {
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					deleteLoading={deleteLoading}
+					canEdit={canEdit('accommodation.units')}
+					canDelete={canDelete('accommodation.units')}
+					canExport={canExportAccommodation()}
 				/>
 			) : (
 				<AccommodationCardView
@@ -178,6 +198,11 @@ export default function DHQLivingUnits() {
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					deleteLoading={deleteLoading}
+					canEdit={canEdit('accommodation.units')}
+					canDelete={canDelete('accommodation.units')}
+					canViewHistory={canViewHistory()}
+					canMaintenanceRequest={canMaintenanceRequest()}
+					canInventory={canInventory()}
 				/>
 			)}
 

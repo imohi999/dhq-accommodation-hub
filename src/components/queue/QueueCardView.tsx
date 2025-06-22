@@ -21,12 +21,16 @@ interface QueueCardViewProps {
 	queueItems: QueueItem[];
 	onEdit: (item: QueueItem) => void;
 	onAllocate: (item: QueueItem) => void;
+	canEdit?: boolean;
+	canAllocate?: boolean;
 }
 
 export const QueueCardView = ({
 	queueItems,
 	onEdit,
 	onAllocate,
+	canEdit = true,
+	canAllocate = true,
 }: QueueCardViewProps) => {
 	const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
@@ -145,20 +149,24 @@ export const QueueCardView = ({
 								</div>
 
 								<div className='flex flex-col gap-2 ml-4'>
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => onEdit(item)}
-										className='whitespace-nowrap'>
-										Edit
-									</Button>
-									<Button
-										variant='destructive'
-										size='sm'
-										onClick={() => onAllocate(item)}
-										className='whitespace-nowrap'>
-										Allocate
-									</Button>
+									{canEdit && (
+										<Button
+											variant='outline'
+											size='sm'
+											onClick={() => onEdit(item)}
+											className='whitespace-nowrap'>
+											Edit
+										</Button>
+									)}
+									{canAllocate && (
+										<Button
+											variant='destructive'
+											size='sm'
+											onClick={() => onAllocate(item)}
+											className='whitespace-nowrap'>
+											Allocate
+										</Button>
+									)}
 								</div>
 							</div>
 

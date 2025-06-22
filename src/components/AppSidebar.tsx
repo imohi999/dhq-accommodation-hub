@@ -220,28 +220,29 @@ export function AppSidebar() {
 		// Filter menu items based on permissions
 		return allMenuItems
 			.map(item => {
-				// Check if user has permission to view this parent item
-				const parentPermission = permissionMap.get(item.key);
-				if (!parentPermission?.canView) return null;
-
-				// If item has sub-items, filter them too
+				// If item has sub-items, check if user has permission for any child
 				if (item.items) {
 					const visibleSubItems = item.items.filter(subItem => {
 						const subPermission = permissionMap.get(subItem.key);
 						return subPermission?.canView;
 					});
 
-					// Only include parent if it has visible sub-items
-					if (visibleSubItems.length === 0) return null;
-
-					// Return parent with filtered sub-items
-					return {
-						...item,
-						items: visibleSubItems
-					};
+					// If user has permission for any child, show the parent
+					if (visibleSubItems.length > 0) {
+						return {
+							...item,
+							items: visibleSubItems
+						};
+					}
+					
+					// No visible children, don't show parent
+					return null;
 				}
 
-				// Return item as-is if it doesn't have sub-items
+				// For items without children, check direct permission
+				const permission = permissionMap.get(item.key);
+				if (!permission?.canView) return null;
+
 				return item;
 			})
 			.filter(item => item !== null);

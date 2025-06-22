@@ -16,8 +16,12 @@ import { QueueTableView } from "@/components/queue/QueueTableView";
 import { AllocationModal } from "@/components/allocation/AllocationModal";
 import { useQueueFilters } from "@/hooks/useQueueFilters";
 import { QueueItem } from "@/types/queue";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function QueuePage() {
+	// Permission checks
+	const { canAddQueue, canEdit, canDelete, canAllocate, canExportQueue } = usePermissions();
+
 	// State management
 	const [showForm, setShowForm] = useState(false);
 	const [editingItem, setEditingItem] = useState<QueueItem | null>(null);
@@ -199,10 +203,12 @@ export default function QueuePage() {
 						Manage the waiting list for incoming personnel
 					</p>
 				</div>
-				<Button onClick={handleAdd} className='flex items-center gap-2'>
-					<Plus className='h-4 w-4' />
-					Add to Queue
-				</Button>
+				{canAddQueue() && (
+					<Button onClick={handleAdd} className='flex items-center gap-2'>
+						<Plus className='h-4 w-4' />
+						Add to Queue
+					</Button>
+				)}
 			</div>
 
 			<QueueSummaryCards queueItems={filteredItems} />
@@ -250,6 +256,8 @@ export default function QueuePage() {
 					queueItems={filteredItems}
 					onEdit={handleEdit}
 					onAllocate={handleAllocate}
+					canEdit={canEdit('queue.list')}
+					canAllocate={canAllocate()}
 				/>
 			) : (
 				<QueueTableView
@@ -257,6 +265,8 @@ export default function QueuePage() {
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					deletingIds={deletingIds}
+					canEdit={canEdit('queue.list')}
+					canDelete={canDelete('queue.list')}
 				/>
 			)}
 
