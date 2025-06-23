@@ -8,6 +8,7 @@ import { LoadingState } from "@/components/ui/spinner";
 import { MaintenanceRequestForm } from "@/components/maintenance/MaintenanceRequestForm";
 import { MaintenanceRequestTable } from "@/components/maintenance/MaintenanceRequestTable";
 import useSWR, { mutate } from "swr";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export interface MaintenanceRequest {
 	id: string;
@@ -27,6 +28,11 @@ export interface MaintenanceRequest {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MaintenanceRequestsPage() {
+	const { hasPermission } = usePermissions();
+	const canCreateRequest = hasPermission('maintenance.requests', 'new_request');
+	const canEditRequest = hasPermission('maintenance.requests', 'edit');
+	const canDeleteRequest = hasPermission('maintenance.requests', 'delete');
+
 	const [showForm, setShowForm] = useState(false);
 	const [editingRequest, setEditingRequest] =
 		useState<MaintenanceRequest | null>(null);
@@ -98,10 +104,12 @@ export default function MaintenanceRequestsPage() {
 						Manage maintenance requests for accommodation quarters
 					</p>
 				</div>
-				<Button onClick={handleAdd} className='flex items-center gap-2'>
-					<Plus className='h-4 w-4' />
-					New Request
-				</Button>
+				{canCreateRequest && (
+					<Button onClick={handleAdd} className='flex items-center gap-2'>
+						<Plus className='h-4 w-4' />
+						New Request
+					</Button>
+				)}
 			</div>
 
 			{showForm && (
@@ -115,8 +123,8 @@ export default function MaintenanceRequestsPage() {
 			<MaintenanceRequestTable
 				requests={requests}
 				loading={isLoading}
-				onEdit={handleEdit}
-				onDelete={handleDelete}
+				onEdit={canEditRequest ? handleEdit : undefined}
+				onDelete={canDeleteRequest ? handleDelete : undefined}
 			/>
 		</div>
 	);

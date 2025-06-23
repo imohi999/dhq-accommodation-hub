@@ -8,6 +8,7 @@ import { LoadingState } from "@/components/ui/spinner";
 import { MaintenanceTaskForm } from "@/components/maintenance/MaintenanceTaskForm";
 import { MaintenanceTaskTable } from "@/components/maintenance/MaintenanceTaskTable";
 import useSWR, { mutate } from "swr";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export interface MaintenanceTask {
 	id: string;
@@ -26,6 +27,11 @@ export interface MaintenanceTask {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MaintenanceTasksPage() {
+	const { hasPermission } = usePermissions();
+	const canCreateTask = hasPermission('maintenance.tasks', 'new_task');
+	const canEditTask = hasPermission('maintenance.tasks', 'edit');
+	const canDeleteTask = hasPermission('maintenance.tasks', 'delete');
+
 	const [showForm, setShowForm] = useState(false);
 	const [editingTask, setEditingTask] = useState<MaintenanceTask | null>(null);
 
@@ -96,10 +102,12 @@ export default function MaintenanceTasksPage() {
 						Manage scheduled maintenance tasks for accommodation quarters
 					</p>
 				</div>
-				<Button onClick={handleAdd} className='flex items-center gap-2'>
-					<Plus className='h-4 w-4' />
-					New Task
-				</Button>
+				{canCreateTask && (
+					<Button onClick={handleAdd} className='flex items-center gap-2'>
+						<Plus className='h-4 w-4' />
+						New Task
+					</Button>
+				)}
 			</div>
 
 			{showForm && (
@@ -113,8 +121,8 @@ export default function MaintenanceTasksPage() {
 			<MaintenanceTaskTable
 				tasks={tasks}
 				loading={isLoading}
-				onEdit={handleEdit}
-				onDelete={handleDelete}
+				onEdit={canEditTask ? handleEdit : undefined}
+				onDelete={canDeleteTask ? handleDelete : undefined}
 			/>
 		</div>
 	);

@@ -24,12 +24,13 @@ export function MaintenanceTaskTable({
 }: {
 	tasks: MaintenanceTask[];
 	loading: boolean;
-	onEdit: (task: MaintenanceTask) => void;
-	onDelete: (id: string) => void;
+	onEdit?: (task: MaintenanceTask) => void;
+	onDelete?: (id: string) => void;
 }) {
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 
 	const handleDelete = async (id: string) => {
+		if (!onDelete) return;
 		setDeletingId(id);
 		try {
 			await onDelete(id);
@@ -62,7 +63,7 @@ export function MaintenanceTaskTable({
 						<th className='p-3 text-left'>Next Due</th>
 						<th className='p-3 text-left'>Status</th>
 						<th className='p-3 text-left'>Remarks</th>
-						<th className='p-3 text-left'>Actions</th>
+						{(onEdit || onDelete) && <th className='p-3 text-left'>Actions</th>}
 					</tr>
 				</thead>
 				<tbody>
@@ -96,25 +97,31 @@ export function MaintenanceTaskTable({
 								</span>
 							</td>
 							<td className='p-3'>{task.remarks}</td>
-							<td className='p-3'>
-								<div className='flex gap-2'>
-									<LoadingButton
-										variant='outline'
-										size='sm'
-										onClick={() => onEdit(task)}
-										disabled={deletingId === task.id}>
-										<Edit className='h-3 w-3' />
-									</LoadingButton>
-									<LoadingButton
-										variant='outline'
-										size='sm'
-										onClick={() => handleDelete(task.id)}
-										loading={deletingId === task.id}
-										disabled={deletingId !== null}>
-										<Trash2 className='h-3 w-3' />
-									</LoadingButton>
-								</div>
-							</td>
+							{(onEdit || onDelete) && (
+								<td className='p-3'>
+									<div className='flex gap-2'>
+										{onEdit && (
+											<LoadingButton
+												variant='outline'
+												size='sm'
+												onClick={() => onEdit(task)}
+												disabled={deletingId === task.id}>
+												<Edit className='h-3 w-3' />
+											</LoadingButton>
+										)}
+										{onDelete && (
+											<LoadingButton
+												variant='outline'
+												size='sm'
+												onClick={() => handleDelete(task.id)}
+												loading={deletingId === task.id}
+												disabled={deletingId !== null}>
+												<Trash2 className='h-3 w-3' />
+											</LoadingButton>
+										)}
+									</div>
+								</td>
+							)}
 						</tr>
 					))}
 				</tbody>

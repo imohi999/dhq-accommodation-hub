@@ -172,7 +172,7 @@ export default function HousingTypes() {
 		<div className='space-y-6'>
 			<div className='flex justify-between items-center'>
 				<div>
-					<h1 className='text-2xl font-bold text-[#1B365D]'>
+					<h1 className='text-3xl font-bold'>
 						Accommodation Types
 					</h1>
 					<p className='text-muted-foreground'>

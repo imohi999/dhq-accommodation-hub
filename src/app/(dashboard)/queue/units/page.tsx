@@ -179,7 +179,7 @@ export default function QueueUnitsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-[#1B365D]">Quarters Management</h1>
+          <h1 className="text-3xl font-bold">Quarters Management</h1>
           <p className="text-muted-foreground">
             Manage quarters that appear in the Current Quarters dropdown
           </p>

@@ -26,12 +26,13 @@ export function MaintenanceRequestTable({
 }: {
 	requests: MaintenanceRequest[];
 	loading: boolean;
-	onEdit: (req: MaintenanceRequest) => void;
-	onDelete: (id: string) => void;
+	onEdit?: (req: MaintenanceRequest) => void;
+	onDelete?: (id: string) => void;
 }) {
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 
 	const handleDelete = async (id: string) => {
+		if (!onDelete) return;
 		setDeletingId(id);
 		try {
 			await onDelete(id);
@@ -95,7 +96,7 @@ export function MaintenanceRequestTable({
 						<th className='p-3 text-left'>Status</th>
 						<th className='p-3 text-left'>Description</th>
 						<th className='p-3 text-left'>Remarks</th>
-						<th className='p-3 text-left'>Actions</th>
+						{(onEdit || onDelete) && <th className='p-3 text-left'>Actions</th>}
 					</tr>
 				</thead>
 				<tbody>
@@ -129,25 +130,31 @@ export function MaintenanceRequestTable({
 								{req.issueDescription}
 							</td>
 							<td className='p-3'>{req.remarks}</td>
-							<td className='p-3'>
-								<div className='flex gap-2'>
-									<LoadingButton
-										variant='outline'
-										size='sm'
-										onClick={() => onEdit(req)}
-										disabled={deletingId === req.id}>
-										<Edit className='h-3 w-3' />
-									</LoadingButton>
-									<LoadingButton
-										variant='outline'
-										size='sm'
-										onClick={() => handleDelete(req.id)}
-										loading={deletingId === req.id}
-										disabled={deletingId !== null}>
-										<Trash2 className='h-3 w-3' />
-									</LoadingButton>
-								</div>
-							</td>
+							{(onEdit || onDelete) && (
+								<td className='p-3'>
+									<div className='flex gap-2'>
+										{onEdit && (
+											<LoadingButton
+												variant='outline'
+												size='sm'
+												onClick={() => onEdit(req)}
+												disabled={deletingId === req.id}>
+												<Edit className='h-3 w-3' />
+											</LoadingButton>
+										)}
+										{onDelete && (
+											<LoadingButton
+												variant='outline'
+												size='sm'
+												onClick={() => handleDelete(req.id)}
+												loading={deletingId === req.id}
+												disabled={deletingId !== null}>
+												<Trash2 className='h-3 w-3' />
+											</LoadingButton>
+										)}
+									</div>
+								</td>
+							)}
 						</tr>
 					))}
 				</tbody>
