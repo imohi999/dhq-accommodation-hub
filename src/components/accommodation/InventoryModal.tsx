@@ -12,6 +12,7 @@ import { Plus, Edit, Trash2, Package } from "lucide-react";
 import { toast } from "react-toastify";
 import { UnitInventory } from "@/types/accommodation";
 import useSWR, { mutate } from "swr";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface InventoryModalProps {
   isOpen: boolean;
@@ -23,6 +24,9 @@ interface InventoryModalProps {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryModalProps) => {
+  const { canInventory } = usePermissions();
+  const canManageInventory = canInventory();
+
   const [editingItem, setEditingItem] = useState<UnitInventory | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -150,10 +154,12 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Items ({inventory.length})</h3>
-            <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Add Item
-            </Button>
+            {canManageInventory && (
+              <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Add Item
+              </Button>
+            )}
           </div>
 
           {showForm && (
@@ -245,20 +251,22 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
                         <p className="text-sm text-muted-foreground">Remarks: {item.remarks}</p>
                       )}
                     </div>
-                    <div className="flex gap-1">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <LoadingButton 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleDelete(item.id)}
-                        loading={isDeleting === item.id}
-                        disabled={!!isDeleting}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </LoadingButton>
-                    </div>
+                    {canManageInventory && (
+                      <div className="flex gap-1">
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <LoadingButton 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleDelete(item.id)}
+                          loading={isDeleting === item.id}
+                          disabled={!!isDeleting}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </LoadingButton>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -266,9 +274,11 @@ export const InventoryModal = ({ isOpen, onClose, unitId, unitName }: InventoryM
               <div className="text-center py-8 text-muted-foreground">
                 <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No inventory items found for this unit.</p>
-                <Button onClick={() => setShowForm(true)} className="mt-2">
-                  Add First Item
-                </Button>
+                {canManageInventory && (
+                  <Button onClick={() => setShowForm(true)} className="mt-2">
+                    Add First Item
+                  </Button>
+                )}
               </div>
             )}
           </div>

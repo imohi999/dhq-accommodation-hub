@@ -23,6 +23,7 @@ import { Plus, Edit, Trash2, Wrench, Calendar, DollarSign, AlertCircle, ListChec
 import { toast } from "react-toastify";
 import { UnitMaintenance } from "@/types/accommodation";
 import useSWR, { mutate } from "swr";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface MaintenanceModalProps {
 	isOpen: boolean;
@@ -39,6 +40,13 @@ export const MaintenanceModal = ({
 	unitId,
 	unitName,
 }: MaintenanceModalProps) => {
+	const { canMaintenanceRequest, hasPermission } = usePermissions();
+	const canCreateMaintenanceRequest = canMaintenanceRequest();
+	// Check if user has permission for maintenance tasks (using the maintenance.tasks page permissions)
+	const canCreateMaintenanceTask = hasPermission('maintenance.tasks', 'new_task');
+	const canEditMaintenance = hasPermission('maintenance.tasks', 'edit') || hasPermission('maintenance.requests', 'edit');
+	const canDeleteMaintenance = hasPermission('maintenance.tasks', 'delete') || hasPermission('maintenance.requests', 'delete');
+
 	const [editingItem, setEditingItem] = useState<UnitMaintenance | null>(null);
 	const [showForm, setShowForm] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -243,22 +251,28 @@ export const MaintenanceModal = ({
 						{item.description}
 					</p>
 				</div>
-				<div className='flex gap-1'>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => handleEdit(item)}>
-						<Edit className='h-3 w-3' />
-					</Button>
-					<LoadingButton
-						variant='outline'
-						size='sm'
-						onClick={() => handleDelete(item.id)}
-						loading={isDeleting === item.id}
-						disabled={!!isDeleting}>
-						<Trash2 className='h-3 w-3' />
-					</LoadingButton>
-				</div>
+				{(canEditMaintenance || canDeleteMaintenance) && (
+					<div className='flex gap-1'>
+						{canEditMaintenance && (
+							<Button
+								variant='outline'
+								size='sm'
+								onClick={() => handleEdit(item)}>
+								<Edit className='h-3 w-3' />
+							</Button>
+						)}
+						{canDeleteMaintenance && (
+							<LoadingButton
+								variant='outline'
+								size='sm'
+								onClick={() => handleDelete(item.id)}
+								loading={isDeleting === item.id}
+								disabled={!!isDeleting}>
+								<Trash2 className='h-3 w-3' />
+							</LoadingButton>
+						)}
+					</div>
+				)}
 			</div>
 
 			<div className='grid grid-cols-3 gap-4 text-sm'>
@@ -313,19 +327,23 @@ export const MaintenanceModal = ({
 							</TabsTrigger>
 						</TabsList>
 						<div className='flex gap-2'>
-							<Button
-								onClick={() => openCreateForm('request')}
-								className='flex items-center gap-2'
-								variant='outline'>
-								<AlertCircle className='h-4 w-4' />
-								New Request
-							</Button>
-							<Button
-								onClick={() => openCreateForm('task')}
-								className='flex items-center gap-2'>
-								<Plus className='h-4 w-4' />
-								New Task
-							</Button>
+							{canCreateMaintenanceRequest && (
+								<Button
+									onClick={() => openCreateForm('request')}
+									className='flex items-center gap-2'
+									variant='outline'>
+									<AlertCircle className='h-4 w-4' />
+									New Request
+								</Button>
+							)}
+							{canCreateMaintenanceTask && (
+								<Button
+									onClick={() => openCreateForm('task')}
+									className='flex items-center gap-2'>
+									<Plus className='h-4 w-4' />
+									New Task
+								</Button>
+							)}
 						</div>
 					</div>
 
@@ -493,12 +511,16 @@ export const MaintenanceModal = ({
 								<Wrench className='h-12 w-12 mx-auto mb-4 opacity-50' />
 								<p>No maintenance records found for this unit.</p>
 								<div className='flex gap-2 justify-center mt-2'>
-									<Button onClick={() => openCreateForm('request')} variant='outline'>
-										Create Request
-									</Button>
-									<Button onClick={() => openCreateForm('task')}>
-										Schedule Task
-									</Button>
+									{canCreateMaintenanceRequest && (
+										<Button onClick={() => openCreateForm('request')} variant='outline'>
+											Create Request
+										</Button>
+									)}
+									{canCreateMaintenanceTask && (
+										<Button onClick={() => openCreateForm('task')}>
+											Schedule Task
+										</Button>
+									)}
 								</div>
 							</div>
 						)}
@@ -517,9 +539,11 @@ export const MaintenanceModal = ({
 							<div className='text-center py-8 text-muted-foreground'>
 								<AlertCircle className='h-12 w-12 mx-auto mb-4 opacity-50' />
 								<p>No maintenance requests found.</p>
-								<Button onClick={() => openCreateForm('request')} className='mt-2'>
-									Create First Request
-								</Button>
+								{canCreateMaintenanceRequest && (
+									<Button onClick={() => openCreateForm('request')} className='mt-2'>
+										Create First Request
+									</Button>
+								)}
 							</div>
 						)}
 					</TabsContent>
@@ -537,9 +561,11 @@ export const MaintenanceModal = ({
 							<div className='text-center py-8 text-muted-foreground'>
 								<ListChecks className='h-12 w-12 mx-auto mb-4 opacity-50' />
 								<p>No scheduled maintenance tasks found.</p>
-								<Button onClick={() => openCreateForm('task')} className='mt-2'>
-									Schedule First Task
-								</Button>
+								{canCreateMaintenanceTask && (
+									<Button onClick={() => openCreateForm('task')} className='mt-2'>
+										Schedule First Task
+									</Button>
+								)}
 							</div>
 						)}
 					</TabsContent>

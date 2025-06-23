@@ -23,6 +23,7 @@ import { InventoryModal } from "./InventoryModal";
 import { MaintenanceModal } from "./MaintenanceModal";
 import { toast } from "react-toastify";
 import useSWR from "swr";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface AccommodationCardViewProps {
 	units: DHQLivingUnitWithHousingType[];
@@ -51,6 +52,11 @@ export const AccommodationCardView = ({
 	canMaintenanceRequest = true,
 	canInventory = true,
 }: AccommodationCardViewProps) => {
+	const { canAccess } = usePermissions();
+	// Users with access permission should be able to view inventory and maintenance (read-only)
+	const canViewInventory = canInventory || canAccess('accommodation.units');
+	const canViewMaintenance = canMaintenanceRequest || canAccess('accommodation.units');
+
 	const [selectedUnit, setSelectedUnit] =
 		useState<DHQLivingUnitWithHousingType | null>(null);
 	const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -273,7 +279,7 @@ export const AccommodationCardView = ({
 										</Button>
 									)}
 
-									{canInventory && (
+									{canViewInventory && (
 										<Button
 											variant='outline'
 											size='sm'
@@ -287,7 +293,7 @@ export const AccommodationCardView = ({
 										</Button>
 									)}
 
-									{canMaintenanceRequest && (
+									{canViewMaintenance && (
 										<Button
 											variant='outline'
 											size='sm'
