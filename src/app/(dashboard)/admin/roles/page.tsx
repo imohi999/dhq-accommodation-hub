@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Edit, Trash2, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useAuth } from '@/hooks/useAuth';
+import { LoadingState } from '@/components/ui/spinner';
 
 interface Permission {
   id: string;
@@ -27,6 +29,9 @@ interface Role {
 }
 
 export default function RoleProfilesPage() {
+  const { user, loading: authLoading } = useAuth();
+  const isSuperAdmin = user?.profile?.role === "superadmin";
+  
   const [roles, setRoles] = useState<Role[]>([
     {
       id: '1',
@@ -85,6 +90,28 @@ export default function RoleProfilesPage() {
       setNewRole({ ...newRole, permissions: newRole.permissions.filter(p => p !== permissionId) });
     }
   };
+
+  if (authLoading) {
+    return <LoadingState isLoading={true}>{null}</LoadingState>;
+  }
+
+  if (!isSuperAdmin) {
+    return (
+      <div className='flex justify-center p-8'>
+        <Card className='w-full max-w-md'>
+          <CardContent className='pt-6'>
+            <div className='text-center space-y-2'>
+              <Shield className='h-12 w-12 text-muted-foreground mx-auto' />
+              <p className='text-lg font-semibold'>Access Denied</p>
+              <p className='text-muted-foreground'>
+                Only superadmins can manage roles.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
