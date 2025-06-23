@@ -193,7 +193,7 @@ async function main() {
       fullName: "Aisha Okafor",
       svcNo: "NA/17127/79",
       gender: "Female",
-      armOfService: "Army",
+      armOfService: "Nigerian Army",
       category: "Officer",
       rank: "Sqn Ldr",
       maritalStatus: "Married",
@@ -214,7 +214,7 @@ async function main() {
       fullName: "Emeka Adebayo",
       svcNo: "AF/84591/22",
       gender: "Male",
-      armOfService: "Air Force",
+      armOfService: "Nigerian Air Force",
       category: "Officer",
       rank: "Sqn Ldr",
       maritalStatus: "Single",
@@ -236,7 +236,7 @@ async function main() {
       fullName: "Oluwaseun Balogun",
       svcNo: "NN/65461/71",
       gender: "Male",
-      armOfService: "Navy",
+      armOfService: "Nigerian Navy",
       category: "Officer",
       rank: "Lt Cdr",
       maritalStatus: "Married",
@@ -254,7 +254,7 @@ async function main() {
       fullName: "Ibrahim Mohammed",
       svcNo: "NN/62775/20",
       gender: "Male",
-      armOfService: "Navy",
+      armOfService: "Nigerian Navy",
       category: "Officer",
       rank: "Lt",
       maritalStatus: "Single",
@@ -274,7 +274,7 @@ async function main() {
       fullName: "Chijioke Eze",
       svcNo: "AF/56838/94",
       gender: "Male",
-      armOfService: "Air Force",
+      armOfService: "Nigerian Air Force",
       category: "Officer",
       rank: "Lt Col",
       maritalStatus: "Married",
@@ -291,7 +291,7 @@ async function main() {
       fullName: "Yakubu Danjuma",
       svcNo: "AF/94452/88",
       gender: "Male",
-      armOfService: "Air Force",
+      armOfService: "Nigerian Air Force",
       category: "NCOs",
       rank: "SSgt",
       maritalStatus: "Single",
@@ -308,7 +308,7 @@ async function main() {
       fullName: "Funke Ogunleye",
       svcNo: "AF/62542/50",
       gender: "Female",
-      armOfService: "Air Force",
+      armOfService: "Nigerian Air Force",
       category: "NCOs",
       rank: "SSgt",
       maritalStatus: "Single",
@@ -325,7 +325,7 @@ async function main() {
       fullName: "Blessing Akpan",
       svcNo: "AF/43765/72",
       gender: "Female",
-      armOfService: "Air Force",
+      armOfService: "Nigerian Air Force",
       category: "NCOs",
       rank: "FS",
       maritalStatus: "Single",
@@ -398,7 +398,7 @@ async function main() {
       fullName: fullName,
       svcNo: `${['NA', 'NN', 'AF'][i % 3]}/${Math.floor(Math.random() * 90000) + 10000}/${Math.floor(Math.random() * 30) + 70}`,
       gender: isMale ? 'Male' : 'Female',
-      armOfService: ['Army', 'Navy', 'Air Force'][i % 3],
+      armOfService: ['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force'][i % 3],
       category: isOfficer ? 'Officer' : 'NCOs',
       rank: isOfficer
         ? ['Maj', 'Capt', 'Sqn Ldr', 'Lt Col'][i % 4]
@@ -415,7 +415,12 @@ async function main() {
   }
 
   for (const entry of [...queueData, ...additionalQueueEntries]) {
-    await prisma.queue.create({ data: entry })
+    await prisma.queue.create({ 
+      data: {
+        ...entry,
+        hasAllocationRequest: false // Initialize all queue entries without allocation requests
+      }
+    })
   }
 
   console.log('✅ Created 20 queue entries')
@@ -719,8 +724,8 @@ async function main() {
             unit.currentOccupantName.includes("Folake") ||
             unit.currentOccupantName.includes("Bukola") ||
             unit.currentOccupantName.includes("Fatima") ? 'Female' : 'Male',
-          armOfService: unit.currentOccupantServiceNumber.startsWith('NA') ? 'Army' :
-            unit.currentOccupantServiceNumber.startsWith('NN') ? 'Navy' : 'Air Force',
+          armOfService: unit.currentOccupantServiceNumber.startsWith('NA') ? 'Nigerian Army' :
+            unit.currentOccupantServiceNumber.startsWith('NN') ? 'Nigerian Navy' : 'Nigerian Air Force',
           category: 'Officer',
           rank: unit.currentOccupantRank || 'Unknown',
           maritalStatus: hasDependents ? 'Married' : 'Single',
@@ -731,7 +736,8 @@ async function main() {
           appointment: 'Staff Officer',
           entryDateTime: unit.occupancyStartDate || new Date(),
           createdAt: unit.occupancyStartDate || new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          hasAllocationRequest: true // These are active occupants, so they have allocations
         }
       })
 
@@ -858,7 +864,7 @@ async function main() {
         fullName: occupant.name,
         svcNo: `${occupant.svcNo}-PAST-${i}`, // Make it unique by adding suffix
         gender: gender,
-        armOfService: ['Army', 'Navy', 'Air Force'][i % 3],
+        armOfService: ['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force'][i % 3],
         category: i < 15 ? "Officer" : "NCOs",
         rank: occupant.rank,
         maritalStatus: maritalStatus,
@@ -869,7 +875,8 @@ async function main() {
         appointment: i < 15 ? 'Staff Officer' : 'Technician',
         entryDateTime: startDate,
         createdAt: startDate,
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        hasAllocationRequest: false // Past allocations don't have active requests
       }
     })
 
@@ -964,6 +971,14 @@ async function main() {
 
   for (const request of allocationRequests) {
     await prisma.allocationRequest.create({ data: request })
+    
+    // Mark the queue entry as having an allocation request if status is pending
+    if (request.status === 'pending') {
+      await prisma.queue.update({
+        where: { id: request.queueId },
+        data: { hasAllocationRequest: true }
+      })
+    }
   }
 
   console.log(`✅ Created ${allocationRequests.length} allocation requests`)
