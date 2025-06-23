@@ -1,6 +1,6 @@
 
 export const RANK_OPTIONS = {
-  Army: {
+  "Nigerian Army": {
     NCOs: [
       "Pte",
       "LCpl",
@@ -25,7 +25,7 @@ export const RANK_OPTIONS = {
       "Field Marshal"
     ]
   },
-  Navy: {
+  "Nigerian Navy": {
     NCOs: [
       "OS",
       "SM",
@@ -49,7 +49,7 @@ export const RANK_OPTIONS = {
       "AF"
     ]
   },
-  "Air Force": {
+  "Nigerian Air Force": {
     NCOs: [
       "ACM/ACW",
       "LCpl",
@@ -82,7 +82,7 @@ export const getRankOptions = (armOfService: string, category: string): string[]
   }
 
   const service = RANK_OPTIONS[armOfService as keyof typeof RANK_OPTIONS];
-  
+
   if (!service) {
     return [];
   }

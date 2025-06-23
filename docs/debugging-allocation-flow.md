@@ -42,7 +42,7 @@
    - Expects data structure:
      - `request.personnelData.fullName` (camelCase)
      - `request.personnelData.category` (for Officer/NCOs counts)
-     - `request.personnel.armOfService` (for Army/Navy/Air Force counts)
+     - `request.personnel.armOfService` (for Nigerian Army/Nigerian Navy/Nigerian Air Force counts)
 
 ## Debugging Steps
 

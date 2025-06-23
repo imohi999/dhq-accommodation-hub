@@ -35,11 +35,14 @@ export const ActiveAllocationsView = ({
 	occupiedUnits,
 }: ActiveAllocationsViewProps) => {
 	const { hasPermission } = usePermissions();
-	
-	const canViewLetter = hasPermission('allocations.active', 'view_letter');
-	const canEjectionNotice = hasPermission('allocations.active', 'ejection_notice');
-	const canTransfer = hasPermission('allocations.active', 'transfer');
-	const canPostOut = hasPermission('allocations.active', 'post_out');
+
+	const canViewLetter = hasPermission("allocations.active", "view_letter");
+	const canEjectionNotice = hasPermission(
+		"allocations.active",
+		"ejection_notice"
+	);
+	const canTransfer = hasPermission("allocations.active", "transfer");
+	const canPostOut = hasPermission("allocations.active", "post_out");
 
 	const [deallocateDialog, setDeallocateDialog] = useState<{
 		isOpen: boolean;
@@ -191,7 +194,7 @@ export const ActiveAllocationsView = ({
 			sequence: 1,
 			appointment: "Staff Officer",
 			currentUnit: "Naval Academy",
-			armOfService: "Navy",
+			armOfService: "Nigerian Navy",
 			entryDateTime: new Date().toISOString(),
 			maritalStatus: "Single",
 			noOfAdultDependents: 0,
@@ -222,7 +225,7 @@ export const ActiveAllocationsView = ({
 			fullName: unit.currentOccupantName || "",
 			svcNo: unit.currentOccupantServiceNumber || "",
 			gender: "Male",
-			armOfService: "Navy",
+			armOfService: "Nigerian Navy",
 			category: unit.category,
 			rank: unit.currentOccupantRank || "",
 			maritalStatus: "Single",
@@ -277,9 +280,9 @@ export const ActiveAllocationsView = ({
 
 	// Extract service from service number prefix
 	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Army";
-		if (svcNo?.startsWith("NN/")) return "Navy";
-		if (svcNo?.startsWith("AF/")) return "Air Force";
+		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
+		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
+		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
 		return "Unknown";
 	};
 
@@ -294,21 +297,39 @@ export const ActiveAllocationsView = ({
 
 	// Calculate by service
 	const armyAllocations = occupiedUnits.filter(
-		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") === "Army"
+		(unit) =>
+			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
+			"Nigerian Army"
 	);
 	const navyAllocations = occupiedUnits.filter(
-		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") === "Navy"
+		(unit) =>
+			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
+			"Nigerian Navy"
 	);
 	const airForceAllocations = occupiedUnits.filter(
-		(unit) => getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") === "Air Force"
+		(unit) =>
+			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
+			"Nigerian Air Force"
 	);
 
-	const armyOfficers = armyAllocations.filter((unit) => unit.category === "Officer").length;
-	const armyNCOs = armyAllocations.filter((unit) => unit.category === "NCOs").length;
-	const navyOfficers = navyAllocations.filter((unit) => unit.category === "Officer").length;
-	const navyNCOs = navyAllocations.filter((unit) => unit.category === "NCOs").length;
-	const airForceOfficers = airForceAllocations.filter((unit) => unit.category === "Officer").length;
-	const airForceNCOs = airForceAllocations.filter((unit) => unit.category === "NCOs").length;
+	const armyOfficers = armyAllocations.filter(
+		(unit) => unit.category === "Officer"
+	).length;
+	const armyNCOs = armyAllocations.filter(
+		(unit) => unit.category === "NCOs"
+	).length;
+	const navyOfficers = navyAllocations.filter(
+		(unit) => unit.category === "Officer"
+	).length;
+	const navyNCOs = navyAllocations.filter(
+		(unit) => unit.category === "NCOs"
+	).length;
+	const airForceOfficers = airForceAllocations.filter(
+		(unit) => unit.category === "Officer"
+	).length;
+	const airForceNCOs = airForceAllocations.filter(
+		(unit) => unit.category === "NCOs"
+	).length;
 
 	return (
 		<div className='space-y-6'>
@@ -331,7 +352,7 @@ export const ActiveAllocationsView = ({
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Army</CardTitle>
+						<CardTitle className='text-sm font-medium'>Nigerian Army</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-red-500' />
 					</CardHeader>
 					<CardContent>
@@ -344,7 +365,7 @@ export const ActiveAllocationsView = ({
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Navy</CardTitle>
+						<CardTitle className='text-sm font-medium'>Nigerian Navy</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-blue-500' />
 					</CardHeader>
 					<CardContent>
@@ -357,11 +378,15 @@ export const ActiveAllocationsView = ({
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Air Force</CardTitle>
+						<CardTitle className='text-sm font-medium'>
+							Nigerian Air Force
+						</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-cyan-500' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{airForceAllocations.length}</div>
+						<div className='text-2xl font-bold'>
+							{airForceAllocations.length}
+						</div>
 						<p className='text-xs text-muted-foreground'>
 							Officers: {airForceOfficers} | NCOs: {airForceNCOs}
 						</p>

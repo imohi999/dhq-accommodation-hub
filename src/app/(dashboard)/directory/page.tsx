@@ -32,10 +32,20 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { RotateCcw, Check, ChevronsUpDown } from 'lucide-react';
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+} from "@/components/ui/command";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { RotateCcw, Check, ChevronsUpDown } from "lucide-react";
 
 interface PersonnelData {
 	fullName?: string;
@@ -222,11 +232,11 @@ const getArmOfService = (serviceNumber: string): string => {
 	const prefix = serviceNumber.substring(0, 3).toUpperCase();
 	switch (prefix) {
 		case "NA/":
-			return "Army";
+			return "Nigerian Army";
 		case "NN/":
-			return "Navy";
+			return "Nigerian Navy";
 		case "AF/":
-			return "Air Force";
+			return "Nigerian Air Force";
 		default:
 			return "Unknown";
 	}
@@ -620,8 +630,8 @@ const RecordCard = ({ record }: { record: Record }) => {
 								record.dependents &&
 								record.dependents.length > 0) ||
 								(record.type === "active" &&
-									(record.occupants?.find((o) => o.isCurrent)?.queue
-										?.dependents?.length ?? 0) > 0) ||
+									(record.occupants?.find((o) => o.isCurrent)?.queue?.dependents
+										?.length ?? 0) > 0) ||
 								(record.type === "pending" &&
 									record.queue?.dependents &&
 									record.queue.dependents.length > 0) ||
@@ -696,13 +706,14 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 
 	// Filter records by service
 	const armyRecords = records.filter(
-		(r) => getArmOfService(getPersonnelServiceNumber(r)) === "Army"
+		(r) => getArmOfService(getPersonnelServiceNumber(r)) === "Nigerian Army"
 	);
 	const navyRecords = records.filter(
-		(r) => getArmOfService(getPersonnelServiceNumber(r)) === "Navy"
+		(r) => getArmOfService(getPersonnelServiceNumber(r)) === "Nigerian Navy"
 	);
 	const airForceRecords = records.filter(
-		(r) => getArmOfService(getPersonnelServiceNumber(r)) === "Air Force"
+		(r) =>
+			getArmOfService(getPersonnelServiceNumber(r)) === "Nigerian Air Force"
 	);
 
 	// Count officers and NCOs for each service
@@ -746,7 +757,9 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 				<CardContent className='p-6'>
 					<div className='flex items-center justify-between'>
 						<div>
-							<p className='text-sm text-red-700 dark:text-red-300'>Army</p>
+							<p className='text-sm text-red-700 dark:text-red-300'>
+								Nigerian Army
+							</p>
 							<p className='text-3xl font-bold text-red-800 dark:text-red-200'>
 								{armyRecords.length}
 							</p>
@@ -763,7 +776,9 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 				<CardContent className='p-6'>
 					<div className='flex items-center justify-between'>
 						<div>
-							<p className='text-sm text-blue-700 dark:text-blue-300'>Navy</p>
+							<p className='text-sm text-blue-700 dark:text-blue-300'>
+								Nigerian Navy
+							</p>
 							<p className='text-3xl font-bold text-blue-800 dark:text-blue-200'>
 								{navyRecords.length}
 							</p>
@@ -781,7 +796,7 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 					<div className='flex items-center justify-between'>
 						<div>
 							<p className='text-sm text-sky-700 dark:text-sky-300'>
-								Air Force
+								Nigerian Air Force
 							</p>
 							<p className='text-3xl font-bold text-sky-800 dark:text-sky-200'>
 								{airForceRecords.length}
@@ -805,10 +820,10 @@ export default function DirectoryPage() {
 	const [filterType, setFilterType] = useState<string>("all");
 	const [filterService, setFilterService] = useState<string>("all");
 	const [filterCategory, setFilterCategory] = useState<string>("all");
-	const [genderFilter, setGenderFilter] = useState('all');
-	const [maritalStatusFilter, setMaritalStatusFilter] = useState('all');
-	const [unitFilter, setUnitFilter] = useState('all');
-	const [dependentsFilter, setDependentsFilter] = useState('all');
+	const [genderFilter, setGenderFilter] = useState("all");
+	const [maritalStatusFilter, setMaritalStatusFilter] = useState("all");
+	const [unitFilter, setUnitFilter] = useState("all");
+	const [dependentsFilter, setDependentsFilter] = useState("all");
 	const [unitPopoverOpen, setUnitPopoverOpen] = useState(false);
 
 	useEffect(() => {
@@ -893,18 +908,37 @@ export default function DirectoryPage() {
 			}
 			case "pending":
 				return {
-					currentUnit: record.personnelData?.current_unit || record.personnelData?.currentUnit || "No Unit",
+					currentUnit:
+						record.personnelData?.current_unit ||
+						record.personnelData?.currentUnit ||
+						"No Unit",
 					maritalStatus: record.personnelData?.maritalStatus || "N/A",
 					gender: record.personnelData?.gender || "N/A",
-					adultDependents: record.queue?.noOfAdultDependents || record.personnelData?.noOfAdultDependents || 0,
-					childDependents: record.queue?.noOfChildDependents || record.personnelData?.noOfChildDependents || 0,
+					adultDependents:
+						record.queue?.noOfAdultDependents ||
+						record.personnelData?.noOfAdultDependents ||
+						0,
+					childDependents:
+						record.queue?.noOfChildDependents ||
+						record.personnelData?.noOfChildDependents ||
+						0,
 				};
 			case "past": {
 				const queueData = record.queue;
 				return {
-					currentUnit: queueData?.currentUnit || record.personnelData?.current_unit || record.personnelData?.currentUnit || "No Unit",
-					maritalStatus: queueData?.maritalStatus && queueData.maritalStatus !== "Unknown" ? queueData.maritalStatus : record.personnelData?.maritalStatus || "N/A",
-					gender: queueData?.gender && queueData.gender !== "Unknown" ? queueData.gender : record.personnelData?.gender || "N/A",
+					currentUnit:
+						queueData?.currentUnit ||
+						record.personnelData?.current_unit ||
+						record.personnelData?.currentUnit ||
+						"No Unit",
+					maritalStatus:
+						queueData?.maritalStatus && queueData.maritalStatus !== "Unknown"
+							? queueData.maritalStatus
+							: record.personnelData?.maritalStatus || "N/A",
+					gender:
+						queueData?.gender && queueData.gender !== "Unknown"
+							? queueData.gender
+							: record.personnelData?.gender || "N/A",
 					adultDependents: queueData?.noOfAdultDependents || 0,
 					childDependents: queueData?.noOfChildDependents || 0,
 				};
@@ -923,28 +957,31 @@ export default function DirectoryPage() {
 	// Extract unique current units from all records
 	const getUniqueCurrentUnits = () => {
 		const units = new Set<string>();
-		
+
 		records.forEach((record: Record) => {
 			const additionalInfo = getAdditionalInfo(record);
-			if (additionalInfo.currentUnit && additionalInfo.currentUnit !== "No Unit") {
+			if (
+				additionalInfo.currentUnit &&
+				additionalInfo.currentUnit !== "No Unit"
+			) {
 				units.add(additionalInfo.currentUnit);
 			}
 		});
-		
+
 		return Array.from(units).sort();
 	};
-	
+
 	const uniqueCurrentUnits = getUniqueCurrentUnits();
 
 	const handleResetFilters = () => {
-		setSearchTerm('');
-		setGenderFilter('all');
-		setMaritalStatusFilter('all');
-		setFilterCategory('all');
-		setUnitFilter('all');
-		setFilterService('all');
-		setFilterType('all');
-		setDependentsFilter('all');
+		setSearchTerm("");
+		setGenderFilter("all");
+		setMaritalStatusFilter("all");
+		setFilterCategory("all");
+		setUnitFilter("all");
+		setFilterService("all");
+		setFilterType("all");
+		setDependentsFilter("all");
 	};
 
 	const filteredRecords = records.filter((record) => {
@@ -976,22 +1013,36 @@ export default function DirectoryPage() {
 		const additionalInfo = getAdditionalInfo(record);
 
 		// Gender filter
-		const matchesGender = genderFilter === 'all' || additionalInfo.gender === genderFilter;
+		const matchesGender =
+			genderFilter === "all" || additionalInfo.gender === genderFilter;
 
 		// Marital status filter
-		const matchesMaritalStatus = maritalStatusFilter === 'all' || additionalInfo.maritalStatus === maritalStatusFilter;
+		const matchesMaritalStatus =
+			maritalStatusFilter === "all" ||
+			additionalInfo.maritalStatus === maritalStatusFilter;
 
 		// Unit filter
-		const matchesUnit = unitFilter === 'all' || additionalInfo.currentUnit === unitFilter;
+		const matchesUnit =
+			unitFilter === "all" || additionalInfo.currentUnit === unitFilter;
 
 		// Dependents filter
-		const hasDependents = (additionalInfo.adultDependents + additionalInfo.childDependents) > 0;
-		const matchesDependents = dependentsFilter === 'all' || 
-			(dependentsFilter === 'with' && hasDependents) || 
-			(dependentsFilter === 'without' && !hasDependents);
+		const hasDependents =
+			additionalInfo.adultDependents + additionalInfo.childDependents > 0;
+		const matchesDependents =
+			dependentsFilter === "all" ||
+			(dependentsFilter === "with" && hasDependents) ||
+			(dependentsFilter === "without" && !hasDependents);
 
-		return matchesSearch && matchesType && matchesService && matchesCategory && 
-			matchesGender && matchesMaritalStatus && matchesUnit && matchesDependents;
+		return (
+			matchesSearch &&
+			matchesType &&
+			matchesService &&
+			matchesCategory &&
+			matchesGender &&
+			matchesMaritalStatus &&
+			matchesUnit &&
+			matchesDependents
+		);
 	});
 
 	if (loading) {
@@ -1048,9 +1099,11 @@ export default function DirectoryPage() {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value='all'>All Services</SelectItem>
-								<SelectItem value='Army'>Army</SelectItem>
-								<SelectItem value='Navy'>Navy</SelectItem>
-								<SelectItem value='Air Force'>Air Force</SelectItem>
+								<SelectItem value='Nigerian Army'>Nigerian Army</SelectItem>
+								<SelectItem value='Nigerian Navy'>Nigerian Navy</SelectItem>
+								<SelectItem value='Nigerian Air Force'>
+									Nigerian Air Force
+								</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -1093,29 +1146,25 @@ export default function DirectoryPage() {
 						<Popover open={unitPopoverOpen} onOpenChange={setUnitPopoverOpen}>
 							<PopoverTrigger asChild>
 								<Button
-									variant="outline"
-									role="combobox"
+									variant='outline'
+									role='combobox'
 									aria-expanded={unitPopoverOpen}
-									className="w-full justify-between font-normal"
-								>
-									{unitFilter === "all" 
-										? "All Units" 
-										: unitFilter}
-									<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+									className='w-full justify-between font-normal'>
+									{unitFilter === "all" ? "All Units" : unitFilter}
+									<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 								</Button>
 							</PopoverTrigger>
-							<PopoverContent className="w-full p-0">
+							<PopoverContent className='w-full p-0'>
 								<Command>
-									<CommandInput placeholder="Search units..." />
+									<CommandInput placeholder='Search units...' />
 									<CommandEmpty>No unit found.</CommandEmpty>
 									<CommandGroup>
 										<CommandItem
-											value="all"
+											value='all'
 											onSelect={() => {
 												setUnitFilter("all");
 												setUnitPopoverOpen(false);
-											}}
-										>
+											}}>
 											<Check
 												className={cn(
 													"mr-2 h-4 w-4",
@@ -1131,8 +1180,7 @@ export default function DirectoryPage() {
 												onSelect={(currentValue) => {
 													setUnitFilter(currentValue);
 													setUnitPopoverOpen(false);
-												}}
-											>
+												}}>
 												<Check
 													className={cn(
 														"mr-2 h-4 w-4",
@@ -1168,7 +1216,9 @@ export default function DirectoryPage() {
 
 					<div className='space-y-2'>
 						<Label>Dependents</Label>
-						<Select value={dependentsFilter} onValueChange={setDependentsFilter}>
+						<Select
+							value={dependentsFilter}
+							onValueChange={setDependentsFilter}>
 							<SelectTrigger>
 								<SelectValue placeholder='All Personnel' />
 							</SelectTrigger>

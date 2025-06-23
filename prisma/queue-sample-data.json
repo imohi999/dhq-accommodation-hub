@@ -1,0 +1,271 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "sequence": 1,
+    "fullName": "Major Tunde Fashola",
+    "svcNo": "NA/18234",
+    "gender": "Male",
+    "armOfService": "Nigerian Army",
+    "category": "Officer",
+    "rank": "Major",
+    "maritalStatus": "Married",
+    "noOfAdultDependents": 1,
+    "noOfChildDependents": 3,
+    "currentUnit": "3 Division",
+    "appointment": "Operations Officer",
+    "dateTos": "2023-02-20",
+    "dateSos": "2025-02-20",
+    "phone": "+2348098765432",
+    "entryDateTime": "2023-02-20T09:15:00Z",
+    "createdAt": "2023-02-20T09:15:00Z",
+    "updatedAt": "2023-02-20T09:15:00Z",
+    "dependents": {
+      "spouse": { "name": "Ronke Fashola", "age": 34 },
+      "children": [
+        { "name": "Kehinde Fashola", "age": 10 },
+        { "name": "Taiwo Fashola", "age": 10 },
+        { "name": "Bolaji Fashola", "age": 5 }
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "sequence": 2,
+    "fullName": "Captain Salamatu Jibril",
+    "svcNo": "NAF/29345",
+    "gender": "Female",
+    "armOfService": "Nigerian Air Force",
+    "category": "Officer",
+    "rank": "Captain",
+    "maritalStatus": "Single",
+    "noOfAdultDependents": 0,
+    "noOfChildDependents": 0,
+    "currentUnit": "445 Air Mobility Group",
+    "appointment": "Logistics Officer",
+    "dateTos": "2023-04-12",
+    "dateSos": "2025-04-12",
+    "phone": "+2348076543210",
+    "entryDateTime": "2023-04-12T11:30:00Z",
+    "createdAt": "2023-04-12T11:30:00Z",
+    "updatedAt": "2023-04-12T11:30:00Z",
+    "dependents": null
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "sequence": 3,
+    "fullName": "WO1 Godwin Osagie",
+    "svcNo": "NA/35678",
+    "gender": "Male",
+    "armOfService": "Nigerian Army",
+    "category": "Soldier",
+    "rank": "WO1",
+    "maritalStatus": "Married",
+    "noOfAdultDependents": 1,
+    "noOfChildDependents": 2,
+    "currentUnit": "7 Division",
+    "appointment": "Regimental Sergeant Major",
+    "dateTos": "2022-12-05",
+    "dateSos": "2024-12-05",
+    "phone": "+2348065432109",
+    "entryDateTime": "2022-12-05T08:00:00Z",
+    "createdAt": "2022-12-05T08:00:00Z",
+    "updatedAt": "2022-12-05T08:00:00Z",
+    "dependents": {
+      "spouse": { "name": "Itohan Osagie", "age": 36 },
+      "children": [
+        { "name": "Osaze Osagie", "age": 14 },
+        { "name": "Esosa Osagie", "age": 11 }
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440004",
+    "sequence": 4,
+    "fullName": "Lt Commander Rasheed Lawal",
+    "svcNo": "NN/46789",
+    "gender": "Male",
+    "armOfService": "Nigerian Navy",
+    "category": "Officer",
+    "rank": "Lt Commander",
+    "maritalStatus": "Married",
+    "noOfAdultDependents": 2,
+    "noOfChildDependents": 1,
+    "currentUnit": "NNS VICTORY",
+    "appointment": "Executive Officer",
+    "dateTos": "2023-06-08",
+    "dateSos": "2025-06-08",
+    "phone": "+2348054321098",
+    "entryDateTime": "2023-06-08T10:00:00Z",
+    "createdAt": "2023-06-08T10:00:00Z",
+    "updatedAt": "2023-06-08T10:00:00Z",
+    "dependents": {
+      "spouse": { "name": "Amira Lawal", "age": 31 },
+      "children": [{ "name": "Mustapha Lawal", "age": 3 }],
+      "dependents": [
+        { "name": "Mrs. Khadija Lawal", "age": 68, "relationship": "Mother" },
+        { "name": "Mr. Rasheed Lawal Sr.", "age": 72, "relationship": "Father" }
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440005",
+    "sequence": 5,
+    "fullName": "Sergeant Rachael Ugwu",
+    "svcNo": "NAF/57890",
+    "gender": "Female",
+    "armOfService": "Nigerian Air Force",
+    "category": "Airman/Airwoman",
+    "rank": "Sergeant",
+    "maritalStatus": "Divorced",
+    "noOfAdultDependents": 0,
+    "noOfChildDependents": 2,
+    "currentUnit": "661 NAF Station",
+    "appointment": "Communications Specialist",
+    "dateTos": "2023-03-18",
+    "dateSos": "2025-03-18",
+    "phone": "+2348043210987",
+    "entryDateTime": "2023-03-18T07:45:00Z",
+    "createdAt": "2023-03-18T07:45:00Z",
+    "updatedAt": "2023-03-18T07:45:00Z",
+    "dependents": {
+      "children": [
+        { "name": "Jennifer Ugwu", "age": 12 },
+        { "name": "Philip Ugwu", "age": 9 }
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440006",
+    "sequence": 6,
+    "fullName": "Colonel Nasiru Dankama",
+    "svcNo": "NA/68901",
+    "gender": "Male",
+    "armOfService": "Nigerian Army",
+    "category": "Officer",
+    "rank": "Colonel",
+    "maritalStatus": "Married",
+    "noOfAdultDependents": 1,
+    "noOfChildDependents": 4,
+    "currentUnit": "Army Headquarters",
+    "appointment": "Chief of Staff",
+    "dateTos": "2022-09-10",
+    "dateSos": "2024-09-10",
+    "phone": "+2348032109876",
+    "entryDateTime": "2022-09-10T06:30:00Z",
+    "createdAt": "2022-09-10T06:30:00Z",
+    "updatedAt": "2022-09-10T06:30:00Z",
+    "dependents": {
+      "spouse": { "name": "Maryam Dankama", "age": 42 },
+      "children": [
+        { "name": "Aliyu Dankama", "age": 19 },
+        { "name": "Jamila Dankama", "age": 16 },
+        { "name": "Bashir Dankama", "age": 13 },
+        { "name": "Ruqayya Dankama", "age": 10 }
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440007",
+    "sequence": 7,
+    "fullName": "CPO Solomon Ekpenyong",
+    "svcNo": "NN/79012",
+    "gender": "Male",
+    "armOfService": "Nigerian Navy",
+    "category": "Rating",
+    "rank": "CPO",
+    "maritalStatus": "Married",
+    "noOfAdultDependents": 0,
+    "noOfChildDependents": 3,
+    "currentUnit": "NNS THUNDER",
+    "appointment": "Master-at-Arms",
+    "dateTos": "2023-05-22",
+    "dateSos": "2025-05-22",
+    "phone": "+2348021098765",
+    "entryDateTime": "2023-05-22T13:00:00Z",
+    "createdAt": "2023-05-22T13:00:00Z",
+    "updatedAt": "2023-05-22T13:00:00Z",
+    "dependents": {
+      "spouse": { "name": "Comfort Ekpenyong", "age": 35 },
+      "children": [
+        { "name": "Solomon Jr. Ekpenyong", "age": 13 },
+        { "name": "Blessing Ekpenyong", "age": 10 },
+        { "name": "Favour Ekpenyong", "age": 6 }
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440008",
+    "sequence": 8,
+    "fullName": "Flight Lieutenant Kabir Tanko",
+    "svcNo": "NAF/89123",
+    "gender": "Male",
+    "armOfService": "Nigerian Air Force",
+    "category": "Officer",
+    "rank": "Flight Lieutenant",
+    "maritalStatus": "Single",
+    "noOfAdultDependents": 1,
+    "noOfChildDependents": 0,
+    "currentUnit": "435 Transport Squadron",
+    "appointment": "Transport Pilot",
+    "dateTos": "2023-07-19",
+    "dateSos": "2025-07-19",
+    "phone": "+2348010987654",
+    "entryDateTime": "2023-07-19T14:45:00Z",
+    "createdAt": "2023-07-19T14:45:00Z",
+    "updatedAt": "2023-07-19T14:45:00Z",
+    "dependents": {
+      "dependents": [
+        { "name": "Hajiya Tanko", "age": 58, "relationship": "Mother" }
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440009",
+    "sequence": 9,
+    "fullName": "Lance Corporal Patricia Bamidele",
+    "svcNo": "NA/91234",
+    "gender": "Female",
+    "armOfService": "Nigerian Army",
+    "category": "Soldier",
+    "rank": "Lance Corporal",
+    "maritalStatus": "Married",
+    "noOfAdultDependents": 0,
+    "noOfChildDependents": 1,
+    "currentUnit": "Nigerian Army Medical Corps",
+    "appointment": "Medical Assistant",
+    "dateTos": "2023-08-05",
+    "dateSos": "2025-08-05",
+    "phone": "+2348009876543",
+    "entryDateTime": "2023-08-05T09:30:00Z",
+    "createdAt": "2023-08-05T09:30:00Z",
+    "updatedAt": "2023-08-05T09:30:00Z",
+    "dependents": {
+      "spouse": { "name": "Gbenga Bamidele", "age": 30 },
+      "children": [{ "name": "Tomiwa Bamidele", "age": 1 }]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440010",
+    "sequence": 10,
+    "fullName": "Lieutenant Mukhtar Shagari",
+    "svcNo": "NN/02345",
+    "gender": "Male",
+    "armOfService": "Nigerian Navy",
+    "category": "Officer",
+    "rank": "Lieutenant",
+    "maritalStatus": "Married",
+    "noOfAdultDependents": 0,
+    "noOfChildDependents": 0,
+    "currentUnit": "Nigerian Navy Ship CENTENARY",
+    "appointment": "Weapons Officer",
+    "dateTos": "2023-09-12",
+    "dateSos": "2025-09-12",
+    "phone": "+2348098765432",
+    "entryDateTime": "2023-09-12T16:00:00Z",
+    "createdAt": "2023-09-12T16:00:00Z",
+    "updatedAt": "2023-09-12T16:00:00Z",
+    "dependents": {
+      "spouse": { "name": "Safiya Shagari", "age": 26 }
+    }
+  }
+]

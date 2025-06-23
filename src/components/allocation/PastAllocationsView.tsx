@@ -92,9 +92,9 @@ export const PastAllocationsView = () => {
 
 	// Extract service from service number prefix
 	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Army";
-		if (svcNo?.startsWith("NN/")) return "Navy";
-		if (svcNo?.startsWith("AF/")) return "Air Force";
+		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
+		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
+		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
 		return "Unknown";
 	};
 
@@ -109,21 +109,51 @@ export const PastAllocationsView = () => {
 
 	// Calculate by service
 	const armyAllocations = pastAllocations.filter(
-		(allocation) => getServiceFromSvcNo(allocation.personnelData?.serviceNumber || allocation.personnelData?.svc_no || allocation.personnelData?.svcNo || "") === "Army"
+		(allocation) =>
+			getServiceFromSvcNo(
+				allocation.personnelData?.serviceNumber ||
+					allocation.personnelData?.svc_no ||
+					allocation.personnelData?.svcNo ||
+					""
+			) === "Nigerian Army"
 	);
 	const navyAllocations = pastAllocations.filter(
-		(allocation) => getServiceFromSvcNo(allocation.personnelData?.serviceNumber || allocation.personnelData?.svc_no || allocation.personnelData?.svcNo || "") === "Navy"
+		(allocation) =>
+			getServiceFromSvcNo(
+				allocation.personnelData?.serviceNumber ||
+					allocation.personnelData?.svc_no ||
+					allocation.personnelData?.svcNo ||
+					""
+			) === "Nigerian Navy"
 	);
 	const airForceAllocations = pastAllocations.filter(
-		(allocation) => getServiceFromSvcNo(allocation.personnelData?.serviceNumber || allocation.personnelData?.svc_no || allocation.personnelData?.svcNo || "") === "Air Force"
+		(allocation) =>
+			getServiceFromSvcNo(
+				allocation.personnelData?.serviceNumber ||
+					allocation.personnelData?.svc_no ||
+					allocation.personnelData?.svcNo ||
+					""
+			) === "Nigerian Air Force"
 	);
 
-	const armyOfficers = armyAllocations.filter((allocation) => allocation.personnelData?.category === "Officer").length;
-	const armyNCOs = armyAllocations.filter((allocation) => allocation.personnelData?.category === "NCOs").length;
-	const navyOfficers = navyAllocations.filter((allocation) => allocation.personnelData?.category === "Officer").length;
-	const navyNCOs = navyAllocations.filter((allocation) => allocation.personnelData?.category === "NCOs").length;
-	const airForceOfficers = airForceAllocations.filter((allocation) => allocation.personnelData?.category === "Officer").length;
-	const airForceNCOs = airForceAllocations.filter((allocation) => allocation.personnelData?.category === "NCOs").length;
+	const armyOfficers = armyAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "Officer"
+	).length;
+	const armyNCOs = armyAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "NCOs"
+	).length;
+	const navyOfficers = navyAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "Officer"
+	).length;
+	const navyNCOs = navyAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "NCOs"
+	).length;
+	const airForceOfficers = airForceAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "Officer"
+	).length;
+	const airForceNCOs = airForceAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "NCOs"
+	).length;
 
 	return (
 		<div className='space-y-6'>
@@ -146,7 +176,7 @@ export const PastAllocationsView = () => {
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Army</CardTitle>
+						<CardTitle className='text-sm font-medium'>Nigerian Army</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-red-500' />
 					</CardHeader>
 					<CardContent>
@@ -159,7 +189,7 @@ export const PastAllocationsView = () => {
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Navy</CardTitle>
+						<CardTitle className='text-sm font-medium'>Nigerian Navy</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-blue-500' />
 					</CardHeader>
 					<CardContent>
@@ -172,11 +202,15 @@ export const PastAllocationsView = () => {
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Air Force</CardTitle>
+						<CardTitle className='text-sm font-medium'>
+							Nigerian Air Force
+						</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-cyan-500' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{airForceAllocations.length}</div>
+						<div className='text-2xl font-bold'>
+							{airForceAllocations.length}
+						</div>
 						<p className='text-xs text-muted-foreground'>
 							Officers: {airForceOfficers} | NCOs: {airForceNCOs}
 						</p>

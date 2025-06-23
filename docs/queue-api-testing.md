@@ -6,27 +6,27 @@ Based on the Prisma schema, the Queue API returns data in camelCase format:
 
 ```json
 [
-  {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "sequence": 1,
-    "fullName": "John Doe",
-    "svcNo": "NAF/12345",
-    "gender": "Male",
-    "armOfService": "Air Force",
-    "category": "Officer",
-    "rank": "Captain",
-    "maritalStatus": "Married",
-    "noOfAdultDependents": 1,
-    "noOfChildDependents": 2,
-    "currentUnit": "DHQ Garrison",
-    "appointment": "Staff Officer",
-    "dateTos": "2023-01-15T00:00:00.000Z",
-    "dateSos": "2023-01-15T00:00:00.000Z",
-    "phone": "+234-801-234-5678",
-    "entryDateTime": "2024-01-15T10:30:00.000Z",
-    "createdAt": "2024-01-15T10:30:00.000Z",
-    "updatedAt": "2024-01-15T10:30:00.000Z"
-  }
+	{
+		"id": "550e8400-e29b-41d4-a716-446655440000",
+		"sequence": 1,
+		"fullName": "John Doe",
+		"svcNo": "NAF/12345",
+		"gender": "Male",
+		"armOfService": "Nigerian Air Force",
+		"category": "Officer",
+		"rank": "Captain",
+		"maritalStatus": "Married",
+		"noOfAdultDependents": 1,
+		"noOfChildDependents": 2,
+		"currentUnit": "DHQ Garrison",
+		"appointment": "Staff Officer",
+		"dateTos": "2023-01-15T00:00:00.000Z",
+		"dateSos": "2023-01-15T00:00:00.000Z",
+		"phone": "+234-801-234-5678",
+		"entryDateTime": "2024-01-15T10:30:00.000Z",
+		"createdAt": "2024-01-15T10:30:00.000Z",
+		"updatedAt": "2024-01-15T10:30:00.000Z"
+	}
 ]
 ```
 
@@ -71,7 +71,7 @@ curl -X POST http://localhost:5001/api/queue \
     "fullName": "Jane Smith",
     "svcNo": "NAF/67890",
     "gender": "Female",
-    "armOfService": "Navy",
+    "armOfService": "Nigerian Navy",
     "category": "Officer",
     "rank": "Lieutenant",
     "maritalStatus": "Single",
@@ -116,7 +116,7 @@ The hook has been updated to:
 
 ```typescript
 const { data: queue = [], isLoading } = useQueueData(filters, {
-  refetchInterval: 30000, // Auto-refresh every 30 seconds
+	refetchInterval: 30000, // Auto-refresh every 30 seconds
 });
 
 // queue is now properly typed as ApiQueueItem[]

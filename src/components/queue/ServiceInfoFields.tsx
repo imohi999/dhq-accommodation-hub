@@ -34,9 +34,11 @@ export const ServiceInfoFields = ({
 						<SelectValue placeholder='Select service' />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value='Army'>Army</SelectItem>
-						<SelectItem value='Navy'>Navy</SelectItem>
-						<SelectItem value='Air Force'>Air Force</SelectItem>
+						<SelectItem value='Nigerian Army'>Nigerian Army</SelectItem>
+						<SelectItem value='Nigerian Navy'>Nigerian Navy</SelectItem>
+						<SelectItem value='Nigerian Air Force'>
+							Nigerian Air Force
+						</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>

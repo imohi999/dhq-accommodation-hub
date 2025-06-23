@@ -107,7 +107,7 @@ const ACTION_LABELS = {
 	delete: "Delete",
 	allocate: "Allocate",
 	export: "Export",
-	add_quarters: "Add Quarters",
+	add_quarters: "Add Unit",
 	view_letter: "View Letter",
 	approve: "Approve",
 	refuse: "Refuse",
@@ -221,12 +221,13 @@ interface Profile {
 	};
 }
 
-const fetcher = (url: string) => fetch(url, { 
-  cache: 'no-store',
-  headers: {
-    'Cache-Control': 'no-cache',
-  }
-}).then((res) => res.json());
+const fetcher = (url: string) =>
+	fetch(url, {
+		cache: "no-store",
+		headers: {
+			"Cache-Control": "no-cache",
+		},
+	}).then((res) => res.json());
 
 // Simple permission row component
 function PermissionRow({
@@ -296,33 +297,32 @@ export default function UserManagementPage() {
 	const [isDeleting, setIsDeleting] = useState(false);
 
 	const isSuperAdmin = user?.profile?.role === "superadmin";
-	
+
 	// Debug logging
-	console.log('[UserManagementPage] User role:', user?.profile?.role);
-	console.log('[UserManagementPage] Is superadmin:', isSuperAdmin);
-	console.log('[UserManagementPage] Auth loading:', authLoading);
+	console.log("[UserManagementPage] User role:", user?.profile?.role);
+	console.log("[UserManagementPage] Is superadmin:", isSuperAdmin);
+	console.log("[UserManagementPage] Auth loading:", authLoading);
 
 	const {
 		data: profiles = [],
 		error,
 		isLoading,
-	} = useSWR<Profile[]>(
-		isSuperAdmin ? "/api/profiles" : null,
-		fetcher,
-		{
-			revalidateOnFocus: true,
-			revalidateOnMount: true,
-			refreshInterval: 0,
-			dedupingInterval: 0,
-		}
-	);
-	
+	} = useSWR<Profile[]>(isSuperAdmin ? "/api/profiles" : null, fetcher, {
+		revalidateOnFocus: true,
+		revalidateOnMount: true,
+		refreshInterval: 0,
+		dedupingInterval: 0,
+	});
+
 	// Log the fetched data
 	useEffect(() => {
 		if (!isLoading && !error) {
-			console.log('[UserManagementPage] Profiles loaded:', profiles.length);
+			console.log("[UserManagementPage] Profiles loaded:", profiles.length);
 			profiles.forEach((profile, index) => {
-				console.log(`[UserManagementPage] Profile ${index + 1}:`, profile.user.username);
+				console.log(
+					`[UserManagementPage] Profile ${index + 1}:`,
+					profile.user.username
+				);
 			});
 		}
 	}, [profiles, isLoading, error]);

@@ -9,7 +9,7 @@ const queuePositionOneSchema = z.object({
   fullName: z.string().min(1),
   svcNo: z.string().min(1),
   gender: z.enum(['Male', 'Female']),
-  armOfService: z.enum(['Army', 'Navy', 'Air Force']),
+  armOfService: z.enum(['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force']),
   category: z.enum(['NCOs', 'Officer']),
   rank: z.string().min(1),
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),

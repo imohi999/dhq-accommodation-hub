@@ -6,7 +6,7 @@ ALTER TABLE [dbo].[UserRole] ADD CONSTRAINT CK_UserRole_Role CHECK (role IN ('su
 
 -- Queue constraints
 ALTER TABLE [dbo].[Queue] ADD CONSTRAINT CK_Queue_Gender CHECK (gender IN ('Male', 'Female'));
-ALTER TABLE [dbo].[Queue] ADD CONSTRAINT CK_Queue_ArmOfService CHECK (armOfService IN ('Army', 'Navy', 'Air Force'));
+ALTER TABLE [dbo].[Queue] ADD CONSTRAINT CK_Queue_ArmOfService CHECK (armOfService IN ('Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force'));
 ALTER TABLE [dbo].[Queue] ADD CONSTRAINT CK_Queue_Category CHECK (category IN ('NCOs', 'Officer'));
 ALTER TABLE [dbo].[Queue] ADD CONSTRAINT CK_Queue_MaritalStatus CHECK (maritalStatus IN ('Single', 'Married', 'Divorced', 'Widowed'));
 ALTER TABLE [dbo].[Queue] ADD CONSTRAINT CK_Queue_AdultDependents CHECK (noOfAdultDependents >= 0 AND noOfAdultDependents <= 99);

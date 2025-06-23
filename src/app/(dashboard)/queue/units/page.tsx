@@ -194,16 +194,16 @@ export default function QueueUnitsPage() {
 			<div className='flex justify-between items-center'>
 				<div>
 					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
-						Quarters Management
+						Tri-service Units
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage quarters that appear in the Current Quarters dropdown
+						Manage units that appear in the current units dropdown
 					</p>
 				</div>
 				{canAddQuarters("queue.units") && (
 					<Button onClick={handleAdd} className='flex items-center gap-2'>
 						<Plus className='h-4 w-4' />
-						Add Quarters
+						Add Unit
 					</Button>
 				)}
 			</div>
@@ -211,20 +211,20 @@ export default function QueueUnitsPage() {
 			{showForm && (
 				<Card>
 					<CardHeader>
-						<CardTitle>{editingUnit ? "Edit" : "Add"} Quarters</CardTitle>
+						<CardTitle>{editingUnit ? "Edit" : "Add"} Units</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<form onSubmit={handleSubmit} className='space-y-4'>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 								<div className='space-y-2'>
-									<Label htmlFor='name'>Quarter Name *</Label>
+									<Label htmlFor='name'>Unit Name *</Label>
 									<Input
 										id='name'
 										value={formData.name}
 										onChange={(e) =>
 											setFormData({ ...formData, name: e.target.value })
 										}
-										placeholder='Enter quarter name'
+										placeholder='Enter unit name'
 										required
 									/>
 								</div>
@@ -236,7 +236,7 @@ export default function QueueUnitsPage() {
 										onChange={(e) =>
 											setFormData({ ...formData, description: e.target.value })
 										}
-										placeholder='Enter quarter description (optional)'
+										placeholder='Enter unit description (optional)'
 										rows={3}
 									/>
 								</div>
@@ -250,7 +250,7 @@ export default function QueueUnitsPage() {
 										createMutation.isPending || updateMutation.isPending
 									}>
 									<Save className='h-4 w-4' />
-									{editingUnit ? "Update" : "Create"} Quarters
+									{editingUnit ? "Update" : "Create"} Units
 								</Button>
 								<Button
 									type='button'
@@ -268,13 +268,13 @@ export default function QueueUnitsPage() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Quarters List</CardTitle>
+					<CardTitle>Units List</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>Quarters Name</TableHead>
+								<TableHead>Units Name</TableHead>
 								<TableHead>Description</TableHead>
 								<TableHead>Created Date</TableHead>
 								<TableHead className='w-[120px]'>Actions</TableHead>

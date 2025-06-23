@@ -86,11 +86,11 @@ const getArmOfService = (serviceNumber: string): string => {
 	const prefix = serviceNumber.substring(0, 3).toUpperCase();
 	switch (prefix) {
 		case "NA/":
-			return "Army";
+			return "Nigerian Army";
 		case "NN/":
-			return "Navy";
+			return "Nigerian Navy";
 		case "AF/":
-			return "Air Force";
+			return "Nigerian Air Force";
 		default:
 			return "Unknown";
 	}

@@ -30,7 +30,7 @@ CREATE TABLE public.stamp_settings (
 
 -- Insert default stamp settings
 INSERT INTO public.stamp_settings (stamp_name, stamp_rank, stamp_appointment, stamp_note, is_active)
-VALUES ('John Doe', 'Major General', 'Chief of Staff', 'For and on behalf of the Chief of Army Staff', true);
+VALUES ('John Doe', 'Major General', 'Chief of Staff', 'For and on behalf of the Chief of Nigerian Army Staff', true);
 
 -- Add foreign key relationships
 ALTER TABLE public.allocation_requests 

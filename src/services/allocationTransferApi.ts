@@ -12,7 +12,7 @@ export const createTransferAllocationRequest = async (
   serviceNumber: string
 ): Promise<boolean> => {
   console.log(`Creating transfer allocation request from unit ${currentUnitId} to unit ${newUnitId}`);
-  
+
   try {
     // Get current unit details
     const currentUnit = await fetchAccommodationById(currentUnitId);
@@ -49,7 +49,7 @@ export const createTransferAllocationRequest = async (
       full_name: personnelName,
       svc_no: serviceNumber,
       gender: 'Male',
-      arm_of_service: 'Navy',
+      arm_of_service: 'Nigerian Navy',
       category: currentUnit.category,
       rank: personnelRank,
       marital_status: 'Married',

@@ -83,7 +83,7 @@ SET
   current_occupant_rank = 'Captain',
   current_occupant_service_number = 'N789012',
   occupancy_start_date = '2024-03-01'
-WHERE quarter_name = 'Navy Accommodation' AND block_name = 'Block N1';
+WHERE quarter_name = 'Nigerian Navy Accommodation' AND block_name = 'Block N1';
 
 UPDATE dhq_living_units 
 SET 
@@ -116,7 +116,7 @@ SELECT
   334,
   'Promotion and reassignment'
 FROM dhq_living_units 
-WHERE quarter_name = 'Navy Accommodation' AND block_name = 'Block N1'
+WHERE quarter_name = 'Nigerian Navy Accommodation' AND block_name = 'Block N1'
 LIMIT 1;
 
 -- Insert dummy inventory data
@@ -153,7 +153,7 @@ SELECT
   'Non Functional',
   'Needs replacement - reported by current occupant'
 FROM dhq_living_units 
-WHERE quarter_name = 'Navy Accommodation' AND block_name = 'Block N1'
+WHERE quarter_name = 'Nigerian Navy Accommodation' AND block_name = 'Block N1'
 LIMIT 1;
 
 -- Insert dummy maintenance data
@@ -184,7 +184,7 @@ SELECT
   'High',
   'Annual maintenance completed, filters replaced'
 FROM dhq_living_units 
-WHERE quarter_name = 'Navy Accommodation' AND block_name = 'Block N1'
+WHERE quarter_name = 'Nigerian Navy Accommodation' AND block_name = 'Block N1'
 LIMIT 1;
 
 INSERT INTO unit_maintenance (unit_id, maintenance_type, description, maintenance_date, performed_by, cost, status, priority, remarks)

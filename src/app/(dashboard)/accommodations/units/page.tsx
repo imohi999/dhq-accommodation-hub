@@ -140,7 +140,7 @@ export default function DHQLivingUnits() {
 					{canAddQuarters() && (
 						<Button onClick={handleAdd} className='flex items-center gap-2'>
 							<Plus className='h-4 w-4' />
-							Add Quarters
+							Add Unit
 						</Button>
 					)}
 				</div>

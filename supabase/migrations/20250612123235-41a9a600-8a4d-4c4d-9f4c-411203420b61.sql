@@ -6,7 +6,7 @@ CREATE TABLE public.queue (
   full_name TEXT NOT NULL,
   svc_no TEXT NOT NULL UNIQUE,
   gender TEXT NOT NULL CHECK (gender IN ('Male', 'Female')),
-  arm_of_service TEXT NOT NULL CHECK (arm_of_service IN ('Army', 'Navy', 'Air Force')),
+  arm_of_service TEXT NOT NULL CHECK (arm_of_service IN ('Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force')),
   category TEXT NOT NULL CHECK (category IN ('NCOs', 'Officer')),
   rank TEXT NOT NULL,
   marital_status TEXT NOT NULL CHECK (marital_status IN ('Single', 'Married', 'Divorced', 'Widowed')),
@@ -36,7 +36,7 @@ INSERT INTO public.units (name, description) VALUES
   ('2nd Armoured Regiment', 'Second Armoured Regiment'),
   ('3rd Artillery Battery', 'Third Artillery Battery'),
   ('Naval Base Lagos', 'Lagos Naval Base'),
-  ('Air Force Base Kaduna', 'Kaduna Air Force Base'),
+  ('Nigerian Air Force Base Kaduna', 'Kaduna Nigerian Air Force Base'),
   ('Military Hospital', 'Central Military Hospital'),
   ('Defence Headquarters', 'Defence Headquarters Unit');
 

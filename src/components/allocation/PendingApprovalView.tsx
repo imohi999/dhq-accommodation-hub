@@ -176,20 +176,20 @@ export const PendingApprovalView = ({
 	).length;
 	// Extract service from service number prefix
 	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Army";
-		if (svcNo?.startsWith("NN/")) return "Navy";
-		if (svcNo?.startsWith("AF/")) return "Air Force";
+		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
+		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
+		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
 		return "Unknown";
 	};
 
 	const armyRequests = requests.filter(
-		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Army"
+		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Army"
 	).length;
 	const navyRequests = requests.filter(
-		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Navy"
+		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Navy"
 	).length;
 	const airForceRequests = requests.filter(
-		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Air Force"
+		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Air Force"
 	).length;
 
 	return (
@@ -213,7 +213,7 @@ export const PendingApprovalView = ({
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Army</CardTitle>
+						<CardTitle className='text-sm font-medium'>Nigerian Army</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-red-500' />
 					</CardHeader>
 					<CardContent>
@@ -223,16 +223,16 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) === "Army" &&
-										r.personnelData.category === "Officer"
+										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+											"Nigerian Army" && r.personnelData.category === "Officer"
 								).length
 							}{" "}
 							| NCOs:{" "}
 							{
 								requests.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) === "Army" &&
-										r.personnelData.category === "NCOs"
+										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+											"Nigerian Army" && r.personnelData.category === "NCOs"
 								).length
 							}
 						</p>
@@ -241,7 +241,7 @@ export const PendingApprovalView = ({
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Navy</CardTitle>
+						<CardTitle className='text-sm font-medium'>Nigerian Navy</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-blue-500' />
 					</CardHeader>
 					<CardContent>
@@ -251,16 +251,16 @@ export const PendingApprovalView = ({
 							{
 								requests.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) === "Navy" &&
-										r.personnelData.category === "Officer"
+										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+											"Nigerian Navy" && r.personnelData.category === "Officer"
 								).length
 							}{" "}
 							| NCOs:{" "}
 							{
 								requests.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) === "Navy" &&
-										r.personnelData.category === "NCOs"
+										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+											"Nigerian Navy" && r.personnelData.category === "NCOs"
 								).length
 							}
 						</p>
@@ -269,7 +269,9 @@ export const PendingApprovalView = ({
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Air Force</CardTitle>
+						<CardTitle className='text-sm font-medium'>
+							Nigerian Air Force
+						</CardTitle>
 						<div className='w-4 h-4 rounded-full bg-cyan-500' />
 					</CardHeader>
 					<CardContent>
@@ -280,7 +282,8 @@ export const PendingApprovalView = ({
 								requests.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) ===
-											"Air Force" && r.personnelData?.category === "Officer"
+											"Nigerian Air Force" &&
+										r.personnelData?.category === "Officer"
 								).length
 							}{" "}
 							| NCOs:{" "}
@@ -288,7 +291,8 @@ export const PendingApprovalView = ({
 								requests.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) ===
-											"Air Force" && r.personnelData.category === "NCOs"
+											"Nigerian Air Force" &&
+										r.personnelData.category === "NCOs"
 								).length
 							}
 						</p>
