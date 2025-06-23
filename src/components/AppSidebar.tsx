@@ -102,7 +102,7 @@ const allMenuItems = [
 			},
 			{
 				key: "analytics.pending",
-				title: "Pending Allocation",
+				title: "Pending Approval",
 				url: "/analytics/pending",
 			},
 			{
