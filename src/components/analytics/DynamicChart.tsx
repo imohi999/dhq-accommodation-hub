@@ -44,7 +44,7 @@ const COLORS = [
 const axisStyle = {
 	tick: {
 		fill: "hsl(var(--foreground))",
-		fontSize: 12,
+		fontSize: 11,
 		fontWeight: 500,
 	},
 	axisLine: {
@@ -180,6 +180,8 @@ export const DynamicChart = ({
 							angle={chartData.length > 5 ? -45 : 0}
 							textAnchor={chartData.length > 5 ? "end" : "middle"}
 							height={chartData.length > 5 ? 100 : 60}
+							interval={0}
+							tick={{ ...axisStyle.tick, width: 100 }}
 						/>
 						<YAxis {...axisStyle} width={60} />
 						{config.showTooltip && <Tooltip {...tooltipStyle} />}
@@ -200,6 +202,8 @@ export const DynamicChart = ({
 							angle={chartData.length > 5 ? -45 : 0}
 							textAnchor={chartData.length > 5 ? "end" : "middle"}
 							height={chartData.length > 5 ? 100 : 60}
+							interval={0}
+							tick={{ ...axisStyle.tick, width: 100 }}
 						/>
 						<YAxis {...axisStyle} width={60} />
 						{config.showTooltip && <Tooltip {...tooltipStyle} />}
@@ -245,6 +249,8 @@ export const DynamicChart = ({
 							angle={chartData.length > 5 ? -45 : 0}
 							textAnchor={chartData.length > 5 ? "end" : "middle"}
 							height={chartData.length > 5 ? 100 : 60}
+							interval={0}
+							tick={{ ...axisStyle.tick, width: 100 }}
 						/>
 						<YAxis {...axisStyle} width={60} />
 						{config.showTooltip && <Tooltip {...tooltipStyle} />}
@@ -271,6 +277,8 @@ export const DynamicChart = ({
 							angle={chartData.length > 5 ? -45 : 0}
 							textAnchor={chartData.length > 5 ? "end" : "middle"}
 							height={chartData.length > 5 ? 100 : 60}
+							interval={0}
+							tick={{ ...axisStyle.tick, width: 100 }}
 						/>
 						<YAxis {...axisStyle} width={60} />
 						{config.showTooltip && <Tooltip {...tooltipStyle} />}

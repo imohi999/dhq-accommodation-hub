@@ -3,7 +3,8 @@ export const chartStyles = {
     tick: {
       fill: "hsl(var(--foreground))",
       fontSize: 12,
-      fontWeight: 500
+      fontWeight: 500,
+      width: 100 // Prevent truncation
     },
     tickLine: { 
       stroke: "hsl(var(--foreground) / 0.3)" 
@@ -22,7 +23,8 @@ export const chartStyles = {
     tick: {
       fill: "hsl(var(--foreground))",
       fontSize: 12,
-      fontWeight: 500
+      fontWeight: 500,
+      width: 120 // More space for angled labels
     },
     tickLine: { 
       stroke: "hsl(var(--foreground) / 0.3)" 
@@ -33,7 +35,8 @@ export const chartStyles = {
     },
     angle: -45,
     textAnchor: "end" as const,
-    height: 80
+    height: 100, // Increased height for better label display
+    interval: 0 // Show all labels
   },
   grid: {
     stroke: "hsl(var(--foreground) / 0.1)",

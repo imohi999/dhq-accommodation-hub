@@ -15,7 +15,15 @@ import {
 	Legend,
 	ResponsiveContainer,
 } from "recharts";
-import { Users, Clock, TrendingUp, RefreshCw, Plus } from "lucide-react";
+import {
+	Users,
+	Clock,
+	TrendingUp,
+	RefreshCw,
+	Plus,
+	Check,
+	Printer,
+} from "lucide-react";
 import { LoadingState } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -30,6 +38,10 @@ import {
 import { ChartBuilder, ChartConfig } from "@/components/analytics/ChartBuilder";
 import { DynamicChart } from "@/components/analytics/DynamicChart";
 import { chartStyles } from "@/components/analytics/chartStyles";
+import {
+	ChartSelectionManager,
+	useChartSelection,
+} from "@/components/analytics/ChartSelectionManager";
 
 interface QueueData {
 	id: string;
@@ -90,6 +102,11 @@ export default function QueueAnalyticsPage() {
 	const [charts, setCharts] = useState<ChartConfig[]>([]);
 	const [showChartBuilder, setShowChartBuilder] = useState(false);
 	const [editingChart, setEditingChart] = useState<ChartConfig | undefined>();
+
+	// Chart selection state - must be defined before conditional returns
+	const [selectedCharts, setSelectedCharts] = useState<Set<string>>(new Set());
+	const [isSelectionMode, setIsSelectionMode] = useState(false);
+	const [chartsInitialized, setChartsInitialized] = useState(false);
 
 	useEffect(() => {
 		fetchQueueData();
@@ -211,11 +228,215 @@ export default function QueueAnalyticsPage() {
 		setShowChartBuilder(true);
 	};
 
+	// Define static chart IDs
+	const staticChartIds = ["queue-by-service", "queue-by-category"];
+
+	// Combine static and dynamic chart IDs
+	const dynamicChartIds = charts.map((chart) => chart.id);
+	const allChartIds = [...staticChartIds, ...dynamicChartIds];
+
+	// Initialize all charts as selected on first render
+	useEffect(() => {
+		if (!chartsInitialized && allChartIds.length > 0) {
+			setSelectedCharts(new Set(allChartIds));
+			setChartsInitialized(true);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [chartsInitialized]);
+
 	if (loading) {
 		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
 	const queueAnalytics = getQueueAnalytics();
+
+	// Define all static charts
+	const staticCharts = [
+		{
+			id: "queue-by-service",
+			title: "Queue by Service Branch",
+			element: (
+				<Card>
+					<CardHeader>
+						<CardTitle>Queue by Service Branch</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<ResponsiveContainer width='100%' height={300}>
+							<PieChart>
+								<Pie
+									data={queueAnalytics.byArm}
+									cx='50%'
+									cy='50%'
+									labelLine={false}
+									label={({ name, percent }) =>
+										`${name} ${(percent * 100).toFixed(0)}%`
+									}
+									outerRadius={80}
+									fill='#8884d8'
+									dataKey='value'>
+									{queueAnalytics.byArm.map((entry, index) => (
+										<Cell
+											key={`cell-${index}`}
+											fill={COLORS[index % COLORS.length]}
+										/>
+									))}
+								</Pie>
+								<Tooltip
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
+							</PieChart>
+						</ResponsiveContainer>
+					</CardContent>
+				</Card>
+			),
+		},
+		{
+			id: "queue-by-category",
+			title: "Queue by Category",
+			element: (
+				<Card>
+					<CardHeader>
+						<CardTitle>Queue by Category</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<ResponsiveContainer width='100%' height={300}>
+							<BarChart data={queueAnalytics.byCategory}>
+								<CartesianGrid {...chartStyles.grid} />
+								<XAxis
+									dataKey='name'
+									{...chartStyles.angledAxis}
+									interval={0}
+									tick={{ ...chartStyles.angledAxis.tick, width: 100 }}
+								/>
+								<YAxis {...chartStyles.axis} />
+								<Tooltip
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
+								<Bar dataKey='value' fill='#82ca9d' />
+							</BarChart>
+						</ResponsiveContainer>
+					</CardContent>
+				</Card>
+			),
+		},
+	];
+
+	// Combine static charts with dynamic charts
+	const dynamicChartElements = charts.map((chart) => ({
+		id: chart.id,
+		title: chart.title,
+		element: (
+			<DynamicChart
+				config={chart}
+				data={queueData}
+				onEdit={() => handleEditChart(chart)}
+				onDelete={() => handleDeleteChart(chart.id)}
+			/>
+		),
+	}));
+
+	const allCharts = [...staticCharts, ...dynamicChartElements];
+
+	// Handle print functionality
+	const handlePrint = () => {
+		// Get selected charts to print
+		const chartsToPrint = allCharts.filter((chart) =>
+			selectedCharts.has(chart.id)
+		);
+
+		if (chartsToPrint.length === 0) {
+			alert("Please select at least one chart to print");
+			return;
+		}
+
+		// Add custom print styles
+		const printStyles = document.createElement("style");
+		printStyles.id = "analytics-print-styles";
+		printStyles.innerHTML = `
+			@media print {
+				/* Hide everything except the print container */
+				body * {
+					visibility: hidden;
+				}
+				
+				/* Show the print container and its contents */
+				#print-container,
+				#print-container * {
+					visibility: visible;
+				}
+				
+				/* Position the print container */
+				#print-container {
+					position: absolute;
+					left: 0;
+					top: 0;
+					width: 100%;
+					padding: 20px;
+				}
+				
+				/* Add header before the first chart */
+				#print-container .space-y-6::before {
+					content: "Queue Analytics - Selected Charts\\A Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}\\A Total Charts Selected: ${
+			chartsToPrint.length
+		}\\A ";
+					display: block;
+					text-align: center;
+					margin-bottom: 30px;
+					font-size: 18px;
+					font-weight: bold;
+					color: #1B365D;
+					white-space: pre-line;
+				}
+				
+				/* Style the charts for print */
+				.print-chart {
+					break-inside: avoid;
+					page-break-inside: avoid;
+					margin-bottom: 30px;
+				}
+				
+				/* Ensure charts render properly */
+				.recharts-surface {
+					overflow: visible !important;
+				}
+				
+				.recharts-responsive-container {
+					width: 100% !important;
+					height: 300px !important;
+				}
+				
+				/* Page setup */
+				@page {
+					size: landscape;
+					margin: 0.5in;
+				}
+			}
+		`;
+
+		document.head.appendChild(printStyles);
+
+		// Trigger print dialog
+		window.print();
+
+		// Remove print styles after printing
+		setTimeout(() => {
+			const styleElement = document.getElementById("analytics-print-styles");
+			if (styleElement) {
+				styleElement.remove();
+			}
+		}, 500);
+	};
+
+	// Show all charts by default when not in selection mode
+	const visibleCharts = isSelectionMode
+		? allCharts.filter((chart) => selectedCharts.has(chart.id))
+		: allCharts;
 
 	return (
 		<div className='space-y-6'>
@@ -232,6 +453,12 @@ export default function QueueAnalyticsPage() {
 					<Button onClick={() => fetchQueueData()} variant='outline'>
 						<RefreshCw className='h-4 w-4 mr-2' />
 						Refresh Data
+					</Button>
+					<Button
+						variant={isSelectionMode ? "default" : "outline"}
+						size='sm'
+						onClick={() => setIsSelectionMode(!isSelectionMode)}>
+						{isSelectionMode ? <>Done Selecting</> : <>Select Charts</>}
 					</Button>
 					<Dialog
 						open={showChartBuilder}
@@ -331,76 +558,14 @@ export default function QueueAnalyticsPage() {
 				</Card>
 			</div>
 
-			<div className='grid gap-4 md:grid-cols-2'>
-				<Card>
-					<CardHeader>
-						<CardTitle>Queue by Service Branch</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<ResponsiveContainer width='100%' height={300}>
-							<PieChart>
-								<Pie
-									data={queueAnalytics.byArm}
-									cx='50%'
-									cy='50%'
-									labelLine={false}
-									label={({ name, percent }) =>
-										`${name} ${(percent * 100).toFixed(0)}%`
-									}
-									outerRadius={80}
-									fill='#8884d8'
-									dataKey='value'>
-									{queueAnalytics.byArm.map((entry, index) => (
-										<Cell
-											key={`cell-${index}`}
-											fill={COLORS[index % COLORS.length]}
-										/>
-									))}
-								</Pie>
-								<Tooltip
-									contentStyle={chartStyles.tooltip.contentStyle}
-									itemStyle={chartStyles.tooltip.itemStyle}
-									labelStyle={chartStyles.tooltip.labelStyle}
-									cursor={chartStyles.tooltip.cursor}
-								/>
-							</PieChart>
-						</ResponsiveContainer>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader>
-						<CardTitle>Queue by Category</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<ResponsiveContainer width='100%' height={300}>
-							<BarChart data={queueAnalytics.byCategory}>
-								<CartesianGrid {...chartStyles.grid} />
-								<XAxis dataKey='name' {...chartStyles.angledAxis} />
-								<YAxis {...chartStyles.axis} />
-								<Tooltip
-									contentStyle={chartStyles.tooltip.contentStyle}
-									itemStyle={chartStyles.tooltip.itemStyle}
-									labelStyle={chartStyles.tooltip.labelStyle}
-									cursor={chartStyles.tooltip.cursor}
-								/>
-								<Bar dataKey='value' fill='#82ca9d' />
-							</BarChart>
-						</ResponsiveContainer>
-					</CardContent>
-				</Card>
-			</div>
-			<div className='grid gap-4 md:grid-cols-2 mt-6'>
-				{charts.map((chart) => (
-					<DynamicChart
-						key={chart.id}
-						config={chart}
-						data={queueData}
-						onEdit={() => handleEditChart(chart)}
-						onDelete={() => handleDeleteChart(chart.id)}
-					/>
-				))}
-			</div>
+			{/* Chart Selection Manager for all charts */}
+			<ChartSelectionManager
+				charts={allCharts}
+				isSelectionMode={isSelectionMode}
+				onSelectionModeChange={setIsSelectionMode}
+				selectedCharts={selectedCharts}
+				onSelectedChartsChange={setSelectedCharts}
+			/>
 		</div>
 	);
 }
