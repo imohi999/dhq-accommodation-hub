@@ -8,20 +8,53 @@ async function main() {
 
   // Clear existing data first
   console.log('🧹 Clearing existing data...')
-  await prisma.allocationRequest.deleteMany({})
-  await prisma.pastAllocation.deleteMany({})
-  await prisma.unitOccupant.deleteMany({})
-  await prisma.unitHistory.deleteMany({})
-  await prisma.unitInventory.deleteMany({})
-  await prisma.unitMaintenance.deleteMany({})
-  await prisma.dhqLivingUnit.deleteMany({})
-  await prisma.queue.deleteMany({})
-  await prisma.stampSetting.deleteMany({})
-  await prisma.accommodationType.deleteMany({})
-  await prisma.unit.deleteMany({})
-  await prisma.pagePermission.deleteMany({})
-  await prisma.profile.deleteMany({})
-  await prisma.user.deleteMany({})
+  
+  // Clear in correct order to avoid foreign key constraints
+  try {
+    await prisma.allocationRequest.deleteMany({})
+    await prisma.pastAllocation.deleteMany({})
+    await prisma.unitOccupant.deleteMany({})
+    await prisma.unitHistory.deleteMany({})
+    await prisma.unitInventory.deleteMany({})
+    await prisma.unitMaintenance.deleteMany({})
+    await prisma.dhqLivingUnit.deleteMany({})
+    await prisma.queue.deleteMany({})
+    await prisma.stampSetting.deleteMany({})
+    await prisma.accommodationType.deleteMany({})
+    await prisma.unit.deleteMany({})
+    
+    // Try to delete page permissions if table exists
+    try {
+      await prisma.pagePermission.deleteMany({})
+    } catch (e) {
+      console.log('⚠️  PagePermission table not found, skipping...')
+    }
+    
+    // Clear auth-related tables
+    try {
+      await prisma.auditLog.deleteMany({})
+    } catch (e) {
+      console.log('⚠️  AuditLog table not found, skipping...')
+    }
+    
+    try {
+      await prisma.authSession.deleteMany({})
+    } catch (e) {
+      console.log('⚠️  AuthSession table not found, skipping...')
+    }
+    
+    try {
+      await prisma.userRole.deleteMany({})
+    } catch (e) {
+      console.log('⚠️  UserRole table not found, skipping...')
+    }
+    
+    await prisma.profile.deleteMany({})
+    await prisma.user.deleteMany({})
+  } catch (error) {
+    console.error('Error clearing data:', error)
+    throw error
+  }
 
   // Create superadmin user
   const hashedPassword = await bcrypt.hash('admin123', 10)
@@ -84,20 +117,24 @@ async function main() {
 
   // Give superadmin all permissions
   if (adminProfile) {
-    for (const page of allPages) {
-      await prisma.pagePermission.create({
-        data: {
-          profileId: adminProfile.id,
-          pageKey: page.pageKey,
-          pageTitle: page.pageTitle,
-          parentKey: page.parentKey,
-          canView: true,
-          canEdit: true,
-          canDelete: true
-        }
-      })
+    try {
+      for (const page of allPages) {
+        await prisma.pagePermission.create({
+          data: {
+            profileId: adminProfile.id,
+            pageKey: page.pageKey,
+            pageTitle: page.pageTitle,
+            parentKey: page.parentKey,
+            canView: true,
+            canEdit: true,
+            canDelete: true
+          }
+        })
+      }
+      console.log('✅ Created page permissions for superadmin')
+    } catch (e) {
+      console.log('⚠️  Could not create page permissions, table might not exist')
     }
-    console.log('✅ Created page permissions for superadmin')
   }
 
   // Create accommodation types
