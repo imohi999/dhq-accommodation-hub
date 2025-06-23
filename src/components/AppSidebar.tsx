@@ -2,25 +2,13 @@
 
 import Image from "next/image";
 import {
-	Calendar,
 	Home,
 	Users,
 	Building,
-	Settings,
 	BarChart3,
 	List,
 	CheckCircle,
-	Clock,
-	Archive,
-	Stamp,
 	Wrench,
-	AlertTriangle,
-	UserPlus,
-	Shield,
-	FileText,
-	MapPin,
-	ClipboardList,
-	Hammer,
 	ShieldCheck,
 } from "lucide-react";
 
@@ -29,7 +17,6 @@ import {
 	SidebarContent,
 	SidebarGroup,
 	SidebarGroupContent,
-	SidebarGroupLabel,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
@@ -110,12 +97,12 @@ const allMenuItems = [
 		items: [
 			{
 				key: "analytics.queue",
-				title: "Queue Analytics",
+				title: "Queue",
 				url: "/analytics/queue",
 			},
 			{
 				key: "analytics.pending",
-				title: "Pending Allocation Analytics",
+				title: "Pending Allocation",
 				url: "/analytics/pending",
 			},
 			{
