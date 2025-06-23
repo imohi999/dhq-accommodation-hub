@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         fullName: personnelData.fullName,
         svcNo: personnelData.svcNo,
         gender: personnelData.gender || 'Male',
-        armOfService: personnelData.armOfService || 'Army',
+        armOfService: personnelData.armOfService || 'Nigerian Army',
         category: personnelData.category,
         rank: personnelData.rank,
         maritalStatus: personnelData.maritalStatus,
@@ -140,9 +140,9 @@ export async function POST(request: NextRequest) {
       timeout: 100000 // 10 seconds
     });
 
-    return NextResponse.json({ 
-      requestId, 
-      message: "Allocation request refused and personnel returned to queue at position 1" 
+    return NextResponse.json({
+      requestId,
+      message: "Allocation request refused and personnel returned to queue at position 1"
     }, { status: 200 });
   } catch (error) {
     console.error('[POST /api/allocations/refuse] Error refusing allocation:', error);
