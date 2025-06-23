@@ -319,7 +319,9 @@ export default function PastAllocationsAnalyticsPage() {
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold'>Past Allocations Analytics</h1>
+					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
+						Past Allocations Analytics
+					</h1>
 					<p className='text-muted-foreground'>
 						Historical allocation trends and turnover insights
 					</p>
@@ -433,7 +435,7 @@ export default function PastAllocationsAnalyticsPage() {
 							<CartesianGrid {...chartStyles.grid} />
 							<XAxis dataKey='month' {...chartStyles.axis} />
 							<YAxis {...chartStyles.axis} />
-							<Tooltip 
+							<Tooltip
 								contentStyle={chartStyles.tooltip.contentStyle}
 								itemStyle={chartStyles.tooltip.itemStyle}
 								labelStyle={chartStyles.tooltip.labelStyle}
@@ -496,12 +498,12 @@ export default function PastAllocationsAnalyticsPage() {
 										/>
 									))}
 								</Pie>
-								<Tooltip 
-								contentStyle={chartStyles.tooltip.contentStyle}
-								itemStyle={chartStyles.tooltip.itemStyle}
-								labelStyle={chartStyles.tooltip.labelStyle}
-								cursor={chartStyles.tooltip.cursor}
-							/>
+								<Tooltip
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -520,12 +522,12 @@ export default function PastAllocationsAnalyticsPage() {
 								<CartesianGrid {...chartStyles.grid} />
 								<XAxis dataKey='quarter' {...chartStyles.angledAxis} />
 								<YAxis {...chartStyles.axis} />
-								<Tooltip 
-								contentStyle={chartStyles.tooltip.contentStyle}
-								itemStyle={chartStyles.tooltip.itemStyle}
-								labelStyle={chartStyles.tooltip.labelStyle}
-								cursor={chartStyles.tooltip.cursor}
-							/>
+								<Tooltip
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
 								<Bar dataKey='turnoverCount' fill='#ff7300' />
 							</BarChart>
 						</ResponsiveContainer>

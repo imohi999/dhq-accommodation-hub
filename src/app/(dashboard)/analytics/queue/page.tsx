@@ -121,11 +121,15 @@ export default function QueueAnalyticsPage() {
 				}),
 				entryYear: new Date(item.entryDateTime).getFullYear(),
 				// Additional computed fields for analytics
-				hasDependents: (item.noOfAdultDependents + item.noOfChildDependents) > 0,
-				dependentCategory: 
-					item.noOfAdultDependents > 0 && item.noOfChildDependents > 0 ? "Both" :
-					item.noOfAdultDependents > 0 ? "Adults Only" :
-					item.noOfChildDependents > 0 ? "Children Only" : "None",
+				hasDependents: item.noOfAdultDependents + item.noOfChildDependents > 0,
+				dependentCategory:
+					item.noOfAdultDependents > 0 && item.noOfChildDependents > 0
+						? "Both"
+						: item.noOfAdultDependents > 0
+						? "Adults Only"
+						: item.noOfChildDependents > 0
+						? "Children Only"
+						: "None",
 			}));
 
 			setQueueData(transformedQueue);
@@ -217,7 +221,9 @@ export default function QueueAnalyticsPage() {
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold'>Queue Analytics</h1>
+					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
+						Queue Analytics
+					</h1>
 					<p className='text-muted-foreground'>
 						Real-time insights for accommodation queue management
 					</p>
@@ -351,7 +357,7 @@ export default function QueueAnalyticsPage() {
 										/>
 									))}
 								</Pie>
-								<Tooltip 
+								<Tooltip
 									contentStyle={chartStyles.tooltip.contentStyle}
 									itemStyle={chartStyles.tooltip.itemStyle}
 									labelStyle={chartStyles.tooltip.labelStyle}
@@ -372,7 +378,7 @@ export default function QueueAnalyticsPage() {
 								<CartesianGrid {...chartStyles.grid} />
 								<XAxis dataKey='name' {...chartStyles.angledAxis} />
 								<YAxis {...chartStyles.axis} />
-								<Tooltip 
+								<Tooltip
 									contentStyle={chartStyles.tooltip.contentStyle}
 									itemStyle={chartStyles.tooltip.itemStyle}
 									labelStyle={chartStyles.tooltip.labelStyle}

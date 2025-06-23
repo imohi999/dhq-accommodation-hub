@@ -21,15 +21,15 @@ import { usePermissions } from "@/hooks/usePermissions";
 
 export default function DHQLivingUnits() {
 	// Permission checks
-	const { 
-		canAddQuarters, 
-		canEdit, 
-		canDelete, 
-		canImport, 
+	const {
+		canAddQuarters,
+		canEdit,
+		canDelete,
+		canImport,
 		canExportAccommodation,
 		canViewHistory,
 		canMaintenanceRequest,
-		canInventory 
+		canInventory,
 	} = usePermissions();
 
 	const { units, housingTypes, loading, refetch } = useAccommodationData();
@@ -77,7 +77,9 @@ export default function DHQLivingUnits() {
 	};
 
 	const handleDelete = async (id: string) => {
-		if (!confirm("Are you sure you want to delete this accommodation quarters?")) {
+		if (
+			!confirm("Are you sure you want to delete this accommodation quarters?")
+		) {
 			return;
 		}
 
@@ -118,7 +120,7 @@ export default function DHQLivingUnits() {
 		<div className='space-y-6'>
 			<div className='flex justify-between items-center'>
 				<div>
-					<h1 className='text-2xl font-bold text-[#1B365D]'>
+					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
 						DHQ Accommodation
 					</h1>
 					<p className='text-muted-foreground'>
@@ -187,8 +189,8 @@ export default function DHQLivingUnits() {
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					deleteLoading={deleteLoading}
-					canEdit={canEdit('accommodation.units')}
-					canDelete={canDelete('accommodation.units')}
+					canEdit={canEdit("accommodation.units")}
+					canDelete={canDelete("accommodation.units")}
 					canExport={canExportAccommodation()}
 				/>
 			) : (
@@ -198,8 +200,8 @@ export default function DHQLivingUnits() {
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					deleteLoading={deleteLoading}
-					canEdit={canEdit('accommodation.units')}
-					canDelete={canDelete('accommodation.units')}
+					canEdit={canEdit("accommodation.units")}
+					canDelete={canDelete("accommodation.units")}
 					canViewHistory={canViewHistory()}
 					canMaintenanceRequest={canMaintenanceRequest()}
 					canInventory={canInventory()}

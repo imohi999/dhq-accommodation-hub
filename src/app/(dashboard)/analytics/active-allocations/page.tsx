@@ -166,10 +166,13 @@ export default function ActiveAllocationsAnalyticsPage() {
 					(currentOccupant?.queue?.noOfChildDependents || 0);
 				return {
 					...item,
-					armOfService: getArmOfService(item.currentOccupantServiceNumber || ""),
+					armOfService: getArmOfService(
+						item.currentOccupantServiceNumber || ""
+					),
 					rank: item.currentOccupantRank || "",
 					maritalStatus: currentOccupant?.queue?.maritalStatus || "Unknown",
-					personnelCategory: currentOccupant?.queue?.category || item.category || "Unknown",
+					personnelCategory:
+						currentOccupant?.queue?.category || item.category || "Unknown",
 					gender: currentOccupant?.queue?.gender || "Unknown",
 					totalDependents,
 					population: 1 + totalDependents,
@@ -305,7 +308,9 @@ export default function ActiveAllocationsAnalyticsPage() {
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold'>Active Allocations Analytics</h1>
+					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
+						Active Allocations Analytics
+					</h1>
 					<p className='text-muted-foreground'>
 						Current occupancy and population insights
 					</p>
@@ -440,7 +445,7 @@ export default function ActiveAllocationsAnalyticsPage() {
 								height={180}
 							/>
 							<YAxis {...chartStyles.axis} />
-							<Tooltip 
+							<Tooltip
 								contentStyle={chartStyles.tooltip.contentStyle}
 								itemStyle={chartStyles.tooltip.itemStyle}
 								labelStyle={chartStyles.tooltip.labelStyle}
@@ -469,7 +474,10 @@ export default function ActiveAllocationsAnalyticsPage() {
 								<Pie
 									data={activeData.reduce((acc, unit) => {
 										const type = unit.accommodationType || "Unknown";
-										const existing = acc.find((item: { name: string; value: number }) => item.name === type);
+										const existing = acc.find(
+											(item: { name: string; value: number }) =>
+												item.name === type
+										);
 										if (existing) {
 											existing.value++;
 										} else {
@@ -499,12 +507,12 @@ export default function ActiveAllocationsAnalyticsPage() {
 											/>
 										))}
 								</Pie>
-								<Tooltip 
-								contentStyle={chartStyles.tooltip.contentStyle}
-								itemStyle={chartStyles.tooltip.itemStyle}
-								labelStyle={chartStyles.tooltip.labelStyle}
-								cursor={chartStyles.tooltip.cursor}
-							/>
+								<Tooltip
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
 							</PieChart>
 						</ResponsiveContainer>
 					</CardContent>
@@ -519,7 +527,9 @@ export default function ActiveAllocationsAnalyticsPage() {
 							<BarChart
 								data={activeData.reduce((acc, unit) => {
 									const arm = unit.armOfService || "Unknown";
-									const existing = acc.find((item: { name: string; value: number }) => item.name === arm);
+									const existing = acc.find(
+										(item: { name: string; value: number }) => item.name === arm
+									);
 									if (existing) {
 										existing.value++;
 									} else {
@@ -530,12 +540,12 @@ export default function ActiveAllocationsAnalyticsPage() {
 								<CartesianGrid {...chartStyles.grid} />
 								<XAxis dataKey='name' {...chartStyles.angledAxis} />
 								<YAxis {...chartStyles.axis} />
-								<Tooltip 
-								contentStyle={chartStyles.tooltip.contentStyle}
-								itemStyle={chartStyles.tooltip.itemStyle}
-								labelStyle={chartStyles.tooltip.labelStyle}
-								cursor={chartStyles.tooltip.cursor}
-							/>
+								<Tooltip
+									contentStyle={chartStyles.tooltip.contentStyle}
+									itemStyle={chartStyles.tooltip.itemStyle}
+									labelStyle={chartStyles.tooltip.labelStyle}
+									cursor={chartStyles.tooltip.cursor}
+								/>
 								<Bar dataKey='value' fill='#00C49F' />
 							</BarChart>
 						</ResponsiveContainer>

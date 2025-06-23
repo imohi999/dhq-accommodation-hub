@@ -41,9 +41,9 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function HousingTypes() {
 	// Permission checks
 	const { hasPermission } = usePermissions();
-	const canAddType = hasPermission('accommodation.types', 'add_type');
-	const canEdit = hasPermission('accommodation.types', 'edit');
-	const canDelete = hasPermission('accommodation.types', 'delete');
+	const canAddType = hasPermission("accommodation.types", "add_type");
+	const canEdit = hasPermission("accommodation.types", "edit");
+	const canDelete = hasPermission("accommodation.types", "delete");
 
 	const [showForm, setShowForm] = useState(false);
 	const [editingItem, setEditingItem] = useState<AccommodationType | null>(
@@ -172,7 +172,7 @@ export default function HousingTypes() {
 		<div className='space-y-6'>
 			<div className='flex justify-between items-center'>
 				<div>
-					<h1 className='text-3xl font-bold'>
+					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
 						Accommodation Types
 					</h1>
 					<p className='text-muted-foreground'>
@@ -189,62 +189,62 @@ export default function HousingTypes() {
 								Add Accommodation Type
 							</Button>
 						</DialogTrigger>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>
-								{editingItem
-									? "Edit Accommodation Type"
-									: "Add New Accommodation Type"}
-							</DialogTitle>
-							<DialogDescription>
-								{editingItem
-									? "Update the accommodation type details."
-									: "Create a new accommodation type for accommodation quarters."}
-							</DialogDescription>
-						</DialogHeader>
-						<form onSubmit={handleSubmit} className='space-y-4'>
-							<div>
-								<Label htmlFor='name'>Name *</Label>
-								<Input
-									id='name'
-									value={formData.name}
-									onChange={(e) =>
-										setFormData({ ...formData, name: e.target.value })
-									}
-									placeholder='Enter accommodation type name'
-									required
-								/>
-							</div>
-							<div>
-								<Label htmlFor='description'>Description</Label>
-								<Textarea
-									id='description'
-									value={formData.description}
-									onChange={(e) =>
-										setFormData({ ...formData, description: e.target.value })
-									}
-									placeholder='Enter description (optional)'
-								/>
-							</div>
-							<div className='flex justify-end gap-2'>
-								<Button
-									type='button'
-									variant='outline'
-									onClick={resetForm}
-									disabled={isSubmitting}>
-									Cancel
-								</Button>
-								<LoadingButton
-									type='submit'
-									loading={isSubmitting}
-									loadingText={editingItem ? "Updating..." : "Creating..."}>
-									{editingItem ? "Update" : "Create"}
-								</LoadingButton>
-							</div>
-						</form>
-					</DialogContent>
-				</Dialog>
-			)}
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>
+									{editingItem
+										? "Edit Accommodation Type"
+										: "Add New Accommodation Type"}
+								</DialogTitle>
+								<DialogDescription>
+									{editingItem
+										? "Update the accommodation type details."
+										: "Create a new accommodation type for accommodation quarters."}
+								</DialogDescription>
+							</DialogHeader>
+							<form onSubmit={handleSubmit} className='space-y-4'>
+								<div>
+									<Label htmlFor='name'>Name *</Label>
+									<Input
+										id='name'
+										value={formData.name}
+										onChange={(e) =>
+											setFormData({ ...formData, name: e.target.value })
+										}
+										placeholder='Enter accommodation type name'
+										required
+									/>
+								</div>
+								<div>
+									<Label htmlFor='description'>Description</Label>
+									<Textarea
+										id='description'
+										value={formData.description}
+										onChange={(e) =>
+											setFormData({ ...formData, description: e.target.value })
+										}
+										placeholder='Enter description (optional)'
+									/>
+								</div>
+								<div className='flex justify-end gap-2'>
+									<Button
+										type='button'
+										variant='outline'
+										onClick={resetForm}
+										disabled={isSubmitting}>
+										Cancel
+									</Button>
+									<LoadingButton
+										type='submit'
+										loading={isSubmitting}
+										loadingText={editingItem ? "Updating..." : "Creating..."}>
+										{editingItem ? "Update" : "Create"}
+									</LoadingButton>
+								</div>
+							</form>
+						</DialogContent>
+					</Dialog>
+				)}
 			</div>
 
 			<Card>

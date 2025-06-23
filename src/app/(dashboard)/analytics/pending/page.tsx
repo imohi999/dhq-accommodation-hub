@@ -399,7 +399,9 @@ export default function PendingAnalyticsPage() {
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold'>Pending Allocation Analytics</h1>
+					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
+						Pending Allocation Analytics
+					</h1>
 					<p className='text-muted-foreground'>
 						Insights on pending allocation requests
 					</p>
@@ -550,7 +552,11 @@ export default function PendingAnalyticsPage() {
 						<ResponsiveContainer width='100%' height={400}>
 							<BarChart data={pendingAnalytics.byAccommodationType}>
 								<CartesianGrid {...chartStyles.grid} />
-								<XAxis dataKey='name' {...chartStyles.angledAxis} height={100} />
+								<XAxis
+									dataKey='name'
+									{...chartStyles.angledAxis}
+									height={100}
+								/>
 								<YAxis {...chartStyles.axis} />
 								<Tooltip
 									contentStyle={chartStyles.tooltip.contentStyle}
