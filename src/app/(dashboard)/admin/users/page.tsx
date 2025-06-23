@@ -221,7 +221,12 @@ interface Profile {
 	};
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = (url: string) => fetch(url, { 
+  cache: 'no-store',
+  headers: {
+    'Cache-Control': 'no-cache',
+  }
+}).then((res) => res.json());
 
 // Simple permission row component
 function PermissionRow({
@@ -290,16 +295,37 @@ export default function UserManagementPage() {
 	const [isCreating, setIsCreating] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 
+	const isSuperAdmin = user?.profile?.role === "superadmin";
+	
+	// Debug logging
+	console.log('[UserManagementPage] User role:', user?.profile?.role);
+	console.log('[UserManagementPage] Is superadmin:', isSuperAdmin);
+	console.log('[UserManagementPage] Auth loading:', authLoading);
+
 	const {
 		data: profiles = [],
 		error,
 		isLoading,
 	} = useSWR<Profile[]>(
-		user?.profile?.role === "superadmin" ? "/api/profiles" : null,
-		fetcher
+		isSuperAdmin ? "/api/profiles" : null,
+		fetcher,
+		{
+			revalidateOnFocus: true,
+			revalidateOnMount: true,
+			refreshInterval: 0,
+			dedupingInterval: 0,
+		}
 	);
-
-	const isSuperAdmin = user?.profile?.role === "superadmin";
+	
+	// Log the fetched data
+	useEffect(() => {
+		if (!isLoading && !error) {
+			console.log('[UserManagementPage] Profiles loaded:', profiles.length);
+			profiles.forEach((profile, index) => {
+				console.log(`[UserManagementPage] Profile ${index + 1}:`, profile.user.username);
+			});
+		}
+	}, [profiles, isLoading, error]);
 
 	// Load user permissions when editing
 	useEffect(() => {

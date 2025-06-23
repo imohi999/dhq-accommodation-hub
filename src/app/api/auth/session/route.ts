@@ -9,12 +9,13 @@ export async function GET(request: NextRequest) {
     const session = await getSession();
 
     if (!session) {
-      // Add debug info in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log('No session found - cookie might not be set or expired');
-      }
+      // Add debug info
+      console.log('[Session API] No session found - cookie might not be set or expired');
+      console.log('[Session API] Environment:', process.env.NODE_ENV);
       return NextResponse.json({ user: null });
     }
+    
+    console.log('[Session API] Session found for user:', session.userId);
 
     // Get full user data
     const user = await prisma.user.findUnique({
