@@ -27,8 +27,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { ChevronLeft, ChevronRight, Search, Monitor } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Monitor, Shield } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { LoadingState } from "@/components/ui/spinner";
 
 interface AuditLog {
 	id: string;
@@ -56,6 +58,7 @@ interface Pagination {
 }
 
 export default function AuditLogsPage() {
+	const { user, loading: authLoading } = useAuth();
 	const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
 	const [pagination, setPagination] = useState<Pagination>({
 		page: 1,
@@ -70,7 +73,11 @@ export default function AuditLogsPage() {
 		entityType: "",
 	});
 
+	const isSuperAdmin = user?.profile?.role === "superadmin";
+
 	const fetchAuditLogs = useCallback(async () => {
+		if (!isSuperAdmin) return;
+		
 		setLoading(true);
 		try {
 			const params = new URLSearchParams({
@@ -95,7 +102,7 @@ export default function AuditLogsPage() {
 		} finally {
 			setLoading(false);
 		}
-	}, [pagination.page, pagination.limit, filters]);
+	}, [pagination.page, pagination.limit, filters, isSuperAdmin]);
 
 	useEffect(() => {
 		fetchAuditLogs();
@@ -122,6 +129,28 @@ export default function AuditLogsPage() {
 		if (action.includes("FAILED")) return "destructive";
 		return "outline";
 	};
+
+	if (authLoading) {
+		return <LoadingState isLoading={true}>{null}</LoadingState>;
+	}
+
+	if (!isSuperAdmin) {
+		return (
+			<div className='flex justify-center p-8'>
+				<Card className='w-full max-w-md'>
+					<CardContent className='pt-6'>
+						<div className='text-center space-y-2'>
+							<Shield className='h-12 w-12 text-muted-foreground mx-auto' />
+							<p className='text-lg font-semibold'>Access Denied</p>
+							<p className='text-muted-foreground'>
+								Only superadmins can view audit logs.
+							</p>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
 
 	return (
 		<div className='space-y-6'>

@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
       include: { profile: true },
     });
 
-    // Only admins can view audit logs
-    if (!user || !['admin', 'superadmin'].includes(user.profile?.role || '')) {
+    // Only superadmins can view audit logs
+    if (!user || user.profile?.role !== 'superadmin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
