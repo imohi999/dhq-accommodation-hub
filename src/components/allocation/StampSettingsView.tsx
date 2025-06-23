@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { StampSettings } from "@/types/allocation";
 import useSWR, { mutate } from "swr";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -26,6 +27,13 @@ interface StampSettingsAPIResponse {
 }
 
 export const StampSettingsView = () => {
+	const { hasPermission } = usePermissions();
+	const canAddStamp = hasPermission('allocations.stamp-settings', 'add_stamp');
+	const canEdit = hasPermission('allocations.stamp-settings', 'edit');
+	
+	// Check if user can save (either add new or edit existing)
+	const canSave = canAddStamp || canEdit;
+
 	const [settings, setSettings] = useState<StampSettings>({
 		id: "",
 		stamp_name: "",
@@ -171,6 +179,7 @@ export const StampSettingsView = () => {
 								setSettings({ ...settings, stamp_name: e.target.value })
 							}
 							placeholder='Enter the name for the stamp'
+							disabled={!canSave}
 						/>
 					</div>
 
@@ -183,6 +192,7 @@ export const StampSettingsView = () => {
 								setSettings({ ...settings, stamp_rank: e.target.value })
 							}
 							placeholder='Enter the rank for the stamp'
+							disabled={!canSave}
 						/>
 					</div>
 
@@ -195,6 +205,7 @@ export const StampSettingsView = () => {
 								setSettings({ ...settings, stamp_appointment: e.target.value })
 							}
 							placeholder='Enter the appointment for the stamp'
+							disabled={!canSave}
 						/>
 					</div>
 
@@ -208,6 +219,7 @@ export const StampSettingsView = () => {
 							}
 							placeholder='Enter any additional remarks for the stamp'
 							rows={3}
+							disabled={!canSave}
 						/>
 					</div>
 
@@ -221,15 +233,18 @@ export const StampSettingsView = () => {
 							}
 							placeholder='Enter recipients to copy (e.g., "1. Chief of Staff\n2. Director of Operations")'
 							rows={3}
+							disabled={!canSave}
 						/>
 					</div>
 
-					<LoadingButton
-						onClick={handleSave}
-						loading={saving}
-						className='w-full'>
-						{saving ? "Saving..." : "Save Stamp Settings"}
-					</LoadingButton>
+					{canSave && (
+						<LoadingButton
+							onClick={handleSave}
+							loading={saving}
+							className='w-full'>
+							{saving ? "Saving..." : "Save Stamp Settings"}
+						</LoadingButton>
+					)}
 				</CardContent>
 			</Card>
 		</div>

@@ -25,6 +25,7 @@ import { EvictionNotice } from "./EvictionNotice";
 import { TransferRequestModal } from "./TransferRequestModal";
 import { toast } from "react-toastify";
 import { mutate } from "swr";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface ActiveAllocationsViewProps {
 	occupiedUnits: DHQLivingUnitWithHousingType[];
@@ -33,6 +34,13 @@ interface ActiveAllocationsViewProps {
 export const ActiveAllocationsView = ({
 	occupiedUnits,
 }: ActiveAllocationsViewProps) => {
+	const { hasPermission } = usePermissions();
+	
+	const canViewLetter = hasPermission('allocations.active', 'view_letter');
+	const canEjectionNotice = hasPermission('allocations.active', 'ejection_notice');
+	const canTransfer = hasPermission('allocations.active', 'transfer');
+	const canPostOut = hasPermission('allocations.active', 'post_out');
+
 	const [deallocateDialog, setDeallocateDialog] = useState<{
 		isOpen: boolean;
 		unit: DHQLivingUnitWithHousingType | null;
@@ -412,43 +420,51 @@ export const ActiveAllocationsView = ({
 									</div>
 
 									<div className='flex items-center gap-2'>
-										<Button
-											variant='outline'
-											size='sm'
-											onClick={() => handleViewLetterClick(unit)}
-											className='flex items-center gap-2'>
-											<FileText className='h-4 w-4' />
-											View Letter
-										</Button>
+										{canViewLetter && (
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => handleViewLetterClick(unit)}
+												className='flex items-center gap-2'>
+												<FileText className='h-4 w-4' />
+												View Letter
+											</Button>
+										)}
 
-										<Button
-											variant='outline'
-											size='sm'
-											onClick={() => handleEvictionNoticeClick(unit)}
-											className='flex items-center gap-2'>
-											<AlertTriangle className='h-4 w-4' />
-											Ejection Notice
-										</Button>
+										{canEjectionNotice && (
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => handleEvictionNoticeClick(unit)}
+												className='flex items-center gap-2'>
+												<AlertTriangle className='h-4 w-4' />
+												Ejection Notice
+											</Button>
+										)}
 
-										<Button
-											variant='outline'
-											size='sm'
-											onClick={() => handleTransferClick(unit)}
-											className='flex items-center gap-2'>
-											<ArrowRightLeft className='h-4 w-4' />
-											Re-allocate
-										</Button>
+										{canTransfer && (
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => handleTransferClick(unit)}
+												className='flex items-center gap-2'>
+												<ArrowRightLeft className='h-4 w-4' />
+												Re-allocate
+											</Button>
+										)}
 
-										<LoadingButton
-											variant='destructive'
-											size='sm'
-											onClick={() => handleDeallocateClick(unit)}
-											loading={loadingStates[`deallocate_${unit.id}`]}
-											loadingText='Deallocating...'
-											className='flex items-center gap-2'>
-											<UserMinus className='h-4 w-4' />
-											Post Out
-										</LoadingButton>
+										{canPostOut && (
+											<LoadingButton
+												variant='destructive'
+												size='sm'
+												onClick={() => handleDeallocateClick(unit)}
+												loading={loadingStates[`deallocate_${unit.id}`]}
+												loadingText='Deallocating...'
+												className='flex items-center gap-2'>
+												<UserMinus className='h-4 w-4' />
+												Post Out
+											</LoadingButton>
+										)}
 									</div>
 								</div>
 							</CardContent>

@@ -12,6 +12,7 @@ import { LoadingState } from "@/components/ui/spinner";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { Unit } from "@/types/queue";
+import { usePermissions } from "@/hooks/usePermissions";
 
 // API response type
 interface ApiUnit {
@@ -74,6 +75,7 @@ export default function QueueUnitsPage() {
   });
   
   const queryClient = useQueryClient();
+  const { canAddQuarters, canEdit, canDelete } = usePermissions();
 
   // Fetch units
   const { data: units = [], isLoading } = useQuery({
@@ -182,10 +184,12 @@ export default function QueueUnitsPage() {
             Manage quarters that appear in the Current Quarters dropdown
           </p>
         </div>
-        <Button onClick={handleAdd} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Add Quarters
-        </Button>
+        {canAddQuarters('queue.units') && (
+          <Button onClick={handleAdd} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add Quarters
+          </Button>
+        )}
       </div>
 
       {showForm && (
@@ -261,21 +265,25 @@ export default function QueueUnitsPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(unit)}
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(unit.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                      {canEdit('queue.units') && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(unit)}
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                      )}
+                      {canDelete('queue.units') && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(unit.id)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
