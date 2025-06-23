@@ -75,8 +75,10 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      await tx.queue.delete({
-        where: { id: personnelId }
+      // Mark the queue entry as having an allocation request
+      await tx.queue.update({
+        where: { id: personnelId },
+        data: { hasAllocationRequest: true }
       });
 
       return allocationRequest;

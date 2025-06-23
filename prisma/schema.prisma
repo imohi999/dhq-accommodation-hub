@@ -108,6 +108,7 @@ model Queue {
   createdAt           DateTime            @default(now()) @map("created_at")
   updatedAt           DateTime            @updatedAt @map("updated_at")
   dependents          Json?               @map("dependents")
+  hasAllocationRequest Boolean            @default(false) @map("has_allocation_request")
   unitOccupants       UnitOccupant[]
   allocationRequests  AllocationRequest[]
   pastAllocations     PastAllocation[]
@@ -115,6 +116,7 @@ model Queue {
 
   @@index([sequence])
   @@index([svcNo])
+  @@index([hasAllocationRequest])
   @@map("queue")
 }
 

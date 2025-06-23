@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
           where: { id: existingQueueEntry.id },
           data: {
             sequence: 1,
+            hasAllocationRequest: false, // Reset the flag
             entryDateTime: new Date(), // Update entry time
             updatedAt: new Date()
           }
@@ -121,7 +122,8 @@ export async function POST(request: NextRequest) {
             dateSos: queueData.dateSos ? new Date(queueData.dateSos) : null,
             phone: queueData.phone,
             entryDateTime: queueData.entryDateTime,
-            sequence: 1
+            sequence: 1,
+            hasAllocationRequest: false // Ensure flag is false for new entries
           }
         });
         console.log('[REFUSE] Created new queue entry:', newQueueEntry);

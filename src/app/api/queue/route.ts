@@ -18,7 +18,7 @@ const queueSchema = z.object({
   fullName: z.string().min(1),
   svcNo: z.string().min(1),
   gender: z.enum(['Male', 'Female']),
-  armOfService: z.enum(['Army', 'Navy', 'Air Force']),
+  armOfService: z.enum(['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force']),
   category: z.enum(['NCOs', 'Officer']),
   rank: z.string().min(1),
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
@@ -27,8 +27,8 @@ const queueSchema = z.object({
   dependents: z.array(dependentSchema).optional(),
   currentUnit: z.string().optional(),
   appointment: z.string().optional(),
-  dateTos: z.string().optional().transform(val => val ? new Date(val) : null),
-  dateSos: z.string().optional().transform(val => val ? new Date(val) : null),
+  dateTos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
+  dateSos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
   phone: z.string().optional()
 })
 
@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
     const maritalStatus = searchParams.get('maritalStatus')
     const where = {
       AND: [
+        { hasAllocationRequest: false }, // Only show queue entries without allocation requests
         search ? {
           OR: [
             { fullName: { contains: search } },
