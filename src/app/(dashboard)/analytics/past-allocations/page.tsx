@@ -357,12 +357,16 @@ export default function PastAllocationsAnalyticsPage() {
 						<CardTitle>Monthly Deallocation Trend</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<ResponsiveContainer width='100%' height={300}>
-							<AreaChart data={turnoverStats.monthlyTurnover}>
+						<ResponsiveContainer width='100%' height={350}>
+							<AreaChart
+								data={turnoverStats.monthlyTurnover}
+								margin={{ left: 5, right: 5, top: 5, bottom: 80 }}>
 								<CartesianGrid {...chartStyles.grid} />
 								<XAxis
 									dataKey='month'
 									{...chartStyles.axis}
+									angle={-45}
+									textAnchor='end'
 									interval={0}
 									tick={{ ...chartStyles.axis.tick, width: 100 }}
 								/>

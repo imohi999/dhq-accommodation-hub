@@ -38,13 +38,13 @@ export const AccommodationSummaryCards = ({
 		{
 			title: "Total",
 			value: totalUnits,
-			description: "Total accommodation quarters",
+			description: "Total accommodation units",
 			icon: Building,
 		},
 		{
 			title: "Quarters",
 			value: uniqueQuarters,
-			description: "Number of quarters",
+			description: "Number of units",
 			icon: Home,
 		},
 		{

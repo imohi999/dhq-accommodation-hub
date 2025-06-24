@@ -342,7 +342,7 @@ export const AccommodationCardView = ({
 
 				{units.length === 0 && (
 					<div className='col-span-full text-center text-muted-foreground py-8'>
-						No accommodation quarters matching current filters
+						No accommodation unit matching current filters
 					</div>
 				)}
 			</div>

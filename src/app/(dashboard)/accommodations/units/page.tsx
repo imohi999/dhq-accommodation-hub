@@ -78,7 +78,7 @@ export default function DHQLivingUnits() {
 
 	const handleDelete = async (id: string) => {
 		if (
-			!confirm("Are you sure you want to delete this accommodation quarters?")
+			!confirm("Are you sure you want to delete this accommodation units?")
 		) {
 			return;
 		}
@@ -92,11 +92,11 @@ export default function DHQLivingUnits() {
 			if (!response.ok) {
 				const error = await response.json();
 				console.error("Error deleting unit:", error);
-				toast.error(error.error || "Failed to delete accommodation quarters");
+				toast.error(error.error || "Failed to delete accommodation units");
 				return;
 			}
 
-			toast.success("Accommodation quarters deleted successfully");
+			toast.success("Accommodation units deleted successfully");
 
 			refetch();
 		} catch (error) {
@@ -109,7 +109,7 @@ export default function DHQLivingUnits() {
 
 	const handleImportComplete = () => {
 		refetch();
-		toast.success("Successfully imported accommodation quarters");
+		toast.success("Successfully imported accommodation units");
 	};
 
 	if (loading) {
@@ -124,7 +124,7 @@ export default function DHQLivingUnits() {
 						DHQ Accommodation
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage accommodation quarters for military personnel
+						Manage accommodation units for military personnel
 					</p>
 				</div>
 				<div className='flex gap-2'>

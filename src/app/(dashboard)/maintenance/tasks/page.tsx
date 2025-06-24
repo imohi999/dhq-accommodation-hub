@@ -99,7 +99,7 @@ export default function MaintenanceTasksPage() {
 						Maintenance Tasks
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage scheduled maintenance tasks for accommodation quarters
+						Manage scheduled maintenance tasks for accommodation unit
 					</p>
 				</div>
 				{canCreateTask && (

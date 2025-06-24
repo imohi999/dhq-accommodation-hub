@@ -28,13 +28,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log({ requestData });
-
-    const unitId = requestData.unit.id;
     const personnelId = requestData.personnelId;
     const personnelData = requestData.personnelData as unknown as IPersonnelData;
 
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
 
       const updatedRequest = await tx.allocationRequest.delete({
         where: {
@@ -63,24 +60,6 @@ export async function POST(request: NextRequest) {
         entryDateTime: new Date()
       };
 
-      // Get the current max sequence to update from highest to lowest
-      const maxSequence = await tx.queue.aggregate({
-        _max: {
-          sequence: true
-        }
-      });
-
-      // Update sequences in descending order to avoid unique constraint conflicts
-      if (maxSequence._max.sequence) {
-        for (let i = maxSequence._max.sequence; i >= 1; i--) {
-          await tx.queue.updateMany({
-            where: { sequence: i },
-            data: { sequence: i + 1 }
-          });
-        }
-      }
-
-      // Check if the personnel already exists in the queue by ID or service number
       const existingQueueEntry = await tx.queue.findFirst({
         where: {
           OR: [
@@ -90,12 +69,13 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      console.log({ existingQueueEntry });
+
+
       if (existingQueueEntry) {
-        // If they exist, update their record and set sequence to 1
         await tx.queue.update({
           where: { id: existingQueueEntry.id },
           data: {
-            sequence: 1,
             hasAllocationRequest: false, // Reset the flag
             entryDateTime: new Date(), // Update entry time
             updatedAt: new Date()

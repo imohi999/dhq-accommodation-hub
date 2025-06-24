@@ -487,7 +487,7 @@ export const ActiveAllocationsView = ({
 												loadingText='Deallocating...'
 												className='flex items-center gap-2'>
 												<UserMinus className='h-4 w-4' />
-												Post Out
+												Posted Out
 											</LoadingButton>
 										)}
 									</div>

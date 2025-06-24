@@ -123,9 +123,9 @@ export const AccommodationTableView = ({
 			<CardHeader>
 				<div className='flex justify-between items-center'>
 					<div>
-						<CardTitle>Accommodation Quarters</CardTitle>
+						<CardTitle>Accommodation Units</CardTitle>
 						<CardDescription>
-							Currently showing {units.length} accommodation quarters
+							Currently showing {units.length} accommodation unitd
 						</CardDescription>
 					</div>
 					{canExport && (
@@ -229,7 +229,7 @@ export const AccommodationTableView = ({
 								<TableCell
 									colSpan={12}
 									className='text-center text-muted-foreground'>
-									No accommodation quarters matching current filters
+									No accommodation units matching current filters
 								</TableCell>
 							</TableRow>
 						)}

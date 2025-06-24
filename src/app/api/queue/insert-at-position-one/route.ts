@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     // Transaction to update sequences and insert new entry
     const result = await prisma.$transaction(async (tx) => {
       // Increment all existing sequences by 1
-      await tx.$executeRaw`UPDATE Queue SET sequence = sequence + 1`
+      await tx.$executeRaw`UPDATE "queue" SET "sequence" = "sequence" + 1`
 
       // Create new entry at sequence 1
       const newEntry = await tx.queue.create({
