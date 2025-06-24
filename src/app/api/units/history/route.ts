@@ -20,7 +20,21 @@ export async function GET(request: NextRequest) {
       orderBy: { startDate: "desc" },
     });
 
-    return NextResponse.json(history);
+    // Map the data to match our TypeScript interface with snake_case
+    const mappedHistory = history.map((record) => ({
+      id: record.id,
+      unit_id: record.unitId,
+      occupant_name: record.occupantName,
+      rank: record.rank,
+      service_number: record.serviceNumber,
+      start_date: record.startDate,
+      end_date: record.endDate,
+      duration_days: record.durationDays,
+      reason_for_leaving: record.reasonForLeaving,
+      created_at: record.createdAt,
+    }));
+
+    return NextResponse.json(mappedHistory);
   } catch (error) {
     console.error("Failed to fetch unit history:", error);
     return NextResponse.json(
