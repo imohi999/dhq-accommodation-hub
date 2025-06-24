@@ -15,6 +15,7 @@ export interface ImportData {
   "Block Name": string;
   "Flat/House/Room Name": string;
   "Quarters Name": string;
+  "unit_name"?: string; // Optional field for direct unit name
 }
 
 export interface ValidationError {

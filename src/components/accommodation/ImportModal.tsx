@@ -92,7 +92,7 @@ export const ImportModal = ({
 					no_of_rooms_in_bq: parseInt(row["No of Rooms in BQ"]) || 0,
 					block_name: row["Block Name"],
 					flat_house_room_name: row["Flat/House/Room Name"],
-					unit_name: row["Quarters Name"] || null,
+					unit_name: row["Quarters Name"] || row["unit_name"] || `${row["Block Name"]} ${row["Flat/House/Room Name"]}`.trim() || null,
 				};
 			});
 
@@ -153,14 +153,6 @@ export const ImportModal = ({
 				</DialogHeader>
 
 				<div className='space-y-6'>
-					<Alert>
-						<AlertTriangle className='h-4 w-4' />
-						<AlertDescription>
-							<strong>Warning:</strong> This action will replace all existing
-							records. Please make sure you have a backup before proceeding.
-						</AlertDescription>
-					</Alert>
-
 					<ImportFileUpload
 						file={file}
 						onFileSelect={handleFileSelect}

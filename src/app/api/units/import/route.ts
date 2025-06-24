@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
-    const { data, replaceExisting = false } = await request.json();
+    const { data } = await request.json();
 
     if (!Array.isArray(data) || data.length === 0) {
       return NextResponse.json(
@@ -14,12 +14,7 @@ export async function POST(request: NextRequest) {
 
     // Start a transaction
     const result = await prisma.$transaction(async (tx) => {
-      // If replaceExisting is true, delete all existing records first
-      if (replaceExisting) {
-        await tx.dhqLivingUnit.deleteMany({});
-      }
-
-      // Insert new records
+      // Insert new records, skipping duplicates
       const created = await tx.dhqLivingUnit.createMany({
         data: data.map(unit => ({
           quarterName: unit.quarter_name,
@@ -35,20 +30,35 @@ export async function POST(request: NextRequest) {
           flatHouseRoomName: unit.flat_house_room_name,
           unitName: unit.unit_name,
         })),
+        skipDuplicates: true,
       });
 
-      return created;
+      return { created };
     });
 
     return NextResponse.json({
       success: true,
-      count: result.count,
-      message: `Successfully imported ${result.count} records.`,
+      count: result.created.count,
+      message: `Successfully imported ${result.created.count} new records. Duplicates were skipped.`,
+      details: {
+        imported: result.created.count,
+        totalInFile: data.length,
+        skipped: data.length - result.created.count
+      }
     });
   } catch (error) {
     console.error("Failed to import units:", error);
+
+    // Return more detailed error information
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorDetails = error instanceof Error && 'code' in error ? (error as any).code : undefined;
+
     return NextResponse.json(
-      { error: "Failed to import units" },
+      {
+        error: "Failed to import units",
+        details: errorMessage,
+        code: errorDetails
+      },
       { status: 500 }
     );
   }
