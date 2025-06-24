@@ -24,7 +24,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Shield, UserPlus, Trash2 } from "lucide-react";
+import { Edit, Shield, UserPlus, Trash2, Eye, EyeOff } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -245,6 +245,26 @@ function PermissionRow({
 		pageKey as keyof typeof PAGE_ACTIONS
 	] || ["access"];
 
+	const allActionsSelected = availableActions.every(action => 
+		userActions.includes(action)
+	);
+
+	const handleSelectAll = () => {
+		if (allActionsSelected) {
+			// Deselect all actions
+			availableActions.forEach(action => {
+				onActionChange(pageKey, action, false);
+			});
+		} else {
+			// Select all actions
+			availableActions.forEach(action => {
+				if (!userActions.includes(action)) {
+					onActionChange(pageKey, action, true);
+				}
+			});
+		}
+	};
+
 	return (
 		<div className='flex items-start justify-between py-3 border-b'>
 			<div className='flex-1'>
@@ -255,6 +275,20 @@ function PermissionRow({
 				</p>
 			</div>
 			<div className='flex items-center space-x-3 flex-wrap gap-2 max-w-md'>
+				{availableActions.length > 1 && (
+					<>
+						<div className='flex items-center space-x-1'>
+							<Checkbox
+								checked={allActionsSelected}
+								onCheckedChange={handleSelectAll}
+							/>
+							<Label className='text-xs whitespace-nowrap font-medium'>
+								Select All
+							</Label>
+						</div>
+						<div className='w-px h-4 bg-border' />
+					</>
+				)}
 				{availableActions.map((action) => (
 					<div key={action} className='flex items-center space-x-1'>
 						<Checkbox
@@ -295,6 +329,7 @@ export default function UserManagementPage() {
 	>({});
 	const [isCreating, setIsCreating] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 
 	const isSuperAdmin = user?.profile?.role === "superadmin";
 
@@ -443,6 +478,12 @@ export default function UserManagementPage() {
 	const handleCreateUser = async () => {
 		if (!newUserData.username || !newUserData.email || !newUserData.password) {
 			toast.error("Please fill in all required fields");
+			return;
+		}
+
+		// Validate password length
+		if (newUserData.password.length < 8) {
+			toast.error("Password must be at least 8 characters long");
 			return;
 		}
 
@@ -716,10 +757,34 @@ export default function UserManagementPage() {
 							</div>
 
 							<div className='space-y-2'>
-								<Label>Page Permissions</Label>
-								<p className='text-sm text-muted-foreground'>
-									Configure which actions this user can perform on each page
-								</p>
+								<div className='flex items-center justify-between'>
+									<div>
+										<Label>Page Permissions</Label>
+										<p className='text-sm text-muted-foreground'>
+											Configure which actions this user can perform on each page
+										</p>
+									</div>
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() => {
+											const newPermissions: Record<string, string[]> = {};
+											PAGES.forEach(page => {
+												const actions = PAGE_ACTIONS[page.key as keyof typeof PAGE_ACTIONS] || [];
+												newPermissions[page.key] = [...actions];
+												page.children.forEach(child => {
+													const childActions = PAGE_ACTIONS[child.key as keyof typeof PAGE_ACTIONS] || [];
+													newPermissions[child.key] = [...childActions];
+												});
+											});
+											setUserPermissions(newPermissions);
+										}}
+										className="text-xs"
+									>
+										Grant All Permissions
+									</Button>
+								</div>
 								<ScrollArea className='h-[400px] border rounded-md p-4'>
 									<div className='space-y-1'>
 										{PAGES.map((page) => (
@@ -764,6 +829,7 @@ export default function UserManagementPage() {
 					setIsCreateModalOpen(open);
 					if (!open) {
 						setNewUserPermissions({});
+						setShowPassword(false);
 					}
 				}}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
@@ -796,15 +862,40 @@ export default function UserManagementPage() {
 						</div>
 						<div className='space-y-2'>
 							<Label htmlFor='password'>Password *</Label>
-							<Input
-								id='password'
-								type='password'
-								value={newUserData.password}
-								onChange={(e) =>
-									setNewUserData({ ...newUserData, password: e.target.value })
-								}
-								placeholder='Enter password'
-							/>
+							<div className='relative'>
+								<Input
+									id='password'
+									type={showPassword ? 'text' : 'password'}
+									value={newUserData.password}
+									onChange={(e) =>
+										setNewUserData({ ...newUserData, password: e.target.value })
+									}
+									placeholder='Enter password (min 8 characters)'
+									className={`pr-10 ${
+										newUserData.password && newUserData.password.length < 8
+											? 'border-destructive'
+											: ''
+									}`}
+								/>
+								<Button
+									type='button'
+									variant='ghost'
+									size='sm'
+									className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+									onClick={() => setShowPassword(!showPassword)}
+								>
+									{showPassword ? (
+										<EyeOff className='h-4 w-4 text-muted-foreground' />
+									) : (
+										<Eye className='h-4 w-4 text-muted-foreground' />
+									)}
+								</Button>
+							</div>
+							{newUserData.password && newUserData.password.length < 8 && (
+								<p className='text-sm text-destructive'>
+									Password must be at least 8 characters long
+								</p>
+							)}
 						</div>
 						<div className='space-y-2'>
 							<Label htmlFor='fullName'>Full Name</Label>
@@ -836,10 +927,34 @@ export default function UserManagementPage() {
 						</div>
 
 						<div className='space-y-2'>
-							<Label>Page Permissions</Label>
-							<p className='text-sm text-muted-foreground'>
-								Configure which actions this user can perform on each page
-							</p>
+							<div className='flex items-center justify-between'>
+								<div>
+									<Label>Page Permissions</Label>
+									<p className='text-sm text-muted-foreground'>
+										Configure which actions this user can perform on each page
+									</p>
+								</div>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => {
+										const newPermissions: Record<string, string[]> = {};
+										PAGES.forEach(page => {
+											const actions = PAGE_ACTIONS[page.key as keyof typeof PAGE_ACTIONS] || [];
+											newPermissions[page.key] = [...actions];
+											page.children.forEach(child => {
+												const childActions = PAGE_ACTIONS[child.key as keyof typeof PAGE_ACTIONS] || [];
+												newPermissions[child.key] = [...childActions];
+											});
+										});
+										setNewUserPermissions(newPermissions);
+									}}
+									className="text-xs"
+								>
+									Grant All Permissions
+								</Button>
+							</div>
 							<ScrollArea className='h-[300px] border rounded-md p-4'>
 								<div className='space-y-1'>
 									{PAGES.map((page) => (
