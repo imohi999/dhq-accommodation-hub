@@ -240,7 +240,7 @@ docs/                      # Documentation
 ### Core Tables
 
 - **users** - System users and authentication
-- **profiles** - User profiles and roles
+- **profiles** - User profiles and roles  
 - **queue** - Accommodation request queue
 - **dhq_living_units** - Available accommodation units
 - **accommodation_types** - Types of accommodation
@@ -248,13 +248,88 @@ docs/                      # Documentation
 - **past_allocations** - Historical allocation records
 - **stamp_settings** - Digital stamp configurations
 
+### Entity Relationship Diagram
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│     User        │────┤    Profile      │────┤ PagePermission  │
+└─────────────────┘ 1:1 └─────────────────┘ 1:N └─────────────────┘
+        │ 1:N                    
+        ├───────┤ AuthSession    
+        ├───────┤ AuditLog       
+        └───────┤ UserRole       
+
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│     Queue       │────┤AllocationRequest│────┤  DhqLivingUnit  │
+└─────────────────┘ 1:N └─────────────────┘ N:1 └─────────────────┘
+        │                                               │ N:1
+        │ 1:N                                          ┤ AccommodationType
+        ├───────┤ UnitOccupant   ├────────────────────┘
+        ├───────┤ PastAllocation ├────────────────────┘
+        └───────┤ (currentOccupant) 1:1                │ 1:N
+                                                       ├───┤ UnitHistory
+                                                       ├───┤ UnitInventory
+                                                       └───┤ UnitMaintenance
+
+┌─────────────────┐
+│  StampSetting   │ (Standalone - for digital stamps)
+└─────────────────┘
+```
+
 ### Key Relationships
 
-- Users have Profiles (1:1)
-- Queue entries link to Allocation Requests (1:1)
-- Living Units have Accommodation Types (N:1)
-- Allocation Requests link to Units and Queue (N:1)
-- Past Allocations store historical data
+#### Authentication & User Management
+- **User ↔ Profile** (1:1) - Each user has exactly one profile
+- **User → AuthSession** (1:N) - Users can have multiple active sessions
+- **User → AuditLog** (1:N) - All user actions are logged
+- **Profile → PagePermission** (1:N) - Profiles have granular page permissions
+- **User → UserRole** (1:N) - Users can have multiple roles assigned
+
+#### Queue & Personnel Management  
+- **Queue → AllocationRequest** (1:N) - Queue entries can have multiple allocation requests
+- **Queue → UnitOccupant** (1:N) - Queue entries track as unit occupants
+- **Queue → PastAllocation** (1:N) - Historical allocation records
+- **Queue → DhqLivingUnit** (1:1) - Current occupancy relationship
+
+#### Accommodation Units
+- **DhqLivingUnit → AccommodationType** (N:1) - Each unit has a type (1BR, 2BR, etc.)
+- **DhqLivingUnit → UnitOccupant** (1:N) - Units can have multiple occupants over time
+- **DhqLivingUnit → UnitHistory** (1:N) - Complete occupancy history
+- **DhqLivingUnit → UnitInventory** (1:N) - Inventory items in each unit
+- **DhqLivingUnit → UnitMaintenance** (1:N) - Maintenance records
+- **DhqLivingUnit → AllocationRequest** (1:N) - Allocation requests for the unit
+- **DhqLivingUnit → PastAllocation** (1:N) - Past allocations of the unit
+
+#### Allocation Workflow
+- **AllocationRequest → DhqLivingUnit** (N:1) - Each request is for one unit
+- **AllocationRequest → Queue** (N:1) - Each request links to a queue entry
+- **PastAllocation → Queue** (N:1) - Historical link to queue entry
+- **PastAllocation → DhqLivingUnit** (N:1) - Historical link to unit
+
+#### Supporting Tables
+- **StampSetting** - Standalone table for digital stamp configurations
+- **AccommodationType** - Master data for accommodation types
+- **AllocationSequence** - Tracks allocation letter numbering
+
+### Key Constraints & Business Rules
+
+1. **Unique Constraints**
+   - `users.username` and `users.email` must be unique
+   - `queue.svcNo` (service number) must be unique
+   - `queue.sequence` must be unique (auto-incremented)
+   - `allocation_requests.letterId` must be unique
+   - `accommodation_types.name` must be unique
+
+2. **Cascade Deletes**
+   - Deleting a user cascades to profile, sessions, and audit logs
+   - Deleting a unit cascades to its history, inventory, and maintenance records
+   - Deleting a profile cascades to page permissions
+
+3. **Important Fields**
+   - `queue.hasAllocationRequest` - Prevents duplicate allocation requests
+   - `dhq_living_units.status` - Tracks if unit is "Vacant" or "Occupied"
+   - `allocation_requests.status` - Workflow states: "pending", "approved", "refused"
+   - `unit_maintenance.recordType` - Distinguishes between "request" and "task"
 
 ## 🔐 Authentication & Authorization
 
