@@ -49,5 +49,5 @@ jobs:
       - name: Validate .env contents
         run: cat .env
       - name: change directory
-        run: cd /home/leo/runners/dhq-accommodation-hub/_work/dhq-accommodation-hub/dhq-accommodation-hub
+        run: cd /home/runner/runners/dhq-accommodation-hub/_work/dhq-accommodation-hub/dhq-accommodation-hub
       - run: pm2 restart dhq-accommodation-hub
