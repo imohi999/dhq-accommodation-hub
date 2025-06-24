@@ -48,7 +48,95 @@ The DHQ Accommodation Hub is a modern web application designed to manage militar
 
 - Node.js 18+
 - npm or yarn
-- PostgreSQL database
+- PostgreSQL database (see installation options below)
+
+### Important Note: XAMPP/WAMP Compatibility
+
+**This is a Node.js/Next.js application, NOT a PHP application.** XAMPP and WAMP are designed for PHP applications and cannot run Node.js apps directly. However, you can use XAMPP/WAMP alongside this application if you need them for other projects.
+
+### If You Already Have XAMPP/WAMP Installed
+
+You can still run this application! Just follow these steps:
+
+1. **Keep XAMPP/WAMP for your PHP projects** - No need to uninstall
+2. **Install Node.js separately** from [https://nodejs.org/](https://nodejs.org/)
+3. **Install PostgreSQL separately** (XAMPP/WAMP include MySQL, not PostgreSQL)
+4. **Run this application using Node.js** (not through XAMPP/WAMP)
+
+The application will run on `http://localhost:5001` while XAMPP/WAMP typically uses `http://localhost:80` or `http://localhost:8080`, so they won't conflict.
+
+### Quick Comparison
+
+| Feature | XAMPP/WAMP | This Application |
+|---------|------------|------------------|
+| **Runtime** | Apache Web Server | Node.js |
+| **Language** | PHP | JavaScript/TypeScript |
+| **Database** | MySQL/MariaDB | PostgreSQL |
+| **Port** | 80 or 8080 | 5001 |
+| **Start Command** | XAMPP Control Panel | `npm run dev` |
+
+### Database Setup Options
+
+Since this application uses PostgreSQL (not MySQL), you'll need to install PostgreSQL separately even if you have XAMPP/WAMP installed:
+
+#### Option 1: Direct PostgreSQL Installation (Recommended)
+
+1. **Windows**
+   ```bash
+   # Download from https://www.postgresql.org/download/windows/
+   # Run the installer and follow the wizard
+   # Remember the password you set for postgres user
+   ```
+
+2. **macOS**
+   ```bash
+   # Using Homebrew
+   brew install postgresql@15
+   brew services start postgresql@15
+   
+   # Or download from https://postgresapp.com/
+   ```
+
+3. **Linux (Ubuntu/Debian)**
+   ```bash
+   sudo apt update
+   sudo apt install postgresql postgresql-contrib
+   sudo systemctl start postgresql
+   ```
+
+#### Verify PostgreSQL Installation
+
+1. **Open a terminal/command prompt**
+2. **Connect to PostgreSQL**
+   ```bash
+   psql -U postgres
+   # Enter the password you set during installation
+   ```
+
+3. **Create the database**
+   ```sql
+   CREATE DATABASE dhq_accommodation_hub;
+   \q
+   ```
+
+#### Database GUI Tools (Optional)
+
+For easier database management, you can use these GUI tools:
+
+1. **pgAdmin** (Recommended for PostgreSQL)
+   - Download from [https://www.pgadmin.org/](https://www.pgadmin.org/)
+   - Works with all PostgreSQL installations
+   - Web-based interface
+
+2. **DBeaver** (Universal Database Tool)
+   - Download from [https://dbeaver.io/](https://dbeaver.io/)
+   - Supports PostgreSQL and many other databases
+   - Desktop application
+
+3. **phpPgAdmin** (Web-based, works with XAMPP/WAMP)
+   - Can be integrated with XAMPP/WAMP
+   - Access via web browser
+   - Similar to phpMyAdmin but for PostgreSQL
 
 ### Installation
 
@@ -75,7 +163,11 @@ The DHQ Accommodation Hub is a modern web application designed to manage militar
 
    ```env
    # Database
-   DATABASE_URL="postgresql://username:password@localhost:5432/dhq_accommodation_hub"
+   # For PostgreSQL (default installation)
+   DATABASE_URL="postgresql://postgres:your_password@localhost:5432/dhq_accommodation_hub"
+   
+   # If using XAMPP/WAMP with PostgreSQL on different port
+   # DATABASE_URL="postgresql://postgres:your_password@localhost:5433/dhq_accommodation_hub"
 
    # NextAuth.js
    NEXTAUTH_URL="http://localhost:5001"
@@ -84,6 +176,8 @@ The DHQ Accommodation Hub is a modern web application designed to manage militar
    # Application
    NEXT_PUBLIC_APP_URL="http://localhost:5001"
    ```
+
+   **Note**: Replace `your_password` with the password you set during PostgreSQL installation.
 
 4. **Set up the database**
 
@@ -345,6 +439,43 @@ The build process automatically:
 ### Database Configuration
 
 The application uses PostgreSQL with Prisma ORM. Connection pooling is recommended for production deployments.
+
+## 🔧 Troubleshooting
+
+### Common XAMPP/WAMP Issues
+
+1. **Port Conflicts**
+   - If PostgreSQL fails to start, check if port 5432 is already in use
+   - Change the port in `postgresql.conf` if needed
+   - Update your `DATABASE_URL` accordingly
+
+2. **PostgreSQL Service Not Starting (Windows)**
+   ```bash
+   # Open Command Prompt as Administrator
+   net start postgresql-x64-15  # Replace 15 with your version
+   ```
+
+3. **Access Denied Errors**
+   - Ensure the postgres user password is correct
+   - Check `pg_hba.conf` for authentication settings
+   - Default location: `C:\Program Files\PostgreSQL\15\data\pg_hba.conf`
+
+4. **Database Connection Issues**
+   ```bash
+   # Test connection
+   psql -U postgres -h localhost -p 5432 -d dhq_accommodation_hub
+   
+   # If connection fails, check:
+   # 1. PostgreSQL service is running
+   # 2. Firewall is not blocking port 5432
+   # 3. Database exists and credentials are correct
+   ```
+
+5. **XAMPP/WAMP Confusion**
+   - XAMPP/WAMP are for PHP applications (Apache + MySQL + PHP)
+   - This is a Node.js/Next.js application - it runs on Node.js, not Apache
+   - XAMPP/WAMP include MySQL/MariaDB, but this project requires PostgreSQL
+   - You cannot run this application through XAMPP/WAMP's Apache server
 
 ## 📖 Additional Documentation
 
