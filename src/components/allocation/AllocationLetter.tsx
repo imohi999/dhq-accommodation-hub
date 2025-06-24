@@ -357,7 +357,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Body */}
-					<div className='space-y-4 mb-8 mr-20 text-justify'>
+					<div className='space-y-4 mb-8 text-justify'>
 						<p>
 							1.&nbsp;&nbsp;&nbsp;&nbsp; I am directed to inform you that you
 							have been allocated{" "}

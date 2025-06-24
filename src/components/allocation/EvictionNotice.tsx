@@ -372,7 +372,7 @@ export const EvictionNotice = ({
 					</div>
 
 					{/* Body */}
-					<div className='notice-body mb-8 mr-16'>
+					<div className='notice-body mb-8'>
 						<p className='uppercase text-justify '>
 							THE OCCUPANT OF ABOVE FLAT IS HEREBY REQUESTED TO VACATE THIS
 							TRANSIT ACCN NLT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{evictionDateFormatted} TO ENABLE THE NEW
