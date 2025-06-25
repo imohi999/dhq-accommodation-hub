@@ -16,6 +16,8 @@ import { AllocationLetter } from "@/components/allocation/AllocationLetter";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
 import { toast } from "react-toastify";
 import { KeyedMutator } from "swr";
+import { AllocationFilters } from "./AllocationFilters";
+import { useAllocationFilters } from "@/hooks/useAllocationFilters";
 
 interface PendingApprovalViewProps {
 	requests: APIAllocationRequest[];
@@ -166,14 +168,6 @@ export const PendingApprovalView = ({
 		});
 	};
 
-	// Summary cards
-	const totalPending = requests.length;
-	const officerRequests = requests.filter(
-		(r) => r.personnelData?.category === "Officer"
-	).length;
-	const menRequests = requests.filter(
-		(r) => r.personnelData?.category === "NCOs"
-	).length;
 	// Extract service from service number prefix
 	const getServiceFromSvcNo = (svcNo: string) => {
 		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
@@ -182,18 +176,81 @@ export const PendingApprovalView = ({
 		return "Unknown";
 	};
 
-	const armyRequests = requests.filter(
+	// Use allocation filters
+	const {
+		searchTerm,
+		setSearchTerm,
+		categoryFilter,
+		setCategoryFilter,
+		armOfServiceFilter,
+		setArmOfServiceFilter,
+		quarterFilter,
+		setQuarterFilter,
+		unitTypeFilter,
+		setUnitTypeFilter,
+		filteredItems,
+		availableQuarters,
+		availableUnitTypes,
+	} = useAllocationFilters(
+		requests,
+		(item) => [
+			item.personnelData?.fullName || "",
+			item.personnelData?.svcNo || "",
+			item.personnelData?.rank || "",
+			item.unitData?.quarterName || "",
+			item.unitData?.flatHouseRoomName || "",
+			item.letterId || "",
+		],
+		(item) => getServiceFromSvcNo(item.personnelData?.svcNo || ""),
+		(item) => item.personnelData?.category || "",
+		(item) => item.unitData?.quarterName || "",
+		(item) => item.unitData?.accommodationType || ""
+	);
+
+	// Summary cards based on filtered items
+	const totalPending = filteredItems.length;
+	const officerRequests = filteredItems.filter(
+		(r) => r.personnelData?.category === "Officer"
+	).length;
+	const menRequests = filteredItems.filter(
+		(r) => r.personnelData?.category === "NCOs"
+	).length;
+
+	const armyRequests = filteredItems.filter(
 		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Army"
 	).length;
-	const navyRequests = requests.filter(
+	const navyRequests = filteredItems.filter(
 		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Navy"
 	).length;
-	const airForceRequests = requests.filter(
+	const airForceRequests = filteredItems.filter(
 		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Air Force"
 	).length;
 
 	return (
 		<div className='space-y-6'>
+			{/* Filters */}
+			<AllocationFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				armOfServiceFilter={armOfServiceFilter}
+				onArmOfServiceChange={setArmOfServiceFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				unitTypeFilter={unitTypeFilter}
+				onUnitTypeChange={setUnitTypeFilter}
+				availableQuarters={availableQuarters}
+				availableUnitTypes={availableUnitTypes}
+			/>
+
+			{/* Show count info */}
+			<div className='flex justify-between items-center'>
+				<p className='text-sm text-muted-foreground'>
+					Showing {filteredItems.length} of {requests.length} pending requests
+				</p>
+			</div>
+
 			{/* Summary Cards */}
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 				<Card>
@@ -221,7 +278,7 @@ export const PendingApprovalView = ({
 						<p className='text-xs text-muted-foreground'>
 							Officers:{" "}
 							{
-								requests.filter(
+								filteredItems.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) ===
 											"Nigerian Army" && r.personnelData.category === "Officer"
@@ -229,7 +286,7 @@ export const PendingApprovalView = ({
 							}{" "}
 							| NCOs:{" "}
 							{
-								requests.filter(
+								filteredItems.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) ===
 											"Nigerian Army" && r.personnelData.category === "NCOs"
@@ -249,7 +306,7 @@ export const PendingApprovalView = ({
 						<p className='text-xs text-muted-foreground'>
 							Officers:{" "}
 							{
-								requests.filter(
+								filteredItems.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) ===
 											"Nigerian Navy" && r.personnelData.category === "Officer"
@@ -257,7 +314,7 @@ export const PendingApprovalView = ({
 							}{" "}
 							| NCOs:{" "}
 							{
-								requests.filter(
+								filteredItems.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) ===
 											"Nigerian Navy" && r.personnelData.category === "NCOs"
@@ -279,7 +336,7 @@ export const PendingApprovalView = ({
 						<p className='text-xs text-muted-foreground'>
 							Officers:{" "}
 							{
-								requests.filter(
+								filteredItems.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) ===
 											"Nigerian Air Force" &&
@@ -288,7 +345,7 @@ export const PendingApprovalView = ({
 							}{" "}
 							| NCOs:{" "}
 							{
-								requests.filter(
+								filteredItems.filter(
 									(r) =>
 										getServiceFromSvcNo(r.personnelData?.svcNo) ===
 											"Nigerian Air Force" &&
@@ -301,17 +358,19 @@ export const PendingApprovalView = ({
 			</div>
 
 			{/* Pending Requests Cards */}
-			{requests.length === 0 ? (
+			{filteredItems.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
 						<p className='text-muted-foreground'>
-							No pending allocation requests
+							{searchTerm || categoryFilter !== "all" || armOfServiceFilter !== "all" || quarterFilter !== "all" || unitTypeFilter !== "all"
+								? "No pending requests match your filters"
+								: "No pending allocation requests"}
 						</p>
 					</CardContent>
 				</Card>
 			) : (
 				<div className='space-y-4'>
-					{requests.map((request, index) => (
+					{filteredItems.map((request, index) => (
 						<Card
 							key={request.id}
 							className='hover:shadow-md transition-shadow'>

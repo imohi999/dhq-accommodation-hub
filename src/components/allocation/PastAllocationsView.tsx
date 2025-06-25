@@ -7,6 +7,8 @@ import { Clock, User, Home, ClipboardCheck, FileText } from "lucide-react";
 import useSWR from "swr";
 import { InspectionModal } from "./InspectionModal";
 import { ClearanceLetter } from "./ClearanceLetter";
+import { AllocationFilters } from "./AllocationFilters";
+import { useAllocationFilters } from "@/hooks/useAllocationFilters";
 
 interface PersonnelData {
 	fullName?: string;
@@ -118,6 +120,58 @@ export const PastAllocationsView = () => {
 		setIsInspectionModalOpen(false);
 	};
 
+	// Extract service from service number prefix
+	const getServiceFromSvcNo = (svcNo: string) => {
+		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
+		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
+		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
+		return "Unknown";
+	};
+
+	// Use allocation filters
+	const {
+		searchTerm,
+		setSearchTerm,
+		categoryFilter,
+		setCategoryFilter,
+		armOfServiceFilter,
+		setArmOfServiceFilter,
+		quarterFilter,
+		setQuarterFilter,
+		unitTypeFilter,
+		setUnitTypeFilter,
+		filteredItems,
+		availableQuarters,
+		availableUnitTypes,
+	} = useAllocationFilters(
+		pastAllocations,
+		(item) => [
+			item.personnelData?.fullName || item.personnelData?.full_name || "",
+			item.personnelData?.serviceNumber ||
+				item.personnelData?.svc_no ||
+				item.personnelData?.svcNo ||
+				"",
+			item.personnelData?.rank || "",
+			item.unitData?.quarterName || item.unitData?.quarter_name || "",
+			item.unitData?.unitName || "",
+			item.unitData?.flatHouseRoomName || item.unitData?.flat_house_room_name || "",
+			item.letterId || "",
+		],
+		(item) =>
+			getServiceFromSvcNo(
+				item.personnelData?.serviceNumber ||
+					item.personnelData?.svc_no ||
+					item.personnelData?.svcNo ||
+					""
+			),
+		(item) => item.personnelData?.category || "",
+		(item) => item.unitData?.quarterName || item.unitData?.quarter_name || "",
+		(item) =>
+			item.unitData?.flatHouseRoomName?.includes("BR")
+				? item.unitData.flatHouseRoomName
+				: "Other"
+	);
+
 	if (error) {
 		return (
 			<div className='flex justify-center p-8'>
@@ -136,25 +190,17 @@ export const PastAllocationsView = () => {
 		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
-	// Extract service from service number prefix
-	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
-		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
-		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
-		return "Unknown";
-	};
-
-	// Calculate summary statistics
-	const totalPastAllocations = pastAllocations.length;
-	const officerAllocations = pastAllocations.filter(
+	// Calculate summary statistics based on filtered items
+	const totalPastAllocations = filteredItems.length;
+	const officerAllocations = filteredItems.filter(
 		(allocation) => allocation.personnelData?.category === "Officer"
 	).length;
-	const ncoAllocations = pastAllocations.filter(
+	const ncoAllocations = filteredItems.filter(
 		(allocation) => allocation.personnelData?.category === "NCOs"
 	).length;
 
 	// Calculate by service
-	const armyAllocations = pastAllocations.filter(
+	const armyAllocations = filteredItems.filter(
 		(allocation) =>
 			getServiceFromSvcNo(
 				allocation.personnelData?.serviceNumber ||
@@ -163,7 +209,7 @@ export const PastAllocationsView = () => {
 					""
 			) === "Nigerian Army"
 	);
-	const navyAllocations = pastAllocations.filter(
+	const navyAllocations = filteredItems.filter(
 		(allocation) =>
 			getServiceFromSvcNo(
 				allocation.personnelData?.serviceNumber ||
@@ -172,7 +218,7 @@ export const PastAllocationsView = () => {
 					""
 			) === "Nigerian Navy"
 	);
-	const airForceAllocations = pastAllocations.filter(
+	const airForceAllocations = filteredItems.filter(
 		(allocation) =>
 			getServiceFromSvcNo(
 				allocation.personnelData?.serviceNumber ||
@@ -203,6 +249,29 @@ export const PastAllocationsView = () => {
 
 	return (
 		<div className='space-y-6'>
+			{/* Filters */}
+			<AllocationFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				armOfServiceFilter={armOfServiceFilter}
+				onArmOfServiceChange={setArmOfServiceFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				unitTypeFilter={unitTypeFilter}
+				onUnitTypeChange={setUnitTypeFilter}
+				availableQuarters={availableQuarters}
+				availableUnitTypes={availableUnitTypes}
+			/>
+
+			{/* Show count info */}
+			<div className='flex justify-between items-center'>
+				<p className='text-sm text-muted-foreground'>
+					Showing {filteredItems.length} of {pastAllocations.length} past allocations
+				</p>
+			</div>
+
 			{/* Summary Cards */}
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 				<Card>
@@ -264,15 +333,19 @@ export const PastAllocationsView = () => {
 				</Card>
 			</div>
 
-			{pastAllocations.length === 0 ? (
+			{filteredItems.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
-						<p className='text-muted-foreground'>No past allocations found</p>
+						<p className='text-muted-foreground'>
+							{searchTerm || categoryFilter !== "all" || armOfServiceFilter !== "all" || quarterFilter !== "all" || unitTypeFilter !== "all"
+								? "No past allocations match your filters"
+								: "No past allocations found"}
+						</p>
 					</CardContent>
 				</Card>
 			) : (
 				<div className='space-y-4'>
-					{pastAllocations.map((allocation) => (
+					{filteredItems.map((allocation) => (
 						<Card
 							key={allocation.id}
 							className='hover:shadow-md transition-shadow'>

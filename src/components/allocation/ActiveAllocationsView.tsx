@@ -28,6 +28,8 @@ import { TransferRequestModal } from "./TransferRequestModal";
 import { toast } from "react-toastify";
 import { useOccupiedUnits } from "@/services/occupiedUnitsApi";
 import { usePermissions } from "@/hooks/usePermissions";
+import { AllocationFilters } from "./AllocationFilters";
+import { useAllocationFilters } from "@/hooks/useAllocationFilters";
 
 interface ActiveAllocationsViewProps {
 	occupiedUnits: DHQLivingUnitWithHousingType[];
@@ -289,27 +291,59 @@ export const ActiveAllocationsView = ({
 		return "Unknown";
 	};
 
-	// Calculate summary statistics
-	const totalActiveAllocations = occupiedUnits.length;
-	const officerAllocations = occupiedUnits.filter(
+	// Use allocation filters
+	const {
+		searchTerm,
+		setSearchTerm,
+		categoryFilter,
+		setCategoryFilter,
+		armOfServiceFilter,
+		setArmOfServiceFilter,
+		quarterFilter,
+		setQuarterFilter,
+		unitTypeFilter,
+		setUnitTypeFilter,
+		filteredItems,
+		availableQuarters,
+		availableUnitTypes,
+	} = useAllocationFilters(
+		occupiedUnits,
+		(item) => [
+			item.currentOccupantName || "",
+			item.currentOccupantServiceNumber || "",
+			item.currentOccupantRank || "",
+			item.quarterName || "",
+			item.flatHouseRoomName || "",
+			item.blockName || "",
+			item.location || "",
+		],
+		(item) => getServiceFromSvcNo(item.currentOccupantServiceNumber || ""),
+		(item) => item.category || "",
+		(item) => item.quarterName || "",
+		(item) => item.accommodationType?.name || item.category || ""
+	);
+
+	// Calculate summary statistics based on filtered items
+	const totalActiveAllocations = filteredItems.length;
+	const officerAllocations = filteredItems.filter(
 		(unit) => unit.category === "Officer"
 	).length;
-	const ncoAllocations = occupiedUnits.filter(
+	const ncoAllocations = filteredItems.filter(
 		(unit) => unit.category === "NCOs"
 	).length;
 
 	// Calculate by service
-	const armyAllocations = occupiedUnits.filter(
+	const armyAllocations = filteredItems.filter(
 		(unit) =>
 			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
 			"Nigerian Army"
 	);
-	const navyAllocations = occupiedUnits.filter(
+	const navyAllocations = filteredItems.filter(
 		(unit) =>
 			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
 			"Nigerian Navy"
 	);
-	const airForceAllocations = occupiedUnits.filter(
+	const airForceAllocations = filteredItems.filter(
 		(unit) =>
 			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
 			"Nigerian Air Force"
@@ -352,6 +386,29 @@ export const ActiveAllocationsView = ({
 					<RefreshCw className='h-4 w-4' />
 					Refresh Data
 				</Button>
+			</div>
+
+			{/* Filters */}
+			<AllocationFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				armOfServiceFilter={armOfServiceFilter}
+				onArmOfServiceChange={setArmOfServiceFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				unitTypeFilter={unitTypeFilter}
+				onUnitTypeChange={setUnitTypeFilter}
+				availableQuarters={availableQuarters}
+				availableUnitTypes={availableUnitTypes}
+			/>
+
+			{/* Show count info */}
+			<div className='flex justify-between items-center'>
+				<p className='text-sm text-muted-foreground'>
+					Showing {filteredItems.length} of {occupiedUnits.length} active allocations
+				</p>
 			</div>
 
 			{/* Summary Cards */}
@@ -414,15 +471,19 @@ export const ActiveAllocationsView = ({
 					</CardContent>
 				</Card>
 			</div>
-			{occupiedUnits.length === 0 ? (
+			{filteredItems.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
-						<p className='text-muted-foreground'>No active allocations</p>
+						<p className='text-muted-foreground'>
+							{searchTerm || categoryFilter !== "all" || armOfServiceFilter !== "all" || quarterFilter !== "all" || unitTypeFilter !== "all"
+								? "No active allocations match your filters"
+								: "No active allocations"}
+						</p>
 					</CardContent>
 				</Card>
 			) : (
 				<div className='space-y-4'>
-					{occupiedUnits.map((unit) => (
+					{filteredItems.map((unit) => (
 						<Card key={unit.id} className='hover:shadow-md transition-shadow'>
 							<CardContent className='p-4'>
 								{/* Header Section - Compact */}
