@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LoadingButton } from "@/components/ui/loading-button";
 import { LoadingState } from "@/components/ui/spinner";
 import { Plus, Upload } from "lucide-react";
 import { toast } from "react-toastify";
@@ -13,8 +12,11 @@ import { AccommodationCardView } from "@/components/accommodation/AccommodationC
 import { AccommodationTableView } from "@/components/accommodation/AccommodationTableView";
 import { ImportModal } from "@/components/accommodation/ImportModal";
 import { AccommodationFormModal } from "@/components/accommodation/AccommodationFormModal";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 import { useAccommodationData } from "@/hooks/useAccommodationData";
 import { useAccommodationFilters } from "@/hooks/useAccommodationFilters";
+import { useAccommodationSummary } from "@/hooks/useAccommodationSummary";
+import { useFilterOptions } from "@/hooks/useFilterOptions";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { usePermissions } from "@/hooks/usePermissions";
 // Removed Supabase import - using API instead
@@ -32,7 +34,6 @@ export default function DHQLivingUnits() {
 		canInventory,
 	} = usePermissions();
 
-	const { units, housingTypes, loading, refetch } = useAccommodationData();
 	const [viewMode, setViewMode] = useState<"card" | "compact" | "table">(
 		"card"
 	);
@@ -42,29 +43,18 @@ export default function DHQLivingUnits() {
 		useState<DHQLivingUnitWithHousingType | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
-	const {
-		searchTerm,
-		setSearchTerm,
-		quarterNameFilter,
-		setQuarterNameFilter,
-		locationFilter,
-		setLocationFilter,
-		categoryFilter,
-		setCategoryFilter,
-		housingTypeFilter,
-		setHousingTypeFilter,
-		statusFilter,
-		setStatusFilter,
-		occupancyFilter,
-		setOccupancyFilter,
-		blockNameFilter,
-		setBlockNameFilter,
-		flatHouseRoomFilter,
-		setFlatHouseRoomFilter,
-		unitNameFilter,
-		setUnitNameFilter,
-		filteredUnits,
-	} = useAccommodationFilters(units);
+	// Get filters and pagination from the hook
+	const filters = useAccommodationFilters();
+	const apiFilters = filters.getApiFilters();
+	
+	// Fetch data with server-side filtering
+	const { units, housingTypes, loading, refetch, pagination } = useAccommodationData(apiFilters);
+	
+	// Fetch summary data separately
+	const { summary, loading: summaryLoading } = useAccommodationSummary();
+	
+	// Fetch filter options
+	const { filterOptions, loading: filterOptionsLoading } = useFilterOptions();
 
 	const handleAdd = () => {
 		setEditingUnit(null);
@@ -117,7 +107,7 @@ export default function DHQLivingUnits() {
 	}
 
 	return (
-		<div className='space-y-6'>
+		<div className='space-y-4'>
 			<div className='flex justify-between items-center'>
 				<div>
 					<h1 className='text-2xl font-bold text-[#1B365D] dark:text-foreground'>
@@ -146,30 +136,30 @@ export default function DHQLivingUnits() {
 				</div>
 			</div>
 
-			<AccommodationSummaryCards units={filteredUnits} />
+			<AccommodationSummaryCards summary={summary} loading={summaryLoading} />
 
 			<AccommodationFilters
-				searchTerm={searchTerm}
-				onSearchChange={setSearchTerm}
-				quarterNameFilter={quarterNameFilter}
-				onQuarterNameChange={setQuarterNameFilter}
-				locationFilter={locationFilter}
-				onLocationChange={setLocationFilter}
-				categoryFilter={categoryFilter}
-				onCategoryChange={setCategoryFilter}
-				housingTypeFilter={housingTypeFilter}
-				onHousingTypeChange={setHousingTypeFilter}
-				statusFilter={statusFilter}
-				onStatusChange={setStatusFilter}
-				occupancyFilter={occupancyFilter}
-				onOccupancyChange={setOccupancyFilter}
-				blockNameFilter={blockNameFilter}
-				onBlockNameChange={setBlockNameFilter}
-				flatHouseRoomFilter={flatHouseRoomFilter}
-				onFlatHouseRoomChange={setFlatHouseRoomFilter}
-				unitNameFilter={unitNameFilter}
-				onUnitNameChange={setUnitNameFilter}
-				units={units}
+				searchTerm={filters.searchTerm}
+				onSearchChange={filters.setSearchTerm}
+				quarterNameFilter={filters.quarterNameFilter}
+				onQuarterNameChange={filters.setQuarterNameFilter}
+				locationFilter={filters.locationFilter}
+				onLocationChange={filters.setLocationFilter}
+				categoryFilter={filters.categoryFilter}
+				onCategoryChange={filters.setCategoryFilter}
+				housingTypeFilter={filters.housingTypeFilter}
+				onHousingTypeChange={filters.setHousingTypeFilter}
+				statusFilter={filters.statusFilter}
+				onStatusChange={filters.setStatusFilter}
+				occupancyFilter={filters.occupancyFilter}
+				onOccupancyChange={filters.setOccupancyFilter}
+				blockNameFilter={filters.blockNameFilter}
+				onBlockNameChange={filters.setBlockNameFilter}
+				flatHouseRoomFilter={filters.flatHouseRoomFilter}
+				onFlatHouseRoomChange={filters.setFlatHouseRoomFilter}
+				unitNameFilter={filters.unitNameFilter}
+				onUnitNameChange={filters.setUnitNameFilter}
+				filterOptions={filterOptions}
 				housingTypes={housingTypes}
 			/>
 
@@ -179,13 +169,13 @@ export default function DHQLivingUnits() {
 					onViewChange={setViewMode}
 				/>
 				<p className='text-sm text-muted-foreground'>
-					Showing {filteredUnits.length} of {units.length} quarters
+					Showing {units.length} of {pagination?.totalCount || 0} quarters
 				</p>
 			</div>
 
 			{viewMode === "table" ? (
 				<AccommodationTableView
-					units={filteredUnits}
+					units={units}
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					deleteLoading={deleteLoading}
@@ -195,7 +185,7 @@ export default function DHQLivingUnits() {
 				/>
 			) : (
 				<AccommodationCardView
-					units={filteredUnits}
+					units={units}
 					viewMode={viewMode}
 					onEdit={handleEdit}
 					onDelete={handleDelete}
@@ -206,6 +196,22 @@ export default function DHQLivingUnits() {
 					canMaintenanceRequest={canMaintenanceRequest()}
 					canInventory={canInventory()}
 				/>
+			)}
+
+			{/* Pagination Controls */}
+			{pagination && pagination.totalCount > 0 && (
+				<div className="mt-4">
+					<PaginationControls
+						page={pagination.page}
+						pageSize={pagination.pageSize}
+						totalCount={pagination.totalCount}
+						totalPages={pagination.totalPages}
+						hasNextPage={pagination.hasNextPage}
+						hasPreviousPage={pagination.hasPreviousPage}
+						onPageChange={filters.setPage}
+						onPageSizeChange={filters.setPageSize}
+					/>
+				</div>
 			)}
 
 			<ImportModal
