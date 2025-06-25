@@ -312,59 +312,81 @@ export const PendingApprovalView = ({
 			) : (
 				<div className='space-y-4'>
 					{requests.map((request, index) => (
-						<Card key={request.id} className='hover:shadow-md transition-shadow'>
-							<CardContent className='p-6'>
-								<div className='flex items-start justify-between'>
-									<div className='space-y-3 flex-1'>
-										{/* Header Section */}
-										<div className='flex items-start justify-between'>
-											<div>
-												<h3 className='text-lg font-semibold'>
-													{request.personnelData?.rank} {request.personnelData.fullName}
-												</h3>
-												<p className='text-sm text-muted-foreground'>
-													Svc No: {request.personnelData?.svcNo}
-												</p>
-												<p className='text-sm text-muted-foreground'>
-													Request #{index + 1} • Letter: {request.letterId}
-												</p>
-											</div>
-											<div className='flex items-center gap-2'>
-												<Badge variant='outline' className='bg-yellow-50 text-yellow-700 border-yellow-200'>
-													Pending Review
-												</Badge>
-											</div>
+						<Card
+							key={request.id}
+							className='hover:shadow-md transition-shadow'>
+							<CardContent className='p-4'>
+								{/* Header Section - Compact */}
+								<div className='flex items-center justify-between mb-3'>
+									<div className='flex items-center gap-3'>
+										<div className='flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-full text-sm font-semibold text-yellow-700'>
+											#{index + 1}
 										</div>
-
-										{/* Content Section */}
-										<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
-											<div>
-												<p className='font-medium'>Personnel Details:</p>
-												<p>Service: {getServiceFromSvcNo(request.personnelData?.svcNo)}</p>
-												<p>Category: {request.personnelData?.category}</p>
-												<p>Unit: {request.personnelData?.currentUnit}</p>
-												<p>Submitted: {new Date(request.createdAt).toLocaleDateString()}</p>
-											</div>
-											<div>
-												<p className='font-medium'>Requested Accommodation:</p>
-												<p>Type: {request.unitData?.accommodationType}</p>
-												<p>Rooms: {request.unitData?.noOfRooms}</p>
-												<p>Unit: {request.unitData?.flatHouseRoomName}</p>
-												<p>Quarter: {request.unitData?.quarterName}</p>
-											</div>
+										<div>
+											<h3 className='text-base font-semibold leading-tight'>
+												{request.personnelData?.rank}{" "}
+												{request.personnelData.fullName}
+											</h3>
+											<p className='text-xs text-muted-foreground'>
+												{request.personnelData?.svcNo} •{" "}
+												{getServiceFromSvcNo(request.personnelData?.svcNo)}
+											</p>
 										</div>
 									</div>
+								</div>
 
-									{/* Action Section */}
+								{/* Content Section - Optimized Grid */}
+								<div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3'>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Category
+										</p>
+										<p className='font-medium'>
+											{request.personnelData?.category}
+										</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Unit Type
+										</p>
+										<p className='font-medium'>
+											{request.unitData?.accommodationType}
+										</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>Rooms</p>
+										<p className='font-medium'>{request.unitData?.noOfRooms}</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Submitted
+										</p>
+										<p className='font-medium'>
+											{new Date(request.createdAt).toLocaleDateString()}
+										</p>
+									</div>
+								</div>
+
+								{/* Additional Info and Actions */}
+								<div className='flex items-center justify-between'>
+									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
+										<span>Unit: {request.unitData?.flatHouseRoomName}</span>
+										<span>•</span>
+										<span>Quarter: {request.unitData?.quarterName}</span>
+										<span>•</span>
+										<span>Letter: {request.letterId}</span>
+									</div>
+
+									{/* Action Buttons - Compact */}
 									<div className='flex items-center gap-2'>
 										{canViewLetter && (
 											<Button
 												variant='outline'
 												size='sm'
 												onClick={() => setSelectedRequest(request)}
-												className='flex items-center gap-2'>
-												<FileText className='h-4 w-4' />
-												View Letter
+												className='text-xs px-3 py-1 h-auto'>
+												<FileText className='h-3 w-3 mr-1' />
+												Allocation Letter
 											</Button>
 										)}
 
@@ -375,9 +397,9 @@ export const PendingApprovalView = ({
 												onClick={() => handleApproveClick(request)}
 												loading={loadingStates[`approve_${request.id}`]}
 												loadingText='Approving...'
-												className='flex items-center gap-2 bg-green-600 hover:bg-green-700'>
-												<CheckCircle className='h-4 w-4' />
-												Approval
+												className='text-xs px-3 py-1 h-auto bg-green-600 hover:bg-green-700'>
+												<CheckCircle className='h-3 w-3 mr-1' />
+												Approve
 											</LoadingButton>
 										)}
 
@@ -388,9 +410,9 @@ export const PendingApprovalView = ({
 												onClick={() => handleRefuseClick(request)}
 												loading={loadingStates[`refuse_${request.id}`]}
 												loadingText='Refusing...'
-												className='flex items-center gap-2'>
-												<XCircle className='h-4 w-4' />
-												Not Approved
+												className='text-xs px-3 py-1 h-auto'>
+												<XCircle className='h-3 w-3 mr-1' />
+												Refuse
 											</LoadingButton>
 										)}
 									</div>

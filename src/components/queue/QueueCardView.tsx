@@ -3,14 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QueueItem } from "@/types/queue";
-import {
-	Calendar,
-	Phone,
-	Users,
-	MapPin,
-	ChevronDown,
-	ChevronUp,
-} from "lucide-react";
+import { Phone, Users, ChevronDown, ChevronUp } from "lucide-react";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -51,71 +44,98 @@ export const QueueCardView = ({
 			{queueItems.map((item, index) => (
 				<Collapsible key={item.id} open={expandedCards.has(item.id)}>
 					<Card className='hover:shadow-md transition-shadow'>
-						<CardContent className='p-6'>
-							<div className='flex items-start justify-between'>
-								<div className='space-y-3 flex-1'>
-									{/* Header Section */}
-									<div className='flex items-start justify-between'>
-										<div>
-											<h3 className='text-lg font-semibold'>
-												{item.rank} {item.full_name}
-											</h3>
-											<p className='text-sm text-muted-foreground'>
-												Svc No: {item.svc_no}
-											</p>
-											<p className='text-sm text-muted-foreground'>
-												Queue Position: #{index + 1}
-											</p>
-										</div>
-										<div className='flex items-center gap-2'>
-											<Badge variant='outline' className='bg-blue-50 text-blue-700 border-blue-200'>
-												In Queue
-											</Badge>
-										</div>
+						<CardContent className='p-4'>
+							{/* Header Section - Compact */}
+							<div className='flex items-center justify-between mb-3'>
+								<div className='flex items-center gap-3'>
+									<div className='flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full text-sm font-semibold text-blue-700'>
+										#{index + 1}
 									</div>
-
-									{/* Content Section */}
-									<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
-										<div>
-											<p className='font-medium'>Personnel Details:</p>
-											<p>{item.arm_of_service} • {item.category}</p>
-											<p>{item.gender} • {item.marital_status}</p>
-											<p>Unit: {item.current_unit || "No Unit"}</p>
-											<p>Appointment: {item.appointment || "No Appointment"}</p>
-											{item.phone && <p>Phone: {item.phone}</p>}
-										</div>
-										<div>
-											<p className='font-medium'>Queue Information:</p>
-											<div className='flex items-center gap-2'>
-												<Users className='h-4 w-4' />
-												<span>Adults: {item.no_of_adult_dependents}, Children: {item.no_of_child_dependents}</span>
-											</div>
-											<p>Entry Date: {new Date(item.entry_date_time).toLocaleDateString()}</p>
-											{item.date_tos && <p>TOS: {new Date(item.date_tos).toLocaleDateString()}</p>}
-											{item.date_sos && <p>SOS: {new Date(item.date_sos).toLocaleDateString()}</p>}
-											{item.dependents && item.dependents.length > 0 && (
-												<CollapsibleTrigger asChild>
-													<Button variant='ghost' size='sm' onClick={() => toggleCard(item.id)} className='text-xs p-0 h-auto'>
-														{expandedCards.has(item.id) ? (
-															<><ChevronUp className='h-3 w-3 mr-1' />Hide Dependents</>
-														) : (
-															<><ChevronDown className='h-3 w-3 mr-1' />View Dependents</>
-														)}
-													</Button>
-												</CollapsibleTrigger>
-											)}
-										</div>
+									<div>
+										<h3 className='text-base font-semibold leading-tight'>
+											{item.rank} {item.full_name}
+										</h3>
+										<p className='text-xs text-muted-foreground'>
+											{item.svc_no} • {item.arm_of_service}
+										</p>
 									</div>
 								</div>
+							</div>
 
-								{/* Action Section */}
+							{/* Content Section - Optimized Grid */}
+							<div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3'>
+								<div className='space-y-1'>
+									<p className='font-medium text-muted-foreground'>Category</p>
+									<p className='font-medium'>{item.category}</p>
+								</div>
+								<div className='space-y-1'>
+									<p className='font-medium text-muted-foreground'>Status</p>
+									<p className='font-medium'>{item.marital_status}</p>
+								</div>
+								<div className='space-y-1'>
+									<p className='font-medium text-muted-foreground'>
+										Dependents
+									</p>
+									<div className='flex items-center gap-1'>
+										<Users className='h-3 w-3' />
+										<span className='font-medium'>
+											{item.no_of_adult_dependents +
+												item.no_of_child_dependents}
+										</span>
+									</div>
+								</div>
+								<div className='space-y-1'>
+									<p className='font-medium text-muted-foreground'>
+										Entry Date
+									</p>
+									<p className='font-medium'>
+										{new Date(item.entry_date_time).toLocaleDateString()}
+									</p>
+								</div>
+							</div>
+
+							{/* Additional Info - Collapsed */}
+							<div className='flex items-center justify-between'>
+								<div className='flex items-center gap-2 text-xs text-muted-foreground'>
+									<span>Unit: {item.current_unit || "Unassigned"}</span>
+									{item.phone && (
+										<>
+											<span>•</span>
+											<Phone className='h-3 w-3' />
+											<span>{item.phone}</span>
+										</>
+									)}
+									{item.dependents && item.dependents.length > 0 && (
+										<CollapsibleTrigger asChild>
+											<Button
+												variant='ghost'
+												size='sm'
+												onClick={() => toggleCard(item.id)}
+												className='text-xs p-0 h-auto ml-2'>
+												{expandedCards.has(item.id) ? (
+													<>
+														<ChevronUp className='h-3 w-3 mr-1' />
+														Hide Details
+													</>
+												) : (
+													<>
+														<ChevronDown className='h-3 w-3 mr-1' />
+														View Details
+													</>
+												)}
+											</Button>
+										</CollapsibleTrigger>
+									)}
+								</div>
+
+								{/* Action Buttons - Compact */}
 								<div className='flex items-center gap-2'>
 									{canEdit && (
 										<Button
 											variant='outline'
 											size='sm'
 											onClick={() => onEdit(item)}
-											className='flex items-center gap-2'>
+											className='text-xs px-3 py-1 h-auto'>
 											Edit
 										</Button>
 									)}
@@ -124,44 +144,74 @@ export const QueueCardView = ({
 											variant='default'
 											size='sm'
 											onClick={() => onAllocate(item)}
-											className='flex items-center gap-2'>
+											className='text-xs px-3 py-1 h-auto'>
 											Allocate
 										</Button>
 									)}
 								</div>
 							</div>
 
-							{/* Dependents List */}
+							{/* Expanded Details */}
 							<CollapsibleContent>
-								{item.dependents && item.dependents.length > 0 && (
-									<div className='mt-4 pt-4 border-t'>
-										<h4 className='text-sm font-semibold mb-2'>
-											Dependents Details
-										</h4>
-										<div className='space-y-2'>
-											{item.dependents.map((dependent, idx) => (
-												<div
-													key={idx}
-													className='flex items-center justify-between p-2 bg-muted rounded-lg'>
-													<div className='flex items-center gap-4'>
-														<span className='text-sm font-medium'>
-															{dependent.name}
-														</span>
-														<Badge variant='outline' className='text-xs'>
-															{dependent.gender}
-														</Badge>
-														<span className='text-sm text-muted-foreground'>
-															{dependent.age} years
-														</span>
-													</div>
-													<Badge variant='secondary' className='text-xs'>
-														{dependent.age >= 18 ? "Adult" : "Child"}
-													</Badge>
-												</div>
-											))}
+								<div className='mt-3 pt-3 border-t space-y-3'>
+									{/* Additional Personnel Info */}
+									<div className='grid grid-cols-1 md:grid-cols-2 gap-3 text-xs'>
+										<div>
+											<p className='font-medium text-muted-foreground mb-1'>
+												Service Details
+											</p>
+											<p>Gender: {item.gender}</p>
+											<p>Appointment: {item.appointment || "Not specified"}</p>
+											{item.date_tos && (
+												<p>
+													TOS: {new Date(item.date_tos).toLocaleDateString()}
+												</p>
+											)}
+										</div>
+										<div>
+											<p className='font-medium text-muted-foreground mb-1'>
+												Family Details
+											</p>
+											<p>Adults: {item.no_of_adult_dependents}</p>
+											<p>Children: {item.no_of_child_dependents}</p>
+											{item.date_sos && (
+												<p>
+													SOS: {new Date(item.date_sos).toLocaleDateString()}
+												</p>
+											)}
 										</div>
 									</div>
-								)}
+
+									{/* Dependents List */}
+									{item.dependents && item.dependents.length > 0 && (
+										<div>
+											<h4 className='text-xs font-semibold text-muted-foreground mb-2'>
+												Dependents ({item.dependents.length})
+											</h4>
+											<div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+												{item.dependents.map((dependent, idx) => (
+													<div
+														key={idx}
+														className='flex items-center justify-between p-2 bg-muted rounded text-xs'>
+														<span className='font-medium'>
+															{dependent.name}
+														</span>
+														<div className='flex items-center gap-2'>
+															<Badge
+																variant='outline'
+																className='text-xs px-1 py-0'>
+																{dependent.gender[0]}
+															</Badge>
+															<span className='text-muted-foreground'>
+																{dependent.age}y
+															</span>
+														</div>
+													</div>
+												))}
+											</div>
+										</div>
+									)}
+								</div>
 							</CollapsibleContent>
 						</CardContent>
 					</Card>

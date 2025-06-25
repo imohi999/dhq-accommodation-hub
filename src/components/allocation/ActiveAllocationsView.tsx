@@ -19,13 +19,14 @@ import {
 	FileText,
 	Home,
 	AlertTriangle,
+	RefreshCw,
 } from "lucide-react";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { AllocationLetter } from "./AllocationLetter";
 import { EvictionNotice } from "./EvictionNotice";
 import { TransferRequestModal } from "./TransferRequestModal";
 import { toast } from "react-toastify";
-import { mutate } from "swr";
+import { useOccupiedUnits } from "@/services/occupiedUnitsApi";
 import { usePermissions } from "@/hooks/usePermissions";
 
 interface ActiveAllocationsViewProps {
@@ -36,6 +37,7 @@ export const ActiveAllocationsView = ({
 	occupiedUnits,
 }: ActiveAllocationsViewProps) => {
 	const { hasPermission } = usePermissions();
+	const { mutate: mutateOccupiedUnits } = useOccupiedUnits();
 
 	const canViewLetter = hasPermission("allocations.active", "view_letter");
 	const canEjectionNotice = hasPermission(
@@ -113,7 +115,7 @@ export const ActiveAllocationsView = ({
 			toast.success("Personnel deallocated successfully");
 
 			// Mutate the data to refresh the list
-			await mutate("/api/dhq-living-units?status=Occupied");
+			await mutateOccupiedUnits();
 
 			return result;
 		} catch (error) {
@@ -334,6 +336,24 @@ export const ActiveAllocationsView = ({
 
 	return (
 		<div className='space-y-6'>
+			{/* Header with Refresh Button */}
+			<div className='flex items-center justify-between mb-4'>
+				<div>
+					<h2 className='text-lg font-semibold'>Active Allocations Overview</h2>
+					<p className='text-sm text-muted-foreground'>
+						Real-time data on current accommodations
+					</p>
+				</div>
+				<Button
+					variant='outline'
+					size='sm'
+					onClick={() => mutateOccupiedUnits()}
+					className='flex items-center gap-2'>
+					<RefreshCw className='h-4 w-4' />
+					Refresh Data
+				</Button>
+			</div>
+
 			{/* Summary Cards */}
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 				<Card>
@@ -404,60 +424,81 @@ export const ActiveAllocationsView = ({
 				<div className='space-y-4'>
 					{occupiedUnits.map((unit) => (
 						<Card key={unit.id} className='hover:shadow-md transition-shadow'>
-							<CardContent className='p-6'>
-								<div className='flex items-start justify-between'>
-									<div className='space-y-3 flex-1'>
-										{/* Header Section */}
-										<div className='flex items-start justify-between'>
-											<div>
-												<h3 className='text-lg font-semibold'>
-													{unit.currentOccupantRank} {unit.currentOccupantName}
-												</h3>
-												<p className='text-sm text-muted-foreground'>
-													Svc No: {unit.currentOccupantServiceNumber}
-												</p>
-												<p className='text-sm text-muted-foreground'>
-													Occupancy Start: {unit.occupancyStartDate
-														? new Date(unit.occupancyStartDate).toLocaleDateString()
-														: "N/A"}
-												</p>
-											</div>
-											<div className='flex items-center gap-2'>
-												<Badge variant='outline' className='bg-green-50 text-green-700 border-green-200'>
-													Occupied
-												</Badge>
-											</div>
+							<CardContent className='p-4'>
+								{/* Header Section - Compact */}
+								<div className='flex items-center justify-between mb-3'>
+									<div className='flex items-center gap-3'>
+										<div className='flex items-center justify-center w-8 h-8 bg-green-100 rounded-full text-sm font-semibold text-green-700'>
+											<Home className='h-4 w-4' />
 										</div>
-
-										{/* Content Section */}
-										<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
-											<div>
-												<p className='font-medium'>Personnel Details:</p>
-												<p>Category: {unit.category}</p>
-												<p>Service: {getServiceFromSvcNo(unit.currentOccupantServiceNumber || "")}</p>
-												<p>Current Status: Occupied</p>
-											</div>
-											<div>
-												<p className='font-medium'>Accommodation Details:</p>
-												<p>Quarter: {unit.quarterName}</p>
-												<p>Location: {unit.location}</p>
-												<p>Unit: {unit.blockName} {unit.flatHouseRoomName}</p>
-												<p>Rooms: {unit.noOfRooms}</p>
-												<p>Type: {unit.accommodationType?.name || unit.category}</p>
-											</div>
+										<div>
+											<h3 className='text-base font-semibold leading-tight'>
+												{unit.currentOccupantRank} {unit.currentOccupantName}
+											</h3>
+											<p className='text-xs text-muted-foreground'>
+												{unit.currentOccupantServiceNumber} •{" "}
+												{getServiceFromSvcNo(
+													unit.currentOccupantServiceNumber || ""
+												)}
+											</p>
 										</div>
 									</div>
+								</div>
 
-									{/* Action Section */}
+								{/* Content Section - Optimized Grid */}
+								<div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3'>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Category
+										</p>
+										<p className='font-medium'>{unit.category}</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Unit Type
+										</p>
+										<p className='font-medium'>
+											{unit.accommodationType?.name || unit.category}
+										</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>Rooms</p>
+										<p className='font-medium'>{unit.noOfRooms}</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Occupied Since
+										</p>
+										<p className='font-medium'>
+											{unit.occupancyStartDate
+												? new Date(unit.occupancyStartDate).toLocaleDateString()
+												: "N/A"}
+										</p>
+									</div>
+								</div>
+
+								{/* Additional Info and Actions */}
+								<div className='flex items-center justify-between'>
+									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
+										<span>Quarter: {unit.quarterName}</span>
+										<span>•</span>
+										<span>
+											Unit: {unit.blockName} {unit.flatHouseRoomName}
+										</span>
+										<span>•</span>
+										<span>Location: {unit.location}</span>
+									</div>
+
+									{/* Action Buttons - Compact */}
 									<div className='flex items-center gap-2'>
 										{canViewLetter && (
 											<Button
 												variant='outline'
 												size='sm'
 												onClick={() => handleViewLetterClick(unit)}
-												className='flex items-center gap-2'>
-												<FileText className='h-4 w-4' />
-												View Letter
+												className='text-xs px-3 py-1 h-auto'>
+												<FileText className='h-3 w-3 mr-1' />
+												Allocation Letter
 											</Button>
 										)}
 
@@ -466,8 +507,8 @@ export const ActiveAllocationsView = ({
 												variant='outline'
 												size='sm'
 												onClick={() => handleEvictionNoticeClick(unit)}
-												className='flex items-center gap-2'>
-												<AlertTriangle className='h-4 w-4' />
+												className='text-xs px-3 py-1 h-auto'>
+												<AlertTriangle className='h-3 w-3 mr-1' />
 												Ejection Notice
 											</Button>
 										)}
@@ -477,8 +518,8 @@ export const ActiveAllocationsView = ({
 												variant='outline'
 												size='sm'
 												onClick={() => handleTransferClick(unit)}
-												className='flex items-center gap-2'>
-												<ArrowRightLeft className='h-4 w-4' />
+												className='text-xs px-3 py-1 h-auto'>
+												<ArrowRightLeft className='h-3 w-3 mr-1' />
 												Re-allocate
 											</Button>
 										)}
@@ -489,9 +530,9 @@ export const ActiveAllocationsView = ({
 												size='sm'
 												onClick={() => handleDeallocateClick(unit)}
 												loading={loadingStates[`deallocate_${unit.id}`]}
-												loadingText='Deallocating...'
-												className='flex items-center gap-2'>
-												<UserMinus className='h-4 w-4' />
+												loadingText='Posting...'
+												className='text-xs px-3 py-1 h-auto'>
+												<UserMinus className='h-3 w-3 mr-1' />
 												Posted Out
 											</LoadingButton>
 										)}
@@ -581,7 +622,7 @@ export const ActiveAllocationsView = ({
 					isOpen={transferModal.isOpen}
 					onClose={() => setTransferModal({ isOpen: false, unit: null })}
 					currentUnit={transferModal.unit}
-					mutate={mutate}
+					mutate={() => mutateOccupiedUnits()}
 				/>
 			)}
 

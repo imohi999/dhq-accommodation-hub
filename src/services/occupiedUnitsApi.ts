@@ -40,8 +40,8 @@ const fetcher = async (url: string) => {
     throw new Error("Failed to fetch occupied units");
   }
   const result = await response.json();
-  // dhq-living-units API returns array directly
-  return Array.isArray(result) ? result : [];
+  // API returns paginated data with 'data' property
+  return result.data || [];
 };
 
 // Transform API response to match our expected format
@@ -103,7 +103,9 @@ export const useOccupiedUnits = () => {
     }
   );
 
-  const transformedData = data?.map(transformUnit) || [];
+  // Ensure data is always an array before mapping
+  const safeData = Array.isArray(data) ? data : [];
+  const transformedData = safeData.map(transformUnit);
 
   return {
     data: transformedData,
@@ -125,7 +127,7 @@ export const fetchOccupiedUnitsFromDb = async (): Promise<DHQLivingUnitWithHousi
     }
 
     const result = await response.json();
-    const data = Array.isArray(result) ? result : [];
+    const data = result.data || [];
 
     const transformedData = data.map(transformUnit);
 

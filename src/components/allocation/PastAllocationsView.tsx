@@ -60,23 +60,25 @@ const fetcher = async () => {
 	const clearanceResponse = await fetch("/api/allocations/clearance");
 	if (clearanceResponse.ok) {
 		const clearanceData = await clearanceResponse.json();
-		
+
 		// Merge clearance data with past allocations
 		const mergedData = pastAllocations.map((allocation: any) => {
-			const clearanceRecord = clearanceData.find((c: any) => c.id === allocation.id);
+			const clearanceRecord = clearanceData.find(
+				(c: any) => c.id === allocation.id
+			);
 			if (clearanceRecord) {
 				return {
 					...allocation,
 					clearance_inspections: clearanceRecord.clearance_inspections || [],
-					inventory: clearanceRecord.inventory || []
+					inventory: clearanceRecord.inventory || [],
 				};
 			}
 			return allocation;
 		});
-		
+
 		return mergedData;
 	}
-	
+
 	return pastAllocations;
 };
 
@@ -97,7 +99,8 @@ const formatDuration = (days: number): string => {
 };
 
 export const PastAllocationsView = () => {
-	const [selectedAllocation, setSelectedAllocation] = useState<PastAllocation | null>(null);
+	const [selectedAllocation, setSelectedAllocation] =
+		useState<PastAllocation | null>(null);
 	const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
 	const [isLetterModalOpen, setIsLetterModalOpen] = useState(false);
 
@@ -270,92 +273,157 @@ export const PastAllocationsView = () => {
 			) : (
 				<div className='space-y-4'>
 					{pastAllocations.map((allocation) => (
-						<Card key={allocation.id} className='hover:shadow-md transition-shadow'>
-							<CardContent className='p-6'>
-								<div className='flex items-start justify-between'>
-									<div className='space-y-3 flex-1'>
-										{/* Header Section */}
-										<div className='flex items-start justify-between'>
-											<div>
-												<h3 className='text-lg font-semibold'>
-													{allocation.personnelData?.rank}{" "}
-													{allocation.personnelData?.fullName ||
-														allocation.personnelData?.full_name ||
-														"Unknown Personnel"}
-												</h3>
-												<p className='text-sm text-muted-foreground'>
-													Svc No: {allocation.personnelData?.serviceNumber ||
+						<Card
+							key={allocation.id}
+							className='hover:shadow-md transition-shadow'>
+							<CardContent className='p-4'>
+								{/* Header Section - Compact */}
+								<div className='flex items-center justify-between mb-3'>
+									<div className='flex items-center gap-3'>
+										<div className='flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-semibold text-gray-700'>
+											<Clock className='h-4 w-4' />
+										</div>
+										<div>
+											<h3 className='text-base font-semibold leading-tight'>
+												{allocation.personnelData?.rank}{" "}
+												{allocation.personnelData?.fullName ||
+													allocation.personnelData?.full_name ||
+													"Unknown Personnel"}
+											</h3>
+											<p className='text-xs text-muted-foreground'>
+												{allocation.personnelData?.serviceNumber ||
+													allocation.personnelData?.svc_no ||
+													allocation.personnelData?.svcNo ||
+													"N/A"}{" "}
+												•{" "}
+												{getServiceFromSvcNo(
+													allocation.personnelData?.serviceNumber ||
 														allocation.personnelData?.svc_no ||
 														allocation.personnelData?.svcNo ||
-														"N/A"}
-												</p>
-												<p className='text-sm text-muted-foreground'>
-													Letter: {allocation.letterId}
-												</p>
-											</div>
-											<div className='flex items-center gap-2'>
-												{allocation.clearance_inspections && allocation.clearance_inspections.length > 0 ? (
-													<Badge variant='outline' className='bg-green-50 text-green-700 border-green-200'>
-														Cleared
-													</Badge>
-												) : (
-													<Badge variant='outline' className='bg-gray-50 text-gray-700 border-gray-200'>
-														Completed
-													</Badge>
+														""
 												)}
-											</div>
-										</div>
-
-										{/* Content Section */}
-										<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
-											<div>
-												<p className='font-medium'>Allocation Period:</p>
-												<p>
-													{new Date(allocation.allocationStartDate).toLocaleDateString()} to{" "}
-													{new Date(allocation?.allocationEndDate as string).toLocaleDateString()}
-												</p>
-												{allocation.durationDays && (
-													<p>Duration: {formatDuration(allocation.durationDays)}</p>
-												)}
-												<p>Category: {allocation.personnelData?.category}</p>
-												<p>Service: {getServiceFromSvcNo(allocation.personnelData?.serviceNumber || allocation.personnelData?.svc_no || allocation.personnelData?.svcNo || "")}</p>
-											</div>
-											<div>
-												<p className='font-medium'>Previous Unit:</p>
-												<p>Quarter: {allocation.unitData?.quarterName || allocation.unitData?.quarter_name || "N/A"}</p>
-												<p>Unit: {allocation.unitData?.blockName || allocation.unitData?.block_name || ""} {allocation.unitData?.flat_house_room_name || allocation.unitData?.flatHouseRoomName || allocation.unitData?.unitName || ""}</p>
-												{allocation.reasonForLeaving && (
-													<p>Reason for leaving: {allocation.reasonForLeaving}</p>
-												)}
-											</div>
+											</p>
 										</div>
 									</div>
+									{allocation.clearance_inspections &&
+									allocation.clearance_inspections.length > 0 ? (
+										<Badge
+											variant='outline'
+											className='bg-green-50 text-green-700 border-green-200 text-xs px-2 py-1'>
+											Cleared
+										</Badge>
+									) : (
+										<Badge
+											variant='outline'
+											className='bg-gray-50 text-gray-700 border-gray-200 text-xs px-2 py-1'>
+											Completed
+										</Badge>
+									)}
+								</div>
 
-									{/* Action Section */}
+								{/* Content Section - Optimized Grid */}
+								<div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3'>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Category
+										</p>
+										<p className='font-medium'>
+											{allocation.personnelData?.category}
+										</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Duration
+										</p>
+										<p className='font-medium'>
+											{allocation.durationDays
+												? formatDuration(allocation.durationDays)
+												: "N/A"}
+										</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Start Date
+										</p>
+										<p className='font-medium'>
+											{new Date(
+												allocation.allocationStartDate
+											).toLocaleDateString()}
+										</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											End Date
+										</p>
+										<p className='font-medium'>
+											{allocation?.allocationEndDate
+												? new Date(
+														allocation.allocationEndDate
+												  ).toLocaleDateString()
+												: "N/A"}
+										</p>
+									</div>
+								</div>
+
+								{/* Additional Info and Actions */}
+								<div className='flex items-center justify-between'>
+									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
+										<span>
+											Quarter:{" "}
+											{allocation.unitData?.quarterName ||
+												allocation.unitData?.quarter_name ||
+												"N/A"}
+										</span>
+										<span>•</span>
+										<span>
+											Unit:{" "}
+											{allocation.unitData?.blockName ||
+												allocation.unitData?.block_name ||
+												""}{" "}
+											{allocation.unitData?.flat_house_room_name ||
+												allocation.unitData?.flatHouseRoomName ||
+												allocation.unitData?.unitName ||
+												""}
+										</span>
+										<span>•</span>
+										<span>Letter: {allocation.letterId}</span>
+										{allocation.reasonForLeaving && (
+											<>
+												<span>•</span>
+												<span>Reason: {allocation.reasonForLeaving}</span>
+											</>
+										)}
+									</div>
+
+									{/* Action Buttons - Compact */}
 									<div className='flex items-center gap-2'>
 										<Button
-											size="sm"
-											variant="outline"
+											size='sm'
+											variant='outline'
 											onClick={() => {
 												setSelectedAllocation(allocation);
 												setIsInspectionModalOpen(true);
 											}}
-										>
-											<ClipboardCheck className="h-4 w-4 mr-1" />
-											{allocation.clearance_inspections && allocation.clearance_inspections.length > 0 ? 'View Inspection' : 'Log Inspection'}
+											className='text-xs px-3 py-1 h-auto'>
+											<ClipboardCheck className='h-3 w-3 mr-1' />
+											{allocation.clearance_inspections &&
+											allocation.clearance_inspections.length > 0
+												? "View Inspection"
+												: "Log Inspection"}
 										</Button>
-										{allocation.clearance_inspections && allocation.clearance_inspections.length > 0 && (
-											<Button
-												size="sm"
-												onClick={() => {
-													setSelectedAllocation(allocation);
-													setIsLetterModalOpen(true);
-												}}
-											>
-												<FileText className="h-4 w-4 mr-1" />
-												Clearance Letter
-											</Button>
-										)}
+										{allocation.clearance_inspections &&
+											allocation.clearance_inspections.length > 0 && (
+												<Button
+													size='sm'
+													onClick={() => {
+														setSelectedAllocation(allocation);
+														setIsLetterModalOpen(true);
+													}}
+													className='text-xs px-3 py-1 h-auto'>
+													<FileText className='h-3 w-3 mr-1' />
+													Clearance Letter
+												</Button>
+											)}
 									</div>
 								</div>
 							</CardContent>
@@ -373,7 +441,7 @@ export const PastAllocationsView = () => {
 						allocation={selectedAllocation}
 						onComplete={handleInspectionComplete}
 					/>
-					
+
 					<ClearanceLetter
 						isOpen={isLetterModalOpen}
 						onClose={() => setIsLetterModalOpen(false)}

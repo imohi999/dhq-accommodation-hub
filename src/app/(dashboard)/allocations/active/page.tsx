@@ -1,30 +1,20 @@
 "use client";
 
-import useSWR from "swr";
 import { LoadingState } from "@/components/ui/spinner";
 import { ActiveAllocationsView } from "@/components/allocation/ActiveAllocationsView";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { useOccupiedUnits } from "@/services/occupiedUnitsApi";
 
 export default function ActiveAllocationsPage() {
-	const { data, error, mutate } = useSWR(
-		"/api/dhq-living-units?status=Occupied",
-		fetcher,
-		{
-			revalidateOnFocus: false,
-			revalidateOnReconnect: false,
-			refreshInterval: 30000, // Refresh every 30 seconds
-		}
-	);
+	const { data, error, isLoading } = useOccupiedUnits();
 
-	if (!data && !error) {
+	if (isLoading) {
 		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
 	if (error) {
 		return (
 			<div className='flex justify-center p-8 text-red-500'>
-				Error loading allocations
+				Error loading allocations: {error.message || "Unknown error"}
 			</div>
 		);
 	}
@@ -39,7 +29,7 @@ export default function ActiveAllocationsPage() {
 					Manage current accommodation allocations
 				</p>
 			</div>
-			<ActiveAllocationsView occupiedUnits={data?.data || []} />
+			<ActiveAllocationsView occupiedUnits={data} />
 		</div>
 	);
 }
