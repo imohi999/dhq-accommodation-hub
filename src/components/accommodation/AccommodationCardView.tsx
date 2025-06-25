@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Image from 'next/image';
+import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,8 +15,6 @@ import {
 import {
 	DHQLivingUnitWithHousingType,
 	UnitHistory,
-	UnitInventory,
-	UnitMaintenance,
 } from "@/types/accommodation";
 import { HistoryModal } from "./HistoryModal";
 import { InventoryModal } from "./InventoryModal";
@@ -54,8 +52,9 @@ export const AccommodationCardView = ({
 }: AccommodationCardViewProps) => {
 	const { canAccess } = usePermissions();
 	// Users with access permission should be able to view inventory and maintenance (read-only)
-	const canViewInventory = canInventory || canAccess('accommodation.units');
-	const canViewMaintenance = canMaintenanceRequest || canAccess('accommodation.units');
+	const canViewInventory = canInventory || canAccess("accommodation.units");
+	const canViewMaintenance =
+		canMaintenanceRequest || canAccess("accommodation.units");
 
 	const [selectedUnit, setSelectedUnit] =
 		useState<DHQLivingUnitWithHousingType | null>(null);
@@ -273,7 +272,9 @@ export const AccommodationCardView = ({
 											className='flex items-center gap-1'>
 											<History className='h-3 w-3' />
 											<span
-												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												className={`${
+													viewMode === "compact" ? "text-xs" : ""
+												}`}>
 												History
 											</span>
 										</Button>
@@ -287,7 +288,9 @@ export const AccommodationCardView = ({
 											className='flex items-center gap-1'>
 											<Package className='h-3 w-3' />
 											<span
-												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												className={`${
+													viewMode === "compact" ? "text-xs" : ""
+												}`}>
 												Inventory
 											</span>
 										</Button>
@@ -301,7 +304,9 @@ export const AccommodationCardView = ({
 											className='flex items-center gap-1'>
 											<Wrench className='h-3 w-3' />
 											<span
-												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												className={`${
+													viewMode === "compact" ? "text-xs" : ""
+												}`}>
 												Maintenance
 											</span>
 										</Button>
@@ -315,7 +320,9 @@ export const AccommodationCardView = ({
 											className='flex items-center gap-1'>
 											<Edit className='h-3 w-3' />
 											<span
-												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												className={`${
+													viewMode === "compact" ? "text-xs" : ""
+												}`}>
 												Edit
 											</span>
 										</Button>
@@ -329,7 +336,9 @@ export const AccommodationCardView = ({
 											className='flex items-center gap-1 col-span-2'>
 											<Trash2 className='h-3 w-3' />
 											<span
-												className={`${viewMode === "compact" ? "text-xs" : ""}`}>
+												className={`${
+													viewMode === "compact" ? "text-xs" : ""
+												}`}>
 												Delete
 											</span>
 										</Button>
@@ -339,7 +348,6 @@ export const AccommodationCardView = ({
 						</CardContent>
 					</Card>
 				))}
-
 			</div>
 
 			{units.length === 0 && (

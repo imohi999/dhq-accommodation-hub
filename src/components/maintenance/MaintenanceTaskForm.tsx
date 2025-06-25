@@ -29,6 +29,8 @@ interface MaintenanceTask {
 import { useAccommodationData } from "@/hooks/useAccommodationData";
 import { useAccommodationFilters } from "@/hooks/useAccommodationFilters";
 import { AccommodationFilters } from "@/components/accommodation/AccommodationFilters";
+import { useFilterOptions } from "@/hooks/useFilterOptions";
+import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 
 const TASK_STATUSES = ["Pending", "Completed", "Overdue"];
 
@@ -52,8 +54,9 @@ export function MaintenanceTaskForm({
 	const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
 	const [submitting, setSubmitting] = useState(false);
 
-	const { units, housingTypes, loading } = useAccommodationData();
-	const filters = useAccommodationFilters(units);
+	const filters = useAccommodationFilters();
+	const { units, housingTypes, loading } = useAccommodationData(filters.getApiFilters());
+	const { filterOptions } = useFilterOptions();
 
 	useEffect(() => {
 		if (initial) {
@@ -88,10 +91,10 @@ export function MaintenanceTaskForm({
 	};
 
 	const handleSelectAll = () => {
-		if (selectedUnits.length === filters.filteredUnits.length) {
+		if (selectedUnits.length === units.length) {
 			setSelectedUnits([]);
 		} else {
-			setSelectedUnits(filters.filteredUnits.map((unit) => unit.id));
+			setSelectedUnits(units.map((unit: DHQLivingUnitWithHousingType) => unit.id));
 		}
 	};
 
@@ -287,7 +290,16 @@ export function MaintenanceTaskForm({
 						onFlatHouseRoomChange={filters.setFlatHouseRoomFilter}
 						unitNameFilter={filters.unitNameFilter}
 						onUnitNameChange={filters.setUnitNameFilter}
-						units={units}
+						filterOptions={filterOptions || {
+							quarterNames: [],
+							locations: [],
+							categories: [],
+							blockNames: [],
+							flatHouseRoomNames: [],
+							unitNames: [],
+							statuses: [],
+							occupancyTypes: []
+						}}
 						housingTypes={housingTypes}
 					/>
 
@@ -296,20 +308,20 @@ export function MaintenanceTaskForm({
 							<Checkbox
 								id='selectAll'
 								checked={
-									selectedUnits.length === filters.filteredUnits.length &&
-									filters.filteredUnits.length > 0
+									selectedUnits.length === units.length &&
+									units.length > 0
 								}
 								onCheckedChange={handleSelectAll}
 							/>
 							<label htmlFor='selectAll' className='text-sm font-medium'>
-								Select All ({filters.filteredUnits.length} units)
+								Select All ({units.length} units)
 							</label>
 						</div>
 					</div>
 
 					<div className='max-h-64 overflow-y-auto border rounded-lg'>
 						<div className='grid gap-2 p-4'>
-							{filters.filteredUnits.map((unit) => (
+							{units.map((unit: DHQLivingUnitWithHousingType) => (
 								<div key={unit.id} className='flex items-center space-x-2'>
 									<Checkbox
 										id={unit.id}

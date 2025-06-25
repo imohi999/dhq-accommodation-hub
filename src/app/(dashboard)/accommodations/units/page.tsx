@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LoadingState } from "@/components/ui/spinner";
 import { Plus, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import { AccommodationSummaryCards } from "@/components/accommodation/AccommodationSummaryCards";
@@ -46,13 +45,14 @@ export default function DHQLivingUnits() {
 	// Get filters and pagination from the hook
 	const filters = useAccommodationFilters();
 	const apiFilters = filters.getApiFilters();
-	
+
 	// Fetch data with server-side filtering
-	const { units, housingTypes, loading, refetch, pagination } = useAccommodationData(apiFilters);
-	
+	const { units, housingTypes, refetch, pagination } =
+		useAccommodationData(apiFilters);
+
 	// Fetch summary data separately
 	const { summary, loading: summaryLoading } = useAccommodationSummary();
-	
+
 	// Fetch filter options
 	const { filterOptions, loading: filterOptionsLoading } = useFilterOptions();
 
@@ -67,9 +67,7 @@ export default function DHQLivingUnits() {
 	};
 
 	const handleDelete = async (id: string) => {
-		if (
-			!confirm("Are you sure you want to delete this accommodation units?")
-		) {
+		if (!confirm("Are you sure you want to delete this accommodation units?")) {
 			return;
 		}
 
@@ -101,10 +99,6 @@ export default function DHQLivingUnits() {
 		refetch();
 		toast.success("Successfully imported accommodation units");
 	};
-
-	if (loading) {
-		return <LoadingState isLoading={true}>{null}</LoadingState>;
-	}
 
 	return (
 		<div className='space-y-4'>
@@ -200,7 +194,7 @@ export default function DHQLivingUnits() {
 
 			{/* Pagination Controls */}
 			{pagination && pagination.totalCount > 0 && (
-				<div className="mt-4">
+				<div className='mt-4'>
 					<PaginationControls
 						page={pagination.page}
 						pageSize={pagination.pageSize}

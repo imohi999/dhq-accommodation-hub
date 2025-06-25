@@ -1,6 +1,4 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useDebounce } from "./useDebounce";
-
 interface FilterState {
   searchTerm: string;
   quarterNameFilter: string;
@@ -32,24 +30,42 @@ export const useAccommodationFilters = () => {
     pageSize: 20,
   });
 
-  // Debounce the search term to avoid too many API calls
-  const debouncedSearchTerm = useDebounce(filters.searchTerm, 2000);
-  
-  // Track previous debounced value to detect changes
-  const prevDebouncedSearchTerm = useRef(debouncedSearchTerm);
-  
-  // Reset page to 1 when debounced search actually changes
+  // State to track the debounced search term
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Debounce the search term
   useEffect(() => {
-    if (prevDebouncedSearchTerm.current !== debouncedSearchTerm) {
-      prevDebouncedSearchTerm.current = debouncedSearchTerm;
-      if (debouncedSearchTerm !== '') { // Only reset if there's a search term
+    // Clear the previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set a new timeout
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchTerm(filters.searchTerm);
+    }, 1000); // 1 second delay
+
+    // Cleanup
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [filters.searchTerm]);
+
+  // Reset page when debounced search term changes
+  const prevDebouncedSearchTermRef = useRef(debouncedSearchTerm);
+  useEffect(() => {
+    if (prevDebouncedSearchTermRef.current !== debouncedSearchTerm) {
+      prevDebouncedSearchTermRef.current = debouncedSearchTerm;
+      if (debouncedSearchTerm !== "" || filters.searchTerm === "") {
         setFilters(prev => ({ ...prev, page: 1 }));
       }
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, filters.searchTerm]);
 
   // Individual setters that reset page to 1 when filter changes
-  // Note: Search term doesn't reset page immediately due to debouncing
   const setSearchTerm = useCallback((value: string) => {
     setFilters(prev => ({ ...prev, searchTerm: value }));
   }, []);
