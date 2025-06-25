@@ -340,12 +340,13 @@ export const AccommodationCardView = ({
 					</Card>
 				))}
 
-				{units.length === 0 && (
-					<div className='col-span-full text-center text-muted-foreground py-8'>
-						No accommodation unit matching current filters
-					</div>
-				)}
 			</div>
+
+			{units.length === 0 && (
+				<div className='text-center text-muted-foreground py-8'>
+					No accommodation unit matching current filters
+				</div>
+			)}
 
 			{/* Modals */}
 			{selectedUnit && (

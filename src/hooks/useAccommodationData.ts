@@ -12,11 +12,32 @@ interface HousingTypeResponse {
   createdAt: string;
 }
 
-export const useAccommodationData = () => {
-  const [units, setUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
+interface FilterParams {
+  search?: string;
+  quarterName?: string;
+  location?: string;
+  category?: string;
+  accommodationTypeId?: string;
+  status?: string;
+  typeOfOccupancy?: string;
+  blockName?: string;
+  flatHouseRoomName?: string;
+  unitName?: string;
+  page?: number;
+  pageSize?: number;
+}
 
-  // Fetch units from new dhq-living-units endpoint
-  const { data: unitsData, error: unitsError, isLoading: unitsLoading, mutate: refetchUnits } = useSWR<Array<{
+interface PaginationData {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+interface UnitsResponse {
+  data: Array<{
     id: string;
     quarterName: string;
     location: string;
@@ -44,8 +65,35 @@ export const useAccommodationData = () => {
       description: string | null;
       createdAt: string;
     };
-  }>>(
-    '/api/dhq-living-units',
+  }>;
+  pagination: PaginationData;
+}
+
+export const useAccommodationData = (filters: FilterParams = {}) => {
+  const [units, setUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    pageSize: 20,
+    totalCount: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
+
+  // Build query string from filters
+  const queryParams = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      queryParams.append(key, value.toString());
+    }
+  });
+
+  const queryString = queryParams.toString();
+  const apiUrl = queryString ? `/api/dhq-living-units?${queryString}` : '/api/dhq-living-units';
+
+  // Fetch units from new dhq-living-units endpoint with filters
+  const { data: response, error: unitsError, isLoading: unitsLoading, mutate: refetchUnits } = useSWR<UnitsResponse>(
+    apiUrl,
     fetcher
   );
 
@@ -70,9 +118,9 @@ export const useAccommodationData = () => {
   }, [housingTypesError]);
 
   useEffect(() => {
-    if (unitsData) {
+    if (response?.data) {
       // Transform API response to match expected format (camelCase to snake_case)
-      const transformedUnits: DHQLivingUnitWithHousingType[] = unitsData.map((unit) => ({
+      const transformedUnits: DHQLivingUnitWithHousingType[] = response.data.map((unit) => ({
         // Required camelCase properties
         id: unit.id,
         quarterName: unit.quarterName,
@@ -120,8 +168,9 @@ export const useAccommodationData = () => {
       }));
 
       setUnits(transformedUnits || []);
+      setPagination(response.pagination);
     }
-  }, [unitsData]);
+  }, [response]);
 
   // Transform accommodation types
   const housingTypes: AccommodationType[] = housingTypesData?.map((ht) => ({
@@ -141,6 +190,7 @@ export const useAccommodationData = () => {
     units,
     housingTypes,
     loading,
-    refetch
+    refetch,
+    pagination
   };
 };

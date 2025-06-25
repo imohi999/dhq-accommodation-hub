@@ -437,6 +437,385 @@ npm run lint            # Run ESLint
 
 ## 🚀 Deployment
 
+### Windows Server 2019 On-Premises Deployment
+
+This guide covers deploying the DHQ Accommodation Hub on Windows Server 2019 in an on-premises environment.
+
+#### Prerequisites for Windows Server 2019
+
+1. **Windows Server 2019 Standard or Datacenter Edition**
+2. **Administrator access** to the server
+3. **Internet Information Services (IIS)** with IIS Node.js module
+4. **Minimum server requirements:**
+   - 4 GB RAM (8 GB recommended)
+   - 20 GB free disk space
+   - 2 CPU cores (4 recommended)
+
+#### Step 1: Install Required Software
+
+1. **Install Node.js LTS (v18 or v20)**
+   ```powershell
+   # Download Node.js installer
+   Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.11.0/node-v20.11.0-x64.msi" -OutFile "node-installer.msi"
+   
+   # Install Node.js silently
+   msiexec /i node-installer.msi /qn
+   
+   # Verify installation
+   node --version
+   npm --version
+   ```
+
+2. **Install PostgreSQL 15**
+   ```powershell
+   # Download PostgreSQL installer
+   Invoke-WebRequest -Uri "https://get.enterprisedb.com/postgresql/postgresql-15.5-1-windows-x64.exe" -OutFile "postgresql-installer.exe"
+   
+   # Run installer (follow GUI prompts)
+   # Remember to note down:
+   # - PostgreSQL port (default: 5432)
+   # - PostgreSQL password for 'postgres' user
+   # - Installation directory (default: C:\Program Files\PostgreSQL\15)
+   ```
+
+3. **Install Git (for deployment)**
+   ```powershell
+   # Download Git installer
+   Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe" -OutFile "git-installer.exe"
+   
+   # Install Git
+   Start-Process -FilePath "git-installer.exe" -ArgumentList "/VERYSILENT" -Wait
+   ```
+
+4. **Install PM2 (Process Manager)**
+   ```powershell
+   # Install PM2 globally
+   npm install -g pm2
+   
+   # Install PM2 Windows Service
+   npm install -g pm2-windows-startup
+   pm2-startup install
+   ```
+
+#### Step 2: Configure PostgreSQL
+
+1. **Configure PostgreSQL for network access** (if needed)
+   ```powershell
+   # Edit postgresql.conf
+   notepad "C:\Program Files\PostgreSQL\15\data\postgresql.conf"
+   
+   # Add or modify:
+   # listen_addresses = '*'  # or specific IP addresses
+   ```
+
+2. **Configure authentication**
+   ```powershell
+   # Edit pg_hba.conf
+   notepad "C:\Program Files\PostgreSQL\15\data\pg_hba.conf"
+   
+   # Add for local network access (adjust IP range as needed):
+   # host    all             all             192.168.1.0/24          md5
+   ```
+
+3. **Restart PostgreSQL service**
+   ```powershell
+   Restart-Service postgresql-x64-15
+   ```
+
+4. **Create database**
+   ```powershell
+   # Connect to PostgreSQL
+   & "C:\Program Files\PostgreSQL\15\bin\psql.exe" -U postgres
+   
+   # In psql prompt:
+   CREATE DATABASE dhq_accommodation_hub;
+   \q
+   ```
+
+#### Step 3: Configure Windows Firewall
+
+1. **Open required ports**
+   ```powershell
+   # Allow Node.js application port
+   New-NetFirewallRule -DisplayName "DHQ Accommodation Hub" -Direction Inbound -Protocol TCP -LocalPort 5001 -Action Allow
+   
+   # Allow PostgreSQL if needed for remote access
+   New-NetFirewallRule -DisplayName "PostgreSQL" -Direction Inbound -Protocol TCP -LocalPort 5432 -Action Allow
+   ```
+
+#### Step 4: Deploy the Application
+
+1. **Create application directory**
+   ```powershell
+   New-Item -ItemType Directory -Path "C:\inetpub\dhq-accommodation-hub" -Force
+   cd C:\inetpub\dhq-accommodation-hub
+   ```
+
+2. **Clone or copy the application**
+   ```powershell
+   # Option 1: Clone from Git repository
+   git clone <repository-url> .
+   
+   # Option 2: Extract from deployment package
+   # Copy your deployment package and extract it here
+   ```
+
+3. **Install dependencies**
+   ```powershell
+   npm install --production
+   ```
+
+4. **Configure environment variables**
+   ```powershell
+   # Create .env file
+   @"
+   # Database
+   DATABASE_URL="postgresql://postgres:your_password@localhost:5432/dhq_accommodation_hub"
+   
+   # NextAuth.js
+   NEXTAUTH_URL="http://your-server-name:5001"
+   NEXTAUTH_SECRET="generate-a-secure-random-string-here"
+   
+   # Application
+   NEXT_PUBLIC_APP_URL="http://your-server-name:5001"
+   "@ | Out-File -Encoding UTF8 .env
+   ```
+
+5. **Build the application**
+   ```powershell
+   npm run build
+   ```
+
+6. **Run database migrations**
+   ```powershell
+   npm run db:migrate:prod
+   npm run db:seed  # Only for initial setup
+   ```
+
+#### Step 5: Configure PM2 for Production
+
+1. **Create PM2 ecosystem file**
+   ```powershell
+   # Create ecosystem.config.js
+   @"
+   module.exports = {
+     apps: [{
+       name: 'dhq-accommodation-hub',
+       script: 'npm',
+       args: 'start',
+       cwd: 'C:\\inetpub\\dhq-accommodation-hub',
+       instances: 2,  // Number of instances (adjust based on CPU cores)
+       exec_mode: 'cluster',
+       env: {
+         NODE_ENV: 'production',
+         PORT: 5001
+       },
+       error_file: 'C:\\inetpub\\dhq-accommodation-hub\\logs\\pm2-error.log',
+       out_file: 'C:\\inetpub\\dhq-accommodation-hub\\logs\\pm2-out.log',
+       log_file: 'C:\\inetpub\\dhq-accommodation-hub\\logs\\pm2-combined.log',
+       time: true
+     }]
+   };
+   "@ | Out-File -Encoding UTF8 ecosystem.config.js
+   ```
+
+2. **Create logs directory**
+   ```powershell
+   New-Item -ItemType Directory -Path "logs" -Force
+   ```
+
+3. **Start the application with PM2**
+   ```powershell
+   pm2 start ecosystem.config.js
+   pm2 save
+   ```
+
+#### Step 6: Configure IIS as Reverse Proxy (Optional)
+
+If you want to use IIS as a reverse proxy to serve the application on port 80/443:
+
+1. **Install IIS and required modules**
+   ```powershell
+   # Install IIS
+   Enable-WindowsFeature -Name Web-Server -IncludeManagementTools
+   
+   # Install URL Rewrite and ARR
+   # Download and install manually from:
+   # URL Rewrite: https://www.iis.net/downloads/microsoft/url-rewrite
+   # ARR: https://www.iis.net/downloads/microsoft/application-request-routing
+   ```
+
+2. **Configure IIS site**
+   - Create a new website in IIS Manager
+   - Set the physical path to `C:\inetpub\dhq-accommodation-hub\public`
+   - Configure URL Rewrite rules to proxy to `http://localhost:5001`
+
+3. **Sample web.config for IIS**
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <configuration>
+     <system.webServer>
+       <rewrite>
+         <rules>
+           <rule name="ReverseProxyInboundRule1" stopProcessing="true">
+             <match url="(.*)" />
+             <action type="Rewrite" url="http://localhost:5001/{R:1}" />
+           </rule>
+         </rules>
+       </rewrite>
+     </system.webServer>
+   </configuration>
+   ```
+
+#### Step 7: Configure Windows Service (Alternative to PM2)
+
+If you prefer to run as a Windows Service instead of PM2:
+
+1. **Install node-windows**
+   ```powershell
+   cd C:\inetpub\dhq-accommodation-hub
+   npm install -g node-windows
+   ```
+
+2. **Create service script**
+   ```powershell
+   # Create service.js
+   @"
+   const Service = require('node-windows').Service;
+   
+   const svc = new Service({
+     name: 'DHQ Accommodation Hub',
+     description: 'DHQ Accommodation Management System',
+     script: 'C:\\inetpub\\dhq-accommodation-hub\\node_modules\\next\\dist\\bin\\next',
+     scriptOptions: 'start',
+     nodeOptions: [
+       '--max-old-space-size=4096'
+     ],
+     env: [
+       {
+         name: 'NODE_ENV',
+         value: 'production'
+       },
+       {
+         name: 'PORT',
+         value: '5001'
+       }
+     ]
+   });
+   
+   svc.on('install', function(){
+     svc.start();
+   });
+   
+   svc.install();
+   "@ | Out-File -Encoding UTF8 service.js
+   
+   # Install the service
+   node service.js
+   ```
+
+#### Step 8: Maintenance and Monitoring
+
+1. **View PM2 logs**
+   ```powershell
+   pm2 logs dhq-accommodation-hub
+   pm2 monit  # Real-time monitoring
+   ```
+
+2. **Check application status**
+   ```powershell
+   pm2 status
+   pm2 info dhq-accommodation-hub
+   ```
+
+3. **Restart application**
+   ```powershell
+   pm2 restart dhq-accommodation-hub
+   ```
+
+4. **Windows Event Viewer**
+   - Check Windows Event Viewer for system-level issues
+   - Application logs: `Event Viewer > Applications and Services Logs`
+
+#### Step 9: Backup and Recovery
+
+1. **Database backup script**
+   ```powershell
+   # Create backup script
+   @"
+   `$date = Get-Date -Format "yyyy-MM-dd_HHmmss"
+   `$backupPath = "C:\Backups\dhq_accommodation_hub_`$date.sql"
+   
+   & "C:\Program Files\PostgreSQL\15\bin\pg_dump.exe" `
+     -U postgres `
+     -d dhq_accommodation_hub `
+     -f `$backupPath
+   
+   Write-Host "Backup completed: `$backupPath"
+   "@ | Out-File -Encoding UTF8 backup-database.ps1
+   ```
+
+2. **Schedule automatic backups**
+   ```powershell
+   # Create scheduled task for daily backups
+   $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-File C:\Scripts\backup-database.ps1"
+   $trigger = New-ScheduledTaskTrigger -Daily -At "02:00AM"
+   Register-ScheduledTask -TaskName "DHQ Database Backup" -Action $action -Trigger $trigger -RunLevel Highest
+   ```
+
+#### Security Considerations
+
+1. **Use HTTPS in production**
+   - Obtain SSL certificate
+   - Configure IIS with SSL binding
+   - Update all URLs to use HTTPS
+
+2. **Harden PostgreSQL**
+   - Use strong passwords
+   - Limit network access
+   - Enable SSL for database connections
+
+3. **Application security**
+   - Keep Node.js and dependencies updated
+   - Use Windows Defender or enterprise antivirus
+   - Enable Windows Firewall with specific rules
+
+4. **Regular updates**
+   ```powershell
+   # Update Node.js packages
+   npm update
+   npm audit fix
+   
+   # Rebuild and restart
+   npm run build
+   pm2 restart dhq-accommodation-hub
+   ```
+
+#### Troubleshooting Windows Server Deployment
+
+1. **Port already in use**
+   ```powershell
+   # Find process using port 5001
+   netstat -ano | findstr :5001
+   
+   # Kill process if needed
+   taskkill /PID <process-id> /F
+   ```
+
+2. **Permission issues**
+   - Ensure IIS_IUSRS has read access to application directory
+   - Grant write permissions to logs directory
+
+3. **Database connection issues**
+   - Verify PostgreSQL service is running
+   - Check Windows Firewall rules
+   - Validate connection string in .env file
+
+4. **Application won't start**
+   - Check PM2 logs: `pm2 logs`
+   - Verify all environment variables are set
+   - Ensure database migrations have run successfully
+
 ### Production Environment
 
 1. **Database Setup**

@@ -1,65 +1,185 @@
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useDebounce } from "./useDebounce";
 
-import { useState, useMemo } from "react";
-import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
+interface FilterState {
+  searchTerm: string;
+  quarterNameFilter: string;
+  locationFilter: string;
+  categoryFilter: string;
+  housingTypeFilter: string;
+  statusFilter: string;
+  occupancyFilter: string;
+  blockNameFilter: string;
+  flatHouseRoomFilter: string;
+  unitNameFilter: string;
+  page: number;
+  pageSize: number;
+}
 
-export const useAccommodationFilters = (units: DHQLivingUnitWithHousingType[]) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [quarterNameFilter, setQuarterNameFilter] = useState("all");
-  const [locationFilter, setLocationFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [housingTypeFilter, setHousingTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [occupancyFilter, setOccupancyFilter] = useState("all");
-  const [blockNameFilter, setBlockNameFilter] = useState("all");
-  const [flatHouseRoomFilter, setFlatHouseRoomFilter] = useState("all");
-  const [unitNameFilter, setUnitNameFilter] = useState("all");
+export const useAccommodationFilters = () => {
+  const [filters, setFilters] = useState<FilterState>({
+    searchTerm: "",
+    quarterNameFilter: "all",
+    locationFilter: "all",
+    categoryFilter: "all",
+    housingTypeFilter: "all",
+    statusFilter: "all",
+    occupancyFilter: "all",
+    blockNameFilter: "all",
+    flatHouseRoomFilter: "all",
+    unitNameFilter: "all",
+    page: 1,
+    pageSize: 20,
+  });
 
-  // Filter logic
-  const filteredUnits = useMemo(() => {
-    return units.filter((unit) => {
-      const matchesSearch = searchTerm === "" ||
-        Object.values(unit).some(value =>
-          value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-        );
+  // Debounce the search term to avoid too many API calls
+  const debouncedSearchTerm = useDebounce(filters.searchTerm, 2000);
+  
+  // Track previous debounced value to detect changes
+  const prevDebouncedSearchTerm = useRef(debouncedSearchTerm);
+  
+  // Reset page to 1 when debounced search actually changes
+  useEffect(() => {
+    if (prevDebouncedSearchTerm.current !== debouncedSearchTerm) {
+      prevDebouncedSearchTerm.current = debouncedSearchTerm;
+      if (debouncedSearchTerm !== '') { // Only reset if there's a search term
+        setFilters(prev => ({ ...prev, page: 1 }));
+      }
+    }
+  }, [debouncedSearchTerm]);
 
-      const matchesQuarterName = quarterNameFilter === "all" || unit.quarterName === quarterNameFilter;
-      const matchesLocation = locationFilter === "all" || unit.location === locationFilter;
-      const matchesCategory = categoryFilter === "all" || unit.category === categoryFilter;
-      const matchesHousingType = housingTypeFilter === "all" || unit.accommodation_type_id === housingTypeFilter;
-      const matchesStatus = statusFilter === "all" || unit.status === statusFilter;
-      const matchesOccupancy = occupancyFilter === "all" || unit.type_of_occupancy === occupancyFilter;
-      const matchesBlockName = blockNameFilter === "all" || unit.blockName === blockNameFilter;
-      const matchesFlatHouseRoom = flatHouseRoomFilter === "all" || unit.flat_house_room_name === flatHouseRoomFilter;
-      const matchesUnitName = unitNameFilter === "all" || unit.unit_name === unitNameFilter;
+  // Individual setters that reset page to 1 when filter changes
+  // Note: Search term doesn't reset page immediately due to debouncing
+  const setSearchTerm = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, searchTerm: value }));
+  }, []);
 
-      return matchesSearch && matchesQuarterName && matchesLocation && matchesCategory &&
-        matchesHousingType && matchesStatus && matchesOccupancy && matchesBlockName &&
-        matchesFlatHouseRoom && matchesUnitName;
-    });
-  }, [units, searchTerm, quarterNameFilter, locationFilter, categoryFilter, housingTypeFilter,
-    statusFilter, occupancyFilter, blockNameFilter, flatHouseRoomFilter, unitNameFilter]);
+  const setQuarterNameFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, quarterNameFilter: value, page: 1 }));
+  }, []);
+
+  const setLocationFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, locationFilter: value, page: 1 }));
+  }, []);
+
+  const setCategoryFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, categoryFilter: value, page: 1 }));
+  }, []);
+
+  const setHousingTypeFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, housingTypeFilter: value, page: 1 }));
+  }, []);
+
+  const setStatusFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, statusFilter: value, page: 1 }));
+  }, []);
+
+  const setOccupancyFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, occupancyFilter: value, page: 1 }));
+  }, []);
+
+  const setBlockNameFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, blockNameFilter: value, page: 1 }));
+  }, []);
+
+  const setFlatHouseRoomFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, flatHouseRoomFilter: value, page: 1 }));
+  }, []);
+
+  const setUnitNameFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, unitNameFilter: value, page: 1 }));
+  }, []);
+
+  // Pagination setters (don't reset page)
+  const setPage = useCallback((value: number) => {
+    setFilters(prev => ({ ...prev, page: value }));
+  }, []);
+
+  const setPageSize = useCallback((value: number) => {
+    setFilters(prev => ({ ...prev, pageSize: value, page: 1 })); // Reset to page 1 when page size changes
+  }, []);
+
+  // Convert filters to API parameters
+  const getApiFilters = useCallback(() => {
+    const apiFilters: any = {
+      page: filters.page,
+      pageSize: filters.pageSize,
+    };
+
+    // Use debounced search term for API calls
+    if (debouncedSearchTerm) {
+      apiFilters.search = debouncedSearchTerm;
+    }
+
+    if (filters.quarterNameFilter !== "all") {
+      apiFilters.quarterName = filters.quarterNameFilter;
+    }
+
+    if (filters.locationFilter !== "all") {
+      apiFilters.location = filters.locationFilter;
+    }
+
+    if (filters.categoryFilter !== "all") {
+      apiFilters.category = filters.categoryFilter;
+    }
+
+    if (filters.housingTypeFilter !== "all") {
+      apiFilters.accommodationTypeId = filters.housingTypeFilter;
+    }
+
+    if (filters.statusFilter !== "all") {
+      apiFilters.status = filters.statusFilter;
+    }
+
+    if (filters.occupancyFilter !== "all") {
+      apiFilters.typeOfOccupancy = filters.occupancyFilter;
+    }
+
+    if (filters.blockNameFilter !== "all") {
+      apiFilters.blockName = filters.blockNameFilter;
+    }
+
+    if (filters.flatHouseRoomFilter !== "all") {
+      apiFilters.flatHouseRoomName = filters.flatHouseRoomFilter;
+    }
+
+    if (filters.unitNameFilter !== "all") {
+      apiFilters.unitName = filters.unitNameFilter;
+    }
+
+    return apiFilters;
+  }, [filters, debouncedSearchTerm]);
 
   return {
-    searchTerm,
+    // Filter states
+    searchTerm: filters.searchTerm,
     setSearchTerm,
-    quarterNameFilter,
+    quarterNameFilter: filters.quarterNameFilter,
     setQuarterNameFilter,
-    locationFilter,
+    locationFilter: filters.locationFilter,
     setLocationFilter,
-    categoryFilter,
+    categoryFilter: filters.categoryFilter,
     setCategoryFilter,
-    housingTypeFilter,
+    housingTypeFilter: filters.housingTypeFilter,
     setHousingTypeFilter,
-    statusFilter,
+    statusFilter: filters.statusFilter,
     setStatusFilter,
-    occupancyFilter,
+    occupancyFilter: filters.occupancyFilter,
     setOccupancyFilter,
-    blockNameFilter,
+    blockNameFilter: filters.blockNameFilter,
     setBlockNameFilter,
-    flatHouseRoomFilter,
+    flatHouseRoomFilter: filters.flatHouseRoomFilter,
     setFlatHouseRoomFilter,
-    unitNameFilter,
+    unitNameFilter: filters.unitNameFilter,
     setUnitNameFilter,
-    filteredUnits
+    
+    // Pagination
+    page: filters.page,
+    setPage,
+    pageSize: filters.pageSize,
+    setPageSize,
+    
+    // Get API filters
+    getApiFilters,
   };
 };

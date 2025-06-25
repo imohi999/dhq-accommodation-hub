@@ -5,58 +5,64 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Building, Home, Grid3X3, Activity } from "lucide-react";
-import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
+import { Building, Home, Users, Activity } from "lucide-react";
+
+interface SummaryData {
+	total: number;
+	vacant: number;
+	occupied: number;
+	notInUse: number;
+	byCategory: {
+		men: number;
+		nco: number;
+		officer: number;
+	};
+}
 
 interface AccommodationSummaryCardsProps {
-	units: DHQLivingUnitWithHousingType[];
+	summary: SummaryData | null;
+	loading?: boolean;
 }
 
 export const AccommodationSummaryCards = ({
-	units,
+	summary,
+	loading = false,
 }: AccommodationSummaryCardsProps) => {
-	const totalUnits = units.length;
+	// Use default values when loading or no data
+	const data = summary || {
+		total: 0,
+		vacant: 0,
+		occupied: 0,
+		notInUse: 0,
+		byCategory: { men: 0, nco: 0, officer: 0 },
+	};
 
-	// Count unique quarters
-	const uniqueQuarters = new Set(units.map((unit) => unit.quarterName)).size;
-
-	// Sum total rooms
-	const totalRooms = units.reduce((sum, unit) => sum + unit.noOfRooms, 0);
-
-	// Count status breakdown
-	const vacantCount = units.filter((unit) => unit.status === "Vacant").length;
-	const occupiedCount = units.filter(
-		(unit) => unit.status === "Occupied"
-	).length;
-	const notInUseCount = units.filter(
-		(unit) => unit.status === "Not In Use"
-	).length;
-
-	const statusDescription = `${vacantCount} Vacant, ${occupiedCount} Occupied, ${notInUseCount} Not In Use`;
+	const statusDescription = `${data.vacant} Vacant, ${data.occupied} Occupied, ${data.notInUse} Not In Use`;
+	const categoryDescription = `${data.byCategory.officer} Officers, ${data.byCategory.nco} NCOs, ${data.byCategory.men} Men`;
 
 	const summaryData = [
 		{
-			title: "Total",
-			value: totalUnits,
+			title: "Total Units",
+			value: loading ? "..." : data.total.toLocaleString(),
 			description: "Total accommodation units",
 			icon: Building,
 		},
 		{
-			title: "Quarters",
-			value: uniqueQuarters,
-			description: "Number of units",
+			title: "Occupancy",
+			value: loading ? "..." : `${data.occupied}/${data.total}`,
+			description: statusDescription,
 			icon: Home,
 		},
 		{
-			title: "Rooms",
-			value: totalRooms,
-			description: "Total number of rooms",
-			icon: Grid3X3,
+			title: "Categories",
+			value: loading ? "..." : `${data.byCategory.officer + data.byCategory.nco + data.byCategory.men}`,
+			description: categoryDescription,
+			icon: Users,
 		},
 		{
-			title: "Status",
-			value: `${occupiedCount}/${totalUnits}`,
-			description: statusDescription,
+			title: "Availability",
+			value: loading ? "..." : `${Math.round((data.vacant / (data.total || 1)) * 100)}%`,
+			description: `${data.vacant} units available`,
 			icon: Activity,
 		},
 	];

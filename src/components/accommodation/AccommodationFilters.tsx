@@ -7,10 +7,18 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import {
-	DHQLivingUnitWithHousingType,
-	AccommodationType,
-} from "@/types/accommodation";
+import { AccommodationType } from "@/types/accommodation";
+
+interface FilterOptions {
+	quarterNames: string[];
+	locations: string[];
+	categories: string[];
+	blockNames: string[];
+	flatHouseRoomNames: string[];
+	unitNames: string[];
+	statuses: string[];
+	occupancyTypes: string[];
+}
 
 interface AccommodationFiltersProps {
 	searchTerm: string;
@@ -33,7 +41,7 @@ interface AccommodationFiltersProps {
 	onFlatHouseRoomChange: (value: string) => void;
 	unitNameFilter: string;
 	onUnitNameChange: (value: string) => void;
-	units: DHQLivingUnitWithHousingType[];
+	filterOptions: FilterOptions;
 	housingTypes: AccommodationType[];
 }
 
@@ -58,30 +66,22 @@ export const AccommodationFilters = ({
 	onFlatHouseRoomChange,
 	unitNameFilter,
 	onUnitNameChange,
-	units,
+	filterOptions,
 	housingTypes,
 }: AccommodationFiltersProps) => {
-	// Get unique values for filter options
-	const uniqueQuarterNames = [
-		...new Set(units.map((unit) => unit.quarterName)),
-	];
-	const uniqueLocations = [...new Set(units.map((unit) => unit.location))];
-	const uniqueCategories = [...new Set(units.map((unit) => unit.category))];
-	const uniqueBlockNames = [...new Set(units.map((unit) => unit.blockName))];
-	const uniqueFlatHouseRooms = [
-		...new Set(
-			units
-				.map((unit) => unit.flatHouseRoomName)
-				.filter((name): name is string => name !== null && name !== undefined)
-		),
-	];
-	const uniqueUnitNames = [
-		...new Set(
-			units
-				.map((unit) => unit.unit_name)
-				.filter((name): name is string => name !== null)
-		),
-	];
+	// Provide default values if filterOptions is not yet loaded or invalid
+	const safeFilterOptions = (filterOptions && typeof filterOptions === 'object' && !Array.isArray(filterOptions))
+		? filterOptions 
+		: {
+		quarterNames: [],
+		locations: [],
+		categories: [],
+		blockNames: [],
+		flatHouseRoomNames: [],
+		unitNames: [],
+		statuses: ['Vacant', 'Occupied', 'Not In Use'],
+		occupancyTypes: ['Single', 'Shared'],
+	};
 
 	return (
 		<div className='space-y-4'>
@@ -104,7 +104,7 @@ export const AccommodationFilters = ({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>All Quarter Names</SelectItem>
-						{uniqueQuarterNames.map((name, index) => (
+						{safeFilterOptions.quarterNames.map((name, index) => (
 							<SelectItem key={index} value={name}>
 								{name}
 							</SelectItem>
@@ -118,7 +118,7 @@ export const AccommodationFilters = ({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>All Locations</SelectItem>
-						{uniqueLocations.map((location, index) => (
+						{safeFilterOptions.locations.map((location, index) => (
 							<SelectItem key={index} value={location}>
 								{location}
 							</SelectItem>
@@ -132,7 +132,7 @@ export const AccommodationFilters = ({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>All Categories</SelectItem>
-						{uniqueCategories.map((category, index) => (
+						{safeFilterOptions.categories.map((category, index) => (
 							<SelectItem key={index} value={category}>
 								{category}
 							</SelectItem>
@@ -183,7 +183,7 @@ export const AccommodationFilters = ({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>All Block Names</SelectItem>
-						{uniqueBlockNames.map((name, index) => (
+						{safeFilterOptions.blockNames.map((name, index) => (
 							<SelectItem key={index} value={name}>
 								{name}
 							</SelectItem>
@@ -199,7 +199,7 @@ export const AccommodationFilters = ({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>All Flat/House/Room</SelectItem>
-						{uniqueFlatHouseRooms.map((name, index) => (
+						{safeFilterOptions.flatHouseRoomNames.map((name, index) => (
 							<SelectItem key={index} value={name}>
 								{name}
 							</SelectItem>
@@ -213,7 +213,7 @@ export const AccommodationFilters = ({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>All Quarters Names</SelectItem>
-						{uniqueUnitNames.map((name, index) => (
+						{safeFilterOptions.unitNames.map((name, index) => (
 							<SelectItem key={index} value={name}>
 								{name}
 							</SelectItem>
