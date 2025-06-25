@@ -305,20 +305,37 @@ export const PastAllocationsView = () => {
 											</p>
 										</div>
 									</div>
-									{allocation.clearance_inspections &&
-									allocation.clearance_inspections.length > 0 ? (
-										<Badge
+
+									{/* Action Buttons - Compact */}
+									<div className='flex items-center gap-2'>
+										<Button
+											size='sm'
 											variant='outline'
-											className='bg-green-50 text-green-700 border-green-200 text-xs px-2 py-1'>
-											Cleared
-										</Badge>
-									) : (
-										<Badge
-											variant='outline'
-											className='bg-gray-50 text-gray-700 border-gray-200 text-xs px-2 py-1'>
-											Completed
-										</Badge>
-									)}
+											onClick={() => {
+												setSelectedAllocation(allocation);
+												setIsInspectionModalOpen(true);
+											}}
+											className='text-xs px-3 py-1 h-auto'>
+											<ClipboardCheck className='h-3 w-3 mr-1' />
+											{allocation.clearance_inspections &&
+											allocation.clearance_inspections.length > 0
+												? "View Inspection"
+												: "Log Inspection"}
+										</Button>
+										{allocation.clearance_inspections &&
+											allocation.clearance_inspections.length > 0 && (
+												<Button
+													size='sm'
+													onClick={() => {
+														setSelectedAllocation(allocation);
+														setIsLetterModalOpen(true);
+													}}
+													className='text-xs px-3 py-1 h-auto'>
+													<FileText className='h-3 w-3 mr-1' />
+													Clearance Letter
+												</Button>
+											)}
+									</div>
 								</div>
 
 								{/* Content Section - Optimized Grid */}
@@ -393,37 +410,6 @@ export const PastAllocationsView = () => {
 												<span>Reason: {allocation.reasonForLeaving}</span>
 											</>
 										)}
-									</div>
-
-									{/* Action Buttons - Compact */}
-									<div className='flex items-center gap-2'>
-										<Button
-											size='sm'
-											variant='outline'
-											onClick={() => {
-												setSelectedAllocation(allocation);
-												setIsInspectionModalOpen(true);
-											}}
-											className='text-xs px-3 py-1 h-auto'>
-											<ClipboardCheck className='h-3 w-3 mr-1' />
-											{allocation.clearance_inspections &&
-											allocation.clearance_inspections.length > 0
-												? "View Inspection"
-												: "Log Inspection"}
-										</Button>
-										{allocation.clearance_inspections &&
-											allocation.clearance_inspections.length > 0 && (
-												<Button
-													size='sm'
-													onClick={() => {
-														setSelectedAllocation(allocation);
-														setIsLetterModalOpen(true);
-													}}
-													className='text-xs px-3 py-1 h-auto'>
-													<FileText className='h-3 w-3 mr-1' />
-													Clearance Letter
-												</Button>
-											)}
 									</div>
 								</div>
 							</CardContent>

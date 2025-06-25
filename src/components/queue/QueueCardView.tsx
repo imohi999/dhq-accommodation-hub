@@ -60,6 +60,27 @@ export const QueueCardView = ({
 										</p>
 									</div>
 								</div>
+								{/* Action Buttons - Compact */}
+								<div className='flex items-center gap-2'>
+									{canEdit && (
+										<Button
+											variant='outline'
+											size='sm'
+											onClick={() => onEdit(item)}
+											className='text-xs px-3 py-1 h-auto'>
+											Edit
+										</Button>
+									)}
+									{canAllocate && (
+										<Button
+											variant='default'
+											size='sm'
+											onClick={() => onAllocate(item)}
+											className='text-xs px-3 py-1 h-auto'>
+											Allocate
+										</Button>
+									)}
+								</div>
 							</div>
 
 							{/* Content Section - Optimized Grid */}
@@ -125,28 +146,6 @@ export const QueueCardView = ({
 												)}
 											</Button>
 										</CollapsibleTrigger>
-									)}
-								</div>
-
-								{/* Action Buttons - Compact */}
-								<div className='flex items-center gap-2'>
-									{canEdit && (
-										<Button
-											variant='outline'
-											size='sm'
-											onClick={() => onEdit(item)}
-											className='text-xs px-3 py-1 h-auto'>
-											Edit
-										</Button>
-									)}
-									{canAllocate && (
-										<Button
-											variant='default'
-											size='sm'
-											onClick={() => onAllocate(item)}
-											className='text-xs px-3 py-1 h-auto'>
-											Allocate
-										</Button>
 									)}
 								</div>
 							</div>

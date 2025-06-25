@@ -333,6 +333,46 @@ export const PendingApprovalView = ({
 											</p>
 										</div>
 									</div>
+
+									{/* Action Buttons - Compact */}
+									<div className='flex items-center gap-2'>
+										{canViewLetter && (
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => setSelectedRequest(request)}
+												className='text-xs px-3 py-1 h-auto'>
+												<FileText className='h-3 w-3 mr-1' />
+												Allocation Letter
+											</Button>
+										)}
+
+										{canApprove && (
+											<LoadingButton
+												variant='default'
+												size='sm'
+												onClick={() => handleApproveClick(request)}
+												loading={loadingStates[`approve_${request.id}`]}
+												loadingText='Approving...'
+												className='text-xs px-3 py-1 h-auto bg-green-600 hover:bg-green-700'>
+												<CheckCircle className='h-3 w-3 mr-1' />
+												Approve
+											</LoadingButton>
+										)}
+
+										{canRefuse && (
+											<LoadingButton
+												variant='destructive'
+												size='sm'
+												onClick={() => handleRefuseClick(request)}
+												loading={loadingStates[`refuse_${request.id}`]}
+												loadingText='Refusing...'
+												className='text-xs px-3 py-1 h-auto'>
+												<XCircle className='h-3 w-3 mr-1' />
+												Refuse
+											</LoadingButton>
+										)}
+									</div>
 								</div>
 
 								{/* Content Section - Optimized Grid */}
@@ -375,46 +415,6 @@ export const PendingApprovalView = ({
 										<span>Quarter: {request.unitData?.quarterName}</span>
 										<span>•</span>
 										<span>Letter: {request.letterId}</span>
-									</div>
-
-									{/* Action Buttons - Compact */}
-									<div className='flex items-center gap-2'>
-										{canViewLetter && (
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => setSelectedRequest(request)}
-												className='text-xs px-3 py-1 h-auto'>
-												<FileText className='h-3 w-3 mr-1' />
-												Allocation Letter
-											</Button>
-										)}
-
-										{canApprove && (
-											<LoadingButton
-												variant='default'
-												size='sm'
-												onClick={() => handleApproveClick(request)}
-												loading={loadingStates[`approve_${request.id}`]}
-												loadingText='Approving...'
-												className='text-xs px-3 py-1 h-auto bg-green-600 hover:bg-green-700'>
-												<CheckCircle className='h-3 w-3 mr-1' />
-												Approve
-											</LoadingButton>
-										)}
-
-										{canRefuse && (
-											<LoadingButton
-												variant='destructive'
-												size='sm'
-												onClick={() => handleRefuseClick(request)}
-												loading={loadingStates[`refuse_${request.id}`]}
-												loadingText='Refusing...'
-												className='text-xs px-3 py-1 h-auto'>
-												<XCircle className='h-3 w-3 mr-1' />
-												Refuse
-											</LoadingButton>
-										)}
 									</div>
 								</div>
 							</CardContent>

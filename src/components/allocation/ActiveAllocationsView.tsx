@@ -443,52 +443,6 @@ export const ActiveAllocationsView = ({
 											</p>
 										</div>
 									</div>
-								</div>
-
-								{/* Content Section - Optimized Grid */}
-								<div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3'>
-									<div className='space-y-1'>
-										<p className='font-medium text-muted-foreground'>
-											Category
-										</p>
-										<p className='font-medium'>{unit.category}</p>
-									</div>
-									<div className='space-y-1'>
-										<p className='font-medium text-muted-foreground'>
-											Unit Type
-										</p>
-										<p className='font-medium'>
-											{unit.accommodationType?.name || unit.category}
-										</p>
-									</div>
-									<div className='space-y-1'>
-										<p className='font-medium text-muted-foreground'>Rooms</p>
-										<p className='font-medium'>{unit.noOfRooms}</p>
-									</div>
-									<div className='space-y-1'>
-										<p className='font-medium text-muted-foreground'>
-											Occupied Since
-										</p>
-										<p className='font-medium'>
-											{unit.occupancyStartDate
-												? new Date(unit.occupancyStartDate).toLocaleDateString()
-												: "N/A"}
-										</p>
-									</div>
-								</div>
-
-								{/* Additional Info and Actions */}
-								<div className='flex items-center justify-between'>
-									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
-										<span>Quarter: {unit.quarterName}</span>
-										<span>•</span>
-										<span>
-											Unit: {unit.blockName} {unit.flatHouseRoomName}
-										</span>
-										<span>•</span>
-										<span>Location: {unit.location}</span>
-									</div>
-
 									{/* Action Buttons - Compact */}
 									<div className='flex items-center gap-2'>
 										{canViewLetter && (
@@ -536,6 +490,51 @@ export const ActiveAllocationsView = ({
 												Posted Out
 											</LoadingButton>
 										)}
+									</div>
+								</div>
+
+								{/* Content Section - Optimized Grid */}
+								<div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3'>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Category
+										</p>
+										<p className='font-medium'>{unit.category}</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Unit Type
+										</p>
+										<p className='font-medium'>
+											{unit.accommodationType?.name || unit.category}
+										</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>Rooms</p>
+										<p className='font-medium'>{unit.noOfRooms}</p>
+									</div>
+									<div className='space-y-1'>
+										<p className='font-medium text-muted-foreground'>
+											Occupied Since
+										</p>
+										<p className='font-medium'>
+											{unit.occupancyStartDate
+												? new Date(unit.occupancyStartDate).toLocaleDateString()
+												: "N/A"}
+										</p>
+									</div>
+								</div>
+
+								{/* Additional Info and Actions */}
+								<div className='flex items-center justify-between'>
+									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
+										<span>Quarter: {unit.quarterName}</span>
+										<span>•</span>
+										<span>
+											Unit: {unit.blockName} {unit.flatHouseRoomName}
+										</span>
+										<span>•</span>
+										<span>Location: {unit.location}</span>
 									</div>
 								</div>
 							</CardContent>
