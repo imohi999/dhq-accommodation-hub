@@ -155,6 +155,7 @@ export default function DHQLivingUnits() {
 				onUnitNameChange={filters.setUnitNameFilter}
 				filterOptions={filterOptions}
 				housingTypes={housingTypes}
+				onResetFilters={filters.resetFilters}
 			/>
 
 			<div className='flex justify-between items-center'>

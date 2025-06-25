@@ -6,7 +6,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, RotateCcw } from "lucide-react";
 import { AccommodationType } from "@/types/accommodation";
 
 interface FilterOptions {
@@ -43,6 +44,7 @@ interface AccommodationFiltersProps {
 	onUnitNameChange: (value: string) => void;
 	filterOptions: FilterOptions;
 	housingTypes: AccommodationType[];
+	onResetFilters?: () => void;
 }
 
 export const AccommodationFilters = ({
@@ -68,6 +70,7 @@ export const AccommodationFilters = ({
 	onUnitNameChange,
 	filterOptions,
 	housingTypes,
+	onResetFilters,
 }: AccommodationFiltersProps) => {
 	// Provide default values if filterOptions is not yet loaded or invalid
 	const safeFilterOptions = (filterOptions && typeof filterOptions === 'object' && !Array.isArray(filterOptions))
@@ -85,15 +88,27 @@ export const AccommodationFilters = ({
 
 	return (
 		<div className='space-y-4'>
-			{/* Search Bar */}
-			<div className='relative'>
-				<Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-				<Input
-					placeholder='Search all fields...'
-					value={searchTerm}
-					onChange={(e) => onSearchChange(e.target.value)}
-					className='pl-8'
-				/>
+			{/* Header with Search Bar and Reset Button */}
+			<div className='flex gap-2'>
+				<div className='relative flex-1'>
+					<Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+					<Input
+						placeholder='Search all fields...'
+						value={searchTerm}
+						onChange={(e) => onSearchChange(e.target.value)}
+						className='pl-8'
+					/>
+				</div>
+				{onResetFilters && (
+					<Button
+						variant='outline'
+						size='default'
+						onClick={onResetFilters}
+						className='flex items-center gap-2'>
+						<RotateCcw className='h-4 w-4' />
+						Reset Filters
+					</Button>
+				)}
 			</div>
 
 			{/* Filters Grid */}

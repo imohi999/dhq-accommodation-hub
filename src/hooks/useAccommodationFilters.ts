@@ -115,6 +115,25 @@ export const useAccommodationFilters = () => {
     setFilters(prev => ({ ...prev, pageSize: value, page: 1 })); // Reset to page 1 when page size changes
   }, []);
 
+  // Reset all filters to default values
+  const resetFilters = useCallback(() => {
+    setFilters({
+      searchTerm: "",
+      quarterNameFilter: "all",
+      locationFilter: "all",
+      categoryFilter: "all",
+      housingTypeFilter: "all",
+      statusFilter: "all",
+      occupancyFilter: "all",
+      blockNameFilter: "all",
+      flatHouseRoomFilter: "all",
+      unitNameFilter: "all",
+      page: 1,
+      pageSize: 20,
+    });
+    setDebouncedSearchTerm("");
+  }, []);
+
   // Convert filters to API parameters
   const getApiFilters = useCallback(() => {
     const apiFilters: any = {
@@ -197,5 +216,8 @@ export const useAccommodationFilters = () => {
     
     // Get API filters
     getApiFilters,
+    
+    // Reset filters
+    resetFilters,
   };
 };
