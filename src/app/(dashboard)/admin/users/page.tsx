@@ -52,6 +52,7 @@ const PAGE_ACTIONS = {
 		"post_out",
 	],
 	"allocations.past": ["access", "view_letter"],
+	"allocations.clearance": ["access", "inspect", "generate_letter"],
 	"allocations.stamp-settings": ["access", "add_stamp", "edit", "delete"],
 	directory: ["access", "export_data"],
 	analytics: ["access"],
@@ -131,6 +132,8 @@ const ACTION_LABELS = {
 	manage_sessions: "Manage Sessions",
 	export_report: "Export Report",
 	export_data: "Export Data",
+	inspect: "Inspect",
+	generate_letter: "Generate Letter",
 };
 
 // Page structure for hierarchy
@@ -155,6 +158,7 @@ const PAGES = [
 			{ key: "allocations.pending", title: "Pending Approval" },
 			{ key: "allocations.active", title: "Active Allocations" },
 			{ key: "allocations.past", title: "Past Allocations" },
+			{ key: "allocations.clearance", title: "Clearance" },
 			{ key: "allocations.stamp-settings", title: "Stamp Settings" },
 		],
 	},

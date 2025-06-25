@@ -78,6 +78,11 @@ const allMenuItems = [
 				url: "/allocations/past",
 			},
 			{
+				key: "allocations.clearance",
+				title: "Clearance",
+				url: "/allocations/clearance",
+			},
+			{
 				key: "allocations.stamp-settings",
 				title: "Stamp Settings",
 				url: "/allocations/stamp-settings",

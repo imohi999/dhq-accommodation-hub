@@ -59,3 +59,18 @@ export interface AllocationLetterData {
     remarks?: string;
   };
 }
+
+export interface ClearanceInspection {
+  id: string;
+  past_allocation_id: string;
+  inspector_svc_no: string;
+  inspector_name: string;
+  inspector_rank: string;
+  inspector_category: string;
+  inspector_appointment: string;
+  inspection_date: string;
+  remarks?: string | null;
+  inventory_status: Record<string, string>;
+  created_at: string;
+  updated_at?: string;
+}

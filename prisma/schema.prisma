@@ -285,27 +285,48 @@ model StampSetting {
 }
 
 model PastAllocation {
-  id                  String        @id @default(uuid())
-  personnelId         String        @map("personnel_id")
-  queueId             String        @map("queue_id")
-  unitId              String        @map("unit_id")
-  letterId            String        @map("letter_id")
-  personnelData       Json          @map("personnel_data")
-  unitData            Json          @map("unit_data")
-  allocationStartDate DateTime      @map("allocation_start_date") @db.Date
-  allocationEndDate   DateTime?     @map("allocation_end_date") @db.Date
-  durationDays        Int?          @map("duration_days")
-  reasonForLeaving    String?       @map("reason_for_leaving")
-  deallocationDate    DateTime?     @map("deallocation_date")
-  createdAt           DateTime      @default(now()) @map("created_at")
-  updatedAt           DateTime      @updatedAt @map("updated_at")
-  queue               Queue         @relation(fields: [queueId], references: [id])
-  unit                DhqLivingUnit @relation(fields: [unitId], references: [id])
+  id                  String                @id @default(uuid())
+  personnelId         String                @map("personnel_id")
+  queueId             String                @map("queue_id")
+  unitId              String                @map("unit_id")
+  letterId            String                @map("letter_id")
+  personnelData       Json                  @map("personnel_data")
+  unitData            Json                  @map("unit_data")
+  allocationStartDate DateTime              @map("allocation_start_date") @db.Date
+  allocationEndDate   DateTime?             @map("allocation_end_date") @db.Date
+  durationDays        Int?                  @map("duration_days")
+  reasonForLeaving    String?               @map("reason_for_leaving")
+  deallocationDate    DateTime?             @map("deallocation_date")
+  createdAt           DateTime              @default(now()) @map("created_at")
+  updatedAt           DateTime              @updatedAt @map("updated_at")
+  queue               Queue                 @relation(fields: [queueId], references: [id])
+  unit                DhqLivingUnit         @relation(fields: [unitId], references: [id])
+  clearanceInspections ClearanceInspection[]
 
   @@index([personnelId])
   @@index([unitId])
   @@index([queueId])
   @@map("past_allocations")
+}
+
+model ClearanceInspection {
+  id                  String         @id @default(uuid())
+  pastAllocationId    String         @map("past_allocation_id")
+  inspectorSvcNo      String         @map("inspector_svc_no")
+  inspectorName       String         @map("inspector_name")
+  inspectorRank       String         @map("inspector_rank")
+  inspectorCategory   String         @map("inspector_category")
+  inspectorAppointment String        @map("inspector_appointment")
+  inspectionDate      DateTime       @map("inspection_date") @db.Date
+  remarks             String?
+  inventoryStatus     Json           @map("inventory_status")
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+  pastAllocation      PastAllocation @relation(fields: [pastAllocationId], references: [id], onDelete: Cascade)
+
+  @@index([pastAllocationId])
+  @@index([inspectionDate])
+  @@map("clearance_inspections")
 }
 
 model AllocationSequence {

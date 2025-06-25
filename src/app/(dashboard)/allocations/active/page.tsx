@@ -39,7 +39,7 @@ export default function ActiveAllocationsPage() {
 					Manage current accommodation allocations
 				</p>
 			</div>
-			<ActiveAllocationsView occupiedUnits={data || []} />
+			<ActiveAllocationsView occupiedUnits={data?.data || []} />
 		</div>
 	);
 }

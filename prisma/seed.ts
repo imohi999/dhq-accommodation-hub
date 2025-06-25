@@ -11,6 +11,13 @@ async function main() {
   
   // Clear in correct order to avoid foreign key constraints
   try {
+    // Try to delete clearance inspections if table exists
+    try {
+      await prisma.clearanceInspection.deleteMany({})
+    } catch (e) {
+      console.log('⚠️  ClearanceInspection table not found, skipping...')
+    }
+    
     await prisma.allocationRequest.deleteMany({})
     await prisma.pastAllocation.deleteMany({})
     await prisma.unitOccupant.deleteMany({})
@@ -90,6 +97,7 @@ async function main() {
     { pageKey: 'allocations.pending', pageTitle: 'Pending Approval', parentKey: 'allocations' },
     { pageKey: 'allocations.active', pageTitle: 'Active Allocations', parentKey: 'allocations' },
     { pageKey: 'allocations.past', pageTitle: 'Past Allocations', parentKey: 'allocations' },
+    { pageKey: 'allocations.clearance', pageTitle: 'Clearance', parentKey: 'allocations' },
     { pageKey: 'allocations.stamp-settings', pageTitle: 'Stamp Settings', parentKey: 'allocations' },
     { pageKey: 'directory', pageTitle: 'Directory', parentKey: null },
     { pageKey: 'analytics', pageTitle: 'Analytics', parentKey: null },
@@ -1289,6 +1297,131 @@ async function main() {
   }
 
   console.log('✅ Created unit inventory records')
+
+  // Add more inventory to all units (for clearance inspections)
+  const allUnits = await prisma.dhqLivingUnit.findMany()
+  
+  console.log('Adding comprehensive inventory to all units...')
+  
+  const commonInventoryItems = [
+    { itemDescription: "Kitchen Cabinet", location: "Kitchen", quantity: 1 },
+    { itemDescription: "Dining Table", location: "Dining Area", quantity: 1 },
+    { itemDescription: "Dining Chairs", location: "Dining Area", quantity: 4 },
+    { itemDescription: "Sofa Set", location: "Living Room", quantity: 1 },
+    { itemDescription: "Center Table", location: "Living Room", quantity: 1 },
+    { itemDescription: "TV Stand", location: "Living Room", quantity: 1 },
+    { itemDescription: "Wardrobe", location: "Master Bedroom", quantity: 1 },
+    { itemDescription: "Bed Frame", location: "Master Bedroom", quantity: 1 },
+    { itemDescription: "Mattress", location: "Master Bedroom", quantity: 1 },
+    { itemDescription: "Curtains", location: "All Windows", quantity: 6 },
+    { itemDescription: "Light Fixtures", location: "All Rooms", quantity: 8 },
+    { itemDescription: "Kitchen Sink", location: "Kitchen", quantity: 1 },
+    { itemDescription: "Toilet Seat", location: "Bathroom", quantity: 1 },
+    { itemDescription: "Bathroom Mirror", location: "Bathroom", quantity: 1 },
+    { itemDescription: "Door Locks", location: "All Doors", quantity: 5 }
+  ]
+  
+  // Add inventory to units that don't have much
+  for (const unit of allUnits) {
+    const existingInventory = await prisma.unitInventory.findMany({
+      where: { unitId: unit.id }
+    })
+    
+    // Only add if unit has less than 5 inventory items
+    if (existingInventory.length < 5) {
+      // Add a subset of common items based on unit size
+      const itemsToAdd = unit.noOfRooms >= 3 ? commonInventoryItems : 
+                         unit.noOfRooms === 2 ? commonInventoryItems.slice(0, 10) :
+                         commonInventoryItems.slice(0, 8)
+      
+      for (const item of itemsToAdd) {
+        const exists = existingInventory.some(inv => 
+          inv.itemDescription === item.itemDescription
+        )
+        
+        if (!exists) {
+          await prisma.unitInventory.create({
+            data: {
+              unitId: unit.id,
+              itemDescription: item.itemDescription,
+              itemLocation: item.location,
+              quantity: item.quantity,
+              itemStatus: Math.random() > 0.8 ? "Non-Functional" : "Functional",
+              remarks: Math.random() > 0.7 ? "Needs maintenance" : "Good condition"
+            }
+          })
+        }
+      }
+    }
+  }
+  
+  console.log('✅ Added comprehensive inventory to all units')
+
+  // Create clearance inspections for past allocations
+  const pastAllocationsForClearance = await prisma.pastAllocation.findMany({
+    include: {
+      unit: {
+        include: {
+          inventory: true
+        }
+      }
+    }
+  })
+  
+  console.log('Creating clearance inspections for past allocations...')
+  
+  const inspectors = [
+    { name: "James Okafor", rank: "Capt", svcNo: "NA/45789/90", category: "Officer", appointment: "QM Assistant" },
+    { name: "Mary Adebayo", rank: "Lt", svcNo: "NN/67890/92", category: "Officer", appointment: "Admin Officer" },
+    { name: "Peter Nwosu", rank: "WO", svcNo: "AF/34567/88", category: "NCOs", appointment: "Stores Supervisor" },
+    { name: "Grace Ibrahim", rank: "SSgt", svcNo: "NA/23456/91", category: "NCOs", appointment: "Inventory Clerk" }
+  ]
+  
+  // Create clearance inspections for 60% of past allocations
+  for (let i = 0; i < pastAllocationsForClearance.length; i++) {
+    if (i % 10 < 6) { // 60% of past allocations
+      const allocation = pastAllocationsForClearance[i]
+      const inspector = inspectors[i % inspectors.length]
+      
+      // Create inventory status for this inspection
+      const inventoryStatus: Record<string, string> = {}
+      
+      if (allocation.unit.inventory) {
+        for (const item of allocation.unit.inventory) {
+          // Randomly assign inspection status
+          const rand = Math.random()
+          inventoryStatus[item.id] = 
+            rand > 0.9 ? "Missing" :
+            rand > 0.8 ? "Non Functional" :
+            "Functional"
+        }
+      }
+      
+      await prisma.clearanceInspection.create({
+        data: {
+          pastAllocationId: allocation.id,
+          inspectorSvcNo: inspector.svcNo,
+          inspectorName: inspector.name,
+          inspectorRank: inspector.rank,
+          inspectorCategory: inspector.category,
+          inspectorAppointment: inspector.appointment,
+          inspectionDate: new Date(
+            allocation.allocationEndDate || new Date()
+          ),
+          remarks: [
+            "All items accounted for, unit in good condition",
+            "Minor wear and tear observed, acceptable condition",
+            "Some items need repair but unit cleared",
+            "Excellent condition maintained throughout occupancy",
+            "Standard wear noted, clearance approved"
+          ][i % 5],
+          inventoryStatus: inventoryStatus
+        }
+      })
+    }
+  }
+  
+  console.log('✅ Created clearance inspections for 60% of past allocations')
 
   console.log('🎉 Database seed completed!')
 }

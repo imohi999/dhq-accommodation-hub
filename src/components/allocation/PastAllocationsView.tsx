@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/spinner";
-import { Clock, User, Home } from "lucide-react";
+import { Clock, User, Home, ClipboardCheck, FileText } from "lucide-react";
 import useSWR from "swr";
+import { InspectionModal } from "./InspectionModal";
+import { ClearanceLetter } from "./ClearanceLetter";
 
 interface PersonnelData {
 	fullName?: string;
@@ -36,15 +40,44 @@ interface PastAllocation {
 	deallocationDate?: string | null;
 	createdAt: string;
 	updatedAt: string;
+	personnel_data?: PersonnelData;
+	unit_data?: UnitData;
+	allocation_start_date?: string;
+	allocation_end_date?: string | null;
+	clearance_inspections?: any[];
+	inventory?: any[];
 }
 
 const fetcher = async () => {
+	// First fetch past allocations
 	const response = await fetch("/api/allocations/past");
 	if (!response.ok) {
 		throw new Error("Failed to fetch past allocations");
 	}
-	const result = await response.json();
-	return result;
+	const pastAllocations = await response.json();
+
+	// Then fetch clearance data which includes inspection details
+	const clearanceResponse = await fetch("/api/allocations/clearance");
+	if (clearanceResponse.ok) {
+		const clearanceData = await clearanceResponse.json();
+		
+		// Merge clearance data with past allocations
+		const mergedData = pastAllocations.map((allocation: any) => {
+			const clearanceRecord = clearanceData.find((c: any) => c.id === allocation.id);
+			if (clearanceRecord) {
+				return {
+					...allocation,
+					clearance_inspections: clearanceRecord.clearance_inspections || [],
+					inventory: clearanceRecord.inventory || []
+				};
+			}
+			return allocation;
+		});
+		
+		return mergedData;
+	}
+	
+	return pastAllocations;
 };
 
 const formatDuration = (days: number): string => {
@@ -64,13 +97,23 @@ const formatDuration = (days: number): string => {
 };
 
 export const PastAllocationsView = () => {
+	const [selectedAllocation, setSelectedAllocation] = useState<PastAllocation | null>(null);
+	const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+	const [isLetterModalOpen, setIsLetterModalOpen] = useState(false);
+
 	const {
 		data: pastAllocations = [],
 		error,
 		isLoading,
+		mutate,
 	} = useSWR<PastAllocation[]>("/api/allocations/past", fetcher);
 
 	console.log({ pastAllocations: JSON.stringify(pastAllocations) });
+
+	const handleInspectionComplete = () => {
+		mutate();
+		setIsInspectionModalOpen(false);
+	};
 
 	if (error) {
 		return (
@@ -251,7 +294,15 @@ export const PastAllocationsView = () => {
 												Letter: {allocation.letterId}
 											</p>
 										</div>
-										<Badge variant='outline'>Completed</Badge>
+										<div className="flex items-center gap-2">
+											{allocation.clearance_inspections && allocation.clearance_inspections.length > 0 ? (
+												<Badge variant='default' className="bg-green-100 text-green-800">
+													Cleared
+												</Badge>
+											) : (
+												<Badge variant='outline'>Completed</Badge>
+											)}
+										</div>
 									</div>
 
 									<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
@@ -297,11 +348,56 @@ export const PastAllocationsView = () => {
 											)}
 										</div>
 									</div>
+
+									{/* Action Buttons */}
+									<div className='flex gap-2 pt-3 border-t'>
+										<Button
+											size="sm"
+											variant="outline"
+											onClick={() => {
+												setSelectedAllocation(allocation);
+												setIsInspectionModalOpen(true);
+											}}
+										>
+											<ClipboardCheck className="h-4 w-4 mr-1" />
+											{allocation.clearance_inspections && allocation.clearance_inspections.length > 0 ? 'View Inspection' : 'Log Inspection'}
+										</Button>
+										{allocation.clearance_inspections && allocation.clearance_inspections.length > 0 && (
+											<Button
+												size="sm"
+												onClick={() => {
+													setSelectedAllocation(allocation);
+													setIsLetterModalOpen(true);
+												}}
+											>
+												<FileText className="h-4 w-4 mr-1" />
+												Clearance Letter
+											</Button>
+										)}
+									</div>
 								</div>
 							</CardContent>
 						</Card>
 					))}
 				</div>
+			)}
+
+			{/* Modals */}
+			{selectedAllocation && (
+				<>
+					<InspectionModal
+						isOpen={isInspectionModalOpen}
+						onClose={() => setIsInspectionModalOpen(false)}
+						allocation={selectedAllocation}
+						onComplete={handleInspectionComplete}
+					/>
+					
+					<ClearanceLetter
+						isOpen={isLetterModalOpen}
+						onClose={() => setIsLetterModalOpen(false)}
+						allocation={selectedAllocation}
+					/>
+				</>
 			)}
 		</div>
 	);

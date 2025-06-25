@@ -18,7 +18,6 @@ import { useAccommodationSummary } from "@/hooks/useAccommodationSummary";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { usePermissions } from "@/hooks/usePermissions";
-// Removed Supabase import - using API instead
 
 export default function DHQLivingUnits() {
 	// Permission checks

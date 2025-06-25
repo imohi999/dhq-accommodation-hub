@@ -11,6 +11,7 @@ export const PAGE_ACTIONS = {
   'allocations.pending': ['access', 'view_letter', 'approve', 'refuse'],
   'allocations.active': ['access', 'view_letter', 'ejection_notice', 'transfer', 'post_out'],
   'allocations.past': ['access', 'view_letter'],
+  'allocations.clearance': ['access', 'inspect', 'generate_letter'],
   'allocations.stamp-settings': ['access', 'add_stamp', 'edit', 'delete'],
   'directory': ['access', 'export_data'],
   'analytics': ['access'],

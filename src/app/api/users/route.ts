@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
           username,
           email,
           hashedPassword,
-          emailVerified: new Date(), // Since email_confirm was true in Supabase
+          emailVerified: new Date(),
         }
       });
 
