@@ -312,55 +312,50 @@ export const PendingApprovalView = ({
 			) : (
 				<div className='space-y-4'>
 					{requests.map((request, index) => (
-						<Card
-							key={request.id}
-							className='hover:shadow-md transition-shadow'>
+						<Card key={request.id} className='hover:shadow-md transition-shadow'>
 							<CardContent className='p-6'>
 								<div className='flex items-start justify-between'>
-									<div className='flex items-start space-x-4'>
-										<div className='flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full'>
-											<span className='text-lg font-bold text-yellow-800'>
-												{index + 1}
-											</span>
-										</div>
-
-										<div className='space-y-3'>
+									<div className='space-y-3 flex-1'>
+										{/* Header Section */}
+										<div className='flex items-start justify-between'>
 											<div>
 												<h3 className='text-lg font-semibold'>
-													{request.personnelData?.rank}{" "}
-													{request.personnelData.fullName}
+													{request.personnelData?.rank} {request.personnelData.fullName}
 												</h3>
 												<p className='text-sm text-muted-foreground'>
-													{getServiceFromSvcNo(request.personnelData?.svcNo)} •{" "}
-													{request.personnelData?.currentUnit}
-												</p>
-												<div className='flex items-center gap-2 mt-1'>
-													<Badge variant='outline' className='text-xs'>
-														{new Date(request.createdAt).toLocaleDateString()}{" "}
-														{new Date(request.createdAt).toLocaleTimeString(
-															[],
-															{ hour: "2-digit", minute: "2-digit" }
-														)}
-													</Badge>
-												</div>
-											</div>
-
-											<div>
-												<p className='text-sm font-medium'>
-													Letter No: {request.letterId}
+													Svc No: {request.personnelData?.svcNo}
 												</p>
 												<p className='text-sm text-muted-foreground'>
-													{request.unitData?.accommodationType} •
-													{request.unitData?.noOfRooms} Room(s) •
-													{request.unitData?.flatHouseRoomName}
+													Request #{index + 1} • Letter: {request.letterId}
 												</p>
-												<Badge className='bg-yellow-100 text-yellow-800 mt-1'>
+											</div>
+											<div className='flex items-center gap-2'>
+												<Badge variant='outline' className='bg-yellow-50 text-yellow-700 border-yellow-200'>
 													Pending Review
 												</Badge>
 											</div>
 										</div>
+
+										{/* Content Section */}
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
+											<div>
+												<p className='font-medium'>Personnel Details:</p>
+												<p>Service: {getServiceFromSvcNo(request.personnelData?.svcNo)}</p>
+												<p>Category: {request.personnelData?.category}</p>
+												<p>Unit: {request.personnelData?.currentUnit}</p>
+												<p>Submitted: {new Date(request.createdAt).toLocaleDateString()}</p>
+											</div>
+											<div>
+												<p className='font-medium'>Requested Accommodation:</p>
+												<p>Type: {request.unitData?.accommodationType}</p>
+												<p>Rooms: {request.unitData?.noOfRooms}</p>
+												<p>Unit: {request.unitData?.flatHouseRoomName}</p>
+												<p>Quarter: {request.unitData?.quarterName}</p>
+											</div>
+										</div>
 									</div>
 
+									{/* Action Section */}
 									<div className='flex items-center gap-2'>
 										{canViewLetter && (
 											<Button

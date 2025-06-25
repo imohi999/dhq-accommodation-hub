@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { LoadingButton } from "@/components/ui/loading-button";
 import {
 	Dialog,
@@ -405,45 +406,49 @@ export const ActiveAllocationsView = ({
 						<Card key={unit.id} className='hover:shadow-md transition-shadow'>
 							<CardContent className='p-6'>
 								<div className='flex items-start justify-between'>
-									<div className='space-y-3'>
-										<div>
-											<h3 className='text-lg font-semibold'>
-												{unit.currentOccupantRank} {unit.currentOccupantName}
-											</h3>
-											<p className='text-sm text-muted-foreground'>
-												Svc No: {unit.currentOccupantServiceNumber}
-											</p>
-											<p className='text-sm text-muted-foreground'>
-												Occupancy Start:{" "}
-												{unit.occupancyStartDate
-													? new Date(
-															unit.occupancyStartDate
-													  ).toLocaleDateString()
-													: "N/A"}
-											</p>
+									<div className='space-y-3 flex-1'>
+										{/* Header Section */}
+										<div className='flex items-start justify-between'>
+											<div>
+												<h3 className='text-lg font-semibold'>
+													{unit.currentOccupantRank} {unit.currentOccupantName}
+												</h3>
+												<p className='text-sm text-muted-foreground'>
+													Svc No: {unit.currentOccupantServiceNumber}
+												</p>
+												<p className='text-sm text-muted-foreground'>
+													Occupancy Start: {unit.occupancyStartDate
+														? new Date(unit.occupancyStartDate).toLocaleDateString()
+														: "N/A"}
+												</p>
+											</div>
+											<div className='flex items-center gap-2'>
+												<Badge variant='outline' className='bg-green-50 text-green-700 border-green-200'>
+													Occupied
+												</Badge>
+											</div>
 										</div>
 
-										<div className='grid grid-cols-2 gap-4 text-sm'>
+										{/* Content Section */}
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
 											<div>
 												<p className='font-medium'>Personnel Details:</p>
 												<p>Category: {unit.category}</p>
+												<p>Service: {getServiceFromSvcNo(unit.currentOccupantServiceNumber || "")}</p>
 												<p>Current Status: Occupied</p>
 											</div>
 											<div>
 												<p className='font-medium'>Accommodation Details:</p>
 												<p>Quarter: {unit.quarterName}</p>
 												<p>Location: {unit.location}</p>
-												<p>
-													Unit: {unit.blockName} {unit.flatHouseRoomName}
-												</p>
+												<p>Unit: {unit.blockName} {unit.flatHouseRoomName}</p>
 												<p>Rooms: {unit.noOfRooms}</p>
-												<p>
-													Type: {unit.accommodationType?.name || unit.category}
-												</p>
+												<p>Type: {unit.accommodationType?.name || unit.category}</p>
 											</div>
 										</div>
 									</div>
 
+									{/* Action Section */}
 									<div className='flex items-center gap-2'>
 										{canViewLetter && (
 											<Button

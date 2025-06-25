@@ -270,87 +270,69 @@ export const PastAllocationsView = () => {
 			) : (
 				<div className='space-y-4'>
 					{pastAllocations.map((allocation) => (
-						<Card
-							key={allocation.id}
-							className='hover:shadow-md transition-shadow'>
+						<Card key={allocation.id} className='hover:shadow-md transition-shadow'>
 							<CardContent className='p-6'>
-								<div className='space-y-3'>
-									<div className='flex justify-between items-start'>
-										<div>
-											<h3 className='text-lg font-semibold'>
-												{allocation.personnelData?.rank}{" "}
-												{allocation.personnelData?.fullName ||
-													allocation.personnelData?.full_name ||
-													"Unknown Personnel"}
-											</h3>
-											<p className='text-sm text-muted-foreground'>
-												Svc No:{" "}
-												{allocation.personnelData?.serviceNumber ||
-													allocation.personnelData?.svc_no ||
-													allocation.personnelData?.svcNo ||
-													"N/A"}
-											</p>
-											<p className='text-sm text-muted-foreground'>
-												Letter: {allocation.letterId}
-											</p>
+								<div className='flex items-start justify-between'>
+									<div className='space-y-3 flex-1'>
+										{/* Header Section */}
+										<div className='flex items-start justify-between'>
+											<div>
+												<h3 className='text-lg font-semibold'>
+													{allocation.personnelData?.rank}{" "}
+													{allocation.personnelData?.fullName ||
+														allocation.personnelData?.full_name ||
+														"Unknown Personnel"}
+												</h3>
+												<p className='text-sm text-muted-foreground'>
+													Svc No: {allocation.personnelData?.serviceNumber ||
+														allocation.personnelData?.svc_no ||
+														allocation.personnelData?.svcNo ||
+														"N/A"}
+												</p>
+												<p className='text-sm text-muted-foreground'>
+													Letter: {allocation.letterId}
+												</p>
+											</div>
+											<div className='flex items-center gap-2'>
+												{allocation.clearance_inspections && allocation.clearance_inspections.length > 0 ? (
+													<Badge variant='outline' className='bg-green-50 text-green-700 border-green-200'>
+														Cleared
+													</Badge>
+												) : (
+													<Badge variant='outline' className='bg-gray-50 text-gray-700 border-gray-200'>
+														Completed
+													</Badge>
+												)}
+											</div>
 										</div>
-										<div className="flex items-center gap-2">
-											{allocation.clearance_inspections && allocation.clearance_inspections.length > 0 ? (
-												<Badge variant='default' className="bg-green-100 text-green-800">
-													Cleared
-												</Badge>
-											) : (
-												<Badge variant='outline'>Completed</Badge>
-											)}
+
+										{/* Content Section */}
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
+											<div>
+												<p className='font-medium'>Allocation Period:</p>
+												<p>
+													{new Date(allocation.allocationStartDate).toLocaleDateString()} to{" "}
+													{new Date(allocation?.allocationEndDate as string).toLocaleDateString()}
+												</p>
+												{allocation.durationDays && (
+													<p>Duration: {formatDuration(allocation.durationDays)}</p>
+												)}
+												<p>Category: {allocation.personnelData?.category}</p>
+												<p>Service: {getServiceFromSvcNo(allocation.personnelData?.serviceNumber || allocation.personnelData?.svc_no || allocation.personnelData?.svcNo || "")}</p>
+											</div>
+											<div>
+												<p className='font-medium'>Previous Unit:</p>
+												<p>Quarter: {allocation.unitData?.quarterName || allocation.unitData?.quarter_name || "N/A"}</p>
+												<p>Unit: {allocation.unitData?.blockName || allocation.unitData?.block_name || ""} {allocation.unitData?.flat_house_room_name || allocation.unitData?.flatHouseRoomName || allocation.unitData?.unitName || ""}</p>
+												{allocation.reasonForLeaving && (
+													<p>Reason for leaving: {allocation.reasonForLeaving}</p>
+												)}
+											</div>
 										</div>
 									</div>
 
-									<div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
-										<div>
-											<p className='font-medium'>Allocation Period:</p>
-											<p>
-												{new Date(
-													allocation.allocationStartDate
-												).toLocaleDateString()}{" "}
-												to{" "}
-												{new Date(
-													allocation?.allocationEndDate as string
-												).toLocaleDateString()}
-											</p>
-
-											{allocation.durationDays && (
-												<p className='text-muted-foreground'>
-													Duration: {formatDuration(allocation.durationDays)}
-												</p>
-											)}
-										</div>
-										<div>
-											<p className='font-medium'>Previous Unit:</p>
-											<p>
-												{allocation.unitData?.quarterName ||
-													allocation.unitData?.quarter_name ||
-													"N/A"}{" "}
-												{allocation.unitData?.blockName ||
-													allocation.unitData?.block_name ||
-													""}{" "}
-												{allocation.unitData?.flat_house_room_name ||
-													allocation.unitData?.flatHouseRoomName ||
-													allocation.unitData?.unitName ||
-													""}
-											</p>
-											{allocation.reasonForLeaving && (
-												<p className='text-muted-foreground mt-1'>
-													<span className='font-medium'>
-														Reason for leaving:
-													</span>{" "}
-													{allocation.reasonForLeaving}
-												</p>
-											)}
-										</div>
-									</div>
-
-									{/* Action Buttons */}
-									<div className='flex gap-2 pt-3 border-t'>
+									{/* Action Section */}
+									<div className='flex items-center gap-2'>
 										<Button
 											size="sm"
 											variant="outline"
