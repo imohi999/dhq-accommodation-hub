@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -30,6 +30,16 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/ui/loading-button";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface InspectionModalProps {
 	isOpen: boolean;
@@ -45,11 +55,13 @@ export function InspectionModal({
 	onComplete,
 }: InspectionModalProps) {
 	const [isLoading, setIsLoading] = useState(false);
+	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 	const [inspectionForm, setInspectionForm] = useState({
 		inspector_svc_no: "",
 		inspector_name: "",
 		inspector_rank: "",
 		inspector_category: "",
+		inspector_arm_of_service: "",
 		inspector_appointment: "",
 		inspection_date: format(new Date(), "yyyy-MM-dd"),
 		remarks: "",
@@ -78,12 +90,120 @@ export function InspectionModal({
 		}
 	};
 
+	// Military rank data
+	const militaryRanks: Record<string, Record<string, string[]>> = {
+		"Nigerian Army": {
+			Officer: [
+				"Gen",
+				"Lt Gen",
+				"Maj Gen",
+				"Brig Gen",
+				"Col",
+				"Lt Col",
+				"Maj",
+				"Capt",
+				"Lt",
+				"2Lt",
+			],
+			NCOs: [
+				"WO",
+				"MWO",
+				"SWO",
+				"WOI",
+				"WOII",
+				"SSgt",
+				"Sgt",
+				"Cpl",
+				"LCpl",
+				"Pte",
+			],
+		},
+		"Nigerian Navy": {
+			Officer: [
+				"Adm",
+				"VAdm",
+				"RAdm",
+				"Cdre",
+				"Capt",
+				"Cdr",
+				"Lt Cdr",
+				"Lt",
+				"SLt",
+				"MSh",
+			],
+			NCOs: [
+				"WO",
+				"MWO",
+				"SWO",
+				"WOI",
+				"WOII",
+				"CPO",
+				"PO",
+				"LPO",
+				"AB",
+				"OS",
+			],
+		},
+		"Nigerian Air Force": {
+			Officer: [
+				"Air Mshl",
+				"AVM",
+				"Air Cdre",
+				"Gp Capt",
+				"Wg Cdr",
+				"Sqn Ldr",
+				"Flt Lt",
+				"Fg Offr",
+				"Plt Offr",
+			],
+			NCOs: [
+				"AWO",
+				"MWO",
+				"SWO",
+				"WOI",
+				"WOII",
+				"FS",
+				"Sgt",
+				"Cpl",
+				"LCpl",
+				"ACM",
+			],
+		},
+	};
+
+	// Get available ranks based on service and category
+	const getAvailableRanks = () => {
+		const service = inspectionForm.inspector_arm_of_service;
+		const category = inspectionForm.inspector_category;
+		
+		if (!service || !category) return [];
+		
+		return militaryRanks[service]?.[category] || [];
+	};
+
+	// Clear rank when service or category changes
+	useEffect(() => {
+		const availableRanks = getAvailableRanks();
+		if (inspectionForm.inspector_rank && !availableRanks.includes(inspectionForm.inspector_rank)) {
+			setInspectionForm(prev => ({ ...prev, inspector_rank: "" }));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [inspectionForm.inspector_arm_of_service, inspectionForm.inspector_category]);
+
 	const handleSubmit = async () => {
-		if (!inspectionForm.inspector_svc_no || !inspectionForm.inspector_name) {
+		if (!inspectionForm.inspector_svc_no || !inspectionForm.inspector_name || 
+			!inspectionForm.inspector_rank || !inspectionForm.inspector_category ||
+			!inspectionForm.inspector_arm_of_service || !inspectionForm.inspector_appointment) {
 			toast.error("Please fill in all required fields");
 			return;
 		}
 
+		// Show confirmation dialog
+		setShowConfirmDialog(true);
+	};
+
+	const handleConfirmSubmit = async () => {
+		setShowConfirmDialog(false);
 		setIsLoading(true);
 		try {
 			const response = await fetch("/api/allocations/clearance", {
@@ -230,8 +350,8 @@ export function InspectionModal({
 															<SelectItem value='Functional'>
 																Functional
 															</SelectItem>
-															<SelectItem value='Non Functional'>
-																Non Functional
+															<SelectItem value='Observed Discrepancy'>
+																Observed Discrepancy
 															</SelectItem>
 															<SelectItem value='Missing'>Missing</SelectItem>
 														</SelectContent>
@@ -317,32 +437,69 @@ export function InspectionModal({
 									/>
 								</div>
 								<div className='space-y-2'>
-									<Label htmlFor='inspector_rank'>Rank *</Label>
-									<Input
-										id='inspector_rank'
-										value={inspectionForm.inspector_rank}
-										onChange={(e) =>
+									<Label htmlFor='inspector_arm_of_service'>Service Branch *</Label>
+									<Select
+										value={inspectionForm.inspector_arm_of_service}
+										onValueChange={(value) =>
 											setInspectionForm((prev) => ({
 												...prev,
-												inspector_rank: e.target.value,
+												inspector_arm_of_service: value,
 											}))
-										}
-										placeholder='Enter rank'
-									/>
+										}>
+										<SelectTrigger>
+											<SelectValue placeholder='Select service branch' />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value='Nigerian Army'>Nigerian Army</SelectItem>
+											<SelectItem value='Nigerian Navy'>Nigerian Navy</SelectItem>
+											<SelectItem value='Nigerian Air Force'>
+												Nigerian Air Force
+											</SelectItem>
+										</SelectContent>
+									</Select>
 								</div>
 								<div className='space-y-2'>
 									<Label htmlFor='inspector_category'>Category *</Label>
-									<Input
-										id='inspector_category'
+									<Select
 										value={inspectionForm.inspector_category}
-										onChange={(e) =>
+										onValueChange={(value) =>
 											setInspectionForm((prev) => ({
 												...prev,
-												inspector_category: e.target.value,
+												inspector_category: value,
 											}))
 										}
-										placeholder='Enter category'
-									/>
+										disabled={!inspectionForm.inspector_arm_of_service}>
+										<SelectTrigger>
+											<SelectValue placeholder='Select category' />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value='NCOs'>NCOs</SelectItem>
+											<SelectItem value='Officer'>Officer</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+								<div className='space-y-2'>
+									<Label htmlFor='inspector_rank'>Rank *</Label>
+									<Select
+										value={inspectionForm.inspector_rank}
+										onValueChange={(value) =>
+											setInspectionForm((prev) => ({
+												...prev,
+												inspector_rank: value,
+											}))
+										}
+										disabled={!inspectionForm.inspector_category || !inspectionForm.inspector_arm_of_service}>
+										<SelectTrigger>
+											<SelectValue placeholder='Select rank' />
+										</SelectTrigger>
+										<SelectContent>
+											{getAvailableRanks().map((rank: string) => (
+												<SelectItem key={rank} value={rank}>
+													{rank}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
 								</div>
 								<div className='space-y-2'>
 									<Label htmlFor='inspector_appointment'>Appointment *</Label>
@@ -404,6 +561,24 @@ export function InspectionModal({
 					</div>
 				</div>
 			</DialogContent>
+			
+			{/* Confirmation Dialog */}
+			<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Confirm Inspection</AlertDialogTitle>
+						<AlertDialogDescription>
+							Are you sure you want to save this inspection? Please review the details before confirming.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction onClick={handleConfirmSubmit}>
+							Confirm and Save
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</Dialog>
 	);
 }
