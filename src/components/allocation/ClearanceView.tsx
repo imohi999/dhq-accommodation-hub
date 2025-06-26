@@ -42,13 +42,13 @@ export function ClearanceView() {
 
 	const filteredData = data?.filter((allocation: any) => {
 		const searchLower = searchTerm.toLowerCase();
-		const personnelData = allocation.personnel_data;
+		const personnelData = allocation.personnelData;
 
 		return (
 			personnelData?.serviceNumber?.toLowerCase().includes(searchLower) ||
 			personnelData?.fullName?.toLowerCase().includes(searchLower) ||
-			allocation.unit_data?.unitName?.toLowerCase().includes(searchLower) ||
-			allocation.unit_data?.quarterName?.toLowerCase().includes(searchLower)
+			allocation.unitData?.unitName?.toLowerCase().includes(searchLower) ||
+			allocation.unitData?.quarterName?.toLowerCase().includes(searchLower)
 		);
 	});
 
@@ -100,8 +100,8 @@ export function ClearanceView() {
 							</TableHeader>
 							<TableBody>
 								{filteredData?.map((allocation: any) => {
-									const personnelData = allocation.personnel_data;
-									const unitData = allocation.unit_data;
+									const personnelData = allocation.personnelData;
+									const unitData = allocation.unitData;
 									const hasInspection =
 										Array.isArray(allocation.clearance_inspections) &&
 										allocation.clearance_inspections.length > 0;
@@ -137,9 +137,9 @@ export function ClearanceView() {
 											<TableCell>
 												<div className='text-sm'>
 													<p>
-														{formatSafeDate(allocation.allocation_start_date)} -
+														{formatSafeDate(allocation.allocationStartDate)} -
 														{formatSafeDate(
-															allocation.allocation_end_date,
+															allocation.allocationEndDate,
 															"Present"
 														)}
 													</p>

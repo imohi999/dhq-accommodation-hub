@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/spinner";
-import { Clock, User, Home, ClipboardCheck, FileText } from "lucide-react";
+import { Clock, ClipboardCheck, FileText } from "lucide-react";
 import useSWR from "swr";
 import { InspectionModal } from "./InspectionModal";
 import { ClearanceLetter } from "./ClearanceLetter";
@@ -11,43 +10,113 @@ import { AllocationFilters } from "./AllocationFilters";
 import { useAllocationFilters } from "@/hooks/useAllocationFilters";
 
 interface PersonnelData {
-	fullName?: string;
-	full_name?: string;
-	rank?: string;
-	serviceNumber?: string;
-	svc_no?: string;
-	svcNo?: string;
-	category?: string;
+	rank: string;
+	phone: string;
+	category: string;
+	fullName: string;
+	serviceNumber: string;
+}
+interface ClearanceInspection {
+	id: string;
+	past_allocation_id: string;
+	inspector_svc_no: string;
+	inspector_name: string;
+	inspector_rank: string;
+	inspector_category: string;
+	inspector_appointment: string;
+	inspection_date: string;
+	remarks: string;
+	inventory_status: Record<string, any>;
+	created_at: string;
+	updated_at: string;
+}
+
+interface InventoryItem {
+	id: string;
+	unit_id: string;
+	quantity: number;
+	item_description: string;
+	item_location: string;
+	item_status: "Functional" | "Non-Functional";
+	remarks: string;
+	created_at: string;
+	updated_at: string;
 }
 
 interface UnitData {
-	quarterName?: string;
-	quarter_name?: string;
-	unitName?: string;
-	flat_house_room_name?: string;
-	flatHouseRoomName?: string;
-	blockName?: string;
-	block_name?: string;
+	location: string;
+	unitName: string;
+	quarterName: string;
+	accommodationType: string;
 }
 
-interface PastAllocation {
+interface QueueData {
 	id: string;
+	sequence: number;
+	fullName: string;
+	svcNo: string;
+	gender: string;
+	armOfService: string;
+	category: string;
+	rank: string;
+	maritalStatus: string;
+	noOfAdultDependents: number;
+	noOfChildDependents: number;
+	currentUnit: string;
+	appointment: string;
+	dateTos: string | null;
+	dateSos: string | null;
+	phone: string | null;
+	entryDateTime: string;
+	createdAt: string;
+	updatedAt: string;
+	dependents: any | null;
+	hasAllocationRequest: boolean;
+}
+
+interface Unit {
+	id: string;
+	quarterName: string;
+	location: string;
+	category: string;
+	accommodationTypeId: string;
+	noOfRooms: number;
+	status: string;
+	typeOfOccupancy: string;
+	bq: boolean;
+	noOfRoomsInBq: number;
+	blockName: string;
+	flatHouseRoomName: string;
+	unitName: string;
+	blockImageUrl: string | null;
+	currentOccupantId: string;
+	currentOccupantName: string;
+	currentOccupantRank: string;
+	currentOccupantServiceNumber: string;
+	occupancyStartDate: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface PastAllocation {
+	id: string;
+	personnelId: string;
+	queueId: string;
+	unitId: string;
+	letterId: string;
 	personnelData: PersonnelData;
 	unitData: UnitData;
 	allocationStartDate: string;
-	allocationEndDate?: string | null;
-	durationDays?: number | null;
-	reasonForLeaving?: string | null;
-	letterId: string;
-	deallocationDate?: string | null;
+	allocationEndDate: string;
+	durationDays: number;
+	reasonForLeaving: string;
+	deallocationDate: string | null;
 	createdAt: string;
 	updatedAt: string;
-	personnel_data?: PersonnelData;
-	unit_data?: UnitData;
-	allocation_start_date?: string;
-	allocation_end_date?: string | null;
-	clearance_inspections?: any[];
-	inventory?: any[];
+	queue: QueueData;
+	unit: Unit;
+	clearance_inspections: ClearanceInspection[];
+	inventory: InventoryItem[];
 }
 
 const fetcher = async () => {
@@ -146,30 +215,18 @@ export const PastAllocationsView = () => {
 	} = useAllocationFilters(
 		pastAllocations,
 		(item) => [
-			item.personnelData?.fullName || item.personnelData?.full_name || "",
-			item.personnelData?.serviceNumber ||
-				item.personnelData?.svc_no ||
-				item.personnelData?.svcNo ||
-				"",
+			item.personnelData?.fullName || "",
+			item.personnelData?.serviceNumber || "",
 			item.personnelData?.rank || "",
-			item.unitData?.quarterName || item.unitData?.quarter_name || "",
+			item.unitData?.quarterName || "",
 			item.unitData?.unitName || "",
-			item.unitData?.flatHouseRoomName || item.unitData?.flat_house_room_name || "",
+			item.unit?.flatHouseRoomName || "",
 			item.letterId || "",
 		],
-		(item) =>
-			getServiceFromSvcNo(
-				item.personnelData?.serviceNumber ||
-					item.personnelData?.svc_no ||
-					item.personnelData?.svcNo ||
-					""
-			),
+		(item) => getServiceFromSvcNo(item.personnelData?.serviceNumber || ""),
 		(item) => item.personnelData?.category || "",
-		(item) => item.unitData?.quarterName || item.unitData?.quarter_name || "",
-		(item) =>
-			item.unitData?.flatHouseRoomName?.includes("BR")
-				? item.unitData.flatHouseRoomName
-				: "Other"
+		(item) => item.unitData?.quarterName || "",
+		(item) => item.unitData?.accommodationType || ""
 	);
 
 	if (error) {
@@ -202,30 +259,18 @@ export const PastAllocationsView = () => {
 	// Calculate by service
 	const armyAllocations = filteredItems.filter(
 		(allocation) =>
-			getServiceFromSvcNo(
-				allocation.personnelData?.serviceNumber ||
-					allocation.personnelData?.svc_no ||
-					allocation.personnelData?.svcNo ||
-					""
-			) === "Nigerian Army"
+			getServiceFromSvcNo(allocation.personnelData?.serviceNumber || "") ===
+			"Nigerian Army"
 	);
 	const navyAllocations = filteredItems.filter(
 		(allocation) =>
-			getServiceFromSvcNo(
-				allocation.personnelData?.serviceNumber ||
-					allocation.personnelData?.svc_no ||
-					allocation.personnelData?.svcNo ||
-					""
-			) === "Nigerian Navy"
+			getServiceFromSvcNo(allocation.personnelData?.serviceNumber || "") ===
+			"Nigerian Navy"
 	);
 	const airForceAllocations = filteredItems.filter(
 		(allocation) =>
-			getServiceFromSvcNo(
-				allocation.personnelData?.serviceNumber ||
-					allocation.personnelData?.svc_no ||
-					allocation.personnelData?.svcNo ||
-					""
-			) === "Nigerian Air Force"
+			getServiceFromSvcNo(allocation.personnelData?.serviceNumber || "") ===
+			"Nigerian Air Force"
 	);
 
 	const armyOfficers = armyAllocations.filter(
@@ -268,7 +313,8 @@ export const PastAllocationsView = () => {
 			{/* Show count info */}
 			<div className='flex justify-between items-center'>
 				<p className='text-sm text-muted-foreground'>
-					Showing {filteredItems.length} of {pastAllocations.length} past allocations
+					Showing {filteredItems.length} of {pastAllocations.length} past
+					allocations
 				</p>
 			</div>
 
@@ -337,7 +383,11 @@ export const PastAllocationsView = () => {
 				<Card>
 					<CardContent className='p-12 text-center'>
 						<p className='text-muted-foreground'>
-							{searchTerm || categoryFilter !== "all" || armOfServiceFilter !== "all" || quarterFilter !== "all" || unitTypeFilter !== "all"
+							{searchTerm ||
+							categoryFilter !== "all" ||
+							armOfServiceFilter !== "all" ||
+							quarterFilter !== "all" ||
+							unitTypeFilter !== "all"
 								? "No past allocations match your filters"
 								: "No past allocations found"}
 						</p>
@@ -360,20 +410,12 @@ export const PastAllocationsView = () => {
 											<h3 className='text-base font-semibold leading-tight'>
 												{allocation.personnelData?.rank}{" "}
 												{allocation.personnelData?.fullName ||
-													allocation.personnelData?.full_name ||
 													"Unknown Personnel"}
 											</h3>
 											<p className='text-xs text-muted-foreground'>
-												{allocation.personnelData?.serviceNumber ||
-													allocation.personnelData?.svc_no ||
-													allocation.personnelData?.svcNo ||
-													"N/A"}{" "}
-												•{" "}
+												{allocation.personnelData?.serviceNumber || "N/A"} •{" "}
 												{getServiceFromSvcNo(
-													allocation.personnelData?.serviceNumber ||
-														allocation.personnelData?.svc_no ||
-														allocation.personnelData?.svcNo ||
-														""
+													allocation.personnelData?.serviceNumber || ""
 												)}
 											</p>
 										</div>
@@ -459,21 +501,12 @@ export const PastAllocationsView = () => {
 								<div className='flex items-center justify-between'>
 									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
 										<span>
-											Quarter:{" "}
-											{allocation.unitData?.quarterName ||
-												allocation.unitData?.quarter_name ||
-												"N/A"}
+											Quarter: {allocation.unitData?.quarterName || "N/A"}
 										</span>
 										<span>•</span>
 										<span>
-											Unit:{" "}
-											{allocation.unitData?.blockName ||
-												allocation.unitData?.block_name ||
-												""}{" "}
-											{allocation.unitData?.flat_house_room_name ||
-												allocation.unitData?.flatHouseRoomName ||
-												allocation.unitData?.unitName ||
-												""}
+											Unit:
+											{allocation.unitData?.unitName || ""}
 										</span>
 										<span>•</span>
 										<span>Letter: {allocation.letterId}</span>

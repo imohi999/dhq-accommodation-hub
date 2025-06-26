@@ -35,33 +35,27 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Transform the data to match the expected format
+    // Transform the data to match the expected format (camelCase)
     const transformedData = pastAllocations.map((allocation) => ({
       id: allocation.id,
-      personnel_id: allocation.personnelId,
-      queue_id: allocation.queueId,
-      unit_id: allocation.unitId,
-      letter_id: allocation.letterId,
-      personnel_data: allocation.personnelData,
-      unit_data: allocation.unitData,
-      allocation_start_date: allocation.allocationStartDate,
-      allocation_end_date: allocation.allocationEndDate,
-      duration_days: allocation.durationDays,
-      reason_for_leaving: allocation.reasonForLeaving,
-      deallocation_date: allocation.deallocationDate,
-      created_at: allocation.createdAt,
-      updated_at: allocation.updatedAt,
-      inventory: allocation.unit.inventory.map(item => ({
-        id: item.id,
-        unit_id: item.unitId,
-        quantity: item.quantity,
-        item_description: item.itemDescription,
-        item_location: item.itemLocation,
-        item_status: item.itemStatus,
-        remarks: item.remarks,
-        created_at: item.createdAt,
-        updated_at: item.updatedAt
-      })),
+      personnelId: allocation.personnelId,
+      queueId: allocation.queueId,
+      unitId: allocation.unitId,
+      letterId: allocation.letterId,
+      personnelData: allocation.personnelData,
+      unitData: allocation.unitData,
+      allocationStartDate: allocation.allocationStartDate,
+      allocationEndDate: allocation.allocationEndDate,
+      durationDays: allocation.durationDays,
+      reasonForLeaving: allocation.reasonForLeaving,
+      deallocationDate: allocation.deallocationDate,
+      createdAt: allocation.createdAt,
+      updatedAt: allocation.updatedAt,
+      queue: allocation.queue,
+      unit: {
+        ...allocation.unit,
+        accommodationType: allocation.unit.accommodationType
+      },
       clearance_inspections: allocation.clearanceInspections.map(inspection => ({
         id: inspection.id,
         past_allocation_id: inspection.pastAllocationId,
@@ -75,6 +69,17 @@ export async function GET(request: NextRequest) {
         inventory_status: inspection.inventoryStatus,
         created_at: inspection.createdAt,
         updated_at: inspection.updatedAt
+      })),
+      inventory: allocation.unit.inventory.map(item => ({
+        id: item.id,
+        unit_id: item.unitId,
+        quantity: item.quantity,
+        item_description: item.itemDescription,
+        item_location: item.itemLocation,
+        item_status: item.itemStatus,
+        remarks: item.remarks,
+        created_at: item.createdAt,
+        updated_at: item.updatedAt
       }))
     }));
 

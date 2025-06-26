@@ -7,11 +7,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Printer, Download } from "lucide-react";
 import { useStampSettings } from "@/hooks/useStampSettings";
+import { PastAllocation } from "./PastAllocationsView";
 
 interface ClearanceLetterProps {
 	isOpen: boolean;
 	onClose: () => void;
-	allocation: any;
+	allocation: PastAllocation;
 }
 
 export const ClearanceLetter = ({
@@ -21,13 +22,14 @@ export const ClearanceLetter = ({
 }: ClearanceLetterProps) => {
 	const { stampSettings } = useStampSettings();
 	const activeStamp = stampSettings.find((stamp) => stamp.is_active);
-	
-	const personnelData = allocation?.personnel_data || allocation?.personnelData;
-	const unitData = allocation?.unit_data || allocation?.unitData;
+
+	const personnelData = allocation?.personnelData;
 	const latestInspection = allocation?.clearance_inspections?.[0];
 
 	// Ensure proper letter ID format
-	const displayLetterId = `DHQ/AMU/CLR/${new Date().getFullYear()}/${allocation.id?.slice(-6) || "000000"}`;
+	const displayLetterId = `DHQ/AMU/CLR/${new Date().getFullYear()}/${
+		allocation.id?.slice(-6) || "000000"
+	}`;
 
 	const generatePrintDocument = (forDownload = false) => {
 		const printContent = document.getElementById("clearance-letter-content");
@@ -47,7 +49,7 @@ export const ClearanceLetter = ({
 					}
 				});
 
-				const filename = `Clearance_Letter_${personnelData?.name?.replace(
+				const filename = `Clearance_Letter_${personnelData?.fullName?.replace(
 					/\s+/g,
 					"_"
 				)}_${displayLetterId.replace(/\//g, "-")}.pdf`;
@@ -85,6 +87,15 @@ export const ClearanceLetter = ({
                 .text-center {
                   text-align: center;
                 }
+								.flex { display: flex; }
+								.font-semibold { font-weight: 600; }
+
+								.flex-col { flex-direction: column; }
+
+								.justify-between { justify-content: space-between;}
+
+
+								.mb-1 { margin-bottom: 0.25rem /* 4px */;	}
                 
                 .mb-6 { margin-bottom: 1.5rem; }
 								.text-justify { text-align: justify; }
@@ -101,6 +112,8 @@ export const ClearanceLetter = ({
                 .mb-1 { margin-bottom: 0.25rem; }
                 .mt-12 { margin-top: 3rem; }
                 .mt-1 { margin-top: 0.25rem; }
+								.mb-0.5 { margin-top: 0.125rem; }
+
                 
                 /* Logo container */
                 .flex {
@@ -268,30 +281,9 @@ export const ClearanceLetter = ({
 		generatePrintDocument(true);
 	};
 
-	const currentDate = new Date().toLocaleDateString("en-GB", {
-		day: "2-digit",
-		month: "short",
-		year: "numeric",
-	});
-
-	// Safe date formatting function
-	const formatSafeDate = (dateValue: any, defaultText = 'N/A') => {
-		if (!dateValue) return defaultText;
-		try {
-			const date = new Date(dateValue);
-			if (isNaN(date.getTime())) return defaultText;
-			return date.toLocaleDateString("en-GB", {
-				day: "2-digit",
-				month: "short",
-				year: "numeric",
-			});
-		} catch {
-			return defaultText;
-		}
-	};
 
 	// Safe date formatting function with full month name
-	const formatSafeDateLong = (dateValue: any, defaultText = 'N/A') => {
+	const formatSafeDateLong = (dateValue: any, defaultText = "N/A") => {
 		if (!dateValue) return defaultText;
 		try {
 			const date = new Date(dateValue);
@@ -358,77 +350,82 @@ export const ClearanceLetter = ({
 						<h2 className='text-lg font-bold leading-tight'>
 							ACCOMMODATION MANAGEMENT UNIT
 						</h2>
-						<h3 className='text-lg font-bold leading-tight'>CLEARANCE CERTIFICATE</h3>
-					</div>
-
-					{/* Letter Reference - Display actual letter ID */}
-					<div className='mb-2'>
-						<p className='font-bold'>{displayLetterId}</p>
-					</div>
-
-					{/* Date */}
-					<div className='text-right mb-6 mr-52'>
-						<p>{currentDate}</p>
+						<h3 className='text-lg font-bold leading-tight'>
+							CLEARANCE CERTIFICATE
+						</h3>
 					</div>
 
 					{/* Subject */}
 					<div className='text-center mb-6'>
-						<p className='font-bold underline'>
-							TO WHOM IT MAY CONCERN
-						</p>
+						<p className='font-bold underline'>CLEARANCE LETTER</p>
 					</div>
 
 					{/* Body */}
-					<div className='space-y-4 mb-8 text-justify'>
-						<p className='text-center font-bold'>
-							CLEARANCE CERTIFICATE FOR {personnelData?.rank} {personnelData?.name} ({personnelData?.svcNo})
+					<div className=' mb-8 text-justify'>
+						<p className='mb-1'>
+							1. I, declare that I have returned the accommodation and its
+							inventory in the stated condition and to the satisfaction of the
+							inspecting officer.
 						</p>
-
-						<p>
-							This is to certify that the above-named officer/personnel has satisfactorily vacated 
-							the DHQ accommodation unit allocated to them and has been cleared following a thorough 
-							inspection of the property.
+						<div className='flex flex-col mb-2'>
+							<span className='font-semibold'>
+								SvcNo: {personnelData?.serviceNumber}
+							</span>
+							<span className='font-semibold'>Rank: {personnelData?.rank}</span>
+							<span className='font-semibold'>
+								Full Name: {personnelData?.fullName}
+							</span>
+							<span className='font-semibold'>
+								Current Unit: {allocation?.queue?.currentUnit}
+							</span>
+							<span className='font-semibold'>
+								Quarter Name: {allocation?.unit?.unitName}
+							</span>
+							<span className='font-semibold'>
+								Quarters Name: {allocation?.unit?.quarterName}
+							</span>
+						</div>
+						<p className='mb-1'>
+							2. I, hereby approve the clearance of the above-named officer from
+							the listed accommodation based on the inspection report and
+							inventory reconciliation.
 						</p>
-
-						<p>
-							<span className='font-bold'>Accommodation Details:</span><br/>
-							Unit Name: {unitData?.unitName}<br/>
-							Unit Number: {unitData?.unitNo}<br/>
-							Unit Type: {unitData?.unitType}<br/>
-							Location: {unitData?.location || 'N/A'}<br/>
-							Allocation Period: {formatSafeDate(allocation.allocation_start_date)} to {' '}
-							{formatSafeDate(allocation.allocation_end_date, 'Present')}
-						</p>
-
 						{latestInspection && (
-							<>
-								<p>
-									<span className='font-bold'>Inspection Details:</span><br/>
-									Inspector: {latestInspection.inspector_rank} {latestInspection.inspector_name} ({latestInspection.inspector_svc_no})<br/>
-									Appointment: {latestInspection.inspector_appointment}<br/>
-									Inspection Date: {formatSafeDateLong(latestInspection.inspection_date)}<br/>
-									{latestInspection.remarks && (
-										<>Remarks: {latestInspection.remarks}</>
-									)}
-								</p>
-
-								<p>
-									The inspection confirmed that all items in the accommodation inventory have been 
-									accounted for and the unit has been left in an acceptable condition, subject to 
-									normal wear and tear.
-								</p>
-							</>
+							<div className='flex flex-col mb-2'>
+								<span className='font-semibold'>
+									SvcNo: {latestInspection.inspector_svc_no}
+								</span>
+								<span className='font-semibold'>
+									Rank: {latestInspection.inspector_rank}
+								</span>
+								<span className='font-semibold'>
+									Full Name: {latestInspection.inspector_name}
+								</span>
+								<span className='font-semibold'>
+									Appointment: {latestInspection.inspector_appointment}
+								</span>
+								<span className='font-semibold'>
+									Inspection Date:{" "}
+									{formatSafeDateLong(latestInspection.inspection_date)}
+								</span>
+								<span className='font-semibold'>
+									Remarks: {latestInspection.remarks}
+								</span>
+							</div>
 						)}
 
-						<p>
-							This clearance certificate is issued without prejudice and confirms that the 
-							above-named personnel has no outstanding obligations regarding the referenced 
-							accommodation unit.
-						</p>
-
-						<p>
-							This certificate is valid for official purposes and should be presented as required.
-						</p>
+						<div className='flex justify-between'>
+							<div>
+								<p className='mb-0.5'>--------------------------------------</p>
+								<p>Signature of Inspector</p>
+								<p>Date:</p>
+							</div>
+							<div>
+								<p className='mb-0.5'>--------------------------------------</p>
+								<p>Signature of Occupant</p>
+								<p>Date:</p>
+							</div>
+						</div>
 					</div>
 
 					{/* Signature - Removed stamp image box, only text */}
