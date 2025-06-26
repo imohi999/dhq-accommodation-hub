@@ -414,7 +414,7 @@ export const ClearanceLetter = ({
 							</div>
 						)}
 
-						<div className='flex justify-between'>
+						<div className='flex justify-between mt-12'>
 							<div>
 								<p className='mb-0.5'>--------------------------------------</p>
 								<p>Signature of Inspector</p>
