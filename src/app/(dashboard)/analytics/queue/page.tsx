@@ -204,7 +204,10 @@ export default function QueueAnalyticsPage() {
 
 		const byCategory = queueData.reduce((acc, person) => {
 			const category = person.category || "Unknown";
-			acc[category] = (acc[category] || 0) + 1;
+			// Only count known categories
+			if (category !== "Unknown" && category !== "") {
+				acc[category] = (acc[category] || 0) + 1;
+			}
 			return acc;
 		}, {} as Record<string, number>);
 
