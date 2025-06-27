@@ -63,7 +63,7 @@ export const ImportModal = ({
 
 		if (
 			!confirm(
-				"This action will replace all existing records. Are you sure you want to continue?"
+				"This action will import new records. Are you sure you want to continue?"
 			)
 		) {
 			return;

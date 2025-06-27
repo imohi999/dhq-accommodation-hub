@@ -134,55 +134,22 @@ export const useAccommodationFilters = () => {
     setDebouncedSearchTerm("");
   }, []);
 
-  // Convert filters to API parameters
-  const getApiFilters = useCallback(() => {
-    const apiFilters: any = {
+  // Get filters for client-side filtering
+  const getFilters = useCallback(() => {
+    return {
+      search: debouncedSearchTerm, // Use debounced search term
+      quarterName: filters.quarterNameFilter,
+      location: filters.locationFilter,
+      category: filters.categoryFilter,
+      accommodationTypeId: filters.housingTypeFilter,
+      status: filters.statusFilter,
+      typeOfOccupancy: filters.occupancyFilter,
+      blockName: filters.blockNameFilter,
+      flatHouseRoomName: filters.flatHouseRoomFilter,
+      unitName: filters.unitNameFilter,
       page: filters.page,
       pageSize: filters.pageSize,
     };
-
-    // Use debounced search term for API calls
-    if (debouncedSearchTerm) {
-      apiFilters.search = debouncedSearchTerm;
-    }
-
-    if (filters.quarterNameFilter !== "all") {
-      apiFilters.quarterName = filters.quarterNameFilter;
-    }
-
-    if (filters.locationFilter !== "all") {
-      apiFilters.location = filters.locationFilter;
-    }
-
-    if (filters.categoryFilter !== "all") {
-      apiFilters.category = filters.categoryFilter;
-    }
-
-    if (filters.housingTypeFilter !== "all") {
-      apiFilters.accommodationTypeId = filters.housingTypeFilter;
-    }
-
-    if (filters.statusFilter !== "all") {
-      apiFilters.status = filters.statusFilter;
-    }
-
-    if (filters.occupancyFilter !== "all") {
-      apiFilters.typeOfOccupancy = filters.occupancyFilter;
-    }
-
-    if (filters.blockNameFilter !== "all") {
-      apiFilters.blockName = filters.blockNameFilter;
-    }
-
-    if (filters.flatHouseRoomFilter !== "all") {
-      apiFilters.flatHouseRoomName = filters.flatHouseRoomFilter;
-    }
-
-    if (filters.unitNameFilter !== "all") {
-      apiFilters.unitName = filters.unitNameFilter;
-    }
-
-    return apiFilters;
   }, [filters, debouncedSearchTerm]);
 
   return {
@@ -214,8 +181,8 @@ export const useAccommodationFilters = () => {
     pageSize: filters.pageSize,
     setPageSize,
     
-    // Get API filters
-    getApiFilters,
+    // Get filters for client-side filtering
+    getFilters,
     
     // Reset filters
     resetFilters,

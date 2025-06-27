@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import { DHQLivingUnitWithHousingType, AccommodationType } from "@/types/accommodation";
 import useSWR from "swr";
@@ -66,34 +66,15 @@ interface UnitsResponse {
       createdAt: string;
     };
   }>;
-  pagination: PaginationData;
+  pagination?: PaginationData;
 }
 
 export const useAccommodationData = (filters: FilterParams = {}) => {
-  const [units, setUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
-  const [pagination, setPagination] = useState<PaginationData>({
-    page: 1,
-    pageSize: 20,
-    totalCount: 0,
-    totalPages: 0,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  });
+  const [allUnits, setAllUnits] = useState<DHQLivingUnitWithHousingType[]>([]);
 
-  // Build query string from filters
-  const queryParams = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      queryParams.append(key, value.toString());
-    }
-  });
-
-  const queryString = queryParams.toString();
-  const apiUrl = queryString ? `/api/dhq-living-units?${queryString}` : '/api/dhq-living-units';
-
-  // Fetch units from new dhq-living-units endpoint with filters
+  // Fetch ALL units without pagination params
   const { data: response, error: unitsError, isLoading: unitsLoading, mutate: refetchUnits } = useSWR<UnitsResponse>(
-    apiUrl,
+    '/api/dhq-living-units?pageSize=10000', // Fetch all units
     fetcher
   );
 
@@ -119,7 +100,7 @@ export const useAccommodationData = (filters: FilterParams = {}) => {
 
   useEffect(() => {
     if (response?.data) {
-      // Transform API response to match expected format (camelCase to snake_case)
+      // Transform API response to match expected format
       const transformedUnits: DHQLivingUnitWithHousingType[] = response.data.map((unit) => ({
         // Required camelCase properties
         id: unit.id,
@@ -167,10 +148,102 @@ export const useAccommodationData = (filters: FilterParams = {}) => {
         } : undefined,
       }));
 
-      setUnits(transformedUnits || []);
-      setPagination(response.pagination);
+      setAllUnits(transformedUnits || []);
     }
   }, [response]);
+
+  // Apply client-side filtering
+  const filteredUnits = useMemo(() => {
+    let filtered = [...allUnits];
+
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(unit =>
+        unit.quarterName?.toLowerCase().includes(searchLower) ||
+        unit.location?.toLowerCase().includes(searchLower) ||
+        unit.unitName?.toLowerCase().includes(searchLower) ||
+        unit.blockName?.toLowerCase().includes(searchLower) ||
+        unit.flatHouseRoomName?.toLowerCase().includes(searchLower) ||
+        unit.currentOccupantName?.toLowerCase().includes(searchLower) ||
+        unit.currentOccupantServiceNumber?.toLowerCase().includes(searchLower) ||
+        unit.currentOccupantRank?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Quarter name filter
+    if (filters.quarterName && filters.quarterName !== 'all') {
+      filtered = filtered.filter(unit => unit.quarterName === filters.quarterName);
+    }
+
+    // Location filter
+    if (filters.location && filters.location !== 'all') {
+      filtered = filtered.filter(unit => unit.location === filters.location);
+    }
+
+    // Category filter
+    if (filters.category && filters.category !== 'all') {
+      filtered = filtered.filter(unit => unit.category === filters.category);
+    }
+
+    // Accommodation type filter
+    if (filters.accommodationTypeId && filters.accommodationTypeId !== 'all') {
+      filtered = filtered.filter(unit => unit.accommodationTypeId === filters.accommodationTypeId);
+    }
+
+    // Status filter
+    if (filters.status && filters.status !== 'all') {
+      filtered = filtered.filter(unit => unit.status === filters.status);
+    }
+
+    // Type of occupancy filter
+    if (filters.typeOfOccupancy && filters.typeOfOccupancy !== 'all') {
+      filtered = filtered.filter(unit => unit.typeOfOccupancy === filters.typeOfOccupancy);
+    }
+
+    // Block name filter
+    if (filters.blockName && filters.blockName !== 'all') {
+      filtered = filtered.filter(unit => unit.blockName === filters.blockName);
+    }
+
+    // Flat/House/Room name filter
+    if (filters.flatHouseRoomName && filters.flatHouseRoomName !== 'all') {
+      filtered = filtered.filter(unit => unit.flatHouseRoomName === filters.flatHouseRoomName);
+    }
+
+    // Unit name filter
+    if (filters.unitName && filters.unitName !== 'all') {
+      filtered = filtered.filter(unit => unit.unitName === filters.unitName);
+    }
+
+    return filtered;
+  }, [allUnits, filters]);
+
+  // Apply client-side pagination
+  const paginatedData = useMemo(() => {
+    const page = filters.page || 1;
+    const pageSize = filters.pageSize || 20;
+    const totalCount = filteredUnits.length;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    const paginatedUnits = filteredUnits.slice(startIndex, endIndex);
+
+    const pagination: PaginationData = {
+      page,
+      pageSize,
+      totalCount,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
+
+    return {
+      units: paginatedUnits,
+      pagination
+    };
+  }, [filteredUnits, filters.page, filters.pageSize]);
 
   // Transform accommodation types
   const housingTypes: AccommodationType[] = housingTypesData?.map((ht) => ({
@@ -187,10 +260,10 @@ export const useAccommodationData = (filters: FilterParams = {}) => {
   };
 
   return {
-    units,
+    units: paginatedData.units,
     housingTypes,
     loading,
     refetch,
-    pagination
+    pagination: paginatedData.pagination
   };
 };

@@ -68,6 +68,26 @@ export async function POST(request: NextRequest) {
       }
 
 
+      // Find the allocation request for this queue entry
+      const allocationRequest = await tx.allocationRequest.findFirst({
+        where: {
+          queueId: currentOccupant.queueId,
+          status: "approved"
+        }
+      });
+
+      // Update the allocation request status if it exists
+      if (allocationRequest) {
+        await tx.allocationRequest.update({
+          where: {
+            id: allocationRequest.id
+          },
+          data: {
+            status: "pending",
+          }
+        });
+      }
+
       const pastAllocation = await tx.pastAllocation.create({
         data: {
           personnelId: fromUnit.currentOccupantId || fromUnit.id,
@@ -112,95 +132,9 @@ export async function POST(request: NextRequest) {
           occupancyStartDate: null,
         }
       });
-
-      const updatedToUnit = await tx.dhqLivingUnit.update({
-        where: { id: toUnitId },
-        data: {
-          status: "Occupied",
-          currentOccupantId: fromUnit.currentOccupantId,
-          currentOccupantName: fromUnit.currentOccupantName,
-          currentOccupantRank: fromUnit.currentOccupantRank,
-          currentOccupantServiceNumber: fromUnit.currentOccupantServiceNumber,
-          occupancyStartDate: new Date(),
-        }
-      });
-
-      // Mark the occupant as not current in the old unit
-      await tx.unitOccupant.updateMany({
-        where: {
-          unitId: fromUnitId,
-          isCurrent: true
-        },
-        data: {
-          isCurrent: false
-        }
-      });
-
-      // Get the occupant details to transfer
-      const occupantDetails = await tx.unitOccupant.findFirst({
-        where: {
-          unitId: fromUnitId,
-          serviceNumber: fromUnit.currentOccupantServiceNumber || ""
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      });
-
-      // Create new occupant record for the new unit
-      // Use the existing occupant's queueId since it's required
-      if (!occupantDetails || !occupantDetails.queueId) {
-        throw new Error("Occupant details must have a valid queue ID");
-      }
-
-      await tx.unitOccupant.create({
-        data: {
-          unitId: toUnitId,
-          queueId: occupantDetails.queueId,
-          fullName: fromUnit.currentOccupantName || "Unknown",
-          rank: fromUnit.currentOccupantRank || "Unknown",
-          serviceNumber: fromUnit.currentOccupantServiceNumber || "Unknown",
-          phone: occupantDetails?.phone || null,
-          email: occupantDetails?.email || null,
-          emergencyContact: occupantDetails?.emergencyContact || null,
-          occupancyStartDate: new Date(),
-          isCurrent: true
-        }
-      });
-
-      // Update the existing unit history record for the old unit
-      await tx.unitHistory.updateMany({
-        where: {
-          unitId: fromUnitId,
-          endDate: null
-        },
-        data: {
-          endDate: new Date(),
-          durationDays: fromUnit.occupancyStartDate
-            ? Math.floor((new Date().getTime() - new Date(fromUnit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
-            : 0,
-          reasonForLeaving: `Transferred to ${toUnit.quarterName} ${toUnit.blockName} ${toUnit.flatHouseRoomName}`
-        }
-      });
-
-      // Create new unit history record for the new unit
-      await tx.unitHistory.create({
-        data: {
-          unitId: toUnitId,
-          occupantName: fromUnit.currentOccupantName || "Unknown",
-          rank: fromUnit.currentOccupantRank || "Unknown",
-          serviceNumber: fromUnit.currentOccupantServiceNumber || "Unknown",
-          startDate: new Date(),
-          endDate: null,
-          durationDays: null,
-          reasonForLeaving: null
-        }
-      });
-
-
+      
       return {
         fromUnit,
-        toUnit: updatedToUnit,
         pastAllocation
       };
     }, {
@@ -218,8 +152,6 @@ export async function POST(request: NextRequest) {
         serviceNumber: result.fromUnit.currentOccupantServiceNumber,
         fromUnitId: result.fromUnit.id,
         fromUnitName: `${result.fromUnit.quarterName} ${result.fromUnit.blockName} ${result.fromUnit.flatHouseRoomName}`,
-        toUnitId: result.toUnit.id,
-        toUnitName: `${result.toUnit.quarterName} ${result.toUnit.blockName} ${result.toUnit.flatHouseRoomName}`,
         transferDate: new Date(),
         occupancyDuration: result.fromUnit.occupancyStartDate
           ? Math.floor((new Date().getTime() - new Date(result.fromUnit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
@@ -230,11 +162,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: "Transfer completed successfully",
       fromUnitId: result.fromUnit.id,
-      toUnitId: result.toUnit.id,
       personnelName: result.fromUnit.currentOccupantName,
       transferDetails: {
         from: `${result.fromUnit.quarterName} ${result.fromUnit.blockName} ${result.fromUnit.flatHouseRoomName}`,
-        to: `${result.toUnit.quarterName} ${result.toUnit.blockName} ${result.toUnit.flatHouseRoomName}`
       }
     }, { status: 200 });
   } catch (error) {

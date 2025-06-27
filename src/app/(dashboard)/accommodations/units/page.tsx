@@ -43,11 +43,11 @@ export default function DHQLivingUnits() {
 
 	// Get filters and pagination from the hook
 	const filters = useAccommodationFilters();
-	const apiFilters = filters.getApiFilters();
+	const clientFilters = filters.getFilters();
 
-	// Fetch data with server-side filtering
+	// Fetch data with client-side filtering
 	const { units, housingTypes, refetch, pagination } =
-		useAccommodationData(apiFilters);
+		useAccommodationData(clientFilters);
 
 	// Fetch summary data separately
 	const { summary, loading: summaryLoading } = useAccommodationSummary();

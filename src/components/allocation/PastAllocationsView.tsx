@@ -14,7 +14,7 @@ interface PersonnelData {
 	phone: string;
 	category: string;
 	fullName: string;
-	serviceNumber: string;
+	svcNo: string;
 }
 interface ClearanceInspection {
 	id: string;
@@ -169,6 +169,39 @@ const formatDuration = (days: number): string => {
 	return parts.join(", ");
 };
 
+const calculateDurationFromDates = (
+	startDate: string,
+	endDate: string | null | undefined
+): string => {
+	if (!startDate || !endDate) return "N/A";
+
+	const start = new Date(startDate);
+	const end = new Date(endDate);
+
+	// Calculate the difference in milliseconds
+	const diffMs = end.getTime() - start.getTime();
+
+	// If negative duration, return N/A
+	if (diffMs < 0) return "N/A";
+
+	// Convert to days
+	const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+	// Calculate years, months, and days
+	const years = Math.floor(totalDays / 365);
+	const remainingDaysAfterYears = totalDays % 365;
+	const months = Math.floor(remainingDaysAfterYears / 30);
+	const days = remainingDaysAfterYears % 30;
+
+	const parts = [];
+	if (years > 0) parts.push(`${years} year${years > 1 ? "s" : ""}`);
+	if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
+	if (days > 0) parts.push(`${days} day${days > 1 ? "s" : ""}`);
+
+	// If no parts (duration is 0), return "0 days"
+	return parts.length > 0 ? parts.join(", ") : "0 days";
+};
+
 export const PastAllocationsView = () => {
 	const [selectedAllocation, setSelectedAllocation] =
 		useState<PastAllocation | null>(null);
@@ -187,14 +220,6 @@ export const PastAllocationsView = () => {
 	const handleInspectionComplete = () => {
 		mutate();
 		setIsInspectionModalOpen(false);
-	};
-
-	// Extract service from service number prefix
-	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
-		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
-		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
-		return "Unknown";
 	};
 
 	// Add inspection status state
@@ -219,14 +244,14 @@ export const PastAllocationsView = () => {
 		pastAllocations,
 		(item) => [
 			item.personnelData?.fullName || "",
-			item.personnelData?.serviceNumber || "",
+			item.personnelData?.svcNo || "",
 			item.personnelData?.rank || "",
 			item.unitData?.quarterName || "",
 			item.unitData?.unitName || "",
 			item.unit?.flatHouseRoomName || "",
 			item.letterId || "",
 		],
-		(item) => getServiceFromSvcNo(item.personnelData?.serviceNumber || ""),
+		(item) => item.queue?.armOfService || "Unknown",
 		(item) => item.personnelData?.category || "",
 		(item) => item.unitData?.quarterName || "",
 		(item) => item.unitData?.accommodationType || ""
@@ -271,19 +296,13 @@ export const PastAllocationsView = () => {
 
 	// Calculate by service
 	const armyAllocations = filteredItems.filter(
-		(allocation) =>
-			getServiceFromSvcNo(allocation.personnelData?.serviceNumber || "") ===
-			"Nigerian Army"
+		(allocation) => allocation.queue?.armOfService === "Nigerian Army"
 	);
 	const navyAllocations = filteredItems.filter(
-		(allocation) =>
-			getServiceFromSvcNo(allocation.personnelData?.serviceNumber || "") ===
-			"Nigerian Navy"
+		(allocation) => allocation.queue?.armOfService === "Nigerian Navy"
 	);
 	const airForceAllocations = filteredItems.filter(
-		(allocation) =>
-			getServiceFromSvcNo(allocation.personnelData?.serviceNumber || "") ===
-			"Nigerian Air Force"
+		(allocation) => allocation.queue?.armOfService === "Nigerian Air Force"
 	);
 
 	const armyOfficers = armyAllocations.filter(
@@ -428,10 +447,8 @@ export const PastAllocationsView = () => {
 													"Unknown Personnel"}
 											</h3>
 											<p className='text-xs text-muted-foreground'>
-												{allocation.personnelData?.serviceNumber || "N/A"} •{" "}
-												{getServiceFromSvcNo(
-													allocation.personnelData?.serviceNumber || ""
-												)}
+												{allocation.personnelData?.svcNo || "N/A"} •{" "}
+												{allocation.queue?.armOfService || "Unknown"}
 											</p>
 										</div>
 									</div>
@@ -483,9 +500,10 @@ export const PastAllocationsView = () => {
 											Duration
 										</p>
 										<p className='font-medium'>
-											{allocation.durationDays
-												? formatDuration(allocation.durationDays)
-												: "N/A"}
+											{calculateDurationFromDates(
+												allocation.allocationStartDate,
+												allocation.allocationEndDate
+											)}
 										</p>
 									</div>
 									<div className='space-y-1'>
@@ -521,13 +539,11 @@ export const PastAllocationsView = () => {
 										<span>•</span>
 										<span>
 											Unit:
-											{allocation.unitData?.unitName || ""}
+											{allocation.unit?.unitName || ""}
 										</span>
 										<span>•</span>
-										<span>Letter: {allocation.letterId}</span>
 										{allocation.reasonForLeaving && (
 											<>
-												<span>•</span>
 												<span>Reason: {allocation.reasonForLeaving}</span>
 											</>
 										)}

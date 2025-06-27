@@ -149,6 +149,7 @@ export default function AuditLogsPage() {
 			return "destructive";
 		if (action.includes("RE-ALLOCATE") || action.includes("INSPECT"))
 			return "secondary";
+		if (action.includes("IMPORT")) return "default";
 		return "outline";
 	};
 
@@ -227,6 +228,7 @@ export default function AuditLogsPage() {
 									<SelectItem value='RE-ALLOCATE'>RE-ALLOCATE</SelectItem>
 									<SelectItem value='INSPECT'>INSPECT</SelectItem>
 									<SelectItem value='MAINTAIN'>MAINTAIN</SelectItem>
+									<SelectItem value='IMPORT'>IMPORT</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>

@@ -17,7 +17,8 @@ export type AuditAction =
   | 'POSTED OUT'
   | 'RE-ALLOCATE'
   | 'INSPECT'
-  | 'MAINTAIN';
+  | 'MAINTAIN'
+  | 'IMPORT';
 
 export type EntityType =
   | 'user'
@@ -179,6 +180,28 @@ export class AuditLogger {
         entityIds,
         count: entityIds.length,
         ...data,
+      },
+    });
+  }
+
+  // Import operations logging
+  static async logImport(
+    userId: string,
+    entityType: EntityType,
+    importDetails: {
+      totalRecords: number;
+      imported: number;
+      skipped: number;
+      source?: string;
+    }
+  ): Promise<void> {
+    await this.log({
+      userId,
+      action: 'IMPORT',
+      entityType,
+      newData: {
+        importOperation: true,
+        ...importDetails,
       },
     });
   }

@@ -52,7 +52,8 @@ export const AllocationModal = ({
 	onClose,
 	personnel,
 }: AllocationModalProps) => {
-	const { units, loading: unitsLoading } = useAccommodationData();
+	// Pass a very large pageSize to get all units without pagination
+	const { units, loading: unitsLoading } = useAccommodationData({ pageSize: 10000 });
 	const { createAllocationRequest, loading: allocationLoading } =
 		useAllocation();
 	const [selectedUnitId, setSelectedUnitId] = useState<string>("");

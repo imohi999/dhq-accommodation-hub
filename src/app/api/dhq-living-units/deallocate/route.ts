@@ -11,6 +11,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+
+    console.log({ body: JSON.stringify(body) });
+
     const { unitId, reason } = body;
 
     if (!unitId) {

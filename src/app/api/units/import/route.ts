@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth-utils";
+import { AuditLogger } from "@/lib/audit-logger";
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { data } = await request.json();
 
     if (!Array.isArray(data) || data.length === 0) {
@@ -34,6 +42,14 @@ export async function POST(request: NextRequest) {
       });
 
       return { created };
+    });
+
+    // Log the import operation
+    await AuditLogger.logImport(session.userId, 'unit', {
+      totalRecords: data.length,
+      imported: result.created.count,
+      skipped: data.length - result.created.count,
+      source: 'csv_import'
     });
 
     return NextResponse.json({
