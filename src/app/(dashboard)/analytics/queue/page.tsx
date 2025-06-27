@@ -96,6 +96,22 @@ const getArmOfService = (serviceNumber: string): string => {
 	}
 };
 
+const formatDuration = (days: number): string => {
+	if (days === 0) return "0 days";
+
+	const years = Math.floor(days / 365);
+	const months = Math.floor((days % 365) / 30);
+	const remainingDays = days % 30;
+
+	const parts = [];
+	if (years > 0) parts.push(`${years} year${years > 1 ? "s" : ""}`);
+	if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
+	if (remainingDays > 0)
+		parts.push(`${remainingDays} day${remainingDays > 1 ? "s" : ""}`);
+
+	return parts.join(", ");
+};
+
 export default function QueueAnalyticsPage() {
 	const [loading, setLoading] = useState(true);
 	const [queueData, setQueueData] = useState<any[]>([]);
@@ -525,8 +541,8 @@ export default function QueueAnalyticsPage() {
 						<Clock className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>
-							{queueAnalytics.avgWaitTime} days
+						<div className='text-xl font-bold'>
+							{formatDuration(queueAnalytics.avgWaitTime)}
 						</div>
 						<p className='text-xs text-muted-foreground'>Average duration</p>
 					</CardContent>
@@ -538,8 +554,8 @@ export default function QueueAnalyticsPage() {
 						<Clock className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>
-							{queueAnalytics.medianWaitTime} days
+						<div className='text-xl font-bold'>
+							{formatDuration(queueAnalytics.medianWaitTime)}
 						</div>
 						<p className='text-xs text-muted-foreground'>Median duration</p>
 					</CardContent>
