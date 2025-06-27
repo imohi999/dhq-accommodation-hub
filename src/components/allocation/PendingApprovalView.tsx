@@ -362,7 +362,11 @@ export const PendingApprovalView = ({
 				<Card>
 					<CardContent className='p-12 text-center'>
 						<p className='text-muted-foreground'>
-							{searchTerm || categoryFilter !== "all" || armOfServiceFilter !== "all" || quarterFilter !== "all" || unitTypeFilter !== "all"
+							{searchTerm ||
+							categoryFilter !== "all" ||
+							armOfServiceFilter !== "all" ||
+							quarterFilter !== "all" ||
+							unitTypeFilter !== "all"
 								? "No pending requests match your filters"
 								: "No pending allocation requests"}
 						</p>
@@ -415,7 +419,7 @@ export const PendingApprovalView = ({
 												loadingText='Approving...'
 												className='text-xs px-3 py-1 h-auto bg-green-600 hover:bg-green-700'>
 												<CheckCircle className='h-3 w-3 mr-1' />
-												Approve
+												Approved
 											</LoadingButton>
 										)}
 
@@ -428,7 +432,7 @@ export const PendingApprovalView = ({
 												loadingText='Refusing...'
 												className='text-xs px-3 py-1 h-auto'>
 												<XCircle className='h-3 w-3 mr-1' />
-												Refuse
+												Not Approved
 											</LoadingButton>
 										)}
 									</div>
