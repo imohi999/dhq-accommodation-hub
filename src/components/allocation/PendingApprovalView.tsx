@@ -228,29 +228,6 @@ export const PendingApprovalView = ({
 
 	return (
 		<div className='space-y-6'>
-			{/* Filters */}
-			<AllocationFilters
-				searchTerm={searchTerm}
-				onSearchChange={setSearchTerm}
-				categoryFilter={categoryFilter}
-				onCategoryChange={setCategoryFilter}
-				armOfServiceFilter={armOfServiceFilter}
-				onArmOfServiceChange={setArmOfServiceFilter}
-				quarterFilter={quarterFilter}
-				onQuarterChange={setQuarterFilter}
-				unitTypeFilter={unitTypeFilter}
-				onUnitTypeChange={setUnitTypeFilter}
-				availableQuarters={availableQuarters}
-				availableUnitTypes={availableUnitTypes}
-			/>
-
-			{/* Show count info */}
-			<div className='flex justify-between items-center'>
-				<p className='text-sm text-muted-foreground'>
-					Showing {filteredItems.length} of {requests.length} pending requests
-				</p>
-			</div>
-
 			{/* Summary Cards */}
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 				<Card>
@@ -355,6 +332,29 @@ export const PendingApprovalView = ({
 						</p>
 					</CardContent>
 				</Card>
+			</div>
+
+			{/* Filters */}
+			<AllocationFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				armOfServiceFilter={armOfServiceFilter}
+				onArmOfServiceChange={setArmOfServiceFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				unitTypeFilter={unitTypeFilter}
+				onUnitTypeChange={setUnitTypeFilter}
+				availableQuarters={availableQuarters}
+				availableUnitTypes={availableUnitTypes}
+			/>
+
+			{/* Show count info */}
+			<div className='flex justify-between items-center'>
+				<p className='text-sm text-muted-foreground'>
+					Showing {filteredItems.length} of {requests.length} pending requests
+				</p>
 			</div>
 
 			{/* Pending Requests Cards */}

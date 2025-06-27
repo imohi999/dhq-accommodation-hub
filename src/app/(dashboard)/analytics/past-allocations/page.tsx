@@ -130,6 +130,22 @@ const getArmOfService = (serviceNumber: string): string => {
 	}
 };
 
+const formatDuration = (days: number): string => {
+	if (days === 0) return "0 days";
+
+	const years = Math.floor(days / 365);
+	const months = Math.floor((days % 365) / 30);
+	const remainingDays = days % 30;
+
+	const parts = [];
+	if (years > 0) parts.push(`${years} year${years > 1 ? "s" : ""}`);
+	if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
+	if (remainingDays > 0)
+		parts.push(`${remainingDays} day${remainingDays > 1 ? "s" : ""}`);
+
+	return parts.join(", ");
+};
+
 export default function PastAllocationsAnalyticsPage() {
 	const [loading, setLoading] = useState(true);
 	const [pastData, setPastData] = useState<any[]>([]);
@@ -670,7 +686,7 @@ export default function PastAllocationsAnalyticsPage() {
 						<Archive className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{pastData.length}</div>
+						<div className='text-xl font-bold'>{pastData.length}</div>
 						<p className='text-xs text-muted-foreground'>
 							Historical allocations
 						</p>
@@ -683,8 +699,8 @@ export default function PastAllocationsAnalyticsPage() {
 						<Calendar className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>
-							{turnoverStats.avgOccupancyDuration} days
+						<div className='text-xl font-bold'>
+							{formatDuration(turnoverStats.avgOccupancyDuration)}
 						</div>
 						<p className='text-xs text-muted-foreground'>Average occupancy</p>
 					</CardContent>
@@ -707,8 +723,8 @@ export default function PastAllocationsAnalyticsPage() {
 						<Clock className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>
-							{turnoverStats.longestStay} days
+						<div className='text-xl font-bold'>
+							{formatDuration(turnoverStats.longestStay)}
 						</div>
 						<p className='text-xs text-muted-foreground'>Maximum duration</p>
 					</CardContent>

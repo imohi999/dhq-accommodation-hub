@@ -235,7 +235,8 @@ export const PastAllocationsView = () => {
 	// Apply inspection status filter
 	const filteredItems = baseFilteredItems.filter((item) => {
 		if (inspectionStatusFilter === "all") return true;
-		const hasInspection = item.clearance_inspections && item.clearance_inspections.length > 0;
+		const hasInspection =
+			item.clearance_inspections && item.clearance_inspections.length > 0;
 		if (inspectionStatusFilter === "inspected") return hasInspection;
 		if (inspectionStatusFilter === "not-inspected") return !hasInspection;
 		return true;
@@ -306,32 +307,6 @@ export const PastAllocationsView = () => {
 
 	return (
 		<div className='space-y-6'>
-			{/* Filters */}
-			<AllocationFilters
-				searchTerm={searchTerm}
-				onSearchChange={setSearchTerm}
-				categoryFilter={categoryFilter}
-				onCategoryChange={setCategoryFilter}
-				armOfServiceFilter={armOfServiceFilter}
-				onArmOfServiceChange={setArmOfServiceFilter}
-				quarterFilter={quarterFilter}
-				onQuarterChange={setQuarterFilter}
-				unitTypeFilter={unitTypeFilter}
-				onUnitTypeChange={setUnitTypeFilter}
-				inspectionStatusFilter={inspectionStatusFilter}
-				onInspectionStatusChange={setInspectionStatusFilter}
-				availableQuarters={availableQuarters}
-				availableUnitTypes={availableUnitTypes}
-			/>
-
-			{/* Show count info */}
-			<div className='flex justify-between items-center'>
-				<p className='text-sm text-muted-foreground'>
-					Showing {filteredItems.length} of {pastAllocations.length} past
-					allocations
-				</p>
-			</div>
-
 			{/* Summary Cards */}
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 				<Card>
@@ -391,6 +366,31 @@ export const PastAllocationsView = () => {
 						</p>
 					</CardContent>
 				</Card>
+			</div>
+			{/* Filters */}
+			<AllocationFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				armOfServiceFilter={armOfServiceFilter}
+				onArmOfServiceChange={setArmOfServiceFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				unitTypeFilter={unitTypeFilter}
+				onUnitTypeChange={setUnitTypeFilter}
+				inspectionStatusFilter={inspectionStatusFilter}
+				onInspectionStatusChange={setInspectionStatusFilter}
+				availableQuarters={availableQuarters}
+				availableUnitTypes={availableUnitTypes}
+			/>
+
+			{/* Show count info */}
+			<div className='flex justify-between items-center'>
+				<p className='text-sm text-muted-foreground'>
+					Showing {filteredItems.length} of {pastAllocations.length} past
+					allocations
+				</p>
 			</div>
 
 			{filteredItems.length === 0 ? (

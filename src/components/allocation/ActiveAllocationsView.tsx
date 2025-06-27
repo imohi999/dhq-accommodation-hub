@@ -370,47 +370,6 @@ export const ActiveAllocationsView = ({
 
 	return (
 		<div className='space-y-6'>
-			{/* Header with Refresh Button */}
-			<div className='flex items-center justify-between mb-4'>
-				<div>
-					<h2 className='text-lg font-semibold'>Active Allocations Overview</h2>
-					<p className='text-sm text-muted-foreground'>
-						Real-time data on current accommodations
-					</p>
-				</div>
-				<Button
-					variant='outline'
-					size='sm'
-					onClick={() => mutateOccupiedUnits()}
-					className='flex items-center gap-2'>
-					<RefreshCw className='h-4 w-4' />
-					Refresh Data
-				</Button>
-			</div>
-
-			{/* Filters */}
-			<AllocationFilters
-				searchTerm={searchTerm}
-				onSearchChange={setSearchTerm}
-				categoryFilter={categoryFilter}
-				onCategoryChange={setCategoryFilter}
-				armOfServiceFilter={armOfServiceFilter}
-				onArmOfServiceChange={setArmOfServiceFilter}
-				quarterFilter={quarterFilter}
-				onQuarterChange={setQuarterFilter}
-				unitTypeFilter={unitTypeFilter}
-				onUnitTypeChange={setUnitTypeFilter}
-				availableQuarters={availableQuarters}
-				availableUnitTypes={availableUnitTypes}
-			/>
-
-			{/* Show count info */}
-			<div className='flex justify-between items-center'>
-				<p className='text-sm text-muted-foreground'>
-					Showing {filteredItems.length} of {occupiedUnits.length} active allocations
-				</p>
-			</div>
-
 			{/* Summary Cards */}
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 				<Card>
@@ -471,11 +430,40 @@ export const ActiveAllocationsView = ({
 					</CardContent>
 				</Card>
 			</div>
+			{/* Filters */}
+
+			<AllocationFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				armOfServiceFilter={armOfServiceFilter}
+				onArmOfServiceChange={setArmOfServiceFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				unitTypeFilter={unitTypeFilter}
+				onUnitTypeChange={setUnitTypeFilter}
+				availableQuarters={availableQuarters}
+				availableUnitTypes={availableUnitTypes}
+			/>
+
+			{/* Show count info */}
+			<div className='flex justify-between items-center'>
+				<p className='text-sm text-muted-foreground'>
+					Showing {filteredItems.length} of {occupiedUnits.length} active
+					allocations
+				</p>
+			</div>
+
 			{filteredItems.length === 0 ? (
 				<Card>
 					<CardContent className='p-12 text-center'>
 						<p className='text-muted-foreground'>
-							{searchTerm || categoryFilter !== "all" || armOfServiceFilter !== "all" || quarterFilter !== "all" || unitTypeFilter !== "all"
+							{searchTerm ||
+							categoryFilter !== "all" ||
+							armOfServiceFilter !== "all" ||
+							quarterFilter !== "all" ||
+							unitTypeFilter !== "all"
 								? "No active allocations match your filters"
 								: "No active allocations"}
 						</p>
