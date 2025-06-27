@@ -281,7 +281,6 @@ export const ClearanceLetter = ({
 		generatePrintDocument(true);
 	};
 
-
 	// Safe date formatting function with full month name
 	const formatSafeDateLong = (dateValue: any, defaultText = "N/A") => {
 		if (!dateValue) return defaultText;
@@ -369,7 +368,7 @@ export const ClearanceLetter = ({
 						</p>
 						<div className='flex flex-col mb-2'>
 							<span className='font-semibold'>
-								SvcNo: {personnelData?.serviceNumber}
+								SvcNo: {personnelData?.serviceNumber }
 							</span>
 							<span className='font-semibold'>Rank: {personnelData?.rank}</span>
 							<span className='font-semibold'>

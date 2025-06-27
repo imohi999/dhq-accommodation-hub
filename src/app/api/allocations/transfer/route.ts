@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { fromUnitId, toUnitId } = body;
 
+
+
     if (!fromUnitId || !toUnitId) {
       return NextResponse.json(
         { error: "Both fromUnitId and toUnitId are required" },
@@ -84,80 +86,24 @@ export async function POST(request: NextRequest) {
           },
           data: {
             status: "pending",
+            unitId: toUnitId,
+            unitData: {
+              location: toUnit.location,
+              unitName: toUnit.unitName,
+              noOfRooms: toUnit.noOfRooms,
+              quarterName: toUnit.quarterName,
+              accommodationType: toUnit.accommodationType.name
+            }
           }
         });
       }
 
-      const pastAllocation = await tx.pastAllocation.create({
-        data: {
-          personnelId: fromUnit.currentOccupantId || fromUnit.id,
-          queueId: currentOccupant.queueId,
-          unitId: fromUnit.id,
-          letterId: `DHQ/RE-ALLOCATE/${new Date().getFullYear()}/${Date.now()}`,
-          personnelData: {
-            id: fromUnit.currentOccupantId,
-            fullName: fromUnit.currentOccupantName,
-            rank: fromUnit.currentOccupantRank,
-            svcNo: fromUnit.currentOccupantServiceNumber,
-            category: fromUnit.category,
-          },
-          unitData: {
-            id: fromUnit.id,
-            quarterName: fromUnit.quarterName,
-            location: fromUnit.location,
-            category: fromUnit.category,
-            blockName: fromUnit.blockName,
-            flatHouseRoomName: fromUnit.flatHouseRoomName,
-            noOfRooms: fromUnit.noOfRooms,
-            accommodationType: fromUnit.accommodationType?.name || fromUnit.category,
-          },
-          allocationStartDate: fromUnit.occupancyStartDate || new Date(),
-          allocationEndDate: new Date(),
-          durationDays: fromUnit.occupancyStartDate
-            ? Math.floor((new Date().getTime() - new Date(fromUnit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
-            : 0,
-          reasonForLeaving: `Transferred to ${toUnit.quarterName} ${toUnit.blockName} ${toUnit.flatHouseRoomName}`,
-          deallocationDate: new Date(),
-        }
-      });
-
-      await tx.dhqLivingUnit.update({
-        where: { id: fromUnitId },
-        data: {
-          status: "Vacant",
-          currentOccupantId: null,
-          currentOccupantName: null,
-          currentOccupantRank: null,
-          currentOccupantServiceNumber: null,
-          occupancyStartDate: null,
-        }
-      });
-      
       return {
         fromUnit,
-        pastAllocation
       };
     }, {
       timeout: 100000
     });
-
-    // Log the transfer operation
-    await AuditLogger.logAllocation(
-      session.userId,
-      'RE-ALLOCATE',
-      result.pastAllocation.id,
-      {
-        personnelId: result.fromUnit.currentOccupantId,
-        personnelName: result.fromUnit.currentOccupantName,
-        serviceNumber: result.fromUnit.currentOccupantServiceNumber,
-        fromUnitId: result.fromUnit.id,
-        fromUnitName: `${result.fromUnit.quarterName} ${result.fromUnit.blockName} ${result.fromUnit.flatHouseRoomName}`,
-        transferDate: new Date(),
-        occupancyDuration: result.fromUnit.occupancyStartDate
-          ? Math.floor((new Date().getTime() - new Date(result.fromUnit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
-          : 0
-      }
-    );
 
     return NextResponse.json({
       message: "Transfer completed successfully",

@@ -18,7 +18,8 @@ export type AuditAction =
   | 'RE-ALLOCATE'
   | 'INSPECT'
   | 'MAINTAIN'
-  | 'IMPORT';
+  | 'IMPORT'
+  | 'IMPORT ACCOMMODATION UNITS'
 
 export type EntityType =
   | 'user'
@@ -29,7 +30,8 @@ export type EntityType =
   | 'maintenance'
   | 'inventory'
   | 'stamp_setting'
-  | 'clearance_inspection';
+  | 'clearance_inspection'
+  | 'IMPORT ACCOMMODATION UNITS'
 
 interface AuditLogOptions {
   userId: string;
@@ -38,19 +40,19 @@ interface AuditLogOptions {
   entityId?: string;
   oldData?: any;
   newData?: any;
-  ipAddress?: string;
+  macAddress?: string;
   userAgent?: string;
 }
 
 export class AuditLogger {
   static async log(options: AuditLogOptions): Promise<void> {
     try {
-      // Get IP and user agent from headers if not provided
+      // Get MAC address and user agent from headers if not provided
       const headersList = headers();
-      const ipAddress = options.ipAddress ||
+      const macAddress = options.macAddress ||
         headersList.get('x-forwarded-for')?.split(',')[0] ||
         headersList.get('x-real-ip') ||
-        '0.0.0.0';
+        '00:00:00:00:00:00';
 
       const userAgent = options.userAgent || headersList.get('user-agent') || null;
 
@@ -62,7 +64,7 @@ export class AuditLogger {
           entityId: options.entityId,
           oldData: options.oldData,
           newData: options.newData,
-          ipAddress,
+          ipAddress: macAddress,
           userAgent,
         },
       });
@@ -197,7 +199,7 @@ export class AuditLogger {
   ): Promise<void> {
     await this.log({
       userId,
-      action: 'IMPORT',
+      action: 'IMPORT ACCOMMODATION UNITS',
       entityType,
       newData: {
         importOperation: true,

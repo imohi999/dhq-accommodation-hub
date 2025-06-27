@@ -40,6 +40,92 @@ export async function POST(request: NextRequest) {
     const personnelData = requestData.personnelData as unknown as IPersonnelData;
 
     const result = await prisma.$transaction(async (tx) => {
+      // Check if the occupant is currently occupying any unit
+      const currentOccupiedUnit = await tx.dhqLivingUnit.findFirst({
+        where: {
+          currentOccupantServiceNumber: personnelData.svcNo,
+          status: "Occupied"
+        },
+        include: {
+          accommodationType: true
+        }
+      });
+
+      let pastAllocation = null;
+
+      // If occupant has a current unit, vacate it
+      if (currentOccupiedUnit) {
+        await tx.dhqLivingUnit.update({
+          where: { id: currentOccupiedUnit.id },
+          data: {
+            status: "Vacant",
+            currentOccupantId: null,
+            currentOccupantName: null,
+            currentOccupantRank: null,
+            currentOccupantServiceNumber: null,
+            occupancyStartDate: null,
+          }
+        });
+
+        // Mark the previous unit occupant record as not current
+        await tx.unitOccupant.updateMany({
+          where: {
+            unitId: currentOccupiedUnit.id,
+            isCurrent: true
+          },
+          data: {
+            isCurrent: false
+          }
+        });
+
+        // Update unit history for the vacated unit
+        await tx.unitHistory.updateMany({
+          where: {
+            unitId: currentOccupiedUnit.id,
+            endDate: null
+          },
+          data: {
+            endDate: new Date(),
+            durationDays: currentOccupiedUnit.occupancyStartDate
+              ? Math.floor((new Date().getTime() - new Date(currentOccupiedUnit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
+              : 0,
+            reasonForLeaving: `re-allocated to ${requestData.unit.quarterName} ${requestData.unit.blockName} ${requestData.unit.flatHouseRoomName}`
+          }
+        });
+
+        pastAllocation = await tx.pastAllocation.create({
+          data: {
+            personnelId: currentOccupiedUnit.currentOccupantId || currentOccupiedUnit.id,
+            queueId: requestData.queueId,
+            unitId: currentOccupiedUnit.id,
+            letterId: `DHQ/RE-ALLOCATE/${new Date().getFullYear()}/${Date.now()}`,
+            personnelData: {
+              id: currentOccupiedUnit.currentOccupantId,
+              fullName: currentOccupiedUnit.currentOccupantName,
+              rank: currentOccupiedUnit.currentOccupantRank,
+              svcNo: currentOccupiedUnit.currentOccupantServiceNumber,
+              category: currentOccupiedUnit.category,
+            },
+            unitData: {
+              id: currentOccupiedUnit.id,
+              quarterName: currentOccupiedUnit.quarterName,
+              location: currentOccupiedUnit.location,
+              category: currentOccupiedUnit.category,
+              blockName: currentOccupiedUnit.blockName,
+              flatHouseRoomName: currentOccupiedUnit.flatHouseRoomName,
+              noOfRooms: currentOccupiedUnit.noOfRooms,
+              accommodationType: currentOccupiedUnit.accommodationType?.name || currentOccupiedUnit.category,
+            },
+            allocationStartDate: currentOccupiedUnit.occupancyStartDate || new Date(),
+            allocationEndDate: new Date(),
+            durationDays: currentOccupiedUnit.occupancyStartDate
+              ? Math.floor((new Date().getTime() - new Date(currentOccupiedUnit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
+              : 0,
+            reasonForLeaving: `Re-allocated to ${requestData.unit.quarterName} ${requestData.unit.blockName} ${requestData.unit.flatHouseRoomName}`,
+            deallocationDate: new Date(),
+          }
+        });
+      }
 
       const updatedRequest = await tx.allocationRequest.update({
         where: {
@@ -96,7 +182,11 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      return updatedRequest;
+      return {
+        updatedRequest,
+        vacatedUnit: currentOccupiedUnit,
+        pastAllocation: pastAllocation
+      };
     }, {
       timeout: 100000 // 10 seconds
     });
@@ -110,11 +200,21 @@ export async function POST(request: NextRequest) {
         personnelId,
         unitId,
         personnelName: personnelData.fullName,
-        unitName: requestData.unit.quarterName
+        unitName: requestData.unit.quarterName,
+        vacatedUnit: result.vacatedUnit ? {
+          id: result.vacatedUnit.id,
+          name: `${result.vacatedUnit.quarterName} ${result.vacatedUnit.blockName} ${result.vacatedUnit.flatHouseRoomName}`
+        } : null
       }
     );
 
-    return NextResponse.json({ requestId }, { status: 200 });
+    return NextResponse.json({
+      requestId,
+      vacatedUnit: result.vacatedUnit ? {
+        id: result.vacatedUnit.id,
+        name: `${result.vacatedUnit.quarterName} ${result.vacatedUnit.blockName} ${result.vacatedUnit.flatHouseRoomName}`
+      } : null
+    }, { status: 200 });
   } catch (error) {
     console.error('[POST /api/allocations/approve] Error approving allocation:', error);
     console.error('[POST /api/allocations/approve] Error stack:', error instanceof Error ? error.stack : 'No stack');

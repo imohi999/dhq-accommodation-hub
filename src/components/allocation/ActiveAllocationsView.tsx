@@ -671,6 +671,7 @@ export const ActiveAllocationsView = ({
 					onClose={() => setTransferModal({ isOpen: false, unit: null })}
 					currentUnit={transferModal.unit}
 					mutate={() => mutateOccupiedUnits()}
+					// queueId={transferModal.}
 				/>
 			)}
 

@@ -39,6 +39,8 @@ export const TransferRequestModal = ({
 		unit: null,
 	});
 
+	console.log({ currentUnit });
+
 	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
 		{}
 	);
@@ -78,7 +80,7 @@ export const TransferRequestModal = ({
 
 			// Show success toast
 			toast.success(
-				`Transfer Successful: ${result.personnelName} has been transferred from ${result.transferDetails.from} to ${result.transferDetails.to}`
+				`Transfer Successful: ${result.personnelName} has requested transfer from ${result.transferDetails.from}`
 			);
 
 			// Refresh the data
@@ -103,6 +105,8 @@ export const TransferRequestModal = ({
 	}
 
 	const handleConfirmTransferRequest = async () => {
+		console.log({ confirmDialog });
+
 		if (confirmDialog.unit) {
 			const success = await createTransferRequest(
 				currentUnit.id,
@@ -122,8 +126,8 @@ export const TransferRequestModal = ({
 					<DialogHeader>
 						<DialogTitle>Re-allocate</DialogTitle>
 						<DialogDescription>
-							Request re-allocation for {currentUnit.currentOccupantName} to another
-							unit. This will proceed with immediate transfer. Showing{" "}
+							Request re-allocation for {currentUnit.currentOccupantName} to
+							another unit. This will proceed with immediate transfer. Showing{" "}
 							{availableUnits.length} vacant{" "}
 							{currentUnit.category.toLowerCase()} units.
 						</DialogDescription>

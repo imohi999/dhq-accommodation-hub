@@ -8,6 +8,7 @@ export interface AccommodationType {
 
 export interface DHQLivingUnit {
   id: string;
+  queueId: string;
   quarterName: string;
   location: string;
   category: string;

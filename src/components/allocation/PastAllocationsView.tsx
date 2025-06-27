@@ -14,7 +14,8 @@ interface PersonnelData {
 	phone: string;
 	category: string;
 	fullName: string;
-	svcNo: string;
+	svcNo?: string;
+	serviceNumber?: string;
 }
 interface ClearanceInspection {
 	id: string;

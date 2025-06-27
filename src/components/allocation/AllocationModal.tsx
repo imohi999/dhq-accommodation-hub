@@ -30,6 +30,7 @@ import { QueueItem } from "@/types/queue";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { useAccommodationData } from "@/hooks/useAccommodationData";
 import { useAllocation } from "@/hooks/useAllocation";
+import { LoadingState } from "@/components/ui/spinner";
 import {
 	Home,
 	Users,
@@ -39,6 +40,7 @@ import {
 	Calendar,
 	User,
 	Shield,
+	Loader2,
 } from "lucide-react";
 
 interface AllocationModalProps {
@@ -98,6 +100,9 @@ export const AllocationModal = ({
 	};
 
 	const handleClose = () => {
+		// Prevent closing while loading
+		if (allocationLoading) return;
+		
 		onClose();
 		setSelectedUnitId("");
 		setSearchTerm("");
@@ -120,6 +125,16 @@ export const AllocationModal = ({
 						{personnel.full_name}
 					</DialogDescription>
 				</DialogHeader>
+
+				{/* Loading overlay */}
+				{allocationLoading && (
+					<div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
+						<div className="flex flex-col items-center gap-2">
+							<Loader2 className="h-8 w-8 animate-spin text-primary" />
+							<p className="text-sm text-muted-foreground">Creating allocation request...</p>
+						</div>
+					</div>
+				)}
 
 				<div className='space-y-6'>
 					{/* Personnel Summary - Enhanced */}
@@ -367,7 +382,11 @@ export const AllocationModal = ({
 				</div>
 
 				<DialogFooter>
-					<Button variant='outline' onClick={handleClose}>
+					<Button 
+						variant='outline' 
+						onClick={handleClose}
+						disabled={allocationLoading}
+					>
 						Cancel
 					</Button>
 					<Button
@@ -378,6 +397,9 @@ export const AllocationModal = ({
 							unitsLoading ||
 							eligibleUnits.length === 0
 						}>
+						{allocationLoading && (
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						)}
 						{allocationLoading
 							? "Creating Request..."
 							: "Create Allocation Request"}

@@ -76,9 +76,6 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      console.log({ existingQueueEntry });
-
-
       if (existingQueueEntry) {
         await tx.queue.update({
           where: { id: existingQueueEntry.id },

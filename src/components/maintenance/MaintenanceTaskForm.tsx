@@ -55,7 +55,7 @@ export function MaintenanceTaskForm({
 	const [submitting, setSubmitting] = useState(false);
 
 	const filters = useAccommodationFilters();
-	const { units, housingTypes, loading } = useAccommodationData(filters.getApiFilters());
+	const { units, housingTypes, loading } = useAccommodationData(filters.getFilters());
 	const { filterOptions } = useFilterOptions();
 
 	useEffect(() => {

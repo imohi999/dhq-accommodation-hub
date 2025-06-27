@@ -54,7 +54,7 @@ interface AuditLog {
 	entityId?: string;
 	oldData?: any;
 	newData?: any;
-	ipAddress: string;
+	macAddress: string;
 	userAgent?: string;
 	createdAt: string;
 	user: {
@@ -280,7 +280,7 @@ export default function AuditLogsPage() {
 									<TableHead>User</TableHead>
 									<TableHead>Action</TableHead>
 									<TableHead>Entity</TableHead>
-									<TableHead>IP Address</TableHead>
+									<TableHead>Mac Address</TableHead>
 									<TableHead>Actions</TableHead>
 								</TableRow>
 							</TableHeader>
@@ -329,7 +329,7 @@ export default function AuditLogsPage() {
 												)}
 											</TableCell>
 											<TableCell className='font-mono text-sm'>
-												{log.ipAddress}
+												{log.macAddress}
 											</TableCell>
 											<TableCell>
 												<Button
@@ -517,9 +517,9 @@ export default function AuditLogsPage() {
 								</div>
 								<div>
 									<p className='text-sm font-medium text-muted-foreground'>
-										IP Address
+										Mac Address
 									</p>
-									<p className='text-sm font-mono'>{selectedLog.ipAddress}</p>
+									<p className='text-sm font-mono'>{selectedLog.macAddress}</p>
 								</div>
 								{selectedLog.entityType && (
 									<div>

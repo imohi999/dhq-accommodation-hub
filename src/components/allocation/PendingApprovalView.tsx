@@ -11,7 +11,18 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { CheckCircle, XCircle, FileText, Clock } from "lucide-react";
+import { 
+	CheckCircle, 
+	XCircle, 
+	FileText, 
+	Clock,
+	Loader2,
+	User,
+	Building,
+	Home,
+	Users,
+	Shield
+} from "lucide-react";
 import { AllocationLetter } from "@/components/allocation/AllocationLetter";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
 import { toast } from "react-toastify";
@@ -37,13 +48,11 @@ export const PendingApprovalView = ({
 	const [confirmDialog, setConfirmDialog] = useState<{
 		isOpen: boolean;
 		type: "approve" | "refuse";
-		requestId: string;
-		personnelName: string;
+		request: APIAllocationRequest | null;
 	}>({
 		isOpen: false,
 		type: "approve",
-		requestId: "",
-		personnelName: "",
+		request: null,
 	});
 	const [selectedRequest, setSelectedRequest] =
 		useState<APIAllocationRequest | null>(null);
@@ -57,8 +66,7 @@ export const PendingApprovalView = ({
 		setConfirmDialog({
 			isOpen: true,
 			type: "approve",
-			requestId: request.id,
-			personnelName: request?.personnelData.fullName,
+			request: request,
 		});
 	};
 
@@ -66,8 +74,7 @@ export const PendingApprovalView = ({
 		setConfirmDialog({
 			isOpen: true,
 			type: "refuse",
-			requestId: request.id,
-			personnelName: request.personnelData?.fullName,
+			request: request,
 		});
 	};
 
@@ -146,25 +153,23 @@ export const PendingApprovalView = ({
 	}
 
 	const handleConfirmAction = async () => {
+		if (!confirmDialog.request) return;
+		
 		if (confirmDialog.type === "approve") {
-			await approveAllocation(confirmDialog.requestId);
+			await approveAllocation(confirmDialog.request.id);
 		} else {
-			const request = requests.find((r) => r.id === confirmDialog.requestId);
-			if (request) {
-				try {
-					await refuseAllocation(confirmDialog.requestId);
-					await mutate();
-				} catch (error) {
-					console.error("Error in refusal process:", error);
-				}
+			try {
+				await refuseAllocation(confirmDialog.request.id);
+				await mutate();
+			} catch (error) {
+				console.error("Error in refusal process:", error);
 			}
 		}
 
 		setConfirmDialog({
 			isOpen: false,
 			type: "approve",
-			requestId: "",
-			personnelName: "",
+			request: null,
 		});
 	};
 
@@ -486,55 +491,137 @@ export const PendingApprovalView = ({
 				</div>
 			)}
 
-			{/* Confirmation Dialog */}
+			{/* Enhanced Confirmation Dialog */}
 			<Dialog
 				open={confirmDialog.isOpen}
-				onOpenChange={(open) =>
-					setConfirmDialog({ ...confirmDialog, isOpen: open })
-				}>
-				<DialogContent>
+				onOpenChange={(open) => {
+					// Prevent closing while loading
+					const isLoading = confirmDialog.request && (
+						loadingStates[`approve_${confirmDialog.request.id}`] ||
+						loadingStates[`refuse_${confirmDialog.request.id}`]
+					);
+					if (!isLoading) {
+						setConfirmDialog({ ...confirmDialog, isOpen: open });
+					}
+				}}>
+				<DialogContent className='max-w-3xl'>
 					<DialogHeader>
 						<DialogTitle>
 							{confirmDialog.type === "approve"
-								? "Approve Allocation"
-								: "Refuse Allocation"}
+								? "Approve Allocation Request"
+								: "Refuse Allocation Request"}
 						</DialogTitle>
 						<DialogDescription>
-							{confirmDialog.type === "approve"
-								? `Are you sure you want to approve the allocation request for ${confirmDialog.personnelName}? This will move the request to Active Allocations.`
-								: `Are you sure you want to refuse the allocation request for ${confirmDialog.personnelName}? This will return them to the queue at position #1.`}
+							Review the allocation details before {confirmDialog.type === "approve" ? "approving" : "refusing"} this request
 						</DialogDescription>
 					</DialogHeader>
+
+					{/* Loading overlay */}
+					{confirmDialog.request && (loadingStates[`approve_${confirmDialog.request.id}`] || loadingStates[`refuse_${confirmDialog.request.id}`]) && (
+						<div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
+							<div className="flex flex-col items-center gap-2">
+								<Loader2 className="h-8 w-8 animate-spin text-primary" />
+								<p className="text-sm text-muted-foreground">
+									{confirmDialog.type === "approve" ? "Approving allocation..." : "Refusing allocation..."}
+								</p>
+							</div>
+						</div>
+					)}
+
+					{confirmDialog.request && (
+						<div className='space-y-4'>
+							{/* Personnel Information Card */}
+							<Card>
+								<CardHeader>
+									<CardTitle className='text-base flex items-center gap-2'>
+										<User className='h-4 w-4' />
+										Personnel Information
+									</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className='grid grid-cols-2 gap-4'>
+										<div>
+											<p className='text-xs text-muted-foreground'>Name</p>
+											<p className='font-medium'>
+												{confirmDialog.request.personnelData?.rank} {confirmDialog.request.personnelData?.fullName}
+											</p>
+										</div>
+										<div>
+											<p className='text-xs text-muted-foreground'>Service Number</p>
+											<p className='font-medium'>{confirmDialog.request.personnelData?.svcNo}</p>
+										</div>
+										<div>
+											<p className='text-xs text-muted-foreground'>Category</p>
+											<Badge variant='secondary'>{confirmDialog.request.personnelData?.category}</Badge>
+										</div>
+										<div>
+											<p className='text-xs text-muted-foreground'>Service</p>
+											<p className='font-medium'>{getServiceFromSvcNo(confirmDialog.request.personnelData?.svcNo)}</p>
+										</div>
+									</div>
+								</CardContent>
+							</Card>
+
+							{/* Unit Information Card */}
+							<Card>
+								<CardHeader>
+									<CardTitle className='text-base flex items-center gap-2'>
+										<Home className='h-4 w-4' />
+										Unit Details
+									</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className='grid grid-cols-2 gap-4'>
+										<div>
+											<p className='text-xs text-muted-foreground'>Quarter</p>
+											<p className='font-medium'>{confirmDialog.request.unitData?.quarterName}</p>
+										</div>
+										<div>
+											<p className='text-xs text-muted-foreground'>Unit</p>
+											<p className='font-medium'>{confirmDialog.request.unitData?.flatHouseRoomName}</p>
+										</div>
+										<div>
+											<p className='text-xs text-muted-foreground'>Type</p>
+											<Badge variant='outline'>{confirmDialog.request.unitData?.accommodationType}</Badge>
+										</div>
+										<div>
+											<p className='text-xs text-muted-foreground'>Rooms</p>
+											<p className='font-medium'>{confirmDialog.request.unitData?.noOfRooms} rooms</p>
+										</div>
+									</div>
+								</CardContent>
+							</Card>
+
+							{/* Warning/Info Message */}
+							<div className={`p-4 rounded-lg ${confirmDialog.type === "approve" ? "bg-green-50 dark:bg-green-950" : "bg-amber-50 dark:bg-amber-950"}`}>
+								<p className='text-sm'>
+									{confirmDialog.type === "approve"
+										? "Approving this request will allocate the unit to the personnel and update their status to 'Active Allocation'."
+										: "Refusing this request will return the personnel to the queue at position #1 with priority status."}
+								</p>
+							</div>
+						</div>
+					)}
+
 					<DialogFooter>
 						<Button
 							variant='outline'
-							onClick={() =>
-								setConfirmDialog({ ...confirmDialog, isOpen: false })
-							}>
+							onClick={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+							disabled={!!confirmDialog.request && (loadingStates[`approve_${confirmDialog.request.id}`] || loadingStates[`refuse_${confirmDialog.request.id}`])}>
 							Cancel
 						</Button>
-						<LoadingButton
-							variant={
-								confirmDialog.type === "approve" ? "default" : "destructive"
-							}
+						<Button
+							variant={confirmDialog.type === "approve" ? "default" : "destructive"}
 							onClick={handleConfirmAction}
-							loading={
-								loadingStates[
-									`${confirmDialog.type}_${confirmDialog.requestId}`
-								]
-							}
-							loadingText={
-								confirmDialog.type === "approve"
-									? "Approving..."
-									: "Refusing..."
-							}
-							className={
-								confirmDialog.type === "approve"
-									? "bg-green-600 hover:bg-green-700"
-									: ""
-							}>
-							{confirmDialog.type === "approve" ? "Approve" : "Refuse"}
-						</LoadingButton>
+							disabled={!confirmDialog.request || loadingStates[`approve_${confirmDialog.request.id}`] || loadingStates[`refuse_${confirmDialog.request.id}`]}
+							className={confirmDialog.type === "approve" ? "bg-green-600 hover:bg-green-700" : ""}>
+							{(confirmDialog.request && (loadingStates[`approve_${confirmDialog.request.id}`] || loadingStates[`refuse_${confirmDialog.request.id}`])) && (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							)}
+							{confirmDialog.type === "approve"
+								? (loadingStates[`approve_${confirmDialog.request?.id}`] ? "Approving..." : "Approve Allocation")
+								: (loadingStates[`refuse_${confirmDialog.request?.id}`] ? "Refusing..." : "Refuse Allocation")}
+						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
