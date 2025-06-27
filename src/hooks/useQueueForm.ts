@@ -112,6 +112,18 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.current_unit) {
+      toast.error("Current Unit is required");
+      return;
+    }
+    
+    if (!formData.date_tos) {
+      toast.error("Date TOS is required");
+      return;
+    }
+    
     setLoading(true);
 
     try {

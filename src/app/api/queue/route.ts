@@ -25,9 +25,9 @@ const queueSchema = z.object({
   noOfAdultDependents: z.number().int().min(0).max(99).default(0),
   noOfChildDependents: z.number().int().min(0).max(99).default(0),
   dependents: z.array(dependentSchema).optional(),
-  currentUnit: z.string().optional(),
+  currentUnit: z.string().min(1, { message: "Current Unit is required" }),
   appointment: z.string().optional(),
-  dateTos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
+  dateTos: z.string().min(1, { message: "Date TOS is required" }).transform(val => new Date(val)),
   dateSos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
   phone: z.string().optional()
 })
