@@ -197,6 +197,9 @@ export const PastAllocationsView = () => {
 		return "Unknown";
 	};
 
+	// Add inspection status state
+	const [inspectionStatusFilter, setInspectionStatusFilter] = useState("all");
+
 	// Use allocation filters
 	const {
 		searchTerm,
@@ -209,7 +212,7 @@ export const PastAllocationsView = () => {
 		setQuarterFilter,
 		unitTypeFilter,
 		setUnitTypeFilter,
-		filteredItems,
+		filteredItems: baseFilteredItems,
 		availableQuarters,
 		availableUnitTypes,
 	} = useAllocationFilters(
@@ -228,6 +231,15 @@ export const PastAllocationsView = () => {
 		(item) => item.unitData?.quarterName || "",
 		(item) => item.unitData?.accommodationType || ""
 	);
+
+	// Apply inspection status filter
+	const filteredItems = baseFilteredItems.filter((item) => {
+		if (inspectionStatusFilter === "all") return true;
+		const hasInspection = item.clearance_inspections && item.clearance_inspections.length > 0;
+		if (inspectionStatusFilter === "inspected") return hasInspection;
+		if (inspectionStatusFilter === "not-inspected") return !hasInspection;
+		return true;
+	});
 
 	if (error) {
 		return (
@@ -306,6 +318,8 @@ export const PastAllocationsView = () => {
 				onQuarterChange={setQuarterFilter}
 				unitTypeFilter={unitTypeFilter}
 				onUnitTypeChange={setUnitTypeFilter}
+				inspectionStatusFilter={inspectionStatusFilter}
+				onInspectionStatusChange={setInspectionStatusFilter}
 				availableQuarters={availableQuarters}
 				availableUnitTypes={availableUnitTypes}
 			/>
@@ -387,7 +401,8 @@ export const PastAllocationsView = () => {
 							categoryFilter !== "all" ||
 							armOfServiceFilter !== "all" ||
 							quarterFilter !== "all" ||
-							unitTypeFilter !== "all"
+							unitTypeFilter !== "all" ||
+							inspectionStatusFilter !== "all"
 								? "No past allocations match your filters"
 								: "No past allocations found"}
 						</p>

@@ -21,6 +21,8 @@ interface AllocationFiltersProps {
 	onQuarterChange?: (value: string) => void;
 	unitTypeFilter?: string;
 	onUnitTypeChange?: (value: string) => void;
+	inspectionStatusFilter?: string;
+	onInspectionStatusChange?: (value: string) => void;
 	availableQuarters?: string[];
 	availableUnitTypes?: string[];
 }
@@ -36,6 +38,8 @@ export const AllocationFilters = ({
 	onQuarterChange,
 	unitTypeFilter,
 	onUnitTypeChange,
+	inspectionStatusFilter,
+	onInspectionStatusChange,
 	availableQuarters = [],
 	availableUnitTypes = [],
 }: AllocationFiltersProps) => {
@@ -45,6 +49,7 @@ export const AllocationFilters = ({
 		onArmOfServiceChange("all");
 		onQuarterChange?.("all");
 		onUnitTypeChange?.("all");
+		onInspectionStatusChange?.("all");
 	};
 
 	return (
@@ -98,7 +103,7 @@ export const AllocationFilters = ({
 			</div>
 
 			{/* Second row: Other filters */}
-			<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 				<div className='space-y-2'>
 					<Label>Category</Label>
 					<Select value={categoryFilter} onValueChange={onCategoryChange}>
@@ -146,6 +151,22 @@ export const AllocationFilters = ({
 										{type}
 									</SelectItem>
 								))}
+							</SelectContent>
+						</Select>
+					</div>
+				)}
+
+				{inspectionStatusFilter !== undefined && onInspectionStatusChange && (
+					<div className='space-y-2'>
+						<Label>Inspection Status</Label>
+						<Select value={inspectionStatusFilter} onValueChange={onInspectionStatusChange}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Statuses' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Statuses</SelectItem>
+								<SelectItem value='inspected'>Inspected</SelectItem>
+								<SelectItem value='not-inspected'>Not Inspected</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>

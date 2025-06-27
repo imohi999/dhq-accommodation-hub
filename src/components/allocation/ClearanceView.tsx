@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
 	Table,
 	TableBody,
@@ -13,18 +12,20 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Search, FileText, ClipboardCheck } from "lucide-react";
+import { FileText, ClipboardCheck } from "lucide-react";
 import { useClearanceData } from "@/hooks/useClearanceData";
 import { LoadingState } from "@/components/ui/spinner";
 import { InspectionModal } from "./InspectionModal";
 import { ClearanceLetter } from "./ClearanceLetter";
+import { AllocationFilters } from "./AllocationFilters";
+import { useAllocationFilters } from "@/hooks/useAllocationFilters";
 import { format } from "date-fns";
 
 export function ClearanceView() {
-	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedAllocation, setSelectedAllocation] = useState<any>(null);
 	const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
 	const [isLetterModalOpen, setIsLetterModalOpen] = useState(false);
+	const [inspectionStatusFilter, setInspectionStatusFilter] = useState("all");
 
 	const { data, isLoading, mutate } = useClearanceData();
 
@@ -40,16 +41,52 @@ export function ClearanceView() {
 		}
 	};
 
-	const filteredData = data?.filter((allocation: any) => {
-		const searchLower = searchTerm.toLowerCase();
-		const personnelData = allocation.personnelData;
+	// Extract service from service number prefix
+	const getServiceFromSvcNo = (svcNo: string) => {
+		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
+		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
+		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
+		return "Unknown";
+	};
 
-		return (
-			personnelData?.serviceNumber?.toLowerCase().includes(searchLower) ||
-			personnelData?.fullName?.toLowerCase().includes(searchLower) ||
-			allocation.unitData?.unitName?.toLowerCase().includes(searchLower) ||
-			allocation.unitData?.quarterName?.toLowerCase().includes(searchLower)
-		);
+	// Use allocation filters
+	const {
+		searchTerm,
+		setSearchTerm,
+		categoryFilter,
+		setCategoryFilter,
+		armOfServiceFilter,
+		setArmOfServiceFilter,
+		quarterFilter,
+		setQuarterFilter,
+		unitTypeFilter,
+		setUnitTypeFilter,
+		filteredItems: baseFilteredItems,
+		availableQuarters,
+		availableUnitTypes,
+	} = useAllocationFilters(
+		data || [],
+		(item) => [
+			item.personnelData?.fullName || "",
+			item.personnelData?.serviceNumber || "",
+			item.personnelData?.rank || "",
+			item.unitData?.quarterName || "",
+			item.unitData?.unitName || "",
+			item.unit?.flatHouseRoomName || "",
+		],
+		(item) => getServiceFromSvcNo(item.personnelData?.serviceNumber || ""),
+		(item) => item.personnelData?.category || "",
+		(item) => item.unitData?.quarterName || "",
+		(item) => item.unitData?.accommodationType || ""
+	);
+
+	// Apply inspection status filter
+	const filteredData = baseFilteredItems.filter((item) => {
+		if (inspectionStatusFilter === "all") return true;
+		const hasInspection = item.clearance_inspections && item.clearance_inspections.length > 0;
+		if (inspectionStatusFilter === "inspected") return hasInspection;
+		if (inspectionStatusFilter === "not-inspected") return !hasInspection;
+		return true;
 	});
 
 	const handleInspectionComplete = () => {
@@ -63,6 +100,24 @@ export function ClearanceView() {
 
 	return (
 		<div className='container mx-auto py-6 space-y-6'>
+			{/* Filters */}
+			<AllocationFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				armOfServiceFilter={armOfServiceFilter}
+				onArmOfServiceChange={setArmOfServiceFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				unitTypeFilter={unitTypeFilter}
+				onUnitTypeChange={setUnitTypeFilter}
+				inspectionStatusFilter={inspectionStatusFilter}
+				onInspectionStatusChange={setInspectionStatusFilter}
+				availableQuarters={availableQuarters}
+				availableUnitTypes={availableUnitTypes}
+			/>
+
 			<Card>
 				<CardHeader>
 					<CardTitle className='text-2xl font-bold'>
@@ -74,18 +129,27 @@ export function ClearanceView() {
 					</p>
 				</CardHeader>
 				<CardContent>
-					<div className='mb-4'>
-						<div className='relative'>
-							<Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-							<Input
-								placeholder='Search by service number, name, or unit...'
-								value={searchTerm}
-								onChange={(e) => setSearchTerm(e.target.value)}
-								className='pl-8'
-							/>
-						</div>
+					{/* Show count info */}
+					<div className='flex justify-between items-center mb-4'>
+						<p className='text-sm text-muted-foreground'>
+							Showing {filteredData.length} of {data?.length || 0} allocations
+						</p>
 					</div>
 
+					{filteredData.length === 0 ? (
+						<div className='text-center py-12'>
+							<p className='text-muted-foreground'>
+								{searchTerm ||
+								categoryFilter !== "all" ||
+								armOfServiceFilter !== "all" ||
+								quarterFilter !== "all" ||
+								unitTypeFilter !== "all" ||
+								inspectionStatusFilter !== "all"
+									? "No allocations match your filters"
+									: "No allocations found"}
+							</p>
+						</div>
+					) : (
 					<div className='rounded-md border'>
 						<Table>
 							<TableHeader>
@@ -201,6 +265,7 @@ export function ClearanceView() {
 							</TableBody>
 						</Table>
 					</div>
+					)}
 				</CardContent>
 			</Card>
 
