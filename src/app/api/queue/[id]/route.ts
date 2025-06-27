@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth-utils'
+import { AuditLogger } from '@/lib/audit-logger'
 
 interface RouteParams {
   params: {
@@ -75,10 +76,24 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Validate the request body
     const validatedData = updateQueueSchema.parse(body)
     
+    // Get old data for audit log
+    const oldData = await prisma.queue.findUnique({
+      where: { id: params.id }
+    })
+
     const updated = await prisma.queue.update({
       where: { id: params.id },
       data: validatedData
     })
+
+    // Log the update
+    await AuditLogger.logUpdate(
+      session.userId,
+      'queue',
+      params.id,
+      oldData,
+      updated
+    )
 
     // Emit real-time update
     // io.emit('queue:updated', updated)
@@ -117,16 +132,33 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     //   return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     // }
 
-    // Get the deleted entry's sequence for reordering
-    const deletedEntry = await prisma.queue.delete({
+    // Get the entry before deletion for audit log and sequence
+    const entryToDelete = await prisma.queue.findUnique({
       where: { id: params.id }
     })
+
+    if (!entryToDelete) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
+    // Delete the entry
+    await prisma.queue.delete({
+      where: { id: params.id }
+    })
+
+    // Log the deletion
+    await AuditLogger.logDelete(
+      session.userId,
+      'queue',
+      params.id,
+      entryToDelete
+    )
 
     // Reorder remaining entries
     await prisma.$executeRaw`
       UPDATE Queue 
       SET sequence = sequence - 1 
-      WHERE sequence > ${deletedEntry.sequence}
+      WHERE sequence > ${entryToDelete.sequence}
     `
 
     // Emit real-time update

@@ -26,8 +26,22 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { ChevronLeft, ChevronRight, Search, Monitor, Shield } from "lucide-react";
+import {
+	ChevronLeft,
+	ChevronRight,
+	Search,
+	Monitor,
+	Shield,
+	Eye,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingState } from "@/components/ui/spinner";
@@ -72,12 +86,14 @@ export default function AuditLogsPage() {
 		action: "",
 		entityType: "",
 	});
+	const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 	const isSuperAdmin = user?.profile?.role === "superadmin";
 
 	const fetchAuditLogs = useCallback(async () => {
 		if (!isSuperAdmin) return;
-		
+
 		setLoading(true);
 		try {
 			const params = new URLSearchParams({
@@ -127,6 +143,12 @@ export default function AuditLogsPage() {
 		if (action.includes("DELETE") || action.includes("REMOVE"))
 			return "destructive";
 		if (action.includes("FAILED")) return "destructive";
+		if (action.includes("APPROVED") || action.includes("ALLOCATE"))
+			return "default";
+		if (action.includes("NOT APPROVED") || action.includes("POSTED OUT"))
+			return "destructive";
+		if (action.includes("RE-ALLOCATE") || action.includes("INSPECT"))
+			return "secondary";
 		return "outline";
 	};
 
@@ -191,13 +213,20 @@ export default function AuditLogsPage() {
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value='all'>All actions</SelectItem>
-									<SelectItem value='LOGIN'>Login</SelectItem>
-									<SelectItem value='LOGOUT'>Logout</SelectItem>
-									<SelectItem value='SIGNUP'>Signup</SelectItem>
-									<SelectItem value='FAILED_LOGIN'>Failed Login</SelectItem>
-									<SelectItem value='CREATE'>Create</SelectItem>
-									<SelectItem value='UPDATE'>Update</SelectItem>
-									<SelectItem value='DELETE'>Delete</SelectItem>
+									<SelectItem value='LOGIN'>LOGIN</SelectItem>
+									<SelectItem value='LOGOUT'>LOGOUT</SelectItem>
+									<SelectItem value='SIGNUP'>SIGNUP</SelectItem>
+									<SelectItem value='FAILED_LOGIN'>FAILED_LOGIN</SelectItem>
+									<SelectItem value='CREATE'>CREATE</SelectItem>
+									<SelectItem value='UPDATE'>UPDATE</SelectItem>
+									<SelectItem value='DELETE'>DELETE</SelectItem>
+									<SelectItem value='APPROVED'>APPROVED</SelectItem>
+									<SelectItem value='NOT APPROVED'>NOT APPROVED</SelectItem>
+									<SelectItem value='ALLOCATE'>ALLOCATE</SelectItem>
+									<SelectItem value='POSTED OUT'>POSTED OUT</SelectItem>
+									<SelectItem value='RE-ALLOCATE'>RE-ALLOCATE</SelectItem>
+									<SelectItem value='INSPECT'>INSPECT</SelectItem>
+									<SelectItem value='MAINTAIN'>MAINTAIN</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -216,10 +245,16 @@ export default function AuditLogsPage() {
 								<SelectContent>
 									<SelectItem value='all'>All entities</SelectItem>
 									<SelectItem value='user'>User</SelectItem>
+									<SelectItem value='profile'>Profile</SelectItem>
 									<SelectItem value='queue'>Queue</SelectItem>
 									<SelectItem value='allocation'>Allocation</SelectItem>
 									<SelectItem value='unit'>Unit</SelectItem>
 									<SelectItem value='maintenance'>Maintenance</SelectItem>
+									<SelectItem value='inventory'>Inventory</SelectItem>
+									<SelectItem value='stamp_setting'>Stamp Setting</SelectItem>
+									<SelectItem value='clearance_inspection'>
+										Clearance Inspection
+									</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -244,6 +279,7 @@ export default function AuditLogsPage() {
 									<TableHead>Action</TableHead>
 									<TableHead>Entity</TableHead>
 									<TableHead>IP Address</TableHead>
+									<TableHead>Actions</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -293,6 +329,17 @@ export default function AuditLogsPage() {
 											<TableCell className='font-mono text-sm'>
 												{log.ipAddress}
 											</TableCell>
+											<TableCell>
+												<Button
+													variant='ghost'
+													size='sm'
+													onClick={() => {
+														setSelectedLog(log);
+														setIsDialogOpen(true);
+													}}>
+													<Eye className='h-4 w-4' />
+												</Button>
+											</TableCell>
 										</TableRow>
 									))
 								)}
@@ -327,6 +374,102 @@ export default function AuditLogsPage() {
 					)}
 				</CardContent>
 			</Card>
+
+			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+				<DialogContent className='max-w-3xl max-h-[80vh] overflow-y-auto'>
+					<DialogHeader>
+						<DialogTitle>Audit Log Details</DialogTitle>
+						<DialogDescription>
+							Detailed information about this audit log entry
+						</DialogDescription>
+					</DialogHeader>
+					{selectedLog && (
+						<div className='space-y-4'>
+							<div className='grid grid-cols-2 gap-4'>
+								<div>
+									<p className='text-sm font-medium text-muted-foreground'>
+										Timestamp
+									</p>
+									<p className='text-sm'>
+										{format(
+											new Date(selectedLog.createdAt),
+											"yyyy-MM-dd HH:mm:ss"
+										)}
+									</p>
+								</div>
+								<div>
+									<p className='text-sm font-medium text-muted-foreground'>
+										Action
+									</p>
+									<Badge variant={getActionBadgeVariant(selectedLog.action)}>
+										{selectedLog.action}
+									</Badge>
+								</div>
+								<div>
+									<p className='text-sm font-medium text-muted-foreground'>
+										User
+									</p>
+									<p className='text-sm'>
+										{selectedLog.user.username} ({selectedLog.user.email})
+									</p>
+								</div>
+								<div>
+									<p className='text-sm font-medium text-muted-foreground'>
+										IP Address
+									</p>
+									<p className='text-sm font-mono'>{selectedLog.ipAddress}</p>
+								</div>
+								{selectedLog.entityType && (
+									<div>
+										<p className='text-sm font-medium text-muted-foreground'>
+											Entity Type
+										</p>
+										<p className='text-sm'>{selectedLog.entityType}</p>
+									</div>
+								)}
+								{selectedLog.entityId && (
+									<div>
+										<p className='text-sm font-medium text-muted-foreground'>
+											Entity ID
+										</p>
+										<p className='text-sm font-mono'>{selectedLog.entityId}</p>
+									</div>
+								)}
+							</div>
+							{selectedLog.userAgent && (
+								<div>
+									<p className='text-sm font-medium text-muted-foreground'>
+										User Agent
+									</p>
+									<p className='text-sm text-wrap break-words'>
+										{selectedLog.userAgent}
+									</p>
+								</div>
+							)}
+							{selectedLog.oldData && (
+								<div>
+									<p className='text-sm font-medium text-muted-foreground mb-2'>
+										Old Data
+									</p>
+									<pre className='text-xs bg-muted p-4 rounded-md overflow-x-auto'>
+										{JSON.stringify(selectedLog.oldData, null, 2)}
+									</pre>
+								</div>
+							)}
+							{selectedLog.newData && (
+								<div>
+									<p className='text-sm font-medium text-muted-foreground mb-2'>
+										New Data
+									</p>
+									<pre className='text-xs bg-muted p-4 rounded-md overflow-x-auto'>
+										{JSON.stringify(selectedLog.newData, null, 2)}
+									</pre>
+								</div>
+							)}
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

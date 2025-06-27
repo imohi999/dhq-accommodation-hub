@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth-utils'
 import { withAudit } from '@/lib/with-audit'
+import { AuditLogger } from '@/lib/audit-logger'
 
 // Dependent schema for validation
 const dependentSchema = z.object({
@@ -102,6 +103,14 @@ export async function POST(request: NextRequest) {
         sequence: nextSequence
       }
     })
+
+    // Log the creation
+    await AuditLogger.logCreate(
+      session.userId,
+      'queue',
+      newEntry.id,
+      newEntry
+    )
 
     // Emit real-time update via Socket.io (if implemented)
     // io.emit('queue:created', newEntry)

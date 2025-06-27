@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, clearSessionCookie, deleteSession, getClientInfo } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
+import { AuditLogger } from '@/lib/audit-logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,16 +13,7 @@ export async function POST(request: NextRequest) {
       await deleteSession(session.sessionId);
 
       // Log signout action
-      await prisma.auditLog.create({
-        data: {
-          userId: session.userId,
-          action: 'LOGOUT',
-          entityType: 'user',
-          entityId: session.userId,
-          ipAddress,
-          userAgent,
-        },
-      });
+      await AuditLogger.logAuth(session.userId, 'LOGOUT');
     }
 
     // Clear session cookie

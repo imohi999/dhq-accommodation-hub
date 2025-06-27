@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { hashPassword, createSession, setSessionCookie, getClientInfo, getSession } from '@/lib/auth-utils';
 import { AppRole } from '@prisma/client';
+import { AuditLogger } from '@/lib/audit-logger';
 
 const signupSchema = z.object({
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
@@ -105,17 +106,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Log signup action
-    await prisma.auditLog.create({
-      data: {
-        userId: session?.userId || user.id,
-        action: session ? 'CREATE_USER' : 'SIGNUP',
-        entityType: 'user',
-        entityId: user.id,
-        newData: { username, email, role: userRole, createdBy: session?.username },
-        ipAddress,
-        userAgent,
-      },
-    });
+    await AuditLogger.logAuth(
+      session?.userId || user.id,
+      'SIGNUP',
+      { username, email, role: userRole, createdBy: session?.username }
+    );
 
     return NextResponse.json(
       {

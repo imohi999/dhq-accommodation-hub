@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword, createSession, setSessionCookie, getClientInfo } from '@/lib/auth-utils';
+import { AuditLogger } from '@/lib/audit-logger';
 
 const signinSchema = z.object({
   username: z.string(),
@@ -48,17 +49,11 @@ export async function POST(request: NextRequest) {
     const isValidPassword = await verifyPassword(password, user.hashedPassword);
     if (!isValidPassword) {
       // Log failed login attempt
-      await prisma.auditLog.create({
-        data: {
-          userId: user.id,
-          action: 'FAILED_LOGIN',
-          entityType: 'user',
-          entityId: user.id,
-          newData: { username },
-          ipAddress,
-          userAgent,
-        },
-      });
+      await AuditLogger.logAuth(
+        user.id,
+        'FAILED_LOGIN',
+        { username }
+      );
 
       return NextResponse.json(
         { error: 'Invalid credentials' },
@@ -85,17 +80,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Log successful login
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
-        action: 'LOGIN',
-        entityType: 'user',
-        entityId: user.id,
-        newData: { username: user.username, ipAddress },
-        ipAddress,
-        userAgent,
-      },
-    });
+    await AuditLogger.logAuth(
+      user.id,
+      'LOGIN',
+      { username: user.username, ipAddress }
+    );
 
     return NextResponse.json({
       user: {

@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth-utils";
+import { AuditLogger } from "@/lib/audit-logger";
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,6 +47,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { unit_id, quantity, item_description, item_location, item_status, remarks } = body;
 
@@ -65,6 +72,20 @@ export async function POST(request: NextRequest) {
         remarks: remarks || null,
       },
     });
+
+    // Log the inventory creation
+    await AuditLogger.logCreate(
+      session.userId,
+      'inventory',
+      inventory.id,
+      {
+        unitId: unit_id,
+        itemDescription: item_description,
+        itemLocation: item_location,
+        quantity: quantity || 1,
+        itemStatus: item_status || "Functional"
+      }
+    );
 
     // Transform to match frontend expectations
     const transformedInventory = {

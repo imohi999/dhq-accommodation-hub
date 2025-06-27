@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { handlePrismaError } from '@/lib/prisma-utils'
+import { getSession } from '@/lib/auth-utils'
+import { AuditLogger } from '@/lib/audit-logger'
 
 // GET: Fetch all DHQ  Accommodation with accommodation types, filtering, and pagination
 export async function GET(request: NextRequest) {
@@ -99,6 +101,11 @@ export async function GET(request: NextRequest) {
 // POST: Create a new DHQ living unit
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     const unit = await prisma.dhqLivingUnit.create({
@@ -121,6 +128,14 @@ export async function POST(request: NextRequest) {
         accommodationType: true,
       },
     })
+
+    // Log the unit creation
+    await AuditLogger.logCreate(
+      session.userId,
+      'unit',
+      unit.id,
+      unit
+    )
 
     return NextResponse.json(unit, { status: 201 })
   } catch (error) {

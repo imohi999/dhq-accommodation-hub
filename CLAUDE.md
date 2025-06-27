@@ -103,8 +103,3 @@ This is a military accommodation management system with three main workflows:
 - Relaxed type checking (be careful with null/undefined)
 - Component imports use the `@/components/ui/` pattern
 
-### Development Remarks
-
-- Lovable.dev integration for AI-assisted development
-- Component tagging in development mode for debugging
-- Supabase migrations in `/supabase/migrations/`

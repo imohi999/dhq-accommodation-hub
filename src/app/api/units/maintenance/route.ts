@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth-utils";
+import { AuditLogger } from "@/lib/audit-logger";
 
 export async function GET(request: NextRequest) {
   try {
@@ -49,6 +51,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       unit_id,
@@ -84,6 +91,22 @@ export async function POST(request: NextRequest) {
         remarks: remarks || null,
       },
     });
+
+    // Log the maintenance record creation
+    await AuditLogger.logMaintenance(
+      session.userId,
+      'CREATE',
+      maintenance.id,
+      {
+        unitId: unit_id,
+        maintenanceType: maintenance_type,
+        description,
+        performedBy: performed_by,
+        status: status || "Completed",
+        priority: priority || "Medium",
+        cost
+      }
+    );
 
     // Transform to match frontend expectations
     const transformedMaintenance = {

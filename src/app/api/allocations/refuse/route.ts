@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getSession } from '@/lib/auth-utils';
+import { AuditLogger } from '@/lib/audit-logger';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { requestId } = body;
 
@@ -119,6 +126,19 @@ export async function POST(request: NextRequest) {
     }, {
       timeout: 100000 // 10 seconds
     });
+
+    // Log the allocation refusal
+    await AuditLogger.logAllocation(
+      session.userId,
+      'NOT APPROVED',
+      requestId,
+      {
+        personnelId,
+        personnelName: personnelData.fullName,
+        unitName: requestData.unit.quarterName,
+        reason: 'Allocation request refused'
+      }
+    );
 
     return NextResponse.json({
       requestId,

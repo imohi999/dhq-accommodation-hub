@@ -94,7 +94,7 @@ export async function PATCH(
             personnelId: allocationRequest.personnelId,
             queueId: allocationRequest.queueId,
             unitId: currentOccupiedUnit.id,
-            letterId: `TRANSFER-${Date.now()}`,
+            letterId: `RE-ALLOCATE-${Date.now()}`,
             personnelData: allocationRequest.personnelData as Prisma.InputJsonValue,
             unitData: {
               id: currentOccupiedUnit.id,

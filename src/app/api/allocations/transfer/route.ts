@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getSession } from '@/lib/auth-utils';
+import { AuditLogger } from '@/lib/audit-logger';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { fromUnitId, toUnitId } = body;
 
@@ -66,7 +73,7 @@ export async function POST(request: NextRequest) {
           personnelId: fromUnit.currentOccupantId || fromUnit.id,
           queueId: currentOccupant.queueId,
           unitId: fromUnit.id,
-          letterId: `DHQ/TRANSFER/${new Date().getFullYear()}/${Date.now()}`,
+          letterId: `DHQ/RE-ALLOCATE/${new Date().getFullYear()}/${Date.now()}`,
           personnelData: {
             id: fromUnit.currentOccupantId,
             fullName: fromUnit.currentOccupantName,
@@ -199,6 +206,26 @@ export async function POST(request: NextRequest) {
     }, {
       timeout: 100000
     });
+
+    // Log the transfer operation
+    await AuditLogger.logAllocation(
+      session.userId,
+      'RE-ALLOCATE',
+      result.pastAllocation.id,
+      {
+        personnelId: result.fromUnit.currentOccupantId,
+        personnelName: result.fromUnit.currentOccupantName,
+        serviceNumber: result.fromUnit.currentOccupantServiceNumber,
+        fromUnitId: result.fromUnit.id,
+        fromUnitName: `${result.fromUnit.quarterName} ${result.fromUnit.blockName} ${result.fromUnit.flatHouseRoomName}`,
+        toUnitId: result.toUnit.id,
+        toUnitName: `${result.toUnit.quarterName} ${result.toUnit.blockName} ${result.toUnit.flatHouseRoomName}`,
+        transferDate: new Date(),
+        occupancyDuration: result.fromUnit.occupancyStartDate
+          ? Math.floor((new Date().getTime() - new Date(result.fromUnit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
+          : 0
+      }
+    );
 
     return NextResponse.json({
       message: "Transfer completed successfully",

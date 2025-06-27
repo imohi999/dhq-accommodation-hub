@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getSession } from '@/lib/auth-utils';
+import { AuditLogger } from '@/lib/audit-logger';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { requestId } = body;
 
@@ -40,7 +47,8 @@ export async function POST(request: NextRequest) {
         },
         data: {
           status: "approved",
-          approvedAt: new Date()
+          approvedAt: new Date(),
+          approvedBy: session.userId
         }
       });
 
@@ -62,7 +70,7 @@ export async function POST(request: NextRequest) {
       await tx.unitOccupant.create({
         data: {
           unitId: unitId,
-          queueId: requestData.queueId ,
+          queueId: requestData.queueId,
           fullName: personnelData.fullName,
           rank: personnelData.rank,
           serviceNumber: personnelData.svcNo,
@@ -92,6 +100,19 @@ export async function POST(request: NextRequest) {
     }, {
       timeout: 100000 // 10 seconds
     });
+
+    // Log the allocation approval
+    await AuditLogger.logAllocation(
+      session.userId,
+      'APPROVED',
+      requestId,
+      {
+        personnelId,
+        unitId,
+        personnelName: personnelData.fullName,
+        unitName: requestData.unit.quarterName
+      }
+    );
 
     return NextResponse.json({ requestId }, { status: 200 });
   } catch (error) {

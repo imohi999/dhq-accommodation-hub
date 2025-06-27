@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handlePrismaError } from "@/lib/prisma-utils";
+import { getSession } from "@/lib/auth-utils";
+import { AuditLogger } from "@/lib/audit-logger";
 
 // GET: List all stamp settings
 export async function GET() {
@@ -22,6 +24,11 @@ export async function GET() {
 // POST: Create new stamp setting
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { stampName, stampRank, stampAppointment, stampNote, copyTo } = body;
 
@@ -43,6 +50,14 @@ export async function POST(request: NextRequest) {
         isActive: body.isActive !== false
       }
     });
+
+    // Log the stamp setting creation
+    await AuditLogger.logCreate(
+      session.userId,
+      'stamp_setting',
+      stampSetting.id,
+      stampSetting
+    );
 
     return NextResponse.json(stampSetting, { status: 201 });
   } catch (error) {

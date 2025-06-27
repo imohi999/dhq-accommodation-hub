@@ -1,13 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth-utils";
+import { AuditLogger } from "@/lib/audit-logger";
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { quantity, item_description, item_location, item_status, remarks } = body;
+
+    // Get old data for audit log
+    const oldData = await prisma.unitInventory.findUnique({
+      where: { id: params.id }
+    });
 
     const inventory = await prisma.unitInventory.update({
       where: { id: params.id },
@@ -19,6 +31,15 @@ export async function PUT(
         remarks,
       },
     });
+
+    // Log the update
+    await AuditLogger.logUpdate(
+      session.userId,
+      'inventory',
+      params.id,
+      oldData,
+      inventory
+    );
 
     // Transform to match frontend expectations
     const transformedInventory = {
@@ -48,9 +69,31 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get data before deletion for audit log
+    const inventoryToDelete = await prisma.unitInventory.findUnique({
+      where: { id: params.id }
+    });
+
+    if (!inventoryToDelete) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+
     await prisma.unitInventory.delete({
       where: { id: params.id },
     });
+
+    // Log the deletion
+    await AuditLogger.logDelete(
+      session.userId,
+      'inventory',
+      params.id,
+      inventoryToDelete
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

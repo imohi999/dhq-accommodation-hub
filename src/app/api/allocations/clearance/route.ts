@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth-utils";
+import { AuditLogger } from "@/lib/audit-logger";
 
 export async function GET(request: NextRequest) {
   try {
@@ -95,6 +97,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       past_allocation_id,
@@ -119,6 +126,22 @@ export async function POST(request: NextRequest) {
         inspectionDate: new Date(inspection_date),
         remarks: remarks || null,
         inventoryStatus: inventory_status || {}
+      }
+    });
+
+    // Log the inspection
+    await AuditLogger.log({
+      userId: session.userId,
+      action: 'INSPECT',
+      entityType: 'clearance_inspection',
+      entityId: inspection.id,
+      newData: {
+        pastAllocationId: past_allocation_id,
+        inspector: inspector_name,
+        inspectorRank: inspector_rank,
+        inspectionDate: inspection_date,
+        inventoryStatus: inventory_status,
+        remarks: remarks
       }
     });
 

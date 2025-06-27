@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getSession } from '@/lib/auth-utils';
+import { AuditLogger } from '@/lib/audit-logger';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { unitId, reason } = body;
 
@@ -145,6 +152,24 @@ export async function POST(request: NextRequest) {
     }, {
       timeout: 100000 // 10 seconds
     });
+
+    // Log the deallocation
+    await AuditLogger.logAllocation(
+      session.userId,
+      'POSTED OUT',
+      result.pastAllocation.id,
+      {
+        unitId: unit.id,
+        unitName: unit.quarterName,
+        occupantName: unit.currentOccupantName,
+        occupantServiceNumber: unit.currentOccupantServiceNumber,
+        reason: reason.trim(),
+        deallocationDate: new Date(),
+        occupancyDuration: unit.occupancyStartDate
+          ? Math.floor((new Date().getTime() - new Date(unit.occupancyStartDate).getTime()) / (1000 * 60 * 60 * 24))
+          : 0
+      }
+    );
 
     return NextResponse.json({
       message: "Unit deallocated successfully",
