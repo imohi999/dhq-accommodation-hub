@@ -8,7 +8,7 @@ async function main() {
 
   // Clear existing data first
   console.log('🧹 Clearing existing data...')
-  
+
   // Clear in correct order to avoid foreign key constraints
   try {
     // Try to delete clearance inspections if table exists
@@ -17,7 +17,7 @@ async function main() {
     } catch (e) {
       console.log('⚠️  ClearanceInspection table not found, skipping...')
     }
-    
+
     await prisma.allocationRequest.deleteMany({})
     await prisma.pastAllocation.deleteMany({})
     await prisma.unitOccupant.deleteMany({})
@@ -29,33 +29,33 @@ async function main() {
     await prisma.stampSetting.deleteMany({})
     await prisma.accommodationType.deleteMany({})
     await prisma.unit.deleteMany({})
-    
+
     // Try to delete page permissions if table exists
     try {
       await prisma.pagePermission.deleteMany({})
     } catch (e) {
       console.log('⚠️  PagePermission table not found, skipping...')
     }
-    
+
     // Clear auth-related tables
     try {
       await prisma.auditLog.deleteMany({})
     } catch (e) {
       console.log('⚠️  AuditLog table not found, skipping...')
     }
-    
+
     try {
       await prisma.authSession.deleteMany({})
     } catch (e) {
       console.log('⚠️  AuthSession table not found, skipping...')
     }
-    
+
     try {
       await prisma.userRole.deleteMany({})
     } catch (e) {
       console.log('⚠️  UserRole table not found, skipping...')
     }
-    
+
     await prisma.profile.deleteMany({})
     await prisma.user.deleteMany({})
   } catch (error) {
@@ -64,7 +64,7 @@ async function main() {
   }
 
   // Create superadmin user
-  const hashedPassword = await bcrypt.hash('admin123', 10)
+  const hashedPassword = await bcrypt.hash('admin123', 12)
 
   const adminUser = await prisma.user.create({
     data: {
@@ -460,7 +460,7 @@ async function main() {
   }
 
   for (const entry of [...queueData, ...additionalQueueEntries]) {
-    await prisma.queue.create({ 
+    await prisma.queue.create({
       data: {
         ...entry,
         hasAllocationRequest: false // Initialize all queue entries without allocation requests
@@ -1016,7 +1016,7 @@ async function main() {
 
   for (const request of allocationRequests) {
     await prisma.allocationRequest.create({ data: request })
-    
+
     // Mark the queue entry as having an allocation request if status is pending
     if (request.status === 'pending') {
       await prisma.queue.update({
@@ -1300,9 +1300,9 @@ async function main() {
 
   // Add more inventory to all units (for clearance inspections)
   const allUnits = await prisma.dhqLivingUnit.findMany()
-  
+
   console.log('Adding comprehensive inventory to all units...')
-  
+
   const commonInventoryItems = [
     { itemDescription: "Kitchen Cabinet", location: "Kitchen", quantity: 1 },
     { itemDescription: "Dining Table", location: "Dining Area", quantity: 1 },
@@ -1320,25 +1320,25 @@ async function main() {
     { itemDescription: "Bathroom Mirror", location: "Bathroom", quantity: 1 },
     { itemDescription: "Door Locks", location: "All Doors", quantity: 5 }
   ]
-  
+
   // Add inventory to units that don't have much
   for (const unit of allUnits) {
     const existingInventory = await prisma.unitInventory.findMany({
       where: { unitId: unit.id }
     })
-    
+
     // Only add if unit has less than 5 inventory items
     if (existingInventory.length < 5) {
       // Add a subset of common items based on unit size
-      const itemsToAdd = unit.noOfRooms >= 3 ? commonInventoryItems : 
-                         unit.noOfRooms === 2 ? commonInventoryItems.slice(0, 10) :
-                         commonInventoryItems.slice(0, 8)
-      
+      const itemsToAdd = unit.noOfRooms >= 3 ? commonInventoryItems :
+        unit.noOfRooms === 2 ? commonInventoryItems.slice(0, 10) :
+          commonInventoryItems.slice(0, 8)
+
       for (const item of itemsToAdd) {
-        const exists = existingInventory.some(inv => 
+        const exists = existingInventory.some(inv =>
           inv.itemDescription === item.itemDescription
         )
-        
+
         if (!exists) {
           await prisma.unitInventory.create({
             data: {
@@ -1354,7 +1354,7 @@ async function main() {
       }
     }
   }
-  
+
   console.log('✅ Added comprehensive inventory to all units')
 
   // Create clearance inspections for past allocations
@@ -1367,36 +1367,36 @@ async function main() {
       }
     }
   })
-  
+
   console.log('Creating clearance inspections for past allocations...')
-  
+
   const inspectors = [
     { name: "James Okafor", rank: "Capt", svcNo: "NA/45789/90", category: "Officer", appointment: "QM Assistant" },
     { name: "Mary Adebayo", rank: "Lt", svcNo: "NN/67890/92", category: "Officer", appointment: "Admin Officer" },
     { name: "Peter Nwosu", rank: "WO", svcNo: "AF/34567/88", category: "NCOs", appointment: "Stores Supervisor" },
     { name: "Grace Ibrahim", rank: "SSgt", svcNo: "NA/23456/91", category: "NCOs", appointment: "Inventory Clerk" }
   ]
-  
+
   // Create clearance inspections for 60% of past allocations
   for (let i = 0; i < pastAllocationsForClearance.length; i++) {
     if (i % 10 < 6) { // 60% of past allocations
       const allocation = pastAllocationsForClearance[i]
       const inspector = inspectors[i % inspectors.length]
-      
+
       // Create inventory status for this inspection
       const inventoryStatus: Record<string, string> = {}
-      
+
       if (allocation.unit.inventory) {
         for (const item of allocation.unit.inventory) {
           // Randomly assign inspection status
           const rand = Math.random()
-          inventoryStatus[item.id] = 
+          inventoryStatus[item.id] =
             rand > 0.9 ? "Missing" :
-            rand > 0.8 ? "Non Functional" :
-            "Functional"
+              rand > 0.8 ? "Non Functional" :
+                "Functional"
         }
       }
-      
+
       await prisma.clearanceInspection.create({
         data: {
           pastAllocationId: allocation.id,
@@ -1420,7 +1420,7 @@ async function main() {
       })
     }
   }
-  
+
   console.log('✅ Created clearance inspections for 60% of past allocations')
 
   console.log('🎉 Database seed completed!')

@@ -8,7 +8,7 @@ async function main() {
 
   // Clear existing data first (only tables that exist)
   console.log('🧹 Clearing existing data...')
-  
+
   try {
     await prisma.$executeRaw`DELETE FROM allocation_requests`
     await prisma.$executeRaw`DELETE FROM past_allocations`
@@ -28,8 +28,8 @@ async function main() {
   }
 
   // Create a simple user and profile
-  const hashedPassword = await bcrypt.hash('admin123', 10)
-  
+  const hashedPassword = await bcrypt.hash('DAPlogin100%', 12)
+
   await prisma.$executeRaw`
     INSERT INTO users (id, email, hashed_password, created_at, updated_at)
     VALUES (
