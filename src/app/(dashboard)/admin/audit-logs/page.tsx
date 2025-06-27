@@ -347,31 +347,131 @@ export default function AuditLogsPage() {
 						</Table>
 					</div>
 
-					{pagination.pages > 1 && (
-						<div className='flex items-center justify-between mt-4'>
+					{/* Pagination */}
+					<div className='flex flex-col sm:flex-row items-center justify-between gap-4 mt-4'>
+						<div className='flex items-center gap-2'>
+							<span className='text-sm text-muted-foreground'>Show</span>
+							<Select
+								value={pagination.limit.toString()}
+								onValueChange={(value) => {
+									setPagination((prev) => ({
+										...prev,
+										limit: parseInt(value),
+										page: 1,
+									}));
+								}}>
+								<SelectTrigger className='w-[70px]'>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='10'>10</SelectItem>
+									<SelectItem value='25'>25</SelectItem>
+									<SelectItem value='50'>50</SelectItem>
+									<SelectItem value='100'>100</SelectItem>
+								</SelectContent>
+							</Select>
+							<span className='text-sm text-muted-foreground'>entries</span>
+						</div>
+
+						<div className='flex items-center gap-2'>
 							<div className='text-sm text-muted-foreground'>
-								Page {pagination.page} of {pagination.pages}
-							</div>
-							<div className='flex items-center gap-2'>
-								<Button
-									variant='outline'
-									size='sm'
-									onClick={() => handlePageChange(pagination.page - 1)}
-									disabled={pagination.page === 1}>
-									<ChevronLeft className='h-4 w-4' />
-									Previous
-								</Button>
-								<Button
-									variant='outline'
-									size='sm'
-									onClick={() => handlePageChange(pagination.page + 1)}
-									disabled={pagination.page === pagination.pages}>
-									Next
-									<ChevronRight className='h-4 w-4' />
-								</Button>
+								Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+								{Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
+								{pagination.total} entries
 							</div>
 						</div>
-					)}
+
+						<div className='flex items-center gap-1'>
+							<Button
+								variant='outline'
+								size='icon'
+								onClick={() => handlePageChange(1)}
+								disabled={pagination.page === 1}>
+								<ChevronLeft className='h-4 w-4' />
+								<ChevronLeft className='h-4 w-4 -ml-3' />
+							</Button>
+							<Button
+								variant='outline'
+								size='icon'
+								onClick={() => handlePageChange(pagination.page - 1)}
+								disabled={pagination.page === 1}>
+								<ChevronLeft className='h-4 w-4' />
+							</Button>
+							
+							{/* Page number buttons */}
+							<div className='flex items-center gap-1'>
+								{(() => {
+									const totalPages = pagination.pages;
+									const currentPage = pagination.page;
+									const pages = [];
+									
+									// Always show first page
+									if (currentPage > 3) {
+										pages.push(
+											<Button
+												key={1}
+												variant='outline'
+												size='sm'
+												onClick={() => handlePageChange(1)}>
+												1
+											</Button>
+										);
+										if (currentPage > 4) {
+											pages.push(<span key='dots-1' className='px-1'>...</span>);
+										}
+									}
+									
+									// Show pages around current page
+									for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+										pages.push(
+											<Button
+												key={i}
+												variant={i === currentPage ? 'default' : 'outline'}
+												size='sm'
+												onClick={() => handlePageChange(i)}
+												disabled={i === currentPage}>
+												{i}
+											</Button>
+										);
+									}
+									
+									// Always show last page
+									if (currentPage < totalPages - 2) {
+										if (currentPage < totalPages - 3) {
+											pages.push(<span key='dots-2' className='px-1'>...</span>);
+										}
+										pages.push(
+											<Button
+												key={totalPages}
+												variant='outline'
+												size='sm'
+												onClick={() => handlePageChange(totalPages)}>
+												{totalPages}
+											</Button>
+										);
+									}
+									
+									return pages;
+								})()}
+							</div>
+							
+							<Button
+								variant='outline'
+								size='icon'
+								onClick={() => handlePageChange(pagination.page + 1)}
+								disabled={pagination.page === pagination.pages}>
+								<ChevronRight className='h-4 w-4' />
+							</Button>
+							<Button
+								variant='outline'
+								size='icon'
+								onClick={() => handlePageChange(pagination.pages)}
+								disabled={pagination.page === pagination.pages}>
+								<ChevronRight className='h-4 w-4 -mr-3' />
+								<ChevronRight className='h-4 w-4' />
+							</Button>
+						</div>
+					</div>
 				</CardContent>
 			</Card>
 
