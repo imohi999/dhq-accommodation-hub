@@ -179,7 +179,10 @@ export default function QueueAnalyticsPage() {
 
 		const byArm = queueData.reduce((acc, person) => {
 			const arm = person.armOfService || "Unknown";
-			acc[arm] = (acc[arm] || 0) + 1;
+			// Only count known service branches
+			if (arm !== "Unknown" && arm !== "") {
+				acc[arm] = (acc[arm] || 0) + 1;
+			}
 			return acc;
 		}, {} as Record<string, number>);
 
