@@ -27,10 +27,10 @@ const queueSchema = z.object({
   noOfChildDependents: z.number().int().min(0).max(99).default(0),
   dependents: z.array(dependentSchema).optional(),
   currentUnit: z.string().min(1, { message: "Current Unit is required" }),
-  appointment: z.string().optional(),
+  appointment: z.string().nullable().optional(),
   dateTos: z.string().min(1, { message: "Date TOS is required" }).transform(val => new Date(val)),
   dateSos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
-  phone: z.string().optional()
+  phone: z.string().nullable().optional()
 })
 
 // GET /api/queue - Get all queue entries
@@ -89,7 +89,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    console.log('Received body:', body)
+    
     const validatedData = queueSchema.parse(body)
+    console.log('Validated data:', validatedData)
 
     // Get the next sequence number
     const lastEntry = await prisma.queue.findFirst({
@@ -116,7 +119,7 @@ export async function POST(request: NextRequest) {
     // io.emit('queue:created', newEntry)
 
     return NextResponse.json(newEntry, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation failed', details: error.errors },
@@ -125,8 +128,19 @@ export async function POST(request: NextRequest) {
     }
 
     console.error('Error creating queue entry:', error)
+    console.error('Error details:', error instanceof Error ? error.message : 'Unknown error')
+    
+    // Check for unique constraint violation
+    if (error?.code === 'P2002') {
+      const field = error.meta?.target?.[0] || 'field'
+      return NextResponse.json(
+        { error: `A record with this ${field} already exists` },
+        { status: 409 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to create queue entry' },
+      { error: error instanceof Error ? error.message : 'Failed to create queue entry' },
       { status: 500 }
     )
   }

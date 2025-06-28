@@ -160,7 +160,7 @@ export const UnitAndDatesFields = ({
 			</div>
 
 			<div className='space-y-2'>
-				<Label htmlFor='appointment'>Appointment</Label>
+				<Label htmlFor='appointment'>Appointment (Optional)</Label>
 				<Input
 					id='appointment'
 					value={formData.appointment}
