@@ -82,7 +82,8 @@ export const AllocationLetter = ({
                 .text-center {
                   text-align: center;
                 }
-                
+                .leading-none { line-height: 1; }
+								.mb-0 { margin-bottom: 0; }
                 .mb-6 { margin-bottom: 1.5rem; }
 								.text-justify { text-align: justify; }
 								.mr-16 { margin-right: 4rem; }
@@ -316,13 +317,13 @@ export const AllocationLetter = ({
 								}}
 							/>
 						</div>
-						<h1 className='text-lg font-bold leading-tight'>
+						<h1 className='text-lg font-bold leading-none'>
 							DEFENCE HEADQUARTERS GARRISON
 						</h1>
-						<h2 className='text-lg font-bold leading-tight'>
+						<h2 className='text-lg font-bold leading-none'>
 							MOGADISHU CANTONMENT
 						</h2>
-						<h3 className='text-lg font-bold leading-tight'>ABUJA</h3>
+						<h3 className='text-lg font-bold leading-none'>ABUJA</h3>
 					</div>
 
 					{/* Letter Reference - Display actual letter ID */}
@@ -332,15 +333,23 @@ export const AllocationLetter = ({
 
 					{/* Personnel Information */}
 					<div className='mb-4'>
-						<p>Svc No: {allocationRequest.personnelData.svcNo}</p>
-						<p>Rank: {allocationRequest.personnelData.rank}</p>
-						<p>Name: {allocationRequest.personnelData.fullName}</p>
-						<p>
+						<p className='mb-0 leading-none'>
+							Svc No: {allocationRequest.personnelData.svcNo}
+						</p>
+						<p className='mb-0 leading-none'>
+							Rank: {allocationRequest.personnelData.rank}
+						</p>
+						<p className='mb-0 leading-none'>
+							Name: {allocationRequest.personnelData.fullName}
+						</p>
+						<p className='mb-0 leading-none'>
 							Unit:{" "}
 							{allocationRequest.personnelData.currentUnit || "DHQ Garrison"}
 						</p>
 						{allocationRequest.personnelData.phone && (
-							<p>Phone No: {allocationRequest.personnelData.phone}</p>
+							<p className='mb-0 leading-none'>
+								Phone No: {allocationRequest.personnelData.phone}
+							</p>
 						)}
 					</div>
 
@@ -406,9 +415,9 @@ export const AllocationLetter = ({
 						</p>
 
 						<p>
-							2.&nbsp;&nbsp;&nbsp; While wishing you a fruitful tour of
-							duty and a happy stay in your new quarters. Please accept the
-							assurances and esteemed regards of the Comd.
+							2.&nbsp;&nbsp;&nbsp; While wishing you a fruitful tour of duty and
+							a happy stay in your new quarters. Please accept the assurances
+							and esteemed regards of the Comd.
 						</p>
 					</div>
 
@@ -416,17 +425,23 @@ export const AllocationLetter = ({
 					<div className='text-left mt-12 mr-40 flex justify-end'>
 						{activeStamp && (
 							<div className='text-sm'>
-								<p className='font-bold'>{activeStamp.stamp_name}</p>
-								<p>{activeStamp.stamp_rank}</p>
-								<p>{activeStamp.stamp_appointment}</p>
-								{activeStamp.stamp_note && <p>{activeStamp.stamp_note}</p>}
+								<p className='font-bold mb-0 leading-none'>
+									{activeStamp.stamp_name}
+								</p>
+								<p className='mb-0 leading-none'>{activeStamp.stamp_rank}</p>
+								<p className='mb-0 leading-none'>
+									{activeStamp.stamp_appointment}
+								</p>
+								{activeStamp.stamp_note && (
+									<p className='mb-0 leading-none'>{activeStamp.stamp_note}</p>
+								)}
 							</div>
 						)}
 					</div>
 
 					{/* Copy Section */}
 					<div className='mt-12 text-xs'>
-						<p className='font-bold'>Copy To:</p>
+						<p className='font-bold mb-0 leading-none'>Copy To:</p>
 						{activeStamp?.copy_to ? (
 							<div style={{ whiteSpace: "pre-line" }}>
 								{activeStamp.copy_to}

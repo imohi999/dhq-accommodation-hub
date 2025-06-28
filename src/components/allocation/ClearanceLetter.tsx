@@ -96,7 +96,7 @@ export const ClearanceLetter = ({
 
 
 								.mb-1 { margin-bottom: 0.25rem /* 4px */;	}
-                
+								.leading-none { line-height: 1; }
                 .mb-6 { margin-bottom: 1.5rem; }
 								.text-justify { text-align: justify; }
 								.mr-16 { margin-right: 4rem; }
@@ -344,14 +344,12 @@ export const ClearanceLetter = ({
 							/>
 						</div>
 						<h1 className='text-lg font-bold leading-tight'>
-							DEFENCE HEADQUARTERS
+							DEFENCE HEADQUARTERS GARRISON
 						</h1>
 						<h2 className='text-lg font-bold leading-tight'>
-							ACCOMMODATION MANAGEMENT UNIT
+							MOGADISHU CANTONMENT
 						</h2>
-						<h3 className='text-lg font-bold leading-tight'>
-							CLEARANCE CERTIFICATE
-						</h3>
+						<h3 className='text-lg font-bold leading-tight'>ABUJA</h3>
 					</div>
 
 					{/* Subject */}
@@ -362,67 +360,71 @@ export const ClearanceLetter = ({
 					{/* Body */}
 					<div className=' mb-8 text-justify'>
 						<p className='mb-1'>
-							1. I, declare that I have returned the accommodation and its
-							inventory in the stated condition and to the satisfaction of the
-							inspecting officer.
+							1.&nbsp;&nbsp;&nbsp;&nbsp; I, declare that I have returned the
+							accommodation and its inventory in the stated condition and to the
+							satisfaction of the inspecting officer.
 						</p>
 						<div className='flex flex-col mb-2'>
-							<span className='font-semibold'>
-								SvcNo: {personnelData?.serviceNumber }
-							</span>
-							<span className='font-semibold'>Rank: {personnelData?.rank}</span>
-							<span className='font-semibold'>
-								Full Name: {personnelData?.fullName}
-							</span>
-							<span className='font-semibold'>
-								Current Unit: {allocation?.queue?.currentUnit}
-							</span>
-							<span className='font-semibold'>
-								Quarter Name: {allocation?.unit?.unitName}
-							</span>
-							<span className='font-semibold'>
-								Quarters Name: {allocation?.unit?.quarterName}
-							</span>
+							<p className='mb-0 leading-none'>
+								Svc No: {personnelData?.serviceNumber}
+							</p>
+							<p className='mb-0 leading-none'>Rank: {personnelData?.rank}</p>
+							<p className='mb-0 leading-none'>
+								Name: {personnelData?.fullName}
+							</p>
+							<p className='mb-0 leading-none'>
+								Unit: {allocation?.queue?.currentUnit}
+							</p>
+							<p className='mb-0 leading-none'>
+								Block Name: {allocation?.unit?.unitName}
+							</p>
+							<p className='mb-0 leading-none'>
+								Quarter Name: {allocation?.unit?.quarterName}
+							</p>
 						</div>
 						<p className='mb-1'>
-							2. I, hereby approve the clearance of the above-named officer from
-							the listed accommodation based on the inspection report and
-							inventory reconciliation.
+							2.&nbsp;&nbsp;&nbsp; I, hereby approve the clearance of the
+							above-named officer from the listed accommodation based on the
+							inspection report and inventory reconciliation.
 						</p>
 						{latestInspection && (
 							<div className='flex flex-col mb-2'>
-								<span className='font-semibold'>
-									SvcNo: {latestInspection.inspector_svc_no}
-								</span>
-								<span className='font-semibold'>
+								<p className='mb-0 leading-none'>
+									Svc No: {latestInspection.inspector_svc_no}
+								</p>
+								<p className='mb-0 leading-none'>
 									Rank: {latestInspection.inspector_rank}
-								</span>
-								<span className='font-semibold'>
-									Full Name: {latestInspection.inspector_name}
-								</span>
-								<span className='font-semibold'>
+								</p>
+
+								<p className='mb-0 leading-none'>
+									Name: {latestInspection.inspector_name}
+								</p>
+								<p className='mb-0 leading-none'>
 									Appointment: {latestInspection.inspector_appointment}
-								</span>
-								<span className='font-semibold'>
-									Inspection Date:{" "}
-									{formatSafeDateLong(latestInspection.inspection_date)}
-								</span>
-								<span className='font-semibold'>
+								</p>
+								<p className='mb-0 leading-none'>
+									Date: {formatSafeDateLong(latestInspection.inspection_date)}
+								</p>
+								<p className='mb-0 leading-none'>
 									Remarks: {latestInspection.remarks}
-								</span>
+								</p>
 							</div>
 						)}
 
 						<div className='flex justify-between mt-12'>
 							<div>
-								<p className='mb-0.5'>--------------------------------------</p>
-								<p>Signature of Inspector</p>
-								<p>Date:</p>
+								<p className='mb-0 leading-none'>
+									--------------------------------------
+								</p>
+								<p className='mb-0 leading-none'>Signature of Inspector</p>
+								<p className='mb-0 leading-none'>Date:</p>
 							</div>
 							<div>
-								<p className='mb-0.5'>--------------------------------------</p>
-								<p>Signature of Occupant</p>
-								<p>Date:</p>
+								<p className='mb-0 leading-none'>
+									--------------------------------------
+								</p>
+								<p className='mb-0 leading-none'>Signature of Occupant</p>
+								<p className='mb-0 leading-none'>Date:</p>
 							</div>
 						</div>
 					</div>
@@ -431,10 +433,16 @@ export const ClearanceLetter = ({
 					<div className='text-left mt-12 mr-40 flex justify-end'>
 						{activeStamp && (
 							<div className='text-sm'>
-								<p className='font-bold'>{activeStamp.stamp_name}</p>
-								<p>{activeStamp.stamp_rank}</p>
-								<p>{activeStamp.stamp_appointment}</p>
-								{activeStamp.stamp_note && <p>{activeStamp.stamp_note}</p>}
+								<p className='font-bold mb-0 leading-none'>
+									{activeStamp.stamp_name}
+								</p>
+								<p className='mb-0 leading-none'>{activeStamp.stamp_rank}</p>
+								<p className='mb-0 leading-none'>
+									{activeStamp.stamp_appointment}
+								</p>
+								{activeStamp.stamp_note && (
+									<p className='mb-0 leading-none'>{activeStamp.stamp_note}</p>
+								)}
 							</div>
 						)}
 					</div>

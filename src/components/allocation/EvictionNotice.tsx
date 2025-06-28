@@ -83,7 +83,7 @@ export const EvictionNotice = ({
                 .text-center {
                   text-align: center;
                 }
-                
+                .mb-0 { margin-bottom: 0; }
                 .mb-6 { margin-bottom: 1.5rem; }
                 .text-justify { text-align: justify; }
                 .ml-6 { margin-left: 1.5rem; }
@@ -345,22 +345,22 @@ export const EvictionNotice = ({
 								}}
 							/>
 						</div>
-						<h1 className='text-lg font-bold leading-tight'>
+						<h1 className='text-lg font-bold leading-none'>
 							DEFENCE HEADQUARTERS GARRISON
 						</h1>
-						<h2 className='text-lg font-bold leading-tight'>
+						<h2 className='text-lg font-bold leading-none'>
 							MOGADISHU CANTONMENT
 						</h2>
-						<h3 className='text-lg font-bold leading-tight'>ABUJA</h3>
+						<h3 className='text-lg font-bold leading-none'>ABUJA</h3>
 					</div>
 
 					{/* Personnel Information */}
 					<div className='mb-4'>
-						<p>Svc No: {unit.personnelData.svcNo}</p>
-						<p>Rank: {unit.personnelData.rank}</p>
-						<p>Name: {unit.personnelData.fullName}</p>
-						<p>Unit: {unit.personnelData.currentUnit}</p>
-						<p>Quarter Name: {unit.unitData.quarterName}</p>
+						<p className='mb-0'>Svc No: {unit.personnelData.svcNo}</p>
+						<p className='mb-0'>Rank: {unit.personnelData.rank}</p>
+						<p className='mb-0'>Name: {unit.personnelData.fullName}</p>
+						<p className='mb-0'>Unit: {unit.personnelData.currentUnit}</p>
+						<p className='mb-0'>Quarter Name: {unit.unitData.quarterName}</p>
 					</div>
 
 					{/* Notice Title */}
@@ -375,16 +375,17 @@ export const EvictionNotice = ({
 					<div className='notice-body mb-8'>
 						<p className='uppercase text-justify '>
 							THE OCCUPANT OF ABOVE FLAT IS HEREBY REQUESTED TO VACATE THIS
-							TRANSIT ACCN NLT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{evictionDateFormatted} TO ENABLE THE NEW
-							ALLOTTEE TO MOVE INTO THE APARTMENT. FAILURE TO COMPLY WITH ABOVE
-							DIRECTIVE WILL LEAD TO FORCEFUL EVICTION.
+							TRANSIT ACCN NLT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							{evictionDateFormatted} TO ENABLE THE NEW ALLOTTEE TO MOVE INTO
+							THE APARTMENT. FAILURE TO COMPLY WITH ABOVE DIRECTIVE WILL LEAD TO
+							FORCEFUL EVICTION.
 						</p>
 					</div>
 
 					{/* Signature Section and Date at bottom */}
 					<div className='flex justify-between items-end mt-12'>
 						{/* Date on left */}
-						<div className='text-left ml-6'>
+						<div className='text-left'>
 							<p>{currentDate}</p>
 						</div>
 
@@ -392,10 +393,10 @@ export const EvictionNotice = ({
 						<div className='text-left flex justify-end mr-40'>
 							{activeStamp && (
 								<div className='text-sm'>
-									<p className='font-bold'>{activeStamp.stamp_name}</p>
-									<p>{activeStamp.stamp_rank}</p>
-									<p>{activeStamp.stamp_appointment}</p>
-									<p>for Comd</p>
+									<p className='font-bold mb-0'>{activeStamp.stamp_name}</p>
+									<p className='mb-0'>{activeStamp.stamp_rank}</p>
+									<p className='mb-0'>{activeStamp.stamp_appointment}</p>
+									<p className='mb-0'>for Comd</p>
 								</div>
 							)}
 						</div>
