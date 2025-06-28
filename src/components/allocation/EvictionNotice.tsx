@@ -83,6 +83,7 @@ export const EvictionNotice = ({
                 .text-center {
                   text-align: center;
                 }
+								.leading-none { line-height: 1; }
                 .mb-0 { margin-bottom: 0; }
                 .mb-6 { margin-bottom: 1.5rem; }
                 .text-justify { text-align: justify; }
@@ -345,22 +346,30 @@ export const EvictionNotice = ({
 								}}
 							/>
 						</div>
-						<h1 className='text-lg font-bold leading-none'>
+						<h1 className='text-lg font-bold mb-0 leading-none'>
 							DEFENCE HEADQUARTERS GARRISON
 						</h1>
-						<h2 className='text-lg font-bold leading-none'>
+						<h2 className='text-lg font-bold mb-0 leading-none'>
 							MOGADISHU CANTONMENT
 						</h2>
-						<h3 className='text-lg font-bold leading-none'>ABUJA</h3>
+						<h3 className='text-lg font-bold mb-0 leading-none'>ABUJA</h3>
 					</div>
 
 					{/* Personnel Information */}
 					<div className='mb-4'>
-						<p className='mb-0'>Svc No: {unit.personnelData.svcNo}</p>
-						<p className='mb-0'>Rank: {unit.personnelData.rank}</p>
-						<p className='mb-0'>Name: {unit.personnelData.fullName}</p>
-						<p className='mb-0'>Unit: {unit.personnelData.currentUnit}</p>
-						<p className='mb-0'>Quarter Name: {unit.unitData.quarterName}</p>
+						<p className='mb-0 leading-none'>
+							Svc No: {unit.personnelData.svcNo}
+						</p>
+						<p className='mb-0 leading-none'>Rank: {unit.personnelData.rank}</p>
+						<p className='mb-0 leading-none'>
+							Name: {unit.personnelData.fullName}
+						</p>
+						<p className='mb-0 leading-none'>
+							Unit: {unit.personnelData.currentUnit}
+						</p>
+						<p className='mb-0 leading-none'>
+							Quarter Name: {unit.unitData.quarterName}
+						</p>
 					</div>
 
 					{/* Notice Title */}
@@ -393,10 +402,14 @@ export const EvictionNotice = ({
 						<div className='text-left flex justify-end mr-40'>
 							{activeStamp && (
 								<div className='text-sm'>
-									<p className='font-bold mb-0'>{activeStamp.stamp_name}</p>
-									<p className='mb-0'>{activeStamp.stamp_rank}</p>
-									<p className='mb-0'>{activeStamp.stamp_appointment}</p>
-									<p className='mb-0'>for Comd</p>
+									<p className='font-bold mb-0 leading-none'>
+										{activeStamp.stamp_name}
+									</p>
+									<p className='mb-0 leading-none'>{activeStamp.stamp_rank}</p>
+									<p className='mb-0 leading-none'>
+										{activeStamp.stamp_appointment}
+									</p>
+									<p className='mb-0 leading-none'>for Comd</p>
 								</div>
 							)}
 						</div>

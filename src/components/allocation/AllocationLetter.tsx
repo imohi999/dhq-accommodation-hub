@@ -317,13 +317,13 @@ export const AllocationLetter = ({
 								}}
 							/>
 						</div>
-						<h1 className='text-lg font-bold leading-none'>
+						<h1 className='text-lg font-bold mb-0 leading-none'>
 							DEFENCE HEADQUARTERS GARRISON
 						</h1>
-						<h2 className='text-lg font-bold leading-none'>
+						<h2 className='text-lg font-bold mb-0 leading-none'>
 							MOGADISHU CANTONMENT
 						</h2>
-						<h3 className='text-lg font-bold leading-none'>ABUJA</h3>
+						<h3 className='text-lg font-bold mb-0 leading-none'>ABUJA</h3>
 					</div>
 
 					{/* Letter Reference - Display actual letter ID */}

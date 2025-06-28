@@ -343,13 +343,13 @@ export const ClearanceLetter = ({
 								}}
 							/>
 						</div>
-						<h1 className='text-lg font-bold leading-tight'>
+						<h1 className='text-lg font-bold mb-0 leading-tight'>
 							DEFENCE HEADQUARTERS GARRISON
 						</h1>
-						<h2 className='text-lg font-bold leading-tight'>
+						<h2 className='text-lg font-bold mb-0 leading-tight'>
 							MOGADISHU CANTONMENT
 						</h2>
-						<h3 className='text-lg font-bold leading-tight'>ABUJA</h3>
+						<h3 className='text-lg font-bold mb-0 leading-tight'>ABUJA</h3>
 					</div>
 
 					{/* Subject */}
