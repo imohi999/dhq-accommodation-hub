@@ -178,7 +178,7 @@ export default function AuditLogsPage() {
 	return (
 		<div className='space-y-6'>
 			<div>
-				<h1 className='text-3xl font-bold flex items-center gap-2'>
+				<h1 className='text-xl font-bold flex items-center gap-2'>
 					<Monitor className='h-8 w-8' />
 					Audit Logs
 				</h1>
@@ -266,7 +266,7 @@ export default function AuditLogsPage() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Audit Log Entries</CardTitle>
+					<CardTitle className='text-xl'>Audit Log Entries</CardTitle>
 					<CardDescription>
 						Showing {auditLogs.length} of {pagination.total} entries
 					</CardDescription>
@@ -377,9 +377,9 @@ export default function AuditLogsPage() {
 
 						<div className='flex items-center gap-2'>
 							<div className='text-sm text-muted-foreground'>
-								Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-								{Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-								{pagination.total} entries
+								Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+								{Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
+								of {pagination.total} entries
 							</div>
 						</div>
 
@@ -399,14 +399,14 @@ export default function AuditLogsPage() {
 								disabled={pagination.page === 1}>
 								<ChevronLeft className='h-4 w-4' />
 							</Button>
-							
+
 							{/* Page number buttons */}
 							<div className='flex items-center gap-1'>
 								{(() => {
 									const totalPages = pagination.pages;
 									const currentPage = pagination.page;
 									const pages = [];
-									
+
 									// Always show first page
 									if (currentPage > 3) {
 										pages.push(
@@ -419,16 +419,24 @@ export default function AuditLogsPage() {
 											</Button>
 										);
 										if (currentPage > 4) {
-											pages.push(<span key='dots-1' className='px-1'>...</span>);
+											pages.push(
+												<span key='dots-1' className='px-1'>
+													...
+												</span>
+											);
 										}
 									}
-									
+
 									// Show pages around current page
-									for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+									for (
+										let i = Math.max(1, currentPage - 2);
+										i <= Math.min(totalPages, currentPage + 2);
+										i++
+									) {
 										pages.push(
 											<Button
 												key={i}
-												variant={i === currentPage ? 'default' : 'outline'}
+												variant={i === currentPage ? "default" : "outline"}
 												size='sm'
 												onClick={() => handlePageChange(i)}
 												disabled={i === currentPage}>
@@ -436,11 +444,15 @@ export default function AuditLogsPage() {
 											</Button>
 										);
 									}
-									
+
 									// Always show last page
 									if (currentPage < totalPages - 2) {
 										if (currentPage < totalPages - 3) {
-											pages.push(<span key='dots-2' className='px-1'>...</span>);
+											pages.push(
+												<span key='dots-2' className='px-1'>
+													...
+												</span>
+											);
 										}
 										pages.push(
 											<Button
@@ -452,11 +464,11 @@ export default function AuditLogsPage() {
 											</Button>
 										);
 									}
-									
+
 									return pages;
 								})()}
 							</div>
-							
+
 							<Button
 								variant='outline'
 								size='icon'
