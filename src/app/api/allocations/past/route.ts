@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handlePrismaError } from "@/lib/prisma-utils";
-import { Prisma } from "@prisma/client";
 
 // GET: List all past allocations
 export async function GET() {
