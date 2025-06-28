@@ -7,28 +7,21 @@ interface QueueSummaryCardsProps {
 }
 
 export const QueueSummaryCards = ({ queueItems }: QueueSummaryCardsProps) => {
+
 	const totalCount = queueItems.length;
 	const officerCount = queueItems.filter(
 		(item) => item.category === "Officer"
 	).length;
 	const ncoCount = queueItems.filter((item) => item.category === "NCOs").length;
 
-	// Extract service from service number prefix
-	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
-		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
-		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
-		return "Unknown";
-	};
-
 	const armyItems = queueItems.filter(
-		(item) => getServiceFromSvcNo(item.svc_no) === "Nigerian Army"
+		(item) => item.arm_of_service === "Nigerian Army"
 	);
 	const navyItems = queueItems.filter(
-		(item) => getServiceFromSvcNo(item.svc_no) === "Nigerian Navy"
+		(item) => item.arm_of_service === "Nigerian Navy"
 	);
 	const airForceItems = queueItems.filter(
-		(item) => getServiceFromSvcNo(item.svc_no) === "Nigerian Air Force"
+		(item) => item.arm_of_service === "Nigerian Air Force"
 	);
 
 	const armyOfficers = armyItems.filter(

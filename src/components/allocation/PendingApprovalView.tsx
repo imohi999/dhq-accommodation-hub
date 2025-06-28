@@ -18,10 +18,7 @@ import {
 	Clock,
 	Loader2,
 	User,
-	Building,
-	Home,
-	Users,
-	Shield
+	Home
 } from "lucide-react";
 import { AllocationLetter } from "@/components/allocation/AllocationLetter";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
@@ -173,13 +170,6 @@ export const PendingApprovalView = ({
 		});
 	};
 
-	// Extract service from service number prefix
-	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
-		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
-		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
-		return "Unknown";
-	};
 
 	// Use allocation filters
 	const {
@@ -206,7 +196,7 @@ export const PendingApprovalView = ({
 			item.unitData?.flatHouseRoomName || "",
 			item.letterId || "",
 		],
-		(item) => getServiceFromSvcNo(item.personnelData?.svcNo || ""),
+		(item) => item.queue?.armOfService || item.personnelData?.armOfService || "",
 		(item) => item.personnelData?.category || "",
 		(item) => item.unitData?.quarterName || "",
 		(item) => item.unitData?.accommodationType || ""
@@ -222,13 +212,13 @@ export const PendingApprovalView = ({
 	).length;
 
 	const armyRequests = filteredItems.filter(
-		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Army"
+		(r) => (r.queue?.armOfService || r.personnelData?.armOfService) === "Nigerian Army"
 	).length;
 	const navyRequests = filteredItems.filter(
-		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Navy"
+		(r) => (r.queue?.armOfService || r.personnelData?.armOfService) === "Nigerian Navy"
 	).length;
 	const airForceRequests = filteredItems.filter(
-		(r) => getServiceFromSvcNo(r.personnelData?.svcNo) === "Nigerian Air Force"
+		(r) => (r.queue?.armOfService || r.personnelData?.armOfService) === "Nigerian Air Force"
 	).length;
 
 	return (
@@ -262,7 +252,7 @@ export const PendingApprovalView = ({
 							{
 								filteredItems.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+										(r.queue?.armOfService || r.personnelData?.armOfService) ===
 											"Nigerian Army" && r.personnelData.category === "Officer"
 								).length
 							}{" "}
@@ -270,7 +260,7 @@ export const PendingApprovalView = ({
 							{
 								filteredItems.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+										(r.queue?.armOfService || r.personnelData?.armOfService) ===
 											"Nigerian Army" && r.personnelData.category === "NCOs"
 								).length
 							}
@@ -290,7 +280,7 @@ export const PendingApprovalView = ({
 							{
 								filteredItems.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+										(r.queue?.armOfService || r.personnelData?.armOfService) ===
 											"Nigerian Navy" && r.personnelData.category === "Officer"
 								).length
 							}{" "}
@@ -298,7 +288,7 @@ export const PendingApprovalView = ({
 							{
 								filteredItems.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+										(r.queue?.armOfService || r.personnelData?.armOfService) ===
 											"Nigerian Navy" && r.personnelData.category === "NCOs"
 								).length
 							}
@@ -320,7 +310,7 @@ export const PendingApprovalView = ({
 							{
 								filteredItems.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+										(r.queue?.armOfService || r.personnelData?.armOfService) ===
 											"Nigerian Air Force" &&
 										r.personnelData?.category === "Officer"
 								).length
@@ -329,7 +319,7 @@ export const PendingApprovalView = ({
 							{
 								filteredItems.filter(
 									(r) =>
-										getServiceFromSvcNo(r.personnelData?.svcNo) ===
+										(r.queue?.armOfService || r.personnelData?.armOfService) ===
 											"Nigerian Air Force" &&
 										r.personnelData.category === "NCOs"
 								).length
@@ -397,7 +387,7 @@ export const PendingApprovalView = ({
 											</h3>
 											<p className='text-xs text-muted-foreground'>
 												{request.personnelData?.svcNo} •{" "}
-												{getServiceFromSvcNo(request.personnelData?.svcNo)}
+												{request.queue?.armOfService || request.personnelData?.armOfService || "Unknown"}
 											</p>
 										</div>
 									</div>
@@ -556,7 +546,7 @@ export const PendingApprovalView = ({
 										</div>
 										<div>
 											<p className='text-xs text-muted-foreground'>Service</p>
-											<p className='font-medium'>{getServiceFromSvcNo(confirmDialog.request.personnelData?.svcNo)}</p>
+											<p className='font-medium'>{confirmDialog.request.queue?.armOfService || confirmDialog.request.personnelData?.armOfService || "Unknown"}</p>
 										</div>
 									</div>
 								</CardContent>

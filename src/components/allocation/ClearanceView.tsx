@@ -41,14 +41,6 @@ export function ClearanceView() {
 		}
 	};
 
-	// Extract service from service number prefix
-	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
-		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
-		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
-		return "Unknown";
-	};
-
 	// Use allocation filters
 	const {
 		searchTerm,
@@ -74,7 +66,7 @@ export function ClearanceView() {
 			item.unitData?.unitName || "",
 			item.unit?.flatHouseRoomName || "",
 		],
-		(item) => getServiceFromSvcNo(item.personnelData?.serviceNumber || ""),
+		(item) => item.queue?.armOfService || "Unknown",
 		(item) => item.personnelData?.category || "",
 		(item) => item.unitData?.quarterName || "",
 		(item) => item.unitData?.accommodationType || ""
@@ -83,11 +75,14 @@ export function ClearanceView() {
 	// Apply inspection status filter
 	const filteredData = baseFilteredItems.filter((item) => {
 		if (inspectionStatusFilter === "all") return true;
-		const hasInspection = item.clearance_inspections && item.clearance_inspections.length > 0;
+		const hasInspection =
+			item.clearance_inspections && item.clearance_inspections.length > 0;
 		if (inspectionStatusFilter === "inspected") return hasInspection;
 		if (inspectionStatusFilter === "not-inspected") return !hasInspection;
 		return true;
 	});
+
+	console.log({ filteredData: JSON.stringify(filteredData) });
 
 	const handleInspectionComplete = () => {
 		mutate();
@@ -150,121 +145,121 @@ export function ClearanceView() {
 							</p>
 						</div>
 					) : (
-					<div className='rounded-md border'>
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Service No</TableHead>
-									<TableHead>Name</TableHead>
-									<TableHead>Unit</TableHead>
-									<TableHead>Allocation Period</TableHead>
-									<TableHead>Inspections</TableHead>
-									<TableHead>Actions</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{filteredData?.map((allocation: any) => {
-									const personnelData = allocation.personnelData;
-									const unitData = allocation.unitData;
-									const hasInspection =
-										Array.isArray(allocation.clearance_inspections) &&
-										allocation.clearance_inspections.length > 0;
-									const latestInspection = hasInspection
-										? allocation.clearance_inspections[
-												allocation.clearance_inspections.length - 1
-										  ]
-										: null;
+						<div className='rounded-md border'>
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>Service No</TableHead>
+										<TableHead>Name</TableHead>
+										<TableHead>Unit</TableHead>
+										<TableHead>Allocation Period</TableHead>
+										<TableHead>Inspections</TableHead>
+										<TableHead>Actions</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{filteredData?.map((allocation: any) => {
+										const personnelData = allocation.personnelData;
+										const unitData = allocation.unitData;
+										const hasInspection =
+											Array.isArray(allocation.clearance_inspections) &&
+											allocation.clearance_inspections.length > 0;
+										const latestInspection = hasInspection
+											? allocation.clearance_inspections[
+													allocation.clearance_inspections.length - 1
+											  ]
+											: null;
 
-									return (
-										<TableRow key={allocation.id}>
-											<TableCell className='font-medium'>
-												{personnelData?.serviceNumber}
-											</TableCell>
-											<TableCell>
-												<div>
-													<p className='font-medium'>
-														{personnelData?.fullName}
-													</p>
-													<p className='text-sm text-muted-foreground'>
-														{personnelData?.rank} - {personnelData?.category}
-													</p>
-												</div>
-											</TableCell>
-											<TableCell>
-												<div>
-													<p className='font-medium'>{unitData?.unitName}</p>
-													<p className='text-sm text-muted-foreground'>
-														{unitData?.quarterName}
-													</p>
-												</div>
-											</TableCell>
-											<TableCell>
-												<div className='text-sm'>
-													<p>
-														{formatSafeDate(allocation.allocationStartDate)} -
-														{formatSafeDate(
-															allocation.allocationEndDate,
-															"Present"
-														)}
-													</p>
-												</div>
-											</TableCell>
-											<TableCell>
-												{hasInspection ? (
-													<div className='space-y-1'>
-														<Badge
-															variant='outline'
-															className='bg-green-50 text-green-700 border-green-200'>
-															Inspected
-														</Badge>
-														<p className='text-xs text-muted-foreground'>
-															{formatSafeDate(
-																latestInspection?.inspection_date
-															)}
+										return (
+											<TableRow key={allocation.id}>
+												<TableCell className='font-medium'>
+													{personnelData?.serviceNumber || personnelData?.svcNo}
+												</TableCell>
+												<TableCell>
+													<div>
+														<p className='font-medium'>
+															{personnelData?.fullName}
 														</p>
-														<p className='text-xs text-muted-foreground'>
-															by {latestInspection?.inspector_name}
+														<p className='text-sm text-muted-foreground'>
+															{personnelData?.rank} - {personnelData?.category}
 														</p>
 													</div>
-												) : (
-													<Badge
-														variant='outline'
-														className='bg-orange-50 text-orange-700 border-orange-200'>
-														Pending
-													</Badge>
-												)}
-											</TableCell>
-											<TableCell>
-												<div className='flex gap-2'>
-													<Button
-														size='sm'
-														variant='outline'
-														onClick={() => {
-															setSelectedAllocation(allocation);
-															setIsInspectionModalOpen(true);
-														}}>
-														<ClipboardCheck className='h-4 w-4 mr-1' />
-														{hasInspection ? "View" : "Inspect"}
-													</Button>
-													{hasInspection && (
+												</TableCell>
+												<TableCell>
+													<div>
+														<p className='font-medium'>{unitData?.unitName}</p>
+														<p className='text-sm text-muted-foreground'>
+															{unitData?.quarterName}
+														</p>
+													</div>
+												</TableCell>
+												<TableCell>
+													<div className='text-sm'>
+														<p>
+															{formatSafeDate(allocation.allocationStartDate)} -
+															{formatSafeDate(
+																allocation.allocationEndDate,
+																"Present"
+															)}
+														</p>
+													</div>
+												</TableCell>
+												<TableCell>
+													{hasInspection ? (
+														<div className='space-y-1'>
+															<Badge
+																variant='outline'
+																className='bg-green-50 text-green-700 border-green-200'>
+																Inspected
+															</Badge>
+															<p className='text-xs text-muted-foreground'>
+																{formatSafeDate(
+																	latestInspection?.inspection_date
+																)}
+															</p>
+															<p className='text-xs text-muted-foreground'>
+																by {latestInspection?.inspector_name}
+															</p>
+														</div>
+													) : (
+														<Badge
+															variant='outline'
+															className='bg-orange-50 text-orange-700 border-orange-200'>
+															Pending
+														</Badge>
+													)}
+												</TableCell>
+												<TableCell>
+													<div className='flex gap-2'>
 														<Button
 															size='sm'
+															variant='outline'
 															onClick={() => {
 																setSelectedAllocation(allocation);
-																setIsLetterModalOpen(true);
+																setIsInspectionModalOpen(true);
 															}}>
-															<FileText className='h-4 w-4 mr-1' />
-															Clearance Letter
+															<ClipboardCheck className='h-4 w-4 mr-1' />
+															{hasInspection ? "View" : "Inspect"}
 														</Button>
-													)}
-												</div>
-											</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</div>
+														{hasInspection && (
+															<Button
+																size='sm'
+																onClick={() => {
+																	setSelectedAllocation(allocation);
+																	setIsLetterModalOpen(true);
+																}}>
+																<FileText className='h-4 w-4 mr-1' />
+																Clearance Letter
+															</Button>
+														)}
+													</div>
+												</TableCell>
+											</TableRow>
+										);
+									})}
+								</TableBody>
+							</Table>
+						</div>
 					)}
 				</CardContent>
 			</Card>

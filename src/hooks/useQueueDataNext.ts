@@ -38,6 +38,7 @@ interface ApiQueueItem {
   entryDateTime: string
   createdAt: string
   updatedAt: string
+  hasAllocationRequest: boolean
 }
 
 interface QueueOptions {

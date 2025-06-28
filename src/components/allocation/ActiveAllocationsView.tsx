@@ -21,23 +21,23 @@ import {
 	AlertTriangle,
 	RefreshCw,
 } from "lucide-react";
-import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { AllocationLetter } from "./AllocationLetter";
 import { EvictionNotice } from "./EvictionNotice";
 import { TransferRequestModal } from "./TransferRequestModal";
 import { toast } from "react-toastify";
-import { useOccupiedUnits } from "@/services/occupiedUnitsApi";
+import { useOccupiedUnits, DHQLivingUnitWithOccupants } from "@/services/occupiedUnitsApi";
 import { usePermissions } from "@/hooks/usePermissions";
 import { AllocationFilters } from "./AllocationFilters";
 import { useAllocationFilters } from "@/hooks/useAllocationFilters";
 
 interface ActiveAllocationsViewProps {
-	occupiedUnits: DHQLivingUnitWithHousingType[];
+	occupiedUnits: DHQLivingUnitWithOccupants[];
 }
 
 export const ActiveAllocationsView = ({
 	occupiedUnits,
 }: ActiveAllocationsViewProps) => {
+
 	const { hasPermission } = usePermissions();
 	const { mutate: mutateOccupiedUnits } = useOccupiedUnits();
 
@@ -51,7 +51,7 @@ export const ActiveAllocationsView = ({
 
 	const [deallocateDialog, setDeallocateDialog] = useState<{
 		isOpen: boolean;
-		unit: DHQLivingUnitWithHousingType | null;
+		unit: DHQLivingUnitWithOccupants | null;
 		reason: string;
 	}>({
 		isOpen: false,
@@ -61,7 +61,7 @@ export const ActiveAllocationsView = ({
 
 	const [allocationLetter, setAllocationLetter] = useState<{
 		isOpen: boolean;
-		unit: DHQLivingUnitWithHousingType | null;
+		unit: DHQLivingUnitWithOccupants | null;
 	}>({
 		isOpen: false,
 		unit: null,
@@ -69,7 +69,7 @@ export const ActiveAllocationsView = ({
 
 	const [transferModal, setTransferModal] = useState<{
 		isOpen: boolean;
-		unit: DHQLivingUnitWithHousingType | null;
+		unit: DHQLivingUnitWithOccupants | null;
 	}>({
 		isOpen: false,
 		unit: null,
@@ -77,7 +77,7 @@ export const ActiveAllocationsView = ({
 
 	const [evictionNotice, setEvictionNotice] = useState<{
 		isOpen: boolean;
-		unit: DHQLivingUnitWithHousingType | null;
+		unit: DHQLivingUnitWithOccupants | null;
 	}>({
 		isOpen: false,
 		unit: null,
@@ -87,7 +87,7 @@ export const ActiveAllocationsView = ({
 		{}
 	);
 
-	const handleDeallocateClick = (unit: DHQLivingUnitWithHousingType) => {
+	const handleDeallocateClick = (unit: DHQLivingUnitWithOccupants) => {
 		setDeallocateDialog({
 			isOpen: true,
 			unit,
@@ -150,21 +150,21 @@ export const ActiveAllocationsView = ({
 		}
 	};
 
-	const handleViewLetterClick = (unit: DHQLivingUnitWithHousingType) => {
+	const handleViewLetterClick = (unit: DHQLivingUnitWithOccupants) => {
 		setAllocationLetter({
 			isOpen: true,
 			unit,
 		});
 	};
 
-	const handleTransferClick = (unit: DHQLivingUnitWithHousingType) => {
+	const handleTransferClick = (unit: DHQLivingUnitWithOccupants) => {
 		setTransferModal({
 			isOpen: true,
 			unit,
 		});
 	};
 
-	const handleEvictionNoticeClick = (unit: DHQLivingUnitWithHousingType) => {
+	const handleEvictionNoticeClick = (unit: DHQLivingUnitWithOccupants) => {
 		setEvictionNotice({
 			isOpen: true,
 			unit,
@@ -183,9 +183,14 @@ export const ActiveAllocationsView = ({
 	const paddedCount = generateRandomFourDigitNumber();
 	const letterId = `DHQ/GAR/ABJ/${currentYear}/${paddedCount}/LOG`;
 
-	const createMockAllocationRequest = (unit: DHQLivingUnitWithHousingType) => ({
+	const createMockAllocationRequest = (unit: DHQLivingUnitWithOccupants) => {
+		const currentOccupant = unit.occupants?.find(o => o.isCurrent);
+		const armOfService = currentOccupant?.queue?.armOfService || "Nigerian Navy";
+		
+		return {
 		id: unit.id,
 		personnelId: unit.currentOccupantId || unit.id,
+		queueId: unit.currentOccupantId || unit.id,
 		unitId: unit.id,
 		letterId: letterId,
 		personnelData: {
@@ -199,7 +204,7 @@ export const ActiveAllocationsView = ({
 			sequence: 1,
 			appointment: "Staff Officer",
 			currentUnit: "Naval Academy",
-			armOfService: "Nigerian Navy",
+			armOfService: armOfService,
 			entryDateTime: new Date().toISOString(),
 			maritalStatus: "Single",
 			noOfAdultDependents: 0,
@@ -230,7 +235,7 @@ export const ActiveAllocationsView = ({
 			fullName: unit.currentOccupantName || "",
 			svcNo: unit.currentOccupantServiceNumber || "",
 			gender: "Male",
-			armOfService: "Nigerian Navy",
+			armOfService: armOfService,
 			category: unit.category,
 			rank: unit.currentOccupantRank || "",
 			maritalStatus: "Single",
@@ -281,14 +286,59 @@ export const ActiveAllocationsView = ({
 						createdAt: new Date().toISOString(),
 				  },
 		},
-	});
+		queue: currentOccupant?.queue ? {
+			...currentOccupant.queue,
+			id: currentOccupant.queue.id,
+			sequence: currentOccupant.queue.sequence,
+			fullName: currentOccupant.queue.fullName,
+			svcNo: currentOccupant.queue.svcNo,
+			gender: currentOccupant.queue.gender,
+			armOfService: currentOccupant.queue.armOfService,
+			category: currentOccupant.queue.category,
+			rank: currentOccupant.queue.rank,
+			maritalStatus: currentOccupant.queue.maritalStatus,
+			noOfAdultDependents: currentOccupant.queue.noOfAdultDependents,
+			noOfChildDependents: currentOccupant.queue.noOfChildDependents,
+			currentUnit: currentOccupant.queue.currentUnit,
+			appointment: currentOccupant.queue.appointment,
+			dateTos: currentOccupant.queue.dateTos,
+			dateSos: currentOccupant.queue.dateSos,
+			phone: currentOccupant.queue.phone,
+			entryDateTime: currentOccupant.queue.entryDateTime,
+			createdAt: currentOccupant.queue.createdAt,
+			updatedAt: currentOccupant.queue.updatedAt,
+			dependents: currentOccupant.queue.dependents || [],
+			hasAllocationRequest: currentOccupant.queue.hasAllocationRequest,
+		} : {
+			id: unit.currentOccupantId || unit.id,
+			sequence: 1,
+			fullName: unit.currentOccupantName || "",
+			svcNo: unit.currentOccupantServiceNumber || "",
+			gender: "Male",
+			armOfService: armOfService,
+			category: unit.category,
+			rank: unit.currentOccupantRank || "",
+			maritalStatus: "Single",
+			noOfAdultDependents: 0,
+			noOfChildDependents: 0,
+			currentUnit: "Naval Academy",
+			appointment: "Staff Officer",
+			dateTos: null,
+			dateSos: null,
+			phone: "",
+			entryDateTime: new Date().toISOString(),
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+			dependents: [],
+			hasAllocationRequest: true,
+		},
+		};
+	};
 
-	// Extract service from service number prefix
-	const getServiceFromSvcNo = (svcNo: string) => {
-		if (svcNo?.startsWith("NA/")) return "Nigerian Army";
-		if (svcNo?.startsWith("NN/")) return "Nigerian Navy";
-		if (svcNo?.startsWith("AF/")) return "Nigerian Air Force";
-		return "Unknown";
+	// Get service from occupant's queue data
+	const getServiceFromUnit = (unit: DHQLivingUnitWithOccupants) => {
+		const currentOccupant = unit.occupants?.find(o => o.isCurrent);
+		return currentOccupant?.queue?.armOfService || "Unknown";
 	};
 
 	// Use allocation filters
@@ -317,7 +367,7 @@ export const ActiveAllocationsView = ({
 			item.blockName || "",
 			item.location || "",
 		],
-		(item) => getServiceFromSvcNo(item.currentOccupantServiceNumber || ""),
+		(item) => getServiceFromUnit(item),
 		(item) => item.category || "",
 		(item) => item.quarterName || "",
 		(item) => item.accommodationType?.name || item.category || ""
@@ -335,18 +385,15 @@ export const ActiveAllocationsView = ({
 	// Calculate by service
 	const armyAllocations = filteredItems.filter(
 		(unit) =>
-			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
-			"Nigerian Army"
+			getServiceFromUnit(unit) === "Nigerian Army"
 	);
 	const navyAllocations = filteredItems.filter(
 		(unit) =>
-			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
-			"Nigerian Navy"
+			getServiceFromUnit(unit) === "Nigerian Navy"
 	);
 	const airForceAllocations = filteredItems.filter(
 		(unit) =>
-			getServiceFromSvcNo(unit.currentOccupantServiceNumber || "") ===
-			"Nigerian Air Force"
+			getServiceFromUnit(unit) === "Nigerian Air Force"
 	);
 
 	const armyOfficers = armyAllocations.filter(
@@ -486,9 +533,7 @@ export const ActiveAllocationsView = ({
 											</h3>
 											<p className='text-xs text-muted-foreground'>
 												{unit.currentOccupantServiceNumber} •{" "}
-												{getServiceFromSvcNo(
-													unit.currentOccupantServiceNumber || ""
-												)}
+												{getServiceFromUnit(unit)}
 											</p>
 										</div>
 									</div>

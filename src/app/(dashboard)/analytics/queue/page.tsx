@@ -81,20 +81,6 @@ const COLORS = [
 	"#0088FE",
 ];
 
-const getArmOfService = (serviceNumber: string): string => {
-	if (!serviceNumber) return "Unknown";
-	const prefix = serviceNumber.substring(0, 3).toUpperCase();
-	switch (prefix) {
-		case "NA/":
-			return "Nigerian Army";
-		case "NN/":
-			return "Nigerian Navy";
-		case "AF/":
-			return "Nigerian Air Force";
-		default:
-			return "Unknown";
-	}
-};
 
 const formatDuration = (days: number): string => {
 	if (days === 0) return "0 days";

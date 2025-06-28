@@ -1,5 +1,29 @@
 
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
+
+// Extended type to include occupants
+export interface DHQLivingUnitWithOccupants extends DHQLivingUnitWithHousingType {
+  occupants?: Array<{
+    id: string;
+    unitId: string;
+    queueId: string;
+    fullName: string;
+    rank: string;
+    serviceNumber: string;
+    phone: string | null;
+    email: string | null;
+    emergencyContact: string | null;
+    occupancyStartDate: string;
+    isCurrent: boolean;
+    createdAt: string;
+    updatedAt: string;
+    queue?: {
+      id: string;
+      armOfService: string;
+      [key: string]: any;
+    };
+  }>;
+}
 import useSWR from "swr";
 
 // API response type
@@ -31,6 +55,26 @@ interface ApiUnit {
     description?: string | null;
     createdAt: string;
   };
+  occupants?: Array<{
+    id: string;
+    unitId: string;
+    queueId: string;
+    fullName: string;
+    rank: string;
+    serviceNumber: string;
+    phone: string | null;
+    email: string | null;
+    emergencyContact: string | null;
+    occupancyStartDate: string;
+    isCurrent: boolean;
+    createdAt: string;
+    updatedAt: string;
+    queue?: {
+      id: string;
+      armOfService: string;
+      [key: string]: any;
+    };
+  }>;
 }
 
 // Fetcher function for SWR
@@ -45,7 +89,7 @@ const fetcher = async (url: string) => {
 };
 
 // Transform API response to match our expected format
-const transformUnit = (unit: ApiUnit): DHQLivingUnitWithHousingType => ({
+const transformUnit = (unit: ApiUnit): DHQLivingUnitWithOccupants => ({
   // Required camelCase properties
   id: unit.id,
   quarterName: unit.quarterName,
@@ -89,7 +133,9 @@ const transformUnit = (unit: ApiUnit): DHQLivingUnitWithHousingType => ({
     name: unit.accommodationType.name,
     description: unit.accommodationType.description,
     createdAt: unit.accommodationType.createdAt
-  } : undefined
+  } : undefined,
+  // Include occupants data
+  occupants: unit.occupants
 });
 
 // Hook to fetch occupied units using SWR
@@ -116,7 +162,7 @@ export const useOccupiedUnits = () => {
 };
 
 // Legacy function for backward compatibility
-export const fetchOccupiedUnitsFromDb = async (): Promise<DHQLivingUnitWithHousingType[] | null> => {
+export const fetchOccupiedUnitsFromDb = async (): Promise<DHQLivingUnitWithOccupants[] | null> => {
   console.log("Fetching occupied units from API...");
   try {
     const response = await fetch('/api/dhq-living-units?status=Occupied');

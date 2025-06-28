@@ -12,6 +12,7 @@ export interface QueueItem {
   svc_no: string;
   gender: string;
   arm_of_service: string;
+  armOfService?: string;
   category: string;
   rank: string;
   marital_status: string;

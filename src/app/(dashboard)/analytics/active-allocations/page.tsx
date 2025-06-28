@@ -126,20 +126,6 @@ const COLORS = [
 	"#0088FE",
 ];
 
-const getArmOfService = (serviceNumber: string): string => {
-	if (!serviceNumber) return "Unknown";
-	const prefix = serviceNumber.substring(0, 3).toUpperCase();
-	switch (prefix) {
-		case "NA/":
-			return "Nigerian Army";
-		case "NN/":
-			return "Nigerian Navy";
-		case "AF/":
-			return "Nigerian Air Force";
-		default:
-			return "Unknown";
-	}
-};
 
 export default function ActiveAllocationsAnalyticsPage() {
 	const [loading, setLoading] = useState(true);
@@ -177,9 +163,7 @@ export default function ActiveAllocationsAnalyticsPage() {
 					(currentOccupant?.queue?.noOfChildDependents || 0);
 				return {
 					...item,
-					armOfService: getArmOfService(
-						item.currentOccupantServiceNumber || ""
-					),
+					armOfService: currentOccupant?.queue?.armOfService || "Unknown",
 					rank: item.currentOccupantRank || "",
 					maritalStatus: currentOccupant?.queue?.maritalStatus || "Unknown",
 					personnelCategory:
@@ -447,7 +431,8 @@ export default function ActiveAllocationsAnalyticsPage() {
 						<ResponsiveContainer width='100%' height={300}>
 							<BarChart
 								data={activeData.reduce((acc, unit) => {
-									const arm = unit.armOfService || "Unknown";
+									const currentOccupant = unit.occupants?.find((o: any) => o.isCurrent);
+									const arm = currentOccupant?.queue?.armOfService || "Unknown";
 									const existing = acc.find(
 										(item: { name: string; value: number }) => item.name === arm
 									);

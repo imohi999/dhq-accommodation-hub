@@ -62,6 +62,12 @@ interface Personnel {
 	entryDateTime: string;
 	createdAt: string;
 	updatedAt: string;
+	dependents: Array<{
+		age: number;
+		name: string;
+		gender: string;
+	}> | null;
+	hasAllocationRequest: boolean;
 }
 
 // Interface for accommodation type
@@ -102,6 +108,7 @@ interface Unit {
 export interface APIAllocationRequest {
 	id: string;
 	personnelId: string;
+	queueId: string;
 	unitId: string;
 	letterId: string;
 	personnelData: PersonnelData;
@@ -114,6 +121,7 @@ export interface APIAllocationRequest {
 	createdAt: string;
 	updatedAt: string;
 	unit: Unit;
+	queue: Personnel;
 }
 
 export default function PendingApproval() {

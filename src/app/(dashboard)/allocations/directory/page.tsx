@@ -53,38 +53,38 @@ function RecordCard({ record, type }: { record: any; type: string }) {
 
   const getTitle = () => {
     if (type === 'queue') {
-      return `${record.rank} ${record.first_name} ${record.last_name}`;
+      return `${record.rank} ${record.fullName}`;
     } else if (type === 'pending') {
-      return `${record.queueData?.rank || ''} ${record.queueData?.first_name || ''} ${record.queueData?.last_name || ''}`;
+      return `${record.personnelData?.rank || ''} ${record.personnelData?.fullName || ''}`;
     } else if (type === 'active') {
-      return `${record.occupied_by?.rank || ''} ${record.occupied_by?.first_name || ''} ${record.occupied_by?.last_name || ''}`;
+      return `${record.currentOccupantRank || ''} ${record.currentOccupantName || ''}`;
     } else if (type === 'past') {
-      return `${record.allocatee_rank || ''} ${record.allocatee_first_name || ''} ${record.allocatee_last_name || ''}`;
+      return `${record.personnelData?.rank || ''} ${record.personnelData?.fullName || ''}`;
     }
     return 'Unknown';
   };
 
   const getServiceNumber = () => {
-    if (type === 'queue') return record.service_number;
-    if (type === 'pending') return record.queueData?.service_number;
-    if (type === 'active') return record.occupied_by?.service_number;
-    if (type === 'past') return record.allocatee_service_number;
+    if (type === 'queue') return record.svcNo;
+    if (type === 'pending') return record.personnelData?.svcNo;
+    if (type === 'active') return record.currentOccupantServiceNumber;
+    if (type === 'past') return record.personnelData?.serviceNumber;
     return 'N/A';
   };
 
   const getUnit = () => {
-    if (type === 'queue') return record.unit_requested || 'Any Available';
-    if (type === 'pending') return record.unitData?.unit_number || 'N/A';
-    if (type === 'active') return record.unit_number;
-    if (type === 'past') return record.unit_number;
+    if (type === 'queue') return 'Any Available';
+    if (type === 'pending') return record.unitData?.unitName || 'N/A';
+    if (type === 'active') return record.unitName;
+    if (type === 'past') return record.unitData?.unitName;
     return 'N/A';
   };
 
   const getDate = () => {
-    if (type === 'queue') return record.created_at;
+    if (type === 'queue') return record.createdAt;
     if (type === 'pending') return record.createdAt;
-    if (type === 'active') return record.occupied_by?.allocation_date;
-    if (type === 'past') return record.vacation_date || record.created_at;
+    if (type === 'active') return record.occupancyStartDate;
+    if (type === 'past') return record.allocationEndDate || record.createdAt;
     return null;
   };
 
@@ -107,10 +107,10 @@ function RecordCard({ record, type }: { record: any; type: string }) {
           <span className="font-medium">{getUnit()}</span>
         </div>
         
-        {type === 'queue' && record.queue_position && (
+        {type === 'queue' && record.sequence && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Queue Position:</span>
-            <span className="font-medium">#{record.queue_position}</span>
+            <span className="font-medium">#{record.sequence}</span>
           </div>
         )}
         
@@ -125,17 +125,17 @@ function RecordCard({ record, type }: { record: any; type: string }) {
           </div>
         )}
         
-        {type === 'active' && record.accommodation_type && (
+        {type === 'active' && record.accommodationType && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Type:</span>
-            <span className="font-medium">{record.accommodation_type.name}</span>
+            <span className="font-medium">{record.accommodationType.name}</span>
           </div>
         )}
         
-        {(type === 'queue' || type === 'pending') && record.marital_status && (
+        {(type === 'queue' || type === 'pending') && (record.maritalStatus || record.personnelData?.maritalStatus) && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Marital Status:</span>
-            <span className="font-medium">{record.marital_status}</span>
+            <span className="font-medium">{record.maritalStatus || record.personnelData?.maritalStatus}</span>
           </div>
         )}
       </CardContent>
@@ -149,31 +149,31 @@ export default function AllocationDirectoryPage() {
   // Fetch data from all endpoints
   const { data: queueData, error: queueError, isLoading: queueLoading } = useSWR('/api/queue', fetcher);
   const { data: pendingData, error: pendingError, isLoading: pendingLoading } = useSWR('/api/allocations/requests', fetcher);
-  const { data: activeData, error: activeError, isLoading: activeLoading } = useSWR('/api/dhq-living-units?occupied=true', fetcher);
+  const { data: activeData, error: activeError, isLoading: activeLoading } = useSWR('/api/dhq-living-units?status=Occupied', fetcher);
   const { data: pastData, error: pastError, isLoading: pastLoading } = useSWR('/api/allocations/past', fetcher);
 
   // Calculate totals
-  const queueTotal = queueData?.data?.length || 0;
-  const pendingTotal = pendingData?.data?.length || 0;
+  const queueTotal = queueData?.length || 0;
+  const pendingTotal = pendingData?.length || 0;
   const activeTotal = activeData?.data?.length || 0;
-  const pastTotal = pastData?.data?.length || 0;
+  const pastTotal = pastData?.length || 0;
   const totalRecords = queueTotal + pendingTotal + activeTotal + pastTotal;
 
   // Combine all data for 'all' tab
   const getAllRecords = () => {
     const records = [];
     
-    if (queueData?.data) {
-      records.push(...queueData.data.map((item: any) => ({ ...item, _type: 'queue' })));
+    if (queueData) {
+      records.push(...queueData.map((item: any) => ({ ...item, _type: 'queue' })));
     }
-    if (pendingData?.data) {
-      records.push(...pendingData.data.map((item: any) => ({ ...item, _type: 'pending' })));
+    if (pendingData) {
+      records.push(...pendingData.map((item: any) => ({ ...item, _type: 'pending' })));
     }
     if (activeData?.data) {
       records.push(...activeData.data.map((item: any) => ({ ...item, _type: 'active' })));
     }
-    if (pastData?.data) {
-      records.push(...pastData.data.map((item: any) => ({ ...item, _type: 'past' })));
+    if (pastData) {
+      records.push(...pastData.map((item: any) => ({ ...item, _type: 'past' })));
     }
     
     return records;
@@ -271,7 +271,7 @@ export default function AllocationDirectoryPage() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {queueData?.data?.map((record: any) => (
+              {queueData?.map((record: any) => (
                 <RecordCard key={record.id} record={record} type="queue" />
               ))}
             </div>
@@ -287,7 +287,7 @@ export default function AllocationDirectoryPage() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {pendingData?.data?.map((record: any) => (
+              {pendingData?.map((record: any) => (
                 <RecordCard key={record.id} record={record} type="pending" />
               ))}
             </div>
@@ -319,7 +319,7 @@ export default function AllocationDirectoryPage() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {pastData?.data?.map((record: any) => (
+              {pastData?.map((record: any) => (
                 <RecordCard key={record.id} record={record} type="past" />
               ))}
             </div>
