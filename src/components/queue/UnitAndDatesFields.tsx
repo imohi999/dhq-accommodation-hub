@@ -54,7 +54,7 @@ export const UnitAndDatesFields = ({
 
 		setIsCreatingUnit(true);
 		try {
-			const response = await fetch("/api/units/create", {
+			const response = await fetch("/api/units", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
