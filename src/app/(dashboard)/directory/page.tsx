@@ -97,6 +97,7 @@ interface UnitOccupant {
 		gender?: string;
 		appointment?: string;
 		currentUnit?: string;
+		armOfService?: string;
 		noOfAdultDependents?: number;
 		noOfChildDependents?: number;
 		dependents?: Array<{
@@ -180,6 +181,7 @@ interface PendingRecord extends BaseRecord {
 			age: number;
 			gender: string;
 		}>;
+		armOfService?: string;
 		noOfAdultDependents?: number;
 		noOfChildDependents?: number;
 		[key: string]: any;
@@ -214,6 +216,7 @@ interface PastRecord extends BaseRecord {
 		gender?: string;
 		appointment?: string;
 		currentUnit?: string;
+		armOfService?: string;
 		noOfAdultDependents?: number;
 		noOfChildDependents?: number;
 		dependents?: Array<{
@@ -226,21 +229,6 @@ interface PastRecord extends BaseRecord {
 
 type Record = QueueRecord | ActiveRecord | PendingRecord | PastRecord;
 
-// Helper function to extract arm of service from service number
-const getArmOfService = (serviceNumber: string): string => {
-	if (!serviceNumber) return "Unknown";
-	const prefix = serviceNumber.substring(0, 3).toUpperCase();
-	switch (prefix) {
-		case "NA/":
-			return "Nigerian Army";
-		case "NN/":
-			return "Nigerian Navy";
-		case "AF/":
-			return "Nigerian Air Force";
-		default:
-			return "Unknown";
-	}
-};
 
 // Helper functions to get personnel info
 const getPersonnelName = (record: Record): string => {
@@ -342,7 +330,7 @@ const RecordCard = ({ record }: { record: Record }) => {
 	const name = getPersonnelName(record) || "N/A";
 	const rank = getPersonnelRank(record) || "N/A";
 	const serviceNumber = getPersonnelServiceNumber(record) || "N/A";
-	const armOfService = getArmOfService(serviceNumber);
+	const armOfService = getArmOfService(record);
 
 	// Get additional details based on record type - now with consistent structure
 	const getAdditionalInfo = () => {
@@ -684,6 +672,25 @@ const RecordCard = ({ record }: { record: Record }) => {
 	);
 };
 
+// Helper function to get arm of service from record
+const getArmOfService = (record: Record): string => {
+	switch (record.type) {
+		case "queue":
+			return record.armOfService || "Unknown";
+		case "active": {
+			// For active records, try to get from queue data first
+			const currentOccupant = record.occupants?.find((o) => o.isCurrent);
+			return currentOccupant?.queue?.armOfService || "Unknown";
+		}
+		case "pending":
+			return record.personnelData?.arm_of_service || record.queue?.armOfService || "Unknown";
+		case "past":
+			return record.queue?.armOfService || "Unknown";
+		default:
+			return "Unknown";
+	}
+};
+
 // Helper function to get category from record
 const getCategory = (record: Record): string => {
 	switch (record.type) {
@@ -706,14 +713,13 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 
 	// Filter records by service
 	const armyRecords = records.filter(
-		(r) => getArmOfService(getPersonnelServiceNumber(r)) === "Nigerian Army"
+		(r) => getArmOfService(r) === "Nigerian Army"
 	);
 	const navyRecords = records.filter(
-		(r) => getArmOfService(getPersonnelServiceNumber(r)) === "Nigerian Navy"
+		(r) => getArmOfService(r) === "Nigerian Navy"
 	);
 	const airForceRecords = records.filter(
-		(r) =>
-			getArmOfService(getPersonnelServiceNumber(r)) === "Nigerian Air Force"
+		(r) => getArmOfService(r) === "Nigerian Air Force"
 	);
 
 	// Count officers and NCOs for each service
@@ -1000,8 +1006,7 @@ export default function DirectoryPage() {
 
 		const matchesType = filterType === "all" || record.type === filterType;
 
-		const serviceNumber = getPersonnelServiceNumber(record);
-		const armOfService = getArmOfService(serviceNumber);
+		const armOfService = getArmOfService(record);
 		const matchesService =
 			filterService === "all" || armOfService === filterService;
 
