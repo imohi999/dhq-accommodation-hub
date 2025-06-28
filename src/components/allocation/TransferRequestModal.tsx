@@ -11,7 +11,7 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home, MapPin, Bed } from "lucide-react";
-import { useAccommodationData } from "@/hooks/useAccommodationData";
+import { useAllUnits } from "@/hooks/useAllUnits";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { toast } from "react-toastify";
 import { ScopedMutator } from "swr";
@@ -29,7 +29,7 @@ export const TransferRequestModal = ({
 	currentUnit,
 	mutate,
 }: TransferRequestModalProps) => {
-	const { units } = useAccommodationData();
+	const { units } = useAllUnits();
 	const [viewMode, setViewMode] = useState<"card" | "compact">("card");
 	const [confirmDialog, setConfirmDialog] = useState<{
 		isOpen: boolean;
@@ -46,6 +46,9 @@ export const TransferRequestModal = ({
 	);
 
 	// Filter vacant units that match the personnel's category
+
+	console.log({ units: units.length });
+
 	const availableUnits = units.filter(
 		(unit) => unit.status === "Vacant" && unit.category === currentUnit.category
 	);

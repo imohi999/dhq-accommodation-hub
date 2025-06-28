@@ -91,6 +91,7 @@ export const AllocationLetter = ({
 								.mr-20 { margin-right: 5rem; }
 								.mr-24 { margin-right: 6rem; }
 								.mr-28 { margin-right: 7rem; }
+								.mr-42 { margin-right: 10.5rem; }
 								.mr-40 { margin-right: 10rem; }
 								.mr-52 { margin-right: 13rem; }
                 .mb-4 { margin-bottom: 1rem; }
@@ -354,7 +355,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Date and Time */}
-					<div className='text-right mb-6 mr-52'>
+					<div className='text-right mb-6 mr-42'>
 						<p>{currentDate}</p>
 					</div>
 
@@ -440,7 +441,7 @@ export const AllocationLetter = ({
 					</div>
 
 					{/* Copy Section */}
-					<div className='mt-12 text-xs'>
+					<div className='text-xs'>
 						<p className='font-bold mb-0 leading-none'>Copy To:</p>
 						{activeStamp?.copy_to ? (
 							<div style={{ whiteSpace: "pre-line" }}>
