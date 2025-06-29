@@ -28,6 +28,7 @@ interface MaintenanceTask {
 }
 import { useAllUnits } from "@/hooks/useAllUnits";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
+import { Badge } from "@/components/ui/badge";
 
 const TASK_STATUSES = ["Pending", "Completed", "Overdue"];
 
@@ -51,20 +52,40 @@ export function MaintenanceTaskForm({
 	const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
 	const [submitting, setSubmitting] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
+	const [quarterNameFilter, setQuarterNameFilter] = useState("all");
+	const [locationFilter, setLocationFilter] = useState("all");
+	const [statusFilter, setStatusFilter] = useState("all");
 
 	const { units, loading } = useAllUnits();
 
-	// Filter units based on search term
+	// Extract unique filter options from units
+	const filterOptions = {
+		quarterNames: [...new Set(units.map(u => u.quarterName).filter(Boolean))].sort(),
+		locations: [...new Set(units.map(u => u.location).filter(Boolean))].sort(),
+		statuses: [...new Set(units.map(u => u.status).filter(Boolean))].sort()
+	};
+
+	// Filter units based on search term and filters
 	const filteredUnits = units.filter((unit) => {
-		if (!searchTerm) return true;
-		const searchLower = searchTerm.toLowerCase();
-		return (
-			unit.unitName?.toLowerCase().includes(searchLower) ||
-			unit.quarterName?.toLowerCase().includes(searchLower) ||
-			unit.location?.toLowerCase().includes(searchLower) ||
-			unit.blockName?.toLowerCase().includes(searchLower) ||
-			unit.flatHouseRoomName?.toLowerCase().includes(searchLower)
+		// Search filter
+		const matchesSearch = !searchTerm || (
+			unit.unitName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			unit.quarterName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			unit.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			unit.blockName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			unit.flatHouseRoomName?.toLowerCase().includes(searchTerm.toLowerCase())
 		);
+
+		// Quarter name filter
+		const matchesQuarter = quarterNameFilter === "all" || unit.quarterName === quarterNameFilter;
+
+		// Location filter
+		const matchesLocation = locationFilter === "all" || unit.location === locationFilter;
+
+		// Status filter
+		const matchesStatus = statusFilter === "all" || unit.status === statusFilter;
+
+		return matchesSearch && matchesQuarter && matchesLocation && matchesStatus;
 	});
 
 	useEffect(() => {
@@ -293,6 +314,70 @@ export function MaintenanceTaskForm({
 						/>
 					</div>
 
+					{/* Filters */}
+					<div className='grid grid-cols-1 md:grid-cols-3 gap-3 mb-4'>
+						<div>
+							<Label className='text-xs text-muted-foreground mb-1'>Quarter Name</Label>
+							<Select
+								value={quarterNameFilter}
+								onValueChange={setQuarterNameFilter}>
+								<SelectTrigger className='w-full h-9'>
+									<SelectValue placeholder='All Quarters' />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='all'>All Quarters</SelectItem>
+									{filterOptions.quarterNames.map((name) => (
+										<SelectItem key={name} value={name}>
+											{name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div>
+							<Label className='text-xs text-muted-foreground mb-1'>Location</Label>
+							<Select
+								value={locationFilter}
+								onValueChange={setLocationFilter}>
+								<SelectTrigger className='w-full h-9'>
+									<SelectValue placeholder='All Locations' />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='all'>All Locations</SelectItem>
+									{filterOptions.locations.map((location) => (
+										<SelectItem key={location} value={location}>
+											{location}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div>
+							<Label className='text-xs text-muted-foreground mb-1'>Status</Label>
+							<Select
+								value={statusFilter}
+								onValueChange={setStatusFilter}>
+								<SelectTrigger className='w-full h-9'>
+									<SelectValue placeholder='All Statuses' />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='all'>All Statuses</SelectItem>
+									{filterOptions.statuses.map((status) => (
+										<SelectItem key={status} value={status}>
+											<Badge 
+												variant={status === 'Vacant' ? 'outline' : 'secondary'}
+												className='text-xs'>
+												{status}
+											</Badge>
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
+
 					<div className='mt-4 mb-2'>
 						<div className='flex items-center justify-between'>
 							<div className='flex items-center space-x-2'>
@@ -308,10 +393,26 @@ export function MaintenanceTaskForm({
 									Select All ({filteredUnits.length} quarters)
 								</label>
 							</div>
-							{searchTerm && (
-								<span className='text-sm text-muted-foreground'>
-									Showing {filteredUnits.length} of {units.length} quarters
-								</span>
+							{(searchTerm || quarterNameFilter !== 'all' || locationFilter !== 'all' || statusFilter !== 'all') && (
+								<div className='flex items-center gap-2'>
+									<span className='text-sm text-muted-foreground'>
+										Showing {filteredUnits.length} of {units.length} quarters
+									</span>
+									{(quarterNameFilter !== 'all' || locationFilter !== 'all' || statusFilter !== 'all') && (
+										<Button
+											variant='ghost'
+											size='sm'
+											onClick={() => {
+												setQuarterNameFilter('all');
+												setLocationFilter('all');
+												setStatusFilter('all');
+												setSearchTerm('');
+											}}
+											className='h-7 px-2 text-xs'>
+											Clear filters
+										</Button>
+									)}
+								</div>
 							)}
 						</div>
 					</div>
