@@ -588,8 +588,10 @@ export const PastAllocationsView = () => {
 													"Unknown Personnel"}
 											</h3>
 											<p className='text-xs text-muted-foreground'>
-												{allocation.personnelData?.serviceNumber || "N/A"} •{" "}
-												{allocation.queue?.armOfService || "Unknown"}
+												{allocation?.personnelData?.svcNo ||
+													allocation?.personnelData?.serviceNumber ||
+													"N/A"}{" "}
+												• {allocation.queue?.armOfService || "Unknown"}
 											</p>
 										</div>
 									</div>
