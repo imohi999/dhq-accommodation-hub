@@ -366,7 +366,7 @@ export const ClearanceLetter = ({
 						</p>
 						<div className='flex flex-col mb-2'>
 							<p className='mb-0 leading-none'>
-								Svc No: {personnelData?.serviceNumber}
+								Svc No: {personnelData?.serviceNumber || personnelData.svcNo}
 							</p>
 							<p className='mb-0 leading-none'>Rank: {personnelData?.rank}</p>
 							<p className='mb-0 leading-none'>
