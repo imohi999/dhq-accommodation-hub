@@ -522,7 +522,7 @@ export function AccommodationFormModal({
 							disabled={loading}
 							className='flex items-center gap-2'>
 							<Save className='h-4 w-4' />
-							{loading ? "Saving..." : editingUnit ? "Update" : "Create"} Unit
+							{loading ? "Saving..." : editingUnit ? "Update" : "Create"} Quarters
 						</Button>
 						<Button
 							type='button'
