@@ -14,6 +14,9 @@ export interface MaintenanceTask {
 	id: string;
 	unitId: string;
 	unitName: string;
+	quarterName: string;
+	location: string;
+	blockName: string;
 	taskName: string;
 	taskDescription: string;
 	lastPerformedDate: string;

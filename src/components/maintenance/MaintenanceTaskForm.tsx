@@ -26,10 +26,7 @@ interface MaintenanceTask {
 	createdAt: string;
 	updatedAt: string;
 }
-import { useAccommodationData } from "@/hooks/useAccommodationData";
-import { useAccommodationFilters } from "@/hooks/useAccommodationFilters";
-import { AccommodationFilters } from "@/components/accommodation/AccommodationFilters";
-import { useFilterOptions } from "@/hooks/useFilterOptions";
+import { useAllUnits } from "@/hooks/useAllUnits";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 
 const TASK_STATUSES = ["Pending", "Completed", "Overdue"];
@@ -54,9 +51,7 @@ export function MaintenanceTaskForm({
 	const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
 	const [submitting, setSubmitting] = useState(false);
 
-	const filters = useAccommodationFilters();
-	const { units, housingTypes, loading } = useAccommodationData(filters.getFilters());
-	const { filterOptions } = useFilterOptions();
+	const { units, loading } = useAllUnits();
 
 	useEffect(() => {
 		if (initial) {
@@ -268,40 +263,6 @@ export function MaintenanceTaskForm({
 			{!initial && (
 				<div className='border-t pt-6'>
 					<h3 className='text-lg font-semibold mb-4'>Select Units</h3>
-
-					<AccommodationFilters
-						searchTerm={filters.searchTerm}
-						onSearchChange={filters.setSearchTerm}
-						quarterNameFilter={filters.quarterNameFilter}
-						onQuarterNameChange={filters.setQuarterNameFilter}
-						locationFilter={filters.locationFilter}
-						onLocationChange={filters.setLocationFilter}
-						categoryFilter={filters.categoryFilter}
-						onCategoryChange={filters.setCategoryFilter}
-						housingTypeFilter={filters.housingTypeFilter}
-						onHousingTypeChange={filters.setHousingTypeFilter}
-						statusFilter={filters.statusFilter}
-						onStatusChange={filters.setStatusFilter}
-						occupancyFilter={filters.occupancyFilter}
-						onOccupancyChange={filters.setOccupancyFilter}
-						blockNameFilter={filters.blockNameFilter}
-						onBlockNameChange={filters.setBlockNameFilter}
-						flatHouseRoomFilter={filters.flatHouseRoomFilter}
-						onFlatHouseRoomChange={filters.setFlatHouseRoomFilter}
-						unitNameFilter={filters.unitNameFilter}
-						onUnitNameChange={filters.setUnitNameFilter}
-						filterOptions={filterOptions || {
-							quarterNames: [],
-							locations: [],
-							categories: [],
-							blockNames: [],
-							flatHouseRoomNames: [],
-							unitNames: [],
-							statuses: [],
-							occupancyTypes: []
-						}}
-						housingTypes={housingTypes}
-					/>
 
 					<div className='mt-4 mb-2'>
 						<div className='flex items-center space-x-2'>

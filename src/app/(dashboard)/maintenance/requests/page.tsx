@@ -14,6 +14,9 @@ export interface MaintenanceRequest {
 	id: string;
 	unitId: string;
 	unitName: string;
+	quarterName: string;
+	location: string;
+	blockName: string;
 	issueCategory: string;
 	issueDescription: string;
 	priorityLevel: string;
