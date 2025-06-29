@@ -9,6 +9,9 @@ interface MaintenanceRequest {
 	id: string;
 	unitId: string;
 	unitName: string;
+	quarterName: string;
+	location: string;
+	blockName: string;
 	issueCategory: string;
 	issueDescription: string;
 	priorityLevel: string;
@@ -43,15 +46,21 @@ export function MaintenanceRequestTable({
 		setPriorityFilter,
 		categoryFilter,
 		setCategoryFilter,
-		unitTypeFilter,
-		setUnitTypeFilter,
+		quarterFilter,
+		setQuarterFilter,
+		locationFilter,
+		setLocationFilter,
 		filteredItems: filteredRequests,
-		availableUnitTypes,
+		availableQuarters,
+		availableLocations,
 		availableCategories,
 	} = useMaintenanceFilters(
 		requests,
 		(request) => [
 			request.unitName,
+			request.quarterName,
+			request.location,
+			request.blockName,
 			request.issueDescription,
 			request.reportedBy,
 			request.remarks,
@@ -59,7 +68,8 @@ export function MaintenanceRequestTable({
 		(request) => request.status,
 		(request) => request.priorityLevel,
 		(request) => request.issueCategory,
-		undefined // no unit type for requests
+		(request) => request.quarterName,
+		(request) => request.location
 	);
 
 	const handleDelete = async (id: string) => {
@@ -118,6 +128,12 @@ export function MaintenanceRequestTable({
 				onPriorityChange={setPriorityFilter}
 				categoryFilter={categoryFilter}
 				onCategoryChange={setCategoryFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				locationFilter={locationFilter}
+				onLocationChange={setLocationFilter}
+				availableQuarters={availableQuarters}
+				availableLocations={availableLocations}
 				availableCategories={availableCategories}
 				isRequestView={true}
 			/>

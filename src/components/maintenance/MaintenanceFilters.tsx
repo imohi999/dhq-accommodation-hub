@@ -19,9 +19,12 @@ interface MaintenanceFiltersProps {
 	onPriorityChange?: (value: string) => void;
 	categoryFilter?: string;
 	onCategoryChange?: (value: string) => void;
-	unitTypeFilter?: string;
-	onUnitTypeChange?: (value: string) => void;
-	availableUnitTypes?: string[];
+	quarterFilter?: string;
+	onQuarterChange?: (value: string) => void;
+	locationFilter?: string;
+	onLocationChange?: (value: string) => void;
+	availableQuarters?: string[];
+	availableLocations?: string[];
 	availableCategories?: string[];
 	isRequestView?: boolean;
 }
@@ -35,9 +38,12 @@ export const MaintenanceFilters = ({
 	onPriorityChange,
 	categoryFilter,
 	onCategoryChange,
-	unitTypeFilter,
-	onUnitTypeChange,
-	availableUnitTypes = [],
+	quarterFilter,
+	onQuarterChange,
+	locationFilter,
+	onLocationChange,
+	availableQuarters = [],
+	availableLocations = [],
 	availableCategories = [],
 	isRequestView = false,
 }: MaintenanceFiltersProps) => {
@@ -46,7 +52,8 @@ export const MaintenanceFilters = ({
 		onStatusChange("all");
 		onPriorityChange?.("all");
 		onCategoryChange?.("all");
-		onUnitTypeChange?.("all");
+		onQuarterChange?.("all");
+		onLocationChange?.("all");
 	};
 
 	return (
@@ -109,8 +116,49 @@ export const MaintenanceFilters = ({
 				</div>
 			</div>
 
-			{/* Second row: Other filters */}
-			<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+			{/* Second row: Quarter and Location */}
+			<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+				{quarterFilter !== undefined && onQuarterChange && (
+					<div className='space-y-2'>
+						<Label>Quarter</Label>
+						<Select value={quarterFilter} onValueChange={onQuarterChange}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Quarters' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Quarters</SelectItem>
+								{availableQuarters.map((quarter) => (
+									<SelectItem key={quarter} value={quarter}>
+										{quarter}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+				)}
+
+				{locationFilter !== undefined && onLocationChange && (
+					<div className='space-y-2'>
+						<Label>Location</Label>
+						<Select value={locationFilter} onValueChange={onLocationChange}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Locations' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Locations</SelectItem>
+								{availableLocations.map((location) => (
+									<SelectItem key={location} value={location}>
+										{location}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+				)}
+			</div>
+
+			{/* Third row: Other filters */}
+			<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 				{priorityFilter !== undefined && onPriorityChange && (
 					<div className='space-y-2'>
 						<Label>Priority</Label>
@@ -148,24 +196,6 @@ export const MaintenanceFilters = ({
 					</div>
 				)}
 
-				{unitTypeFilter !== undefined && onUnitTypeChange && (
-					<div className='space-y-2'>
-						<Label>Unit Type</Label>
-						<Select value={unitTypeFilter} onValueChange={onUnitTypeChange}>
-							<SelectTrigger>
-								<SelectValue placeholder='All Unit Types' />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value='all'>All Unit Types</SelectItem>
-								{availableUnitTypes.map((unitType) => (
-									<SelectItem key={unitType} value={unitType}>
-										{unitType}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-				)}
 			</div>
 		</div>
 	);

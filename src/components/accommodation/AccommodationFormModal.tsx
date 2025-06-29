@@ -383,7 +383,7 @@ export function AccommodationFormModal({
 						</div>
 
 						<div className='space-y-2'>
-							<Label htmlFor='unitName'>Unit Name</Label>
+							<Label htmlFor='unitName'>Quarters Name</Label>
 							<Input
 								id='unitName'
 								value={formData.unitName}
@@ -510,7 +510,7 @@ export function AccommodationFormModal({
 								disabled={!formData.blockImageUrl || !formData.quarterName}
 							/>
 							<Label htmlFor='applyToAllUnits' className='text-sm'>
-								Apply image to all units in{" "}
+								Apply image to all quarters in{" "}
 								{formData.quarterName || "this quarter"}
 							</Label>
 						</div>

@@ -6,24 +6,37 @@ export const useMaintenanceFilters = <T extends Record<string, any>>(
 	getStatusFromItem: (item: T) => string,
 	getPriorityFromItem?: (item: T) => string,
 	getCategoryFromItem?: (item: T) => string,
-	getUnitTypeFromItem?: (item: T) => string
+	getQuarterFromItem?: (item: T) => string,
+	getLocationFromItem?: (item: T) => string
 ) => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
 	const [priorityFilter, setPriorityFilter] = useState("all");
 	const [categoryFilter, setCategoryFilter] = useState("all");
-	const [unitTypeFilter, setUnitTypeFilter] = useState("all");
+	const [quarterFilter, setQuarterFilter] = useState("all");
+	const [locationFilter, setLocationFilter] = useState("all");
 
-	// Get unique unit types and categories
-	const availableUnitTypes = useMemo(() => {
-		if (!getUnitTypeFromItem) return [];
-		const unitTypes = new Set<string>();
+	// Get unique quarters
+	const availableQuarters = useMemo(() => {
+		if (!getQuarterFromItem) return [];
+		const quarters = new Set<string>();
 		items.forEach((item) => {
-			const unitType = getUnitTypeFromItem(item);
-			if (unitType) unitTypes.add(unitType);
+			const quarter = getQuarterFromItem(item);
+			if (quarter) quarters.add(quarter);
 		});
-		return Array.from(unitTypes).sort();
-	}, [items, getUnitTypeFromItem]);
+		return Array.from(quarters).sort();
+	}, [items, getQuarterFromItem]);
+
+	// Get unique locations
+	const availableLocations = useMemo(() => {
+		if (!getLocationFromItem) return [];
+		const locations = new Set<string>();
+		items.forEach((item) => {
+			const location = getLocationFromItem(item);
+			if (location) locations.add(location);
+		});
+		return Array.from(locations).sort();
+	}, [items, getLocationFromItem]);
 
 	const availableCategories = useMemo(() => {
 		if (!getCategoryFromItem) return [];
@@ -62,18 +75,25 @@ export const useMaintenanceFilters = <T extends Record<string, any>>(
 				categoryFilter === "all" ||
 				getCategoryFromItem(item) === categoryFilter;
 
-			// Unit type filter
-			const matchesUnitType =
-				!getUnitTypeFromItem ||
-				unitTypeFilter === "all" ||
-				getUnitTypeFromItem(item) === unitTypeFilter;
+			// Quarter filter
+			const matchesQuarter =
+				!getQuarterFromItem ||
+				quarterFilter === "all" ||
+				getQuarterFromItem(item) === quarterFilter;
+
+			// Location filter
+			const matchesLocation =
+				!getLocationFromItem ||
+				locationFilter === "all" ||
+				getLocationFromItem(item) === locationFilter;
 
 			return (
 				matchesSearch &&
 				matchesStatus &&
 				matchesPriority &&
 				matchesCategory &&
-				matchesUnitType
+				matchesQuarter &&
+				matchesLocation
 			);
 		});
 	}, [
@@ -82,12 +102,14 @@ export const useMaintenanceFilters = <T extends Record<string, any>>(
 		statusFilter,
 		priorityFilter,
 		categoryFilter,
-		unitTypeFilter,
+		quarterFilter,
+		locationFilter,
 		getSearchableFields,
 		getStatusFromItem,
 		getPriorityFromItem,
 		getCategoryFromItem,
-		getUnitTypeFromItem,
+		getQuarterFromItem,
+		getLocationFromItem,
 	]);
 
 	return {
@@ -99,10 +121,13 @@ export const useMaintenanceFilters = <T extends Record<string, any>>(
 		setPriorityFilter,
 		categoryFilter,
 		setCategoryFilter,
-		unitTypeFilter,
-		setUnitTypeFilter,
+		quarterFilter,
+		setQuarterFilter,
+		locationFilter,
+		setLocationFilter,
 		filteredItems,
-		availableUnitTypes,
+		availableQuarters,
+		availableLocations,
 		availableCategories,
 	};
 };

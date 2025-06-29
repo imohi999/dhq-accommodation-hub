@@ -9,6 +9,9 @@ interface MaintenanceTask {
 	id: string;
 	unitId: string;
 	unitName: string;
+	quarterName: string;
+	location: string;
+	blockName: string;
 	taskName: string;
 	taskDescription: string;
 	lastPerformedDate: string;
@@ -38,14 +41,25 @@ export function MaintenanceTaskTable({
 		setSearchTerm,
 		statusFilter,
 		setStatusFilter,
-		unitTypeFilter,
-		setUnitTypeFilter,
+		priorityFilter,
+		setPriorityFilter,
+		categoryFilter,
+		setCategoryFilter,
+		quarterFilter,
+		setQuarterFilter,
+		locationFilter,
+		setLocationFilter,
 		filteredItems: filteredTasks,
-		availableUnitTypes,
+		availableQuarters,
+		availableLocations,
+		availableCategories,
 	} = useMaintenanceFilters(
 		tasks,
 		(task) => [
 			task.unitName,
+			task.quarterName,
+			task.location,
+			task.blockName,
 			task.taskName,
 			task.taskDescription,
 			task.remarks,
@@ -53,7 +67,8 @@ export function MaintenanceTaskTable({
 		(task) => task.status,
 		undefined, // no priority for tasks
 		undefined, // no category for tasks
-		undefined // no unit type for tasks
+		(task) => task.quarterName,
+		(task) => task.location
 	);
 
 	const handleDelete = async (id: string) => {
@@ -78,6 +93,17 @@ export function MaintenanceTaskTable({
 				onSearchChange={setSearchTerm}
 				statusFilter={statusFilter}
 				onStatusChange={setStatusFilter}
+				priorityFilter={priorityFilter}
+				onPriorityChange={setPriorityFilter}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				quarterFilter={quarterFilter}
+				onQuarterChange={setQuarterFilter}
+				locationFilter={locationFilter}
+				onLocationChange={setLocationFilter}
+				availableQuarters={availableQuarters}
+				availableLocations={availableLocations}
+				availableCategories={availableCategories}
 			/>
 
 			{/* Table */}
