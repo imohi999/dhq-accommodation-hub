@@ -61,7 +61,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create session
+    // Check if user has existing sessions before creating new one
+    const existingSessions = await prisma.authSession.count({
+      where: { userId: user.id },
+    });
+
+    // Create session (this will delete all existing sessions)
     const token = await createSession(
       user.id,
       user.username,
@@ -70,6 +75,19 @@ export async function POST(request: NextRequest) {
       ipAddress,
       userAgent
     );
+
+    // Log session invalidation if there were existing sessions
+    if (existingSessions > 0) {
+      await AuditLogger.logAuth(
+        user.id,
+        'SESSION_INVALIDATED',
+        { 
+          reason: 'New login from different device',
+          previousSessionsCount: existingSessions,
+          newIpAddress: ipAddress 
+        }
+      );
+    }
 
     // Set session cookie
     try {

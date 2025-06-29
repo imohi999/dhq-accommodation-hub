@@ -28,10 +28,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(sessionData.user);
       setSession(sessionData.session);
     } else {
+      // Check if user was previously logged in
+      if (user && !sessionData?.user) {
+        // User was logged out (possibly due to login from another device)
+        toast.error('You have been logged out because you signed in from another device.');
+      }
       setUser(null);
       setSession(null);
     }
-  }, [sessionData]);
+  }, [sessionData, user]);
 
   const signIn = async (username: string, password: string) => {
     try {

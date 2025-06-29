@@ -35,6 +35,11 @@ export async function createSession(
   ipAddress: string,
   userAgent?: string
 ): Promise<string> {
+  // Delete all existing sessions for this user (single-device login)
+  await prisma.authSession.deleteMany({
+    where: { userId },
+  });
+
   const sessionId = crypto.randomUUID();
   const expires = new Date(Date.now() + SESSION_DURATION);
 
