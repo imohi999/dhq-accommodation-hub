@@ -222,7 +222,8 @@ export const PastAllocationsView = () => {
 	const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
 	const [isLetterModalOpen, setIsLetterModalOpen] = useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-	const [allocationToDelete, setAllocationToDelete] = useState<PastAllocation | null>(null);
+	const [allocationToDelete, setAllocationToDelete] =
+		useState<PastAllocation | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 	const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
@@ -247,23 +248,26 @@ export const PastAllocationsView = () => {
 
 		setIsDeleting(true);
 		try {
-			const response = await fetch(`/api/allocations/past/${allocationToDelete.id}`, {
-				method: 'DELETE',
-			});
+			const response = await fetch(
+				`/api/allocations/past/${allocationToDelete.id}`,
+				{
+					method: "DELETE",
+				}
+			);
 
 			const data = await response.json();
 
 			if (!response.ok) {
-				toast.error(data.error || 'Failed to delete allocation');
+				toast.error(data.error || "Failed to delete allocation");
 			} else {
-				toast.success('Past allocation deleted successfully');
+				toast.success("Past allocation deleted successfully");
 				setIsDeleteModalOpen(false);
 				setAllocationToDelete(null);
 				mutate(); // Refresh the list
 			}
 		} catch (error) {
-			console.error('Error deleting allocation:', error);
-			toast.error('An unexpected error occurred');
+			console.error("Error deleting allocation:", error);
+			toast.error("An unexpected error occurred");
 		} finally {
 			setIsDeleting(false);
 		}
@@ -274,10 +278,10 @@ export const PastAllocationsView = () => {
 
 		setIsBulkDeleting(true);
 		try {
-			const response = await fetch('/api/allocations/past/bulk-delete', {
-				method: 'POST',
+			const response = await fetch("/api/allocations/past/bulk-delete", {
+				method: "POST",
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({ ids: selectedIds }),
 			});
@@ -285,16 +289,16 @@ export const PastAllocationsView = () => {
 			const data = await response.json();
 
 			if (!response.ok) {
-				toast.error(data.error || 'Failed to delete allocations');
+				toast.error(data.error || "Failed to delete allocations");
 			} else {
-				toast.success(data.message || 'Allocations deleted successfully');
+				toast.success(data.message || "Allocations deleted successfully");
 				setIsBulkDeleteModalOpen(false);
 				setSelectedIds([]);
 				mutate(); // Refresh the list
 			}
 		} catch (error) {
-			console.error('Error deleting allocations:', error);
-			toast.error('An unexpected error occurred');
+			console.error("Error deleting allocations:", error);
+			toast.error("An unexpected error occurred");
 		} finally {
 			setIsBulkDeleting(false);
 		}
@@ -304,23 +308,23 @@ export const PastAllocationsView = () => {
 		if (selectedIds.length === filteredItems.length) {
 			setSelectedIds([]);
 		} else {
-			setSelectedIds(filteredItems.map(item => item.id));
+			setSelectedIds(filteredItems.map((item) => item.id));
 		}
 	};
 
 	const toggleSelectItem = (id: string) => {
-		setSelectedIds(prev => 
-			prev.includes(id) 
-				? prev.filter(itemId => itemId !== id)
-				: [...prev, id]
+		setSelectedIds((prev) =>
+			prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
 		);
 	};
 
 	// Check if user can delete past allocations
-	const canDelete = user?.profile?.role === 'superadmin' || 
-		user?.profile?.role === 'admin' ||
-		user?.profile?.pagePermissions?.some(p => 
-			p.pageKey === 'allocations.past' && p.allowedActions?.includes('delete')
+	const canDelete =
+		user?.profile?.role === "superadmin" ||
+		user?.profile?.role === "admin" ||
+		user?.profile?.pagePermissions?.some(
+			(p) =>
+				p.pageKey === "allocations.past" && p.allowedActions?.includes("delete")
 		);
 
 	// Add inspection status state
@@ -548,7 +552,10 @@ export const PastAllocationsView = () => {
 					{canDelete && filteredItems.length > 0 && (
 						<div className='flex items-center gap-2 p-2'>
 							<Checkbox
-								checked={selectedIds.length === filteredItems.length && filteredItems.length > 0}
+								checked={
+									selectedIds.length === filteredItems.length &&
+									filteredItems.length > 0
+								}
 								onCheckedChange={toggleSelectAll}
 							/>
 							<label className='text-sm font-medium'>
@@ -556,7 +563,7 @@ export const PastAllocationsView = () => {
 							</label>
 						</div>
 					)}
-					
+
 					{filteredItems.map((allocation) => (
 						<Card
 							key={allocation.id}
@@ -680,13 +687,11 @@ export const PastAllocationsView = () => {
 								<div className='flex items-center justify-between'>
 									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
 										<span>
-											Quarter: {allocation.unitData?.quarterName || "N/A"}
+											Quarter&apos;s Name:{" "}
+											{allocation.unit?.quarterName || "N/A"}
 										</span>
 										<span>•</span>
-										<span>
-											Unit:
-											{allocation.unit?.unitName || ""}
-										</span>
+										<span>{allocation.unit?.unitName || ""}</span>
 										<span>•</span>
 										{allocation.reasonForLeaving && (
 											<>
@@ -788,13 +793,16 @@ export const PastAllocationsView = () => {
 			</Dialog>
 
 			{/* Bulk Delete Confirmation Modal */}
-			<Dialog open={isBulkDeleteModalOpen} onOpenChange={setIsBulkDeleteModalOpen}>
+			<Dialog
+				open={isBulkDeleteModalOpen}
+				onOpenChange={setIsBulkDeleteModalOpen}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Delete Multiple Allocations</DialogTitle>
 						<DialogDescription>
-							Are you sure you want to delete {selectedIds.length} past allocation(s)? 
-							This action cannot be undone and will also delete any associated clearance inspections.
+							Are you sure you want to delete {selectedIds.length} past
+							allocation(s)? This action cannot be undone and will also delete
+							any associated clearance inspections.
 						</DialogDescription>
 					</DialogHeader>
 					<div className='space-y-2 text-sm'>
@@ -802,8 +810,8 @@ export const PastAllocationsView = () => {
 							You are about to delete {selectedIds.length} allocation(s).
 						</p>
 						<p className='text-muted-foreground'>
-							This will permanently remove all selected allocations and their associated 
-							clearance inspections from the database.
+							This will permanently remove all selected allocations and their
+							associated clearance inspections from the database.
 						</p>
 					</div>
 					<DialogFooter>

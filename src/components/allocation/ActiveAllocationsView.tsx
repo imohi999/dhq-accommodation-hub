@@ -25,7 +25,10 @@ import { AllocationLetter } from "./AllocationLetter";
 import { EvictionNotice } from "./EvictionNotice";
 import { TransferRequestModal } from "./TransferRequestModal";
 import { toast } from "react-toastify";
-import { useOccupiedUnits, DHQLivingUnitWithOccupants } from "@/services/occupiedUnitsApi";
+import {
+	useOccupiedUnits,
+	DHQLivingUnitWithOccupants,
+} from "@/services/occupiedUnitsApi";
 import { usePermissions } from "@/hooks/usePermissions";
 import { AllocationFilters } from "./AllocationFilters";
 import { useAllocationFilters } from "@/hooks/useAllocationFilters";
@@ -37,7 +40,6 @@ interface ActiveAllocationsViewProps {
 export const ActiveAllocationsView = ({
 	occupiedUnits,
 }: ActiveAllocationsViewProps) => {
-
 	const { hasPermission } = usePermissions();
 	const { mutate: mutateOccupiedUnits } = useOccupiedUnits();
 
@@ -184,160 +186,164 @@ export const ActiveAllocationsView = ({
 	const letterId = `DHQ/GAR/ABJ/${currentYear}/${paddedCount}/LOG`;
 
 	const createMockAllocationRequest = (unit: DHQLivingUnitWithOccupants) => {
-		const currentOccupant = unit.occupants?.find(o => o.isCurrent);
-		const armOfService = currentOccupant?.queue?.armOfService || "Nigerian Navy";
-		
+		const currentOccupant = unit.occupants?.find((o) => o.isCurrent);
+		const armOfService =
+			currentOccupant?.queue?.armOfService || "Nigerian Navy";
+
 		return {
-		id: unit.id,
-		personnelId: unit.currentOccupantId || unit.id,
-		queueId: unit.currentOccupantId || unit.id,
-		unitId: unit.id,
-		letterId: letterId,
-		personnelData: {
-			id: unit.currentOccupantId || unit.id,
-			rank: unit.currentOccupantRank || "",
-			phone: "",
-			svcNo: unit.currentOccupantServiceNumber || "",
-			gender: "Male",
-			category: unit.category,
-			fullName: unit.currentOccupantName || "",
-			sequence: 1,
-			appointment: "Staff Officer",
-			currentUnit: "Naval Academy",
-			armOfService: armOfService,
-			entryDateTime: new Date().toISOString(),
-			maritalStatus: "Single",
-			noOfAdultDependents: 0,
-			noOfChildDependents: 0,
-		},
-		unitData: {
 			id: unit.id,
-			status: unit.status,
-			category: unit.category,
-			location: unit.location,
-			blockName: unit.blockName,
-			noOfRooms: unit.noOfRooms,
-			accommodationType: unit.accommodationType?.name || unit.category,
-			quarterName: unit.quarterName,
-			flatHouseRoomName: unit.flatHouseRoomName,
-		},
-		allocationDate: unit.occupancyStartDate || new Date().toISOString(),
-		status: "approved",
-		approvedBy: null,
-		approvedAt: unit.occupancyStartDate || new Date().toISOString(),
-		refusalReason: null,
-		createdAt: unit.occupancyStartDate || new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-		personnelName: unit.currentOccupantName || "",
-		personnel: {
-			id: unit.currentOccupantId || unit.id,
-			sequence: 1,
-			fullName: unit.currentOccupantName || "",
-			svcNo: unit.currentOccupantServiceNumber || "",
-			gender: "Male",
-			armOfService: armOfService,
-			category: unit.category,
-			rank: unit.currentOccupantRank || "",
-			maritalStatus: "Single",
-			noOfAdultDependents: 0,
-			noOfChildDependents: 0,
-			currentUnit: "Naval Academy",
-			appointment: "Academy Instructor",
-			dateTos: null,
-			dateSos: null,
-			phone: "",
-			entryDateTime: new Date().toISOString(),
-			createdAt: new Date().toISOString(),
+			personnelId: unit.currentOccupantId || unit.id,
+			queueId: unit.currentOccupantId || unit.id,
+			unitId: unit.id,
+			letterId: letterId,
+			personnelData: {
+				id: unit.currentOccupantId || unit.id,
+				rank: unit.currentOccupantRank || "",
+				phone: "",
+				svcNo: unit.currentOccupantServiceNumber || "",
+				gender: "Male",
+				category: unit.category,
+				fullName: unit.currentOccupantName || "",
+				sequence: 1,
+				appointment: "Staff Officer",
+				currentUnit: "Naval Academy",
+				armOfService: armOfService,
+				entryDateTime: new Date().toISOString(),
+				maritalStatus: "Single",
+				noOfAdultDependents: 0,
+				noOfChildDependents: 0,
+			},
+			unitData: {
+				id: unit.id,
+				status: unit.status,
+				category: unit.category,
+				location: unit.location,
+				blockName: unit.blockName,
+				noOfRooms: unit.noOfRooms,
+				accommodationType: unit.accommodationType?.name || unit.category,
+				quarterName: unit.quarterName,
+				flatHouseRoomName: unit.flatHouseRoomName,
+			},
+			allocationDate: unit.occupancyStartDate || new Date().toISOString(),
+			status: "approved",
+			approvedBy: null,
+			approvedAt: unit.occupancyStartDate || new Date().toISOString(),
+			refusalReason: null,
+			createdAt: unit.occupancyStartDate || new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
-		},
-		unit: {
-			id: unit.id,
-			quarterName: unit.quarterName,
-			location: unit.location,
-			category: unit.category,
-			accommodationTypeId: unit.accommodationTypeId,
-			noOfRooms: unit.noOfRooms,
-			status: unit.status,
-			typeOfOccupancy: unit.typeOfOccupancy,
-			bq: unit.bq,
-			noOfRoomsInBq: unit.noOfRoomsInBq,
-			blockName: unit.blockName,
-			flatHouseRoomName: unit.flatHouseRoomName,
-			unitName: unit.unitName || `${unit.blockName} ${unit.flatHouseRoomName}`,
-			blockImageUrl: unit.blockImageUrl,
-			currentOccupantId: unit.currentOccupantId,
-			currentOccupantName: unit.currentOccupantName,
-			currentOccupantRank: unit.currentOccupantRank,
-			currentOccupantServiceNumber: unit.currentOccupantServiceNumber,
-			occupancyStartDate: unit.occupancyStartDate,
-			createdAt: unit.createdAt,
-			updatedAt: unit.updatedAt,
-			accommodationType: unit.accommodationType
+			personnelName: unit.currentOccupantName || "",
+			personnel: {
+				id: unit.currentOccupantId || unit.id,
+				sequence: 1,
+				fullName: unit.currentOccupantName || "",
+				svcNo: unit.currentOccupantServiceNumber || "",
+				gender: "Male",
+				armOfService: armOfService,
+				category: unit.category,
+				rank: unit.currentOccupantRank || "",
+				maritalStatus: "Single",
+				noOfAdultDependents: 0,
+				noOfChildDependents: 0,
+				currentUnit: "Naval Academy",
+				appointment: "Academy Instructor",
+				dateTos: null,
+				dateSos: null,
+				phone: "",
+				entryDateTime: new Date().toISOString(),
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			},
+			unit: {
+				id: unit.id,
+				quarterName: unit.quarterName,
+				location: unit.location,
+				category: unit.category,
+				accommodationTypeId: unit.accommodationTypeId,
+				noOfRooms: unit.noOfRooms,
+				status: unit.status,
+				typeOfOccupancy: unit.typeOfOccupancy,
+				bq: unit.bq,
+				noOfRoomsInBq: unit.noOfRoomsInBq,
+				blockName: unit.blockName,
+				flatHouseRoomName: unit.flatHouseRoomName,
+				unitName:
+					unit.unitName || `${unit.blockName} ${unit.flatHouseRoomName}`,
+				blockImageUrl: unit.blockImageUrl,
+				currentOccupantId: unit.currentOccupantId,
+				currentOccupantName: unit.currentOccupantName,
+				currentOccupantRank: unit.currentOccupantRank,
+				currentOccupantServiceNumber: unit.currentOccupantServiceNumber,
+				occupancyStartDate: unit.occupancyStartDate,
+				createdAt: unit.createdAt,
+				updatedAt: unit.updatedAt,
+				accommodationType: unit.accommodationType
+					? {
+							id: unit.accommodationType.id,
+							name: unit.accommodationType.name,
+							description: unit.accommodationType.description || "",
+							createdAt: unit.accommodationType.createdAt,
+					  }
+					: {
+							id: unit.accommodationTypeId,
+							name: unit.category,
+							description: "",
+							createdAt: new Date().toISOString(),
+					  },
+			},
+			queue: currentOccupant?.queue
 				? {
-						id: unit.accommodationType.id,
-						name: unit.accommodationType.name,
-						description: unit.accommodationType.description || "",
-						createdAt: unit.accommodationType.createdAt,
+						...currentOccupant.queue,
+						id: currentOccupant.queue.id,
+						sequence: currentOccupant.queue.sequence,
+						fullName: currentOccupant.queue.fullName,
+						svcNo: currentOccupant.queue.svcNo,
+						gender: currentOccupant.queue.gender,
+						armOfService: currentOccupant.queue.armOfService,
+						category: currentOccupant.queue.category,
+						rank: currentOccupant.queue.rank,
+						maritalStatus: currentOccupant.queue.maritalStatus,
+						noOfAdultDependents: currentOccupant.queue.noOfAdultDependents,
+						noOfChildDependents: currentOccupant.queue.noOfChildDependents,
+						currentUnit: currentOccupant.queue.currentUnit,
+						appointment: currentOccupant.queue.appointment,
+						dateTos: currentOccupant.queue.dateTos,
+						dateSos: currentOccupant.queue.dateSos,
+						phone: currentOccupant.queue.phone,
+						entryDateTime: currentOccupant.queue.entryDateTime,
+						createdAt: currentOccupant.queue.createdAt,
+						updatedAt: currentOccupant.queue.updatedAt,
+						dependents: currentOccupant.queue.dependents || [],
+						hasAllocationRequest: currentOccupant.queue.hasAllocationRequest,
 				  }
 				: {
-						id: unit.accommodationTypeId,
-						name: unit.category,
-						description: "",
+						id: unit.currentOccupantId || unit.id,
+						sequence: 1,
+						fullName: unit.currentOccupantName || "",
+						svcNo: unit.currentOccupantServiceNumber || "",
+						gender: "Male",
+						armOfService: armOfService,
+						category: unit.category,
+						rank: unit.currentOccupantRank || "",
+						maritalStatus: "Single",
+						noOfAdultDependents: 0,
+						noOfChildDependents: 0,
+						currentUnit: "Naval Academy",
+						appointment: "Staff Officer",
+						dateTos: null,
+						dateSos: null,
+						phone: "",
+						entryDateTime: new Date().toISOString(),
 						createdAt: new Date().toISOString(),
+						updatedAt: new Date().toISOString(),
+						dependents: [],
+						hasAllocationRequest: true,
 				  },
-		},
-		queue: currentOccupant?.queue ? {
-			...currentOccupant.queue,
-			id: currentOccupant.queue.id,
-			sequence: currentOccupant.queue.sequence,
-			fullName: currentOccupant.queue.fullName,
-			svcNo: currentOccupant.queue.svcNo,
-			gender: currentOccupant.queue.gender,
-			armOfService: currentOccupant.queue.armOfService,
-			category: currentOccupant.queue.category,
-			rank: currentOccupant.queue.rank,
-			maritalStatus: currentOccupant.queue.maritalStatus,
-			noOfAdultDependents: currentOccupant.queue.noOfAdultDependents,
-			noOfChildDependents: currentOccupant.queue.noOfChildDependents,
-			currentUnit: currentOccupant.queue.currentUnit,
-			appointment: currentOccupant.queue.appointment,
-			dateTos: currentOccupant.queue.dateTos,
-			dateSos: currentOccupant.queue.dateSos,
-			phone: currentOccupant.queue.phone,
-			entryDateTime: currentOccupant.queue.entryDateTime,
-			createdAt: currentOccupant.queue.createdAt,
-			updatedAt: currentOccupant.queue.updatedAt,
-			dependents: currentOccupant.queue.dependents || [],
-			hasAllocationRequest: currentOccupant.queue.hasAllocationRequest,
-		} : {
-			id: unit.currentOccupantId || unit.id,
-			sequence: 1,
-			fullName: unit.currentOccupantName || "",
-			svcNo: unit.currentOccupantServiceNumber || "",
-			gender: "Male",
-			armOfService: armOfService,
-			category: unit.category,
-			rank: unit.currentOccupantRank || "",
-			maritalStatus: "Single",
-			noOfAdultDependents: 0,
-			noOfChildDependents: 0,
-			currentUnit: "Naval Academy",
-			appointment: "Staff Officer",
-			dateTos: null,
-			dateSos: null,
-			phone: "",
-			entryDateTime: new Date().toISOString(),
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-			dependents: [],
-			hasAllocationRequest: true,
-		},
 		};
 	};
 
 	// Get service from occupant's queue data
 	const getServiceFromUnit = (unit: DHQLivingUnitWithOccupants) => {
-		const currentOccupant = unit.occupants?.find(o => o.isCurrent);
+		const currentOccupant = unit.occupants?.find((o) => o.isCurrent);
 		return currentOccupant?.queue?.armOfService || "Unknown";
 	};
 
@@ -384,16 +390,13 @@ export const ActiveAllocationsView = ({
 
 	// Calculate by service
 	const armyAllocations = filteredItems.filter(
-		(unit) =>
-			getServiceFromUnit(unit) === "Nigerian Army"
+		(unit) => getServiceFromUnit(unit) === "Nigerian Army"
 	);
 	const navyAllocations = filteredItems.filter(
-		(unit) =>
-			getServiceFromUnit(unit) === "Nigerian Navy"
+		(unit) => getServiceFromUnit(unit) === "Nigerian Navy"
 	);
 	const airForceAllocations = filteredItems.filter(
-		(unit) =>
-			getServiceFromUnit(unit) === "Nigerian Air Force"
+		(unit) => getServiceFromUnit(unit) === "Nigerian Air Force"
 	);
 
 	const armyOfficers = armyAllocations.filter(
@@ -597,7 +600,7 @@ export const ActiveAllocationsView = ({
 									</div>
 									<div className='space-y-1'>
 										<p className='font-medium text-muted-foreground'>
-											Unit Type
+											Accommodation Type
 										</p>
 										<p className='font-medium'>
 											{unit.accommodationType?.name || unit.category}
@@ -622,11 +625,9 @@ export const ActiveAllocationsView = ({
 								{/* Additional Info and Actions */}
 								<div className='flex items-center justify-between'>
 									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
-										<span>Quarter: {unit.quarterName}</span>
+										<span>Quarter&apos;s Name: {unit.quarterName}</span>
 										<span>•</span>
-										<span>
-											Unit: {unit.blockName} {unit.flatHouseRoomName}
-										</span>
+										<span>{unit.unitName}</span>
 										<span>•</span>
 										<span>Location: {unit.location}</span>
 									</div>

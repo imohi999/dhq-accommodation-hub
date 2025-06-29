@@ -11,14 +11,14 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { 
-	CheckCircle, 
-	XCircle, 
-	FileText, 
+import {
+	CheckCircle,
+	XCircle,
+	FileText,
 	Clock,
 	Loader2,
 	User,
-	Home
+	Home,
 } from "lucide-react";
 import { AllocationLetter } from "@/components/allocation/AllocationLetter";
 import { APIAllocationRequest } from "@/src/app/(dashboard)/allocations/pending/page";
@@ -151,7 +151,7 @@ export const PendingApprovalView = ({
 
 	const handleConfirmAction = async () => {
 		if (!confirmDialog.request) return;
-		
+
 		if (confirmDialog.type === "approve") {
 			await approveAllocation(confirmDialog.request.id);
 		} else {
@@ -169,7 +169,6 @@ export const PendingApprovalView = ({
 			request: null,
 		});
 	};
-
 
 	// Use allocation filters
 	const {
@@ -196,7 +195,8 @@ export const PendingApprovalView = ({
 			item.unitData?.flatHouseRoomName || "",
 			item.letterId || "",
 		],
-		(item) => item.queue?.armOfService || item.personnelData?.armOfService || "",
+		(item) =>
+			item.queue?.armOfService || item.personnelData?.armOfService || "",
 		(item) => item.personnelData?.category || "",
 		(item) => item.unitData?.quarterName || "",
 		(item) => item.unitData?.accommodationType || ""
@@ -212,13 +212,19 @@ export const PendingApprovalView = ({
 	).length;
 
 	const armyRequests = filteredItems.filter(
-		(r) => (r.queue?.armOfService || r.personnelData?.armOfService) === "Nigerian Army"
+		(r) =>
+			(r.queue?.armOfService || r.personnelData?.armOfService) ===
+			"Nigerian Army"
 	).length;
 	const navyRequests = filteredItems.filter(
-		(r) => (r.queue?.armOfService || r.personnelData?.armOfService) === "Nigerian Navy"
+		(r) =>
+			(r.queue?.armOfService || r.personnelData?.armOfService) ===
+			"Nigerian Navy"
 	).length;
 	const airForceRequests = filteredItems.filter(
-		(r) => (r.queue?.armOfService || r.personnelData?.armOfService) === "Nigerian Air Force"
+		(r) =>
+			(r.queue?.armOfService || r.personnelData?.armOfService) ===
+			"Nigerian Air Force"
 	).length;
 
 	return (
@@ -387,7 +393,9 @@ export const PendingApprovalView = ({
 											</h3>
 											<p className='text-xs text-muted-foreground'>
 												{request.personnelData?.svcNo} •{" "}
-												{request.queue?.armOfService || request.personnelData?.armOfService || "Unknown"}
+												{request.queue?.armOfService ||
+													request.personnelData?.armOfService ||
+													"Unknown"}
 											</p>
 										</div>
 									</div>
@@ -445,7 +453,7 @@ export const PendingApprovalView = ({
 									</div>
 									<div className='space-y-1'>
 										<p className='font-medium text-muted-foreground'>
-											Unit Type
+											Accommodation Type
 										</p>
 										<p className='font-medium'>
 											{request.unitData?.accommodationType}
@@ -468,9 +476,9 @@ export const PendingApprovalView = ({
 								{/* Additional Info and Actions */}
 								<div className='flex items-center justify-between'>
 									<div className='flex items-center gap-2 text-xs text-muted-foreground'>
-										<span>Unit: {request.unitData?.flatHouseRoomName}</span>
+										<span>Quarters Name: {request.unitData?.quarterName}</span>
 										<span>•</span>
-										<span>Quarter: {request.unitData?.quarterName}</span>
+										<span>{request.unit.unitName}</span>
 										<span>•</span>
 										<span>Letter: {request.letterId}</span>
 									</div>
@@ -486,10 +494,10 @@ export const PendingApprovalView = ({
 				open={confirmDialog.isOpen}
 				onOpenChange={(open) => {
 					// Prevent closing while loading
-					const isLoading = confirmDialog.request && (
-						loadingStates[`approve_${confirmDialog.request.id}`] ||
-						loadingStates[`refuse_${confirmDialog.request.id}`]
-					);
+					const isLoading =
+						confirmDialog.request &&
+						(loadingStates[`approve_${confirmDialog.request.id}`] ||
+							loadingStates[`refuse_${confirmDialog.request.id}`]);
 					if (!isLoading) {
 						setConfirmDialog({ ...confirmDialog, isOpen: open });
 					}
@@ -502,21 +510,27 @@ export const PendingApprovalView = ({
 								: "Refuse Allocation Request"}
 						</DialogTitle>
 						<DialogDescription>
-							Review the allocation details before {confirmDialog.type === "approve" ? "approving" : "refusing"} this request
+							Review the allocation details before{" "}
+							{confirmDialog.type === "approve" ? "approving" : "refusing"} this
+							request
 						</DialogDescription>
 					</DialogHeader>
 
 					{/* Loading overlay */}
-					{confirmDialog.request && (loadingStates[`approve_${confirmDialog.request.id}`] || loadingStates[`refuse_${confirmDialog.request.id}`]) && (
-						<div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
-							<div className="flex flex-col items-center gap-2">
-								<Loader2 className="h-8 w-8 animate-spin text-primary" />
-								<p className="text-sm text-muted-foreground">
-									{confirmDialog.type === "approve" ? "Approving allocation..." : "Refusing allocation..."}
-								</p>
+					{confirmDialog.request &&
+						(loadingStates[`approve_${confirmDialog.request.id}`] ||
+							loadingStates[`refuse_${confirmDialog.request.id}`]) && (
+							<div className='absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg'>
+								<div className='flex flex-col items-center gap-2'>
+									<Loader2 className='h-8 w-8 animate-spin text-primary' />
+									<p className='text-sm text-muted-foreground'>
+										{confirmDialog.type === "approve"
+											? "Approving allocation..."
+											: "Refusing allocation..."}
+									</p>
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 
 					{confirmDialog.request && (
 						<div className='space-y-4'>
@@ -533,20 +547,31 @@ export const PendingApprovalView = ({
 										<div>
 											<p className='text-xs text-muted-foreground'>Name</p>
 											<p className='font-medium'>
-												{confirmDialog.request.personnelData?.rank} {confirmDialog.request.personnelData?.fullName}
+												{confirmDialog.request.personnelData?.rank}{" "}
+												{confirmDialog.request.personnelData?.fullName}
 											</p>
 										</div>
 										<div>
-											<p className='text-xs text-muted-foreground'>Service Number</p>
-											<p className='font-medium'>{confirmDialog.request.personnelData?.svcNo}</p>
+											<p className='text-xs text-muted-foreground'>
+												Service Number
+											</p>
+											<p className='font-medium'>
+												{confirmDialog.request.personnelData?.svcNo}
+											</p>
 										</div>
 										<div>
 											<p className='text-xs text-muted-foreground'>Category</p>
-											<Badge variant='secondary'>{confirmDialog.request.personnelData?.category}</Badge>
+											<Badge variant='secondary'>
+												{confirmDialog.request.personnelData?.category}
+											</Badge>
 										</div>
 										<div>
 											<p className='text-xs text-muted-foreground'>Service</p>
-											<p className='font-medium'>{confirmDialog.request.queue?.armOfService || confirmDialog.request.personnelData?.armOfService || "Unknown"}</p>
+											<p className='font-medium'>
+												{confirmDialog.request.queue?.armOfService ||
+													confirmDialog.request.personnelData?.armOfService ||
+													"Unknown"}
+											</p>
 										</div>
 									</div>
 								</CardContent>
@@ -564,26 +589,39 @@ export const PendingApprovalView = ({
 									<div className='grid grid-cols-2 gap-4'>
 										<div>
 											<p className='text-xs text-muted-foreground'>Quarter</p>
-											<p className='font-medium'>{confirmDialog.request.unitData?.quarterName}</p>
+											<p className='font-medium'>
+												{confirmDialog.request.unitData?.quarterName}
+											</p>
 										</div>
 										<div>
 											<p className='text-xs text-muted-foreground'>Unit</p>
-											<p className='font-medium'>{confirmDialog.request.unitData?.flatHouseRoomName}</p>
+											<p className='font-medium'>
+												{confirmDialog.request.unitData?.flatHouseRoomName}
+											</p>
 										</div>
 										<div>
 											<p className='text-xs text-muted-foreground'>Type</p>
-											<Badge variant='outline'>{confirmDialog.request.unitData?.accommodationType}</Badge>
+											<Badge variant='outline'>
+												{confirmDialog.request.unitData?.accommodationType}
+											</Badge>
 										</div>
 										<div>
 											<p className='text-xs text-muted-foreground'>Rooms</p>
-											<p className='font-medium'>{confirmDialog.request.unitData?.noOfRooms} rooms</p>
+											<p className='font-medium'>
+												{confirmDialog.request.unitData?.noOfRooms} rooms
+											</p>
 										</div>
 									</div>
 								</CardContent>
 							</Card>
 
 							{/* Warning/Info Message */}
-							<div className={`p-4 rounded-lg ${confirmDialog.type === "approve" ? "bg-green-50 dark:bg-green-950" : "bg-amber-50 dark:bg-amber-950"}`}>
+							<div
+								className={`p-4 rounded-lg ${
+									confirmDialog.type === "approve"
+										? "bg-green-50 dark:bg-green-950"
+										: "bg-amber-50 dark:bg-amber-950"
+								}`}>
 								<p className='text-sm'>
 									{confirmDialog.type === "approve"
 										? "Approving this request will allocate the unit to the personnel and update their status to 'Active Allocation'."
@@ -596,21 +634,43 @@ export const PendingApprovalView = ({
 					<DialogFooter>
 						<Button
 							variant='outline'
-							onClick={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
-							disabled={!!confirmDialog.request && (loadingStates[`approve_${confirmDialog.request.id}`] || loadingStates[`refuse_${confirmDialog.request.id}`])}>
+							onClick={() =>
+								setConfirmDialog({ ...confirmDialog, isOpen: false })
+							}
+							disabled={
+								!!confirmDialog.request &&
+								(loadingStates[`approve_${confirmDialog.request.id}`] ||
+									loadingStates[`refuse_${confirmDialog.request.id}`])
+							}>
 							Cancel
 						</Button>
 						<Button
-							variant={confirmDialog.type === "approve" ? "default" : "destructive"}
+							variant={
+								confirmDialog.type === "approve" ? "default" : "destructive"
+							}
 							onClick={handleConfirmAction}
-							disabled={!confirmDialog.request || loadingStates[`approve_${confirmDialog.request.id}`] || loadingStates[`refuse_${confirmDialog.request.id}`]}
-							className={confirmDialog.type === "approve" ? "bg-green-600 hover:bg-green-700" : ""}>
-							{(confirmDialog.request && (loadingStates[`approve_${confirmDialog.request.id}`] || loadingStates[`refuse_${confirmDialog.request.id}`])) && (
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							)}
+							disabled={
+								!confirmDialog.request ||
+								loadingStates[`approve_${confirmDialog.request.id}`] ||
+								loadingStates[`refuse_${confirmDialog.request.id}`]
+							}
+							className={
+								confirmDialog.type === "approve"
+									? "bg-green-600 hover:bg-green-700"
+									: ""
+							}>
+							{confirmDialog.request &&
+								(loadingStates[`approve_${confirmDialog.request.id}`] ||
+									loadingStates[`refuse_${confirmDialog.request.id}`]) && (
+									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+								)}
 							{confirmDialog.type === "approve"
-								? (loadingStates[`approve_${confirmDialog.request?.id}`] ? "Approving..." : "Approve Allocation")
-								: (loadingStates[`refuse_${confirmDialog.request?.id}`] ? "Refusing..." : "Refuse Allocation")}
+								? loadingStates[`approve_${confirmDialog.request?.id}`]
+									? "Approving..."
+									: "Approve Allocation"
+								: loadingStates[`refuse_${confirmDialog.request?.id}`]
+								? "Refusing..."
+								: "Refuse Allocation"}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
