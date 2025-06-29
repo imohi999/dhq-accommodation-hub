@@ -89,7 +89,9 @@ export function MaintenanceTaskForm({
 		if (selectedUnits.length === units.length) {
 			setSelectedUnits([]);
 		} else {
-			setSelectedUnits(units.map((unit: DHQLivingUnitWithHousingType) => unit.id));
+			setSelectedUnits(
+				units.map((unit: DHQLivingUnitWithHousingType) => unit.id)
+			);
 		}
 	};
 
@@ -262,20 +264,19 @@ export function MaintenanceTaskForm({
 
 			{!initial && (
 				<div className='border-t pt-6'>
-					<h3 className='text-lg font-semibold mb-4'>Select Units</h3>
+					<h3 className='text-lg font-semibold mb-4'>Select Quarters</h3>
 
 					<div className='mt-4 mb-2'>
 						<div className='flex items-center space-x-2'>
 							<Checkbox
 								id='selectAll'
 								checked={
-									selectedUnits.length === units.length &&
-									units.length > 0
+									selectedUnits.length === units.length && units.length > 0
 								}
 								onCheckedChange={handleSelectAll}
 							/>
 							<label htmlFor='selectAll' className='text-sm font-medium'>
-								Select All ({units.length} units)
+								Select All ({units.length} quarters)
 							</label>
 						</div>
 					</div>
