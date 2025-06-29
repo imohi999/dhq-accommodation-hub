@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -21,11 +21,12 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "react-toastify";
-import { Save, X } from "lucide-react";
+import { Save, X, Upload, Image } from "lucide-react";
 import {
 	DHQLivingUnitWithHousingType,
 	AccommodationType,
 } from "@/types/accommodation";
+import { Progress } from "@/components/ui/progress";
 
 interface AccommodationFormModalProps {
 	isOpen: boolean;
@@ -43,6 +44,10 @@ export function AccommodationFormModal({
 	housingTypes,
 }: AccommodationFormModalProps) {
 	const [loading, setLoading] = useState(false);
+	const [uploadProgress, setUploadProgress] = useState(0);
+	const [isUploading, setIsUploading] = useState(false);
+	const [applyToAllUnits, setApplyToAllUnits] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [formData, setFormData] = useState({
 		quarterName: "",
 		location: "",
@@ -96,6 +101,101 @@ export function AccommodationFormModal({
 		}
 	}, [editingUnit]);
 
+	const resizeImage = (file: File, maxWidth: number): Promise<Blob> => {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				const img = new window.Image();
+				img.onload = () => {
+					const canvas = document.createElement("canvas");
+					const ctx = canvas.getContext("2d");
+					if (!ctx) {
+						reject(new Error("Could not get canvas context"));
+						return;
+					}
+
+					// Calculate new dimensions
+					let width = img.width;
+					let height = img.height;
+
+					if (width > maxWidth) {
+						height = (maxWidth / width) * height;
+						width = maxWidth;
+					}
+
+					canvas.width = width;
+					canvas.height = height;
+
+					// Draw resized image
+					ctx.drawImage(img, 0, 0, width, height);
+
+					// Convert to blob
+					canvas.toBlob(
+						(blob) => {
+							if (blob) {
+								resolve(blob);
+							} else {
+								reject(new Error("Could not convert canvas to blob"));
+							}
+						},
+						"image/jpeg",
+						0.85
+					);
+				};
+				img.onerror = reject;
+				img.src = e.target?.result as string;
+			};
+			reader.onerror = reject;
+			reader.readAsDataURL(file);
+		});
+	};
+
+	const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		// Validate file type
+		if (!file.type.startsWith("image/")) {
+			toast.error("Please select an image file");
+			return;
+		}
+
+		setIsUploading(true);
+		setUploadProgress(0);
+
+		try {
+			// Resize image
+			const resizedBlob = await resizeImage(file, 512);
+
+			// Convert blob to base64
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				const base64String = reader.result as string;
+				setFormData((prev) => ({ ...prev, blockImageUrl: base64String }));
+				setUploadProgress(100);
+				toast.success("Image uploaded successfully");
+				setIsUploading(false);
+			};
+			reader.readAsDataURL(resizedBlob);
+
+			// Simulate progress
+			const progressInterval = setInterval(() => {
+				setUploadProgress((prev) => {
+					if (prev >= 90) {
+						clearInterval(progressInterval);
+						return 90;
+					}
+					return prev + 10;
+				});
+			}, 100);
+		} catch (error) {
+			console.error("Error uploading image:", error);
+			toast.error("Failed to upload image");
+			setIsUploading(false);
+			setUploadProgress(0);
+		}
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -121,14 +221,14 @@ export function AccommodationFormModal({
 
 			const method = editingUnit ? "PUT" : "POST";
 
-			console.log({ formData });
+			console.log({ formData, applyToAllUnits });
 
 			const response = await fetch(url, {
 				method,
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(formData),
+				body: JSON.stringify({ ...formData, applyToAllUnits }),
 			});
 
 			if (!response.ok) {
@@ -151,6 +251,7 @@ export function AccommodationFormModal({
 			);
 		} finally {
 			setLoading(false);
+			setApplyToAllUnits(false);
 		}
 	};
 
@@ -352,16 +453,66 @@ export function AccommodationFormModal({
 						)}
 
 						<div className='space-y-2'>
-							<Label htmlFor='blockImageUrl'>Block Image URL</Label>
-							<Input
-								id='blockImageUrl'
-								type='url'
-								value={formData.blockImageUrl}
-								onChange={(e) =>
-									setFormData({ ...formData, blockImageUrl: e.target.value })
-								}
-								placeholder='https://example.com/image.jpg'
+							<Label htmlFor='blockImageUrl'>Block Image</Label>
+							<div className='flex gap-2'>
+								<Input
+									id='blockImageUrl'
+									type='url'
+									value={formData.blockImageUrl}
+									onChange={(e) =>
+										setFormData({ ...formData, blockImageUrl: e.target.value })
+									}
+									placeholder='https://example.com/image.jpg'
+									className='flex-1'
+								/>
+								<input
+									ref={fileInputRef}
+									type='file'
+									accept='image/*'
+									onChange={handleImageUpload}
+									className='hidden'
+								/>
+								<Button
+									type='button'
+									variant='outline'
+									onClick={() => fileInputRef.current?.click()}
+									disabled={isUploading}
+									className='flex items-center gap-2'>
+									<Upload className='h-4 w-4' />
+									Upload
+								</Button>
+							</div>
+							{isUploading && (
+								<div className='space-y-2'>
+									<Progress value={uploadProgress} className='h-2' />
+									<p className='text-sm text-muted-foreground'>
+										Uploading image... {uploadProgress}%
+									</p>
+								</div>
+							)}
+							{formData.blockImageUrl &&
+								formData.blockImageUrl.startsWith("data:") && (
+									<div className='mt-2'>
+										<img
+											src={formData.blockImageUrl}
+											alt='Block preview'
+											className='h-32 w-auto rounded border'
+										/>
+									</div>
+								)}
+						</div>
+
+						<div className='flex items-center space-x-2'>
+							<Switch
+								id='applyToAllUnits'
+								checked={applyToAllUnits}
+								onCheckedChange={setApplyToAllUnits}
+								disabled={!formData.blockImageUrl || !formData.quarterName}
 							/>
+							<Label htmlFor='applyToAllUnits' className='text-sm'>
+								Apply image to all units in{" "}
+								{formData.quarterName || "this quarter"}
+							</Label>
 						</div>
 					</div>
 

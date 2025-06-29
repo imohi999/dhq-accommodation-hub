@@ -33,28 +33,37 @@ export async function PUT(
 ) {
   try {
     const body = await request.json()
+    const { applyToAllUnits, ...updateData } = body
+
+    // If applyToAllUnits is true and blockImageUrl is provided, update all units with the same quarterName
+    if (applyToAllUnits && updateData.blockImageUrl && updateData.quarterName) {
+      await prisma.dhqLivingUnit.updateMany({
+        where: { quarterName: updateData.quarterName },
+        data: { blockImageUrl: updateData.blockImageUrl }
+      })
+    }
 
     const unit = await prisma.dhqLivingUnit.update({
       where: { id: params.id },
       data: {
-        quarterName: body.quarterName,
-        location: body.location,
-        category: body.category,
-        accommodationTypeId: body.accommodationTypeId,
-        noOfRooms: body.noOfRooms,
-        status: body.status,
-        typeOfOccupancy: body.typeOfOccupancy,
-        bq: body.bq,
-        noOfRoomsInBq: body.noOfRoomsInBq,
-        blockName: body.blockName,
-        flatHouseRoomName: body.flatHouseRoomName,
-        unitName: body.unitName,
-        blockImageUrl: body.blockImageUrl,
-        currentOccupantId: body.currentOccupantId,
-        currentOccupantName: body.currentOccupantName,
-        currentOccupantRank: body.currentOccupantRank,
-        currentOccupantServiceNumber: body.currentOccupantServiceNumber,
-        occupancyStartDate: body.occupancyStartDate ? new Date(body.occupancyStartDate) : null,
+        quarterName: updateData.quarterName,
+        location: updateData.location,
+        category: updateData.category,
+        accommodationTypeId: updateData.accommodationTypeId,
+        noOfRooms: updateData.noOfRooms,
+        status: updateData.status,
+        typeOfOccupancy: updateData.typeOfOccupancy,
+        bq: updateData.bq,
+        noOfRoomsInBq: updateData.noOfRoomsInBq,
+        blockName: updateData.blockName,
+        flatHouseRoomName: updateData.flatHouseRoomName,
+        unitName: updateData.unitName,
+        blockImageUrl: updateData.blockImageUrl,
+        currentOccupantId: updateData.currentOccupantId,
+        currentOccupantName: updateData.currentOccupantName,
+        currentOccupantRank: updateData.currentOccupantRank,
+        currentOccupantServiceNumber: updateData.currentOccupantServiceNumber,
+        occupancyStartDate: updateData.occupancyStartDate ? new Date(updateData.occupancyStartDate) : null,
       },
       include: {
         accommodationType: true,

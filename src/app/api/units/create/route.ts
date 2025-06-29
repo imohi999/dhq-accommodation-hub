@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       flatHouseRoomName,
       unitName,
       blockImageUrl,
+      applyToAllUnits,
     } = body
 
     // Validate required fields
@@ -89,6 +90,17 @@ export async function POST(request: NextRequest) {
         accommodationType: true,
       }
     })
+
+    // If applyToAllUnits is true and blockImageUrl is provided, update all units with the same quarterName
+    if (applyToAllUnits && blockImageUrl && quarterName) {
+      await prisma.dhqLivingUnit.updateMany({
+        where: { 
+          quarterName: quarterName.trim(),
+          id: { not: newUnit.id } // Exclude the unit we just created
+        },
+        data: { blockImageUrl: blockImageUrl.trim() }
+      })
+    }
 
     return NextResponse.json(newUnit, { status: 201 })
   } catch (error) {
