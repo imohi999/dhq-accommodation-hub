@@ -2,6 +2,8 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { LoadingState } from "@/components/ui/spinner";
 import { Trash2, Edit } from "lucide-react";
 import { useState } from "react";
+import { MaintenanceFilters } from "./MaintenanceFilters";
+import { useMaintenanceFilters } from "@/hooks/useMaintenanceFilters";
 
 interface MaintenanceRequest {
 	id: string;
@@ -31,6 +33,35 @@ export function MaintenanceRequestTable({
 }) {
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 
+	// Use the maintenance filters hook
+	const {
+		searchTerm,
+		setSearchTerm,
+		statusFilter,
+		setStatusFilter,
+		priorityFilter,
+		setPriorityFilter,
+		categoryFilter,
+		setCategoryFilter,
+		unitTypeFilter,
+		setUnitTypeFilter,
+		filteredItems: filteredRequests,
+		availableUnitTypes,
+		availableCategories,
+	} = useMaintenanceFilters(
+		requests,
+		(request) => [
+			request.unitName,
+			request.issueDescription,
+			request.reportedBy,
+			request.remarks,
+		],
+		(request) => request.status,
+		(request) => request.priorityLevel,
+		(request) => request.issueCategory,
+		undefined // no unit type for requests
+	);
+
 	const handleDelete = async (id: string) => {
 		if (!onDelete) return;
 		setDeletingId(id);
@@ -43,14 +74,6 @@ export function MaintenanceRequestTable({
 
 	if (loading) {
 		return <LoadingState isLoading={true}>{null}</LoadingState>;
-	}
-
-	if (!requests.length) {
-		return (
-			<div className='p-8 text-center text-muted-foreground'>
-				No maintenance requests yet.
-			</div>
-		);
 	}
 
 	const getPriorityColor = (priority: string) => {
@@ -84,7 +107,30 @@ export function MaintenanceRequestTable({
 	};
 
 	return (
-		<div className='rounded-lg overflow-x-auto border shadow-sm bg-white dark:bg-card'>
+		<>
+			{/* Filters */}
+			<MaintenanceFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				statusFilter={statusFilter}
+				onStatusChange={setStatusFilter}
+				priorityFilter={priorityFilter}
+				onPriorityChange={setPriorityFilter}
+				categoryFilter={categoryFilter}
+				onCategoryChange={setCategoryFilter}
+				availableCategories={availableCategories}
+				isRequestView={true}
+			/>
+
+			{/* Table */}
+			{!filteredRequests.length ? (
+				<div className='p-8 text-center text-muted-foreground bg-white dark:bg-card rounded-lg border'>
+					{requests.length === 0 
+						? "No maintenance requests yet." 
+						: "No requests match your search criteria."}
+				</div>
+			) : (
+				<div className='rounded-lg overflow-x-auto border shadow-sm bg-white dark:bg-card'>
 			<table className='min-w-full text-sm'>
 				<thead>
 					<tr className='bg-muted text-foreground'>
@@ -100,7 +146,7 @@ export function MaintenanceRequestTable({
 					</tr>
 				</thead>
 				<tbody>
-					{requests.map((req) => (
+					{filteredRequests.map((req) => (
 						<tr key={req.id} className='border-b hover:bg-muted/50'>
 							<td className='p-3 font-medium'>{req.unitName}</td>
 							<td className='p-3'>{req.issueCategory}</td>
@@ -160,5 +206,7 @@ export function MaintenanceRequestTable({
 				</tbody>
 			</table>
 		</div>
+			)}
+		</>
 	);
 }

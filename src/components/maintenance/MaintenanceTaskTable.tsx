@@ -1,6 +1,10 @@
 import { LoadingButton } from "@/components/ui/loading-button";
 import { LoadingState } from "@/components/ui/spinner";
 import { Trash2, Edit } from "lucide-react";
+import { useState } from "react";
+import { MaintenanceFilters } from "./MaintenanceFilters";
+import { useMaintenanceFilters } from "@/hooks/useMaintenanceFilters";
+
 interface MaintenanceTask {
 	id: string;
 	unitId: string;
@@ -14,7 +18,6 @@ interface MaintenanceTask {
 	createdAt: string;
 	updatedAt: string;
 }
-import { useState } from "react";
 
 export function MaintenanceTaskTable({
 	tasks,
@@ -28,6 +31,30 @@ export function MaintenanceTaskTable({
 	onDelete?: (id: string) => void;
 }) {
 	const [deletingId, setDeletingId] = useState<string | null>(null);
+
+	// Use the maintenance filters hook
+	const {
+		searchTerm,
+		setSearchTerm,
+		statusFilter,
+		setStatusFilter,
+		unitTypeFilter,
+		setUnitTypeFilter,
+		filteredItems: filteredTasks,
+		availableUnitTypes,
+	} = useMaintenanceFilters(
+		tasks,
+		(task) => [
+			task.unitName,
+			task.taskName,
+			task.taskDescription,
+			task.remarks,
+		],
+		(task) => task.status,
+		undefined, // no priority for tasks
+		undefined, // no category for tasks
+		undefined // no unit type for tasks
+	);
 
 	const handleDelete = async (id: string) => {
 		if (!onDelete) return;
@@ -43,16 +70,25 @@ export function MaintenanceTaskTable({
 		return <LoadingState isLoading={true}>{null}</LoadingState>;
 	}
 
-	if (!tasks.length) {
-		return (
-			<div className='p-8 text-center text-muted-foreground'>
-				No maintenance tasks yet.
-			</div>
-		);
-	}
-
 	return (
-		<div className='rounded-lg overflow-x-auto border shadow-sm dark:bg-card'>
+		<>
+			{/* Filters */}
+			<MaintenanceFilters
+				searchTerm={searchTerm}
+				onSearchChange={setSearchTerm}
+				statusFilter={statusFilter}
+				onStatusChange={setStatusFilter}
+			/>
+
+			{/* Table */}
+			{!filteredTasks.length ? (
+				<div className='p-8 text-center text-muted-foreground bg-white dark:bg-card rounded-lg border'>
+					{tasks.length === 0 
+						? "No maintenance tasks yet." 
+						: "No tasks match your search criteria."}
+				</div>
+			) : (
+				<div className='rounded-lg overflow-x-auto border shadow-sm dark:bg-card'>
 			<table className='min-w-full text-sm'>
 				<thead>
 					<tr className='bg-muted text-foreground'>
@@ -67,7 +103,7 @@ export function MaintenanceTaskTable({
 					</tr>
 				</thead>
 				<tbody>
-					{tasks.map((task) => (
+					{filteredTasks.map((task) => (
 						<tr key={task.id} className='border-b hover:bg-muted/50'>
 							<td className='p-3'>{task.unitName}</td>
 							<td className='p-3 font-medium'>{task.taskName}</td>
@@ -127,5 +163,7 @@ export function MaintenanceTaskTable({
 				</tbody>
 			</table>
 		</div>
+			)}
+		</>
 	);
 }

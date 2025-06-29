@@ -151,7 +151,7 @@ export function ClearanceView() {
 									<TableRow>
 										<TableHead>Service No</TableHead>
 										<TableHead>Name</TableHead>
-										<TableHead>Unit</TableHead>
+										<TableHead>Quarters</TableHead>
 										<TableHead>Allocation Period</TableHead>
 										<TableHead>Inspections</TableHead>
 										<TableHead>Actions</TableHead>
