@@ -7,6 +7,8 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +33,7 @@ export const TransferRequestModal = ({
 }: TransferRequestModalProps) => {
 	const { units } = useAllUnits();
 	const [viewMode, setViewMode] = useState<"card" | "compact">("card");
+	const [searchTerm, setSearchTerm] = useState("");
 	const [confirmDialog, setConfirmDialog] = useState<{
 		isOpen: boolean;
 		unit: DHQLivingUnitWithHousingType | null;
@@ -46,11 +49,19 @@ export const TransferRequestModal = ({
 	);
 
 	// Filter vacant units that match the personnel's category
-
 	console.log({ units: units.length });
 
-	const availableUnits = units.filter(
+	const eligibleUnits = units.filter(
 		(unit) => unit.status === "Vacant" && unit.category === currentUnit.category
+	);
+
+	// Filter units based on search term
+	const filteredUnits = eligibleUnits.filter(
+		(unit) =>
+			unit.quarterName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			unit.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			unit.blockName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			unit.flatHouseRoomName.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
 	const handleRequestTransferClick = (unit: DHQLivingUnitWithHousingType) => {
@@ -131,7 +142,7 @@ export const TransferRequestModal = ({
 						<DialogDescription>
 							Request re-allocation for {currentUnit.currentOccupantName} to
 							another unit. This will proceed with immediate transfer. Showing{" "}
-							{availableUnits.length} vacant{" "}
+							{filteredUnits.length} of {eligibleUnits.length} vacant{" "}
 							{currentUnit.category.toLowerCase()} units.
 						</DialogDescription>
 					</DialogHeader>
@@ -185,6 +196,25 @@ export const TransferRequestModal = ({
 							</CardContent>
 						</Card>
 
+						{/* Search Bar */}
+						<div className='space-y-2'>
+							<div className='flex items-center justify-between'>
+								<Label htmlFor='search'>
+									Search Available {currentUnit.category} Units
+								</Label>
+								<Badge variant='outline' className='text-xs'>
+									{filteredUnits.length} of {eligibleUnits.length} units available
+								</Badge>
+							</div>
+
+							<Input
+								id='search'
+								placeholder='Search by quarter, location, block, or room...'
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+							/>
+						</div>
+
 						{/* View Toggle */}
 						<div className='flex gap-2'>
 							<Button
@@ -202,13 +232,20 @@ export const TransferRequestModal = ({
 						</div>
 
 						{/* Available Units List */}
-						{availableUnits.length === 0 ? (
+						{filteredUnits.length === 0 ? (
 							<Card>
 								<CardContent className='p-8 text-center'>
 									<p className='text-muted-foreground'>
-										No vacant {currentUnit.category.toLowerCase()} units
-										available
+										{eligibleUnits.length === 0 
+											? `No vacant ${currentUnit.category.toLowerCase()} units available`
+											: 'No units match your search criteria'
+										}
 									</p>
+									{eligibleUnits.length > 0 && searchTerm && (
+										<p className='text-sm text-muted-foreground mt-2'>
+											Try adjusting your search terms
+										</p>
+									)}
 								</CardContent>
 							</Card>
 						) : (
@@ -216,7 +253,7 @@ export const TransferRequestModal = ({
 								className={
 									viewMode === "card" ? "space-y-4" : "grid grid-cols-2 gap-4"
 								}>
-								{availableUnits.map((unit) => (
+								{filteredUnits.map((unit) => (
 									<Card
 										key={unit.id}
 										className='hover:shadow-md transition-shadow'>
