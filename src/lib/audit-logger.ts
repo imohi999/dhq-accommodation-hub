@@ -20,6 +20,7 @@ export type AuditAction =
   | 'MAINTAIN'
   | 'IMPORT'
   | 'IMPORT ACCOMMODATION UNITS'
+  | 'SESSION_INVALIDATED'
 
 export type EntityType =
   | 'user'
@@ -123,7 +124,7 @@ export class AuditLogger {
 
   static async logAuth(
     userId: string,
-    action: 'LOGIN' | 'LOGOUT' | 'SIGNUP' | 'FAILED_LOGIN',
+    action: 'LOGIN' | 'LOGOUT' | 'SIGNUP' | 'FAILED_LOGIN' | 'SESSION_INVALIDATED',
     additionalData?: any
   ): Promise<void> {
     await this.log({
