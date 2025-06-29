@@ -107,7 +107,7 @@ export default function DHQLivingUnits() {
 						DHQ Accommodation
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage accommodation units for military personnel
+						Manage accommodation for military personnel
 					</p>
 				</div>
 				<div className='flex gap-2'>

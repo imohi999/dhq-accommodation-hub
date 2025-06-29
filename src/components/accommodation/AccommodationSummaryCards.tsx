@@ -34,34 +34,40 @@ export const AccommodationSummaryCards = ({
 		vacant: 0,
 		occupied: 0,
 		notInUse: 0,
-		byCategory: { men: 0, nco: 0, officer: 0 },
+		byCategory: { nco: 0, officer: 0 },
 	};
 
 	const statusDescription = `${data.vacant} Vacant, ${data.occupied} Occupied, ${data.notInUse} Not In Use`;
-	const categoryDescription = `${data.byCategory.officer} Officers, ${data.byCategory.nco} NCOs, ${data.byCategory.men} Men`;
+	const categoryDescription = `${data.byCategory.officer} Officers, ${data.byCategory.nco} NCOs`;
 
 	const summaryData = [
 		{
 			title: "Total Units",
 			value: loading ? "..." : data.total.toLocaleString(),
-			description: "Total accommodation units",
+			description: "Total accommodation ",
 			icon: Building,
 		},
 		{
 			title: "Occupancy",
-			value: loading ? "..." : `${data.occupied}/${data.total}`,
+			value: loading
+				? "..."
+				: `${data.occupied}/${data.total}/${data.notInUse}`,
 			description: statusDescription,
 			icon: Home,
 		},
 		{
 			title: "Categories",
-			value: loading ? "..." : `${data.byCategory.officer + data.byCategory.nco + data.byCategory.men}`,
+			value: loading
+				? "..."
+				: `${data.byCategory.officer + data.byCategory.nco}`,
 			description: categoryDescription,
 			icon: Users,
 		},
 		{
 			title: "Availability",
-			value: loading ? "..." : `${Math.round((data.vacant / (data.total || 1)) * 100)}%`,
+			value: loading
+				? "..."
+				: `${Math.round((data.vacant / (data.total || 1)) * 100)}%`,
 			description: `${data.vacant} units available`,
 			icon: Activity,
 		},
