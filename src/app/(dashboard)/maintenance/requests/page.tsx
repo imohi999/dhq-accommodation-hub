@@ -32,9 +32,9 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MaintenanceRequestsPage() {
 	const { hasPermission } = usePermissions();
-	const canCreateRequest = hasPermission('maintenance.requests', 'new_request');
-	const canEditRequest = hasPermission('maintenance.requests', 'edit');
-	const canDeleteRequest = hasPermission('maintenance.requests', 'delete');
+	const canCreateRequest = hasPermission("maintenance.requests", "new_request");
+	const canEditRequest = hasPermission("maintenance.requests", "edit");
+	const canDeleteRequest = hasPermission("maintenance.requests", "delete");
 
 	const [showForm, setShowForm] = useState(false);
 	const [editingRequest, setEditingRequest] =
@@ -104,7 +104,7 @@ export default function MaintenanceRequestsPage() {
 						Maintenance Requests
 					</h1>
 					<p className='text-muted-foreground'>
-						Manage maintenance requests for accommodation units
+						Manage maintenance requests for accommodation
 					</p>
 				</div>
 				{canCreateRequest && (
