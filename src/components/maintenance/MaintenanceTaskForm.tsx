@@ -50,8 +50,22 @@ export function MaintenanceTaskForm({
 	});
 	const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
 	const [submitting, setSubmitting] = useState(false);
+	const [searchTerm, setSearchTerm] = useState("");
 
 	const { units, loading } = useAllUnits();
+
+	// Filter units based on search term
+	const filteredUnits = units.filter((unit) => {
+		if (!searchTerm) return true;
+		const searchLower = searchTerm.toLowerCase();
+		return (
+			unit.unitName?.toLowerCase().includes(searchLower) ||
+			unit.quarterName?.toLowerCase().includes(searchLower) ||
+			unit.location?.toLowerCase().includes(searchLower) ||
+			unit.blockName?.toLowerCase().includes(searchLower) ||
+			unit.flatHouseRoomName?.toLowerCase().includes(searchLower)
+		);
+	});
 
 	useEffect(() => {
 		if (initial) {
@@ -86,11 +100,11 @@ export function MaintenanceTaskForm({
 	};
 
 	const handleSelectAll = () => {
-		if (selectedUnits.length === units.length) {
+		if (selectedUnits.length === filteredUnits.length) {
 			setSelectedUnits([]);
 		} else {
 			setSelectedUnits(
-				units.map((unit: DHQLivingUnitWithHousingType) => unit.id)
+				filteredUnits.map((unit: DHQLivingUnitWithHousingType) => unit.id)
 			);
 		}
 	};
@@ -266,36 +280,70 @@ export function MaintenanceTaskForm({
 				<div className='border-t pt-6'>
 					<h3 className='text-lg font-semibold mb-4'>Select Quarters</h3>
 
+					{/* Search Bar */}
+					<div className='mb-4'>
+						<Label htmlFor='search' className='mb-2'>Search Quarters</Label>
+						<Input
+							id='search'
+							type='text'
+							placeholder='Search by quarter name, location, block, or room...'
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+							className='w-full'
+						/>
+					</div>
+
 					<div className='mt-4 mb-2'>
-						<div className='flex items-center space-x-2'>
-							<Checkbox
-								id='selectAll'
-								checked={
-									selectedUnits.length === units.length && units.length > 0
-								}
-								onCheckedChange={handleSelectAll}
-							/>
-							<label htmlFor='selectAll' className='text-sm font-medium'>
-								Select All ({units.length} quarters)
-							</label>
+						<div className='flex items-center justify-between'>
+							<div className='flex items-center space-x-2'>
+								<Checkbox
+									id='selectAll'
+									checked={
+										selectedUnits.length === filteredUnits.length && 
+										filteredUnits.length > 0
+									}
+									onCheckedChange={handleSelectAll}
+								/>
+								<label htmlFor='selectAll' className='text-sm font-medium'>
+									Select All ({filteredUnits.length} quarters)
+								</label>
+							</div>
+							{searchTerm && (
+								<span className='text-sm text-muted-foreground'>
+									Showing {filteredUnits.length} of {units.length} quarters
+								</span>
+							)}
 						</div>
 					</div>
 
 					<div className='max-h-64 overflow-y-auto border rounded-lg'>
-						<div className='grid gap-2 p-4'>
-							{units.map((unit: DHQLivingUnitWithHousingType) => (
-								<div key={unit.id} className='flex items-center space-x-2'>
-									<Checkbox
-										id={unit.id}
-										checked={selectedUnits.includes(unit.id)}
-										onCheckedChange={() => handleUnitToggle(unit.id)}
-									/>
-									<label htmlFor={unit.id} className='text-sm'>
-										{unit.unitName} - {unit.quarterName} ({unit.status})
-									</label>
-								</div>
-							))}
-						</div>
+						{filteredUnits.length === 0 ? (
+							<div className='p-8 text-center text-muted-foreground'>
+								{searchTerm ? (
+									<>
+										<p>No quarters match your search criteria</p>
+										<p className='text-sm mt-2'>Try adjusting your search terms</p>
+									</>
+								) : (
+									<p>No quarters available</p>
+								)}
+							</div>
+						) : (
+							<div className='grid gap-2 p-4'>
+								{filteredUnits.map((unit: DHQLivingUnitWithHousingType) => (
+									<div key={unit.id} className='flex items-center space-x-2'>
+										<Checkbox
+											id={unit.id}
+											checked={selectedUnits.includes(unit.id)}
+											onCheckedChange={() => handleUnitToggle(unit.id)}
+										/>
+										<label htmlFor={unit.id} className='text-sm'>
+											{unit.unitName} - {unit.quarterName} ({unit.status})
+										</label>
+									</div>
+								))}
+							</div>
+						)}
 					</div>
 
 					<div className='mt-2 text-sm text-muted-foreground'>
