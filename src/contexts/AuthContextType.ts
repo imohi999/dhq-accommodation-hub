@@ -51,6 +51,7 @@ export interface AuthContextType {
   signIn: (username: string, password: string) => Promise<{ error: AuthError | null }>;
   signUp: (email: string, username: string, password: string, fullName?: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
+  changePassword: (userId: string, currentPassword: string | null, newPassword: string) => Promise<{ error: AuthError | null }>;
   loading: boolean;
 }
 

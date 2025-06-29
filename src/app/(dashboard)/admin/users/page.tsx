@@ -24,7 +24,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Shield, UserPlus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Edit, Shield, UserPlus, Trash2, Eye, EyeOff, Key } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -249,19 +249,19 @@ function PermissionRow({
 		pageKey as keyof typeof PAGE_ACTIONS
 	] || ["access"];
 
-	const allActionsSelected = availableActions.every(action => 
+	const allActionsSelected = availableActions.every((action) =>
 		userActions.includes(action)
 	);
 
 	const handleSelectAll = () => {
 		if (allActionsSelected) {
 			// Deselect all actions
-			availableActions.forEach(action => {
+			availableActions.forEach((action) => {
 				onActionChange(pageKey, action, false);
 			});
 		} else {
 			// Select all actions
-			availableActions.forEach(action => {
+			availableActions.forEach((action) => {
 				if (!userActions.includes(action)) {
 					onActionChange(pageKey, action, true);
 				}
@@ -316,8 +316,10 @@ export default function UserManagementPage() {
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 	const [editingUser, setEditingUser] = useState<Profile | null>(null);
 	const [deletingUser, setDeletingUser] = useState<Profile | null>(null);
+	const [passwordChangeUser, setPasswordChangeUser] = useState<Profile | null>(null);
 	const [userPermissions, setUserPermissions] = useState<
 		Record<string, string[]>
 	>({});
@@ -331,9 +333,18 @@ export default function UserManagementPage() {
 	const [newUserPermissions, setNewUserPermissions] = useState<
 		Record<string, string[]>
 	>({});
+	const [passwordData, setPasswordData] = useState({
+		currentPassword: "",
+		newPassword: "",
+		confirmPassword: "",
+	});
 	const [isCreating, setIsCreating] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [isChangingPassword, setIsChangingPassword] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
+	const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+	const [showNewPassword, setShowNewPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 	const isSuperAdmin = user?.profile?.role === "superadmin";
 
@@ -571,6 +582,66 @@ export default function UserManagementPage() {
 		}
 	};
 
+	const handleChangePassword = async () => {
+		if (!passwordChangeUser) return;
+
+		// Validate passwords
+		if (!passwordData.newPassword) {
+			toast.error("Please enter a new password");
+			return;
+		}
+
+		if (passwordData.newPassword.length < 8) {
+			toast.error("Password must be at least 8 characters long");
+			return;
+		}
+
+		if (passwordData.newPassword !== passwordData.confirmPassword) {
+			toast.error("Passwords do not match");
+			return;
+		}
+
+		// If changing own password, require current password
+		const isChangingOwnPassword = passwordChangeUser.userId === user?.id;
+		if (isChangingOwnPassword && !passwordData.currentPassword) {
+			toast.error("Please enter your current password");
+			return;
+		}
+
+		setIsChangingPassword(true);
+		try {
+			const response = await fetch("/api/auth/change-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					userId: passwordChangeUser.userId,
+					currentPassword: isChangingOwnPassword ? passwordData.currentPassword : null,
+					newPassword: passwordData.newPassword,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				toast.error(data.error || "Failed to change password");
+			} else {
+				toast.success("Password changed successfully");
+				setIsPasswordModalOpen(false);
+				setPasswordChangeUser(null);
+				setPasswordData({
+					currentPassword: "",
+					newPassword: "",
+					confirmPassword: "",
+				});
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			toast.error("An unexpected error occurred");
+		} finally {
+			setIsChangingPassword(false);
+		}
+	};
+
 	const handleUpdateUser = async () => {
 		if (!editingUser) return;
 
@@ -657,7 +728,7 @@ export default function UserManagementPage() {
 	return (
 		<div className='flex-1 space-y-4 p-4 md:p-8 pt-6'>
 			<div className='flex items-center justify-between space-y-2'>
-				<h2 className='text-3xl font-bold tracking-tight text-foreground'>
+				<h2 className='text-xl font-bold tracking-tight text-foreground'>
 					User Management
 				</h2>
 				<Button onClick={() => setIsCreateModalOpen(true)}>
@@ -668,7 +739,7 @@ export default function UserManagementPage() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Users ({profiles.length})</CardTitle>
+					<CardTitle className='text-xl'>Users ({profiles.length})</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<Table>
@@ -710,6 +781,21 @@ export default function UserManagementPage() {
 												}}>
 												<Edit className='w-3 h-3 mr-1' />
 												Edit Permissions
+											</Button>
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => {
+													setPasswordChangeUser(profile);
+													setIsPasswordModalOpen(true);
+													setPasswordData({
+														currentPassword: "",
+														newPassword: "",
+														confirmPassword: "",
+													});
+												}}>
+												<Key className='w-3 h-3 mr-1' />
+												Change Password
 											</Button>
 											{profile.role !== "superadmin" && (
 												<Button
@@ -769,23 +855,27 @@ export default function UserManagementPage() {
 										</p>
 									</div>
 									<Button
-										type="button"
-										variant="outline"
-										size="sm"
+										type='button'
+										variant='outline'
+										size='sm'
 										onClick={() => {
 											const newPermissions: Record<string, string[]> = {};
-											PAGES.forEach(page => {
-												const actions = PAGE_ACTIONS[page.key as keyof typeof PAGE_ACTIONS] || [];
+											PAGES.forEach((page) => {
+												const actions =
+													PAGE_ACTIONS[page.key as keyof typeof PAGE_ACTIONS] ||
+													[];
 												newPermissions[page.key] = [...actions];
-												page.children.forEach(child => {
-													const childActions = PAGE_ACTIONS[child.key as keyof typeof PAGE_ACTIONS] || [];
+												page.children.forEach((child) => {
+													const childActions =
+														PAGE_ACTIONS[
+															child.key as keyof typeof PAGE_ACTIONS
+														] || [];
 													newPermissions[child.key] = [...childActions];
 												});
 											});
 											setUserPermissions(newPermissions);
 										}}
-										className="text-xs"
-									>
+										className='text-xs'>
 										Grant All Permissions
 									</Button>
 								</div>
@@ -869,7 +959,7 @@ export default function UserManagementPage() {
 							<div className='relative'>
 								<Input
 									id='password'
-									type={showPassword ? 'text' : 'password'}
+									type={showPassword ? "text" : "password"}
 									value={newUserData.password}
 									onChange={(e) =>
 										setNewUserData({ ...newUserData, password: e.target.value })
@@ -877,8 +967,8 @@ export default function UserManagementPage() {
 									placeholder='Enter password (min 8 characters)'
 									className={`pr-10 ${
 										newUserData.password && newUserData.password.length < 8
-											? 'border-destructive'
-											: ''
+											? "border-destructive"
+											: ""
 									}`}
 								/>
 								<Button
@@ -886,8 +976,7 @@ export default function UserManagementPage() {
 									variant='ghost'
 									size='sm'
 									className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
-									onClick={() => setShowPassword(!showPassword)}
-								>
+									onClick={() => setShowPassword(!showPassword)}>
 									{showPassword ? (
 										<EyeOff className='h-4 w-4 text-muted-foreground' />
 									) : (
@@ -939,23 +1028,27 @@ export default function UserManagementPage() {
 									</p>
 								</div>
 								<Button
-									type="button"
-									variant="outline"
-									size="sm"
+									type='button'
+									variant='outline'
+									size='sm'
 									onClick={() => {
 										const newPermissions: Record<string, string[]> = {};
-										PAGES.forEach(page => {
-											const actions = PAGE_ACTIONS[page.key as keyof typeof PAGE_ACTIONS] || [];
+										PAGES.forEach((page) => {
+											const actions =
+												PAGE_ACTIONS[page.key as keyof typeof PAGE_ACTIONS] ||
+												[];
 											newPermissions[page.key] = [...actions];
-											page.children.forEach(child => {
-												const childActions = PAGE_ACTIONS[child.key as keyof typeof PAGE_ACTIONS] || [];
+											page.children.forEach((child) => {
+												const childActions =
+													PAGE_ACTIONS[
+														child.key as keyof typeof PAGE_ACTIONS
+													] || [];
 												newPermissions[child.key] = [...childActions];
 											});
 										});
 										setNewUserPermissions(newPermissions);
 									}}
-									className="text-xs"
-								>
+									className='text-xs'>
 									Grant All Permissions
 								</Button>
 							</div>
@@ -1037,6 +1130,185 @@ export default function UserManagementPage() {
 									className='flex-1'
 									loading={isDeleting}>
 									Delete User
+								</LoadingButton>
+							</div>
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
+
+			{/* Change Password Dialog */}
+			<Dialog
+				open={isPasswordModalOpen}
+				onOpenChange={(open) => {
+					setIsPasswordModalOpen(open);
+					if (!open) {
+						setPasswordChangeUser(null);
+						setPasswordData({
+							currentPassword: "",
+							newPassword: "",
+							confirmPassword: "",
+						});
+						setShowCurrentPassword(false);
+						setShowNewPassword(false);
+						setShowConfirmPassword(false);
+					}
+				}}>
+				<DialogContent className='max-w-md'>
+					<DialogHeader>
+						<DialogTitle>Change Password</DialogTitle>
+					</DialogHeader>
+					{passwordChangeUser && (
+						<div className='space-y-4'>
+							<div className='space-y-2 bg-muted p-3 rounded-md'>
+								<p className='text-sm font-medium'>
+									User: {passwordChangeUser.user.username}
+								</p>
+								<p className='text-sm text-muted-foreground'>
+									Email: {passwordChangeUser.user.email}
+								</p>
+								<p className='text-sm text-muted-foreground'>
+									Role: {passwordChangeUser.role}
+								</p>
+							</div>
+
+							{/* Show current password field only if changing own password */}
+							{passwordChangeUser.userId === user?.id && (
+								<div className='space-y-2'>
+									<Label htmlFor='currentPassword'>Current Password</Label>
+									<div className='relative'>
+										<Input
+											id='currentPassword'
+											type={showCurrentPassword ? "text" : "password"}
+											value={passwordData.currentPassword}
+											onChange={(e) =>
+												setPasswordData({
+													...passwordData,
+													currentPassword: e.target.value,
+												})
+											}
+											placeholder='Enter your current password'
+										/>
+										<Button
+											type='button'
+											variant='ghost'
+											size='sm'
+											className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+											onClick={() => setShowCurrentPassword(!showCurrentPassword)}>
+											{showCurrentPassword ? (
+												<EyeOff className='h-4 w-4 text-muted-foreground' />
+											) : (
+												<Eye className='h-4 w-4 text-muted-foreground' />
+											)}
+										</Button>
+									</div>
+								</div>
+							)}
+
+							<div className='space-y-2'>
+								<Label htmlFor='newPassword'>New Password</Label>
+								<div className='relative'>
+									<Input
+										id='newPassword'
+										type={showNewPassword ? "text" : "password"}
+										value={passwordData.newPassword}
+										onChange={(e) =>
+											setPasswordData({
+												...passwordData,
+												newPassword: e.target.value,
+											})
+										}
+										placeholder='Enter new password (min 8 characters)'
+										className={`pr-10 ${
+											passwordData.newPassword &&
+											passwordData.newPassword.length < 8
+												? "border-destructive"
+												: ""
+										}`}
+									/>
+									<Button
+										type='button'
+										variant='ghost'
+										size='sm'
+										className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+										onClick={() => setShowNewPassword(!showNewPassword)}>
+										{showNewPassword ? (
+											<EyeOff className='h-4 w-4 text-muted-foreground' />
+										) : (
+											<Eye className='h-4 w-4 text-muted-foreground' />
+										)}
+									</Button>
+								</div>
+								{passwordData.newPassword &&
+									passwordData.newPassword.length < 8 && (
+										<p className='text-sm text-destructive'>
+											Password must be at least 8 characters long
+										</p>
+									)}
+							</div>
+
+							<div className='space-y-2'>
+								<Label htmlFor='confirmPassword'>Confirm New Password</Label>
+								<div className='relative'>
+									<Input
+										id='confirmPassword'
+										type={showConfirmPassword ? "text" : "password"}
+										value={passwordData.confirmPassword}
+										onChange={(e) =>
+											setPasswordData({
+												...passwordData,
+												confirmPassword: e.target.value,
+											})
+										}
+										placeholder='Confirm new password'
+										className={`pr-10 ${
+											passwordData.confirmPassword &&
+											passwordData.newPassword !== passwordData.confirmPassword
+												? "border-destructive"
+												: ""
+										}`}
+									/>
+									<Button
+										type='button'
+										variant='ghost'
+										size='sm'
+										className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+										onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+										{showConfirmPassword ? (
+											<EyeOff className='h-4 w-4 text-muted-foreground' />
+										) : (
+											<Eye className='h-4 w-4 text-muted-foreground' />
+										)}
+									</Button>
+								</div>
+								{passwordData.confirmPassword &&
+									passwordData.newPassword !== passwordData.confirmPassword && (
+										<p className='text-sm text-destructive'>
+											Passwords do not match
+										</p>
+									)}
+							</div>
+
+							<div className='flex gap-2'>
+								<Button
+									variant='outline'
+									onClick={() => {
+										setIsPasswordModalOpen(false);
+										setPasswordChangeUser(null);
+										setPasswordData({
+											currentPassword: "",
+											newPassword: "",
+											confirmPassword: "",
+										});
+									}}
+									className='flex-1'>
+									Cancel
+								</Button>
+								<LoadingButton
+									onClick={handleChangePassword}
+									className='flex-1'
+									loading={isChangingPassword}>
+									Change Password
 								</LoadingButton>
 							</div>
 						</div>

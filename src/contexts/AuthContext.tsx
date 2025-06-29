@@ -139,12 +139,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const changePassword = async (userId: string, currentPassword: string | null, newPassword: string) => {
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, currentPassword, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Change password error:', data.error);
+        toast.error(data.error || 'Failed to change password');
+        return { error: data.error };
+      } else {
+        toast.success('Password changed successfully');
+        return { error: null };
+      }
+    } catch (error) {
+      console.error('Unexpected change password error:', error);
+      toast.error('An unexpected error occurred');
+      return { error };
+    }
+  };
+
   const value = {
     user,
     session,
     signIn,
     signUp,
     signOut,
+    changePassword,
     loading: isLoading,
   };
 

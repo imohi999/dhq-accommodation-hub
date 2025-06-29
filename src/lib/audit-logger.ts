@@ -40,7 +40,7 @@ interface AuditLogOptions {
   entityId?: string;
   oldData?: any;
   newData?: any;
-  macAddress?: string;
+  ipAddress?: string;
   userAgent?: string;
 }
 
@@ -49,7 +49,7 @@ export class AuditLogger {
     try {
       // Get MAC address and user agent from headers if not provided
       const headersList = headers();
-      const macAddress = options.macAddress ||
+      const ipAddress = options.ipAddress ||
         headersList.get('x-forwarded-for')?.split(',')[0] ||
         headersList.get('x-real-ip') ||
         '00:00:00:00:00:00';
@@ -64,7 +64,7 @@ export class AuditLogger {
           entityId: options.entityId,
           oldData: options.oldData,
           newData: options.newData,
-          ipAddress: macAddress,
+          ipAddress: ipAddress,
           userAgent,
         },
       });
