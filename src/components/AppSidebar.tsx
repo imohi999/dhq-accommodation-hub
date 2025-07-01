@@ -193,6 +193,11 @@ const allMenuItems = [
 				title: "Authentication Info",
 				url: "/admin/auth-info",
 			},
+			{
+				key: "administration.manage-records",
+				title: "Manage Records",
+				url: "/admin/manage-records",
+			},
 		],
 	},
 ];
