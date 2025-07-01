@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, AlertTriangle } from "lucide-react";
 import { toast } from "react-toastify";
 import { AccommodationSummaryCards } from "@/components/accommodation/AccommodationSummaryCards";
 import { AccommodationFilters } from "@/components/accommodation/AccommodationFilters";
@@ -18,6 +18,14 @@ import { useAccommodationSummary } from "@/hooks/useAccommodationSummary";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
 import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 import { usePermissions } from "@/hooks/usePermissions";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function DHQLivingUnits() {
 	// Permission checks
@@ -40,6 +48,8 @@ export default function DHQLivingUnits() {
 	const [editingUnit, setEditingUnit] =
 		useState<DHQLivingUnitWithHousingType | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [unitToDelete, setUnitToDelete] = useState<string | null>(null);
 
 	// Get filters and pagination from the hook
 	const filters = useAccommodationFilters();
@@ -65,32 +75,37 @@ export default function DHQLivingUnits() {
 		setShowForm(true);
 	};
 
-	const handleDelete = async (id: string) => {
-		if (!confirm("Are you sure you want to delete this accommodation units?")) {
-			return;
-		}
+	const handleDelete = (id: string) => {
+		setUnitToDelete(id);
+		setShowDeleteDialog(true);
+	};
 
-		setDeleteLoading(id);
+	const confirmDelete = async () => {
+		if (!unitToDelete) return;
+
+		setDeleteLoading(unitToDelete);
+		setShowDeleteDialog(false);
+
 		try {
-			const response = await fetch(`/api/dhq-living-units/${id}`, {
+			const response = await fetch(`/api/dhq-living-units/${unitToDelete}`, {
 				method: "DELETE",
 			});
 
 			if (!response.ok) {
 				const error = await response.json();
 				console.error("Error deleting unit:", error);
-				toast.error(error.error || "Failed to delete accommodation units");
+				toast.error(error.error || "Failed to delete accommodation unit");
 				return;
 			}
 
-			toast.success("Accommodation units deleted successfully");
-
+			toast.success("Accommodation unit deleted successfully");
 			refetch();
 		} catch (error) {
 			console.error("Error:", error);
 			toast.error("An unexpected error occurred");
 		} finally {
 			setDeleteLoading(null);
+			setUnitToDelete(null);
 		}
 	};
 
@@ -222,6 +237,54 @@ export default function DHQLivingUnits() {
 				editingUnit={editingUnit}
 				housingTypes={housingTypes}
 			/>
+
+			{/* Delete Confirmation Dialog */}
+			<Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+				<DialogContent className="sm:max-w-[425px]">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-2">
+							<AlertTriangle className="h-5 w-5 text-destructive" />
+							Confirm Deletion
+						</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to delete this accommodation unit? This action cannot be undone.
+							<div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-md border border-amber-200 dark:border-amber-800">
+								<p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+									⚠️ Warning: Related data may exist
+								</p>
+								<p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+									If this unit has allocation history or other related records, the deletion may fail.
+								</p>
+							</div>
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setShowDeleteDialog(false);
+								setUnitToDelete(null);
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							variant="destructive"
+							onClick={confirmDelete}
+							disabled={deleteLoading === unitToDelete}
+						>
+							{deleteLoading === unitToDelete ? (
+								<div className="flex items-center gap-2">
+									<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+									Deleting...
+								</div>
+							) : (
+								"Delete"
+							)}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

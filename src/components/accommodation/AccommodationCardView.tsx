@@ -333,14 +333,29 @@ export const AccommodationCardView = ({
 											variant='outline'
 											size='sm'
 											onClick={() => onDelete(unit.id)}
+											disabled={deleteLoading === unit.id}
 											className='flex items-center gap-1 col-span-2'>
-											<Trash2 className='h-3 w-3' />
-											<span
-												className={`${
-													viewMode === "compact" ? "text-xs" : ""
-												}`}>
-												Delete
-											</span>
+											{deleteLoading === unit.id ? (
+												<>
+													<div className='w-3 h-3 border border-current border-t-transparent rounded-full animate-spin' />
+													<span
+														className={`${
+															viewMode === "compact" ? "text-xs" : ""
+														}`}>
+														Deleting...
+													</span>
+												</>
+											) : (
+												<>
+													<Trash2 className='h-3 w-3' />
+													<span
+														className={`${
+															viewMode === "compact" ? "text-xs" : ""
+														}`}>
+														Delete
+													</span>
+												</>
+											)}
 										</Button>
 									)}
 								</div>
