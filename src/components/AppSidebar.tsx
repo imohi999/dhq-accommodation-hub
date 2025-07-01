@@ -41,6 +41,18 @@ const allMenuItems = [
 		icon: Home,
 	},
 	{
+		key: "personnel",
+		title: "Personnel",
+		icon: Users,
+		items: [
+			{
+				key: "personnel.manage",
+				title: "Manage Personnel",
+				url: "/personnel",
+			},
+		],
+	},
+	{
 		key: "queue",
 		title: "Queue",
 		icon: List,

@@ -26,6 +26,7 @@ export type EntityType =
   | 'user'
   | 'profile'
   | 'queue'
+  | 'personnel'
   | 'allocation'
   | 'unit'
   | 'maintenance'

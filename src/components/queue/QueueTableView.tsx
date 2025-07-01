@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { QueueTableControls } from "@/components/queue/QueueTableControls";
 import { QueueItem } from "@/types/queue";
@@ -35,6 +36,9 @@ interface QueueTableViewProps {
 	deletingIds?: Set<string>;
 	canEdit?: boolean;
 	canDelete?: boolean;
+	selectedIds?: Set<string>;
+	onSelectItem?: (id: string, checked: boolean) => void;
+	showSelection?: boolean;
 }
 
 export const QueueTableView = ({
@@ -44,6 +48,9 @@ export const QueueTableView = ({
 	deletingIds = new Set(),
 	canEdit = true,
 	canDelete = true,
+	selectedIds = new Set(),
+	onSelectItem,
+	showSelection = false,
 }: QueueTableViewProps) => {
 	// Column visibility state - all visible by default
 	const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(
@@ -94,6 +101,11 @@ export const QueueTableView = ({
 					<Table>
 						<TableHeader>
 							<TableRow>
+								{showSelection && (
+									<TableHead className='w-[50px]'>
+										<span className="sr-only">Select</span>
+									</TableHead>
+								)}
 								{visibleColumns.sequence && (
 									<TableHead className='w-[60px]'>Seq</TableHead>
 								)}
@@ -133,6 +145,16 @@ export const QueueTableView = ({
 						<TableBody>
 							{queueItems.map((item, index) => (
 								<TableRow key={item.id}>
+									{showSelection && (
+										<TableCell>
+											<Checkbox
+												checked={selectedIds.has(item.id)}
+												onCheckedChange={(checked) => 
+													onSelectItem?.(item.id, checked as boolean)
+												}
+											/>
+										</TableCell>
+									)}
 									{visibleColumns.sequence && (
 										<TableCell className='font-medium'>#{index + 1}</TableCell>
 									)}
@@ -233,7 +255,9 @@ export const QueueTableView = ({
 								<TableRow>
 									<TableCell
 										colSpan={
-											Object.values(visibleColumns).filter(Boolean).length + 1
+											Object.values(visibleColumns).filter(Boolean).length + 
+											1 + // Actions column
+											(showSelection ? 1 : 0) // Selection column
 										}
 										className='text-center text-muted-foreground'>
 										No personnel matching current filters

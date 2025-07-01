@@ -14,6 +14,8 @@ export const PAGE_ACTIONS = {
   'allocations.clearance': ['access', 'inspect', 'generate_letter'],
   'allocations.stamp-settings': ['access', 'add_stamp', 'edit', 'delete'],
   'directory': ['access', 'export_data'],
+  'personnel': ['access'],
+  'personnel.manage': ['access', 'edit', 'delete', 'export'],
   'analytics': ['access'],
   'analytics.queue': ['access', 'export_report'],
   'analytics.pending': ['access', 'export_report'],

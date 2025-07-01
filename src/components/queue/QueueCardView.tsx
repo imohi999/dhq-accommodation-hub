@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QueueItem } from "@/types/queue";
-import { Phone, Users, ChevronDown, ChevronUp } from "lucide-react";
+import { Phone, Users, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -16,6 +17,12 @@ interface QueueCardViewProps {
 	onAllocate: (item: QueueItem) => void;
 	canEdit?: boolean;
 	canAllocate?: boolean;
+	onDelete?: (id: string) => void;
+	canDelete?: boolean;
+	selectedIds?: Set<string>;
+	onSelectItem?: (id: string, checked: boolean) => void;
+	showSelection?: boolean;
+	deletingIds?: Set<string>;
 }
 
 export const QueueCardView = ({
@@ -24,6 +31,12 @@ export const QueueCardView = ({
 	onAllocate,
 	canEdit = true,
 	canAllocate = true,
+	onDelete,
+	canDelete = false,
+	selectedIds = new Set(),
+	onSelectItem,
+	showSelection = false,
+	deletingIds = new Set(),
 }: QueueCardViewProps) => {
 	const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
@@ -48,6 +61,13 @@ export const QueueCardView = ({
 							{/* Header Section - Compact */}
 							<div className='flex items-center justify-between mb-3'>
 								<div className='flex items-center gap-3'>
+									{showSelection && onSelectItem && (
+										<Checkbox
+											checked={selectedIds.has(item.id)}
+											onCheckedChange={(checked) => onSelectItem(item.id, checked as boolean)}
+											className="mr-2"
+										/>
+									)}
 									<div className='flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full text-sm font-semibold text-blue-700'>
 										#{index + 1}
 									</div>
@@ -78,6 +98,26 @@ export const QueueCardView = ({
 											onClick={() => onAllocate(item)}
 											className='text-xs px-3 py-1 h-auto'>
 											Allocate
+										</Button>
+									)}
+									{canDelete && onDelete && (
+										<Button
+											variant='destructive'
+											size='sm'
+											onClick={() => onDelete(item.id)}
+											disabled={deletingIds.has(item.id)}
+											className='text-xs px-3 py-1 h-auto'>
+											{deletingIds.has(item.id) ? (
+												<div className="flex items-center gap-1">
+													<div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+													Deleting
+												</div>
+											) : (
+												<>
+													<Trash2 className='h-3 w-3 mr-1' />
+													Delete
+												</>
+											)}
 										</Button>
 									)}
 								</div>
