@@ -247,13 +247,22 @@ export default function DHQLivingUnits() {
 							Confirm Deletion
 						</DialogTitle>
 						<DialogDescription>
-							Are you sure you want to delete this accommodation unit? This action cannot be undone.
-							<div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-md border border-amber-200 dark:border-amber-800">
-								<p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-									⚠️ Warning: Related data may exist
+							Are you sure you want to delete this accommodation unit? This action cannot be undone and will permanently remove:
+							<ul className="list-disc list-inside mt-2 space-y-1">
+								<li>The accommodation unit details</li>
+								<li>All allocation requests for this unit</li>
+								<li>All past allocation history</li>
+								<li>All occupancy records</li>
+								<li>All inventory items</li>
+								<li>All maintenance records</li>
+								<li>All clearance inspections</li>
+							</ul>
+							<div className="mt-3 p-3 bg-destructive/10 rounded-md border border-destructive/20">
+								<p className="text-sm font-medium text-destructive">
+									⚠️ This is a permanent action
 								</p>
-								<p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-									If this unit has allocation history or other related records, the deletion may fail.
+								<p className="text-sm text-muted-foreground mt-1">
+									All data associated with this unit will be permanently deleted and cannot be recovered.
 								</p>
 							</div>
 						</DialogDescription>

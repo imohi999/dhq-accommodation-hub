@@ -77,34 +77,74 @@ export async function PUT(
   }
 }
 
-// DELETE: Delete a DHQ living unit
+// DELETE: Delete a DHQ living unit with cascading delete
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check if unit has any active allocations
-    const activeAllocations = await prisma.allocationRequest.count({
-      where: {
-        unitId: params.id,
-        status: { in: ['pending', 'approved'] },
-      },
+    // Use a transaction to ensure all deletions succeed or none do
+    await prisma.$transaction(async (tx) => {
+      // 1. Get past allocations IDs first for clearance inspections
+      const pastAllocationsToDelete = await tx.pastAllocation.findMany({
+        where: { unitId: params.id },
+        select: { id: true }
+      })
+      
+      // 2. Delete clearance inspections if there are past allocations
+      if (pastAllocationsToDelete.length > 0) {
+        await tx.clearanceInspection.deleteMany({
+          where: { 
+            pastAllocationId: { 
+              in: pastAllocationsToDelete.map(pa => pa.id) 
+            } 
+          }
+        })
+      }
+
+      // 3. Delete all related records in parallel where possible
+      await Promise.all([
+        tx.allocationRequest.deleteMany({
+          where: { unitId: params.id }
+        }),
+        tx.pastAllocation.deleteMany({
+          where: { unitId: params.id }
+        }),
+        tx.unitHistory.deleteMany({
+          where: { unitId: params.id }
+        }),
+        tx.unitInventory.deleteMany({
+          where: { unitId: params.id }
+        }),
+        tx.unitMaintenance.deleteMany({
+          where: { unitId: params.id }
+        }),
+        tx.unitOccupant.deleteMany({
+          where: { unitId: params.id }
+        })
+      ])
+
+      // 4. Finally, delete the unit itself
+      await tx.dhqLivingUnit.delete({
+        where: { id: params.id }
+      })
+    }, {
+      timeout: 30000 // 30 second timeout
     })
 
-    if (activeAllocations > 0) {
-      return NextResponse.json(
-        { error: 'Cannot delete unit with active allocations' },
-        { status: 400 }
-      )
-    }
-
-    await prisma.dhqLivingUnit.delete({
-      where: { id: params.id },
+    return NextResponse.json({ 
+      message: 'Unit and all related records deleted successfully' 
     })
-
-    return NextResponse.json({ message: 'Unit deleted successfully' })
   } catch (error) {
     const { message, status } = handlePrismaError(error)
+    
+    // Provide more user-friendly error message
+    if (message.includes('foreign key constraint')) {
+      return NextResponse.json({ 
+        error: 'Failed to delete unit due to database constraints. Please contact support if this issue persists.'
+      }, { status: 400 })
+    }
+    
     return NextResponse.json({ error: message }, { status })
   }
 }
