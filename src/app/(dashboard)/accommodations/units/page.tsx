@@ -62,7 +62,7 @@ export default function DHQLivingUnits() {
 		useAccommodationData(clientFilters);
 
 	// Fetch summary data separately
-	const { summary, loading: summaryLoading } = useAccommodationSummary();
+	const { summary, loading: summaryLoading, refetch: refetchSummary } = useAccommodationSummary();
 
 	// Fetch filter options
 	const { filterOptions, loading: filterOptionsLoading } = useFilterOptions();
@@ -102,6 +102,7 @@ export default function DHQLivingUnits() {
 
 			toast.success("Accommodation unit deleted successfully");
 			refetch();
+			refetchSummary();
 		} catch (error) {
 			console.error("Error:", error);
 			toast.error("An unexpected error occurred");
@@ -113,6 +114,7 @@ export default function DHQLivingUnits() {
 
 	const handleImportComplete = () => {
 		refetch();
+		refetchSummary();
 		toast.success("Successfully imported accommodation units");
 	};
 
@@ -250,7 +252,10 @@ export default function DHQLivingUnits() {
 			<AccommodationFormModal
 				isOpen={showForm}
 				onClose={() => setShowForm(false)}
-				onSuccess={refetch}
+				onSuccess={() => {
+					refetch();
+					refetchSummary();
+				}}
 				editingUnit={editingUnit}
 				housingTypes={housingTypes}
 			/>

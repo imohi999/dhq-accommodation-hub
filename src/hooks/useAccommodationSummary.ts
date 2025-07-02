@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { DHQLivingUnitWithHousingType } from "@/types/accommodation";
 
 const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then((res) => res.json());
 
@@ -30,7 +29,7 @@ export const useAccommodationSummary = () => {
   });
 
   // Fetch summary data from a dedicated endpoint
-  const { data, error, isLoading } = useSWR<SummaryData>(
+  const { data, error, isLoading, mutate } = useSWR<SummaryData>(
     '/api/dhq-living-units/summary',
     fetcher,
     {
@@ -49,5 +48,6 @@ export const useAccommodationSummary = () => {
     summary,
     loading: isLoading,
     error,
+    refetch: mutate,
   };
 };
