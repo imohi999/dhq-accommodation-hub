@@ -19,6 +19,7 @@ interface ApiQueueItem {
   dateTos?: string | null;
   dateSos?: string | null;
   phone?: string | null;
+  imageUrl?: string | null;
   sequence: number;
   entryDateTime: string;
   createdAt: string;
@@ -51,6 +52,7 @@ const transformQueueItem = (item: ApiQueueItem): QueueItem => ({
   date_tos: item.dateTos || null,
   date_sos: item.dateSos || null,
   phone: item.phone || null,
+  image_url: item.imageUrl || null,
   sequence: item.sequence,
   entry_date_time: item.entryDateTime || item.createdAt
 });
@@ -133,6 +135,7 @@ export const returnPersonnelToQueueAtPositionOne = async (personnel: QueueItem):
       dateTos: personnel.date_tos || '',
       dateSos: personnel.date_sos || '',
       phone: personnel.phone || '',
+      imageUrl: personnel.image_url || null,
     };
 
     const response = await fetch('/api/queue/insert-at-position-one', {
@@ -178,6 +181,7 @@ export const addToQueue = async (queueData: Omit<QueueItem, 'id' | 'sequence' | 
       dateTos: queueData.date_tos || '',
       dateSos: queueData.date_sos || '',
       phone: queueData.phone || '',
+      imageUrl: queueData.image_url || null,
     };
 
     const response = await fetch('/api/queue', {

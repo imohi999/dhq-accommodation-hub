@@ -58,7 +58,7 @@ INSERT INTO public.dhq_living_units (
   type_of_occupancy, bq, no_of_rooms_in_bq, block_name, flat_house_room_name
 ) VALUES
 ('Officers Quarter A', 'Main Base', 'Officer', (SELECT id FROM accommodation_types WHERE name = 'Three Bedroom Flat'), 3, 'Occupied', 'Single', true, 2, 'Block A', 'Flat 101'),
-('Soldiers Quarter B', 'East Wing', 'NCOs', (SELECT id FROM accommodation_types WHERE name = 'One Bedroom Flat'), 1, 'Vacant', 'Single', false, 0, 'Block B', 'Room 201'),
+('Soldiers Quarter B', 'East Wing', 'NCO', (SELECT id FROM accommodation_types WHERE name = 'One Bedroom Flat'), 1, 'Vacant', 'Single', false, 0, 'Block B', 'Room 201'),
 ('Officers Quarter C', 'West Wing', 'Officer', (SELECT id FROM accommodation_types WHERE name = 'Duplex'), 4, 'Occupied', 'Single', true, 1, 'Block C', 'House 301'),
 ('Nigerian Navy Quarter D', 'Naval Base', 'Officer', (SELECT id FROM accommodation_types WHERE name = 'Two Bedroom Flat'), 2, 'Vacant', 'Shared', false, 0, 'Block D', 'Flat 401'),
 ('Nigerian Air Force Quarter E', 'Air Base', 'Officer', (SELECT id FROM accommodation_types WHERE name = 'One Bedroom Self Contained'), 1, 'Occupied', 'Single', false, 0, 'Block E', 'Unit 501');

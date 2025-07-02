@@ -110,7 +110,7 @@ export const UnitAndDatesFields = ({
 							className='w-full justify-between'>
 							{formData.current_unit
 								? units.find((unit) => unit.name === formData.current_unit)
-										?.name
+										?.name || formData.current_unit
 								: "Select unit..."}
 							<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 						</Button>
@@ -120,6 +120,25 @@ export const UnitAndDatesFields = ({
 							<CommandInput placeholder='Search units...' />
 							<CommandEmpty>No unit found.</CommandEmpty>
 							<CommandGroup>
+								{/* If current unit is not in the list, show it first */}
+								{formData.current_unit && !units.find(u => u.name === formData.current_unit) && (
+									<CommandItem
+										key="current-invalid"
+										value={formData.current_unit}
+										onSelect={(currentValue) => {
+											onInputChange("current_unit", currentValue);
+											setOpen(false);
+										}}>
+										<Check
+											className={cn(
+												"mr-2 h-4 w-4",
+												"opacity-100"
+											)}
+										/>
+										{formData.current_unit}
+										<span className="text-xs text-orange-500 ml-2">(Not in list)</span>
+									</CommandItem>
+								)}
 								{units.map((unit) => (
 									<CommandItem
 										key={unit.id}

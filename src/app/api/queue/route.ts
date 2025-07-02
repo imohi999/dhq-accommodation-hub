@@ -20,7 +20,7 @@ const queueSchema = z.object({
   svcNo: z.string().min(1),
   gender: z.enum(['Male', 'Female']),
   armOfService: z.enum(['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force']),
-  category: z.enum(['NCOs', 'Officer']),
+  category: z.enum(['NCO', 'Officer']),
   rank: z.string().min(1),
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
   noOfAdultDependents: z.number().int().min(0).max(99).default(0),
@@ -30,7 +30,8 @@ const queueSchema = z.object({
   appointment: z.string().nullable().optional(),
   dateTos: z.string().min(1, { message: "Date TOS is required" }).transform(val => new Date(val)),
   dateSos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
-  phone: z.string().nullable().optional()
+  phone: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional()
 })
 
 // GET /api/queue - Get all queue entries
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     console.log('Received body:', body)
-    
+
     const validatedData = queueSchema.parse(body)
     console.log('Validated data:', validatedData)
 
@@ -129,7 +130,7 @@ export async function POST(request: NextRequest) {
 
     console.error('Error creating queue entry:', error)
     console.error('Error details:', error instanceof Error ? error.message : 'Unknown error')
-    
+
     // Check for unique constraint violation
     if (error?.code === 'P2002') {
       const field = error.meta?.target?.[0] || 'field'
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       )
     }
-    
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to create queue entry' },
       { status: 500 }

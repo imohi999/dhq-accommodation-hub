@@ -233,4 +233,5 @@ interface IPersonnelData {
   currentUnit?: string;
   armOfService?: string;
   email?: string;
+  imageUrl?: string;
 }

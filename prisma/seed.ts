@@ -251,6 +251,7 @@ async function main() {
       currentUnit: "Naval Command",
       appointment: "Staff Officer",
       phone: "+234-8044233738",
+      imageUrl: "https://ui-avatars.com/api/?name=Aisha+Okafor&background=0D8ABC&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
     },
     {
@@ -273,6 +274,7 @@ async function main() {
       currentUnit: "Naval Command",
       appointment: "Staff Officer",
       phone: "+234-8093386438",
+      imageUrl: "https://ui-avatars.com/api/?name=Emeka+Adebayo&background=2563EB&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
     },
     {
@@ -291,6 +293,7 @@ async function main() {
       currentUnit: "Medical Corps",
       appointment: "Staff Officer",
       phone: "+234-8090141298",
+      imageUrl: "https://ui-avatars.com/api/?name=Oluwaseun+Balogun&background=10B981&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
     },
     {
@@ -311,6 +314,7 @@ async function main() {
       currentUnit: "Air Defence",
       appointment: "Staff Officer",
       phone: "+234-8042714278",
+      imageUrl: "https://ui-avatars.com/api/?name=Ibrahim+Mohammed&background=F59E0B&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
     },
     {
@@ -328,6 +332,7 @@ async function main() {
       currentUnit: "Naval Command",
       appointment: "Technician",
       phone: "+234-8035863891",
+      imageUrl: "https://ui-avatars.com/api/?name=Chijioke+Eze&background=EF4444&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
     },
     {
@@ -337,7 +342,7 @@ async function main() {
       svcNo: "AF/94452/88",
       gender: "Male",
       armOfService: "Nigerian Air Force",
-      category: "NCOs",
+      category: "NCO",
       rank: "SSgt",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
@@ -345,6 +350,7 @@ async function main() {
       currentUnit: "Air Defence",
       appointment: "Technician",
       phone: "+234-808426565",
+      imageUrl: "https://ui-avatars.com/api/?name=Yakubu+Danjuma&background=8B5CF6&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
     },
     {
@@ -354,7 +360,7 @@ async function main() {
       svcNo: "AF/62542/50",
       gender: "Female",
       armOfService: "Nigerian Air Force",
-      category: "NCOs",
+      category: "NCO",
       rank: "SSgt",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
@@ -362,6 +368,7 @@ async function main() {
       currentUnit: "Medical Corps",
       appointment: "Technician",
       phone: "+234-8032973381",
+      imageUrl: "https://ui-avatars.com/api/?name=Funke+Ogunleye&background=EC4899&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
     },
     {
@@ -371,7 +378,7 @@ async function main() {
       svcNo: "AF/43765/72",
       gender: "Female",
       armOfService: "Nigerian Air Force",
-      category: "NCOs",
+      category: "NCO",
       rank: "FS",
       maritalStatus: "Single",
       noOfAdultDependents: 0,
@@ -379,6 +386,7 @@ async function main() {
       currentUnit: "Naval Command",
       appointment: "Technician",
       phone: "+234-8093388219",
+      imageUrl: "https://ui-avatars.com/api/?name=Blessing+Akpan&background=06B6D4&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
     }
   ]
@@ -444,7 +452,7 @@ async function main() {
       svcNo: `${['NA', 'NN', 'AF'][i % 3]}/${Math.floor(Math.random() * 90000) + 10000}/${Math.floor(Math.random() * 30) + 70}`,
       gender: isMale ? 'Male' : 'Female',
       armOfService: ['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force'][i % 3],
-      category: isOfficer ? 'Officer' : 'NCOs',
+      category: isOfficer ? 'Officer' : 'NCO',
       rank: isOfficer
         ? ['Maj', 'Capt', 'Sqn Ldr', 'Lt Col'][i % 4]
         : ['Cpl', 'Sgt', 'SSgt', 'WO'][i % 4],
@@ -455,6 +463,7 @@ async function main() {
       currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][i % 5],
       appointment: isOfficer ? 'Staff Officer' : 'Technician',
       phone: `+234-80${Math.floor(Math.random() * 90000000) + 10000000}`,
+      imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=${['1F2937', '3B82F6', '10B981', 'F59E0B', 'EF4444', '8B5CF6', 'EC4899', '06B6D4'][i % 8]}&color=fff&size=200`,
       entryDateTime: new Date()
     })
   }
@@ -661,12 +670,12 @@ async function main() {
     })
   }
 
-  // Add self-contained units for NCOs category (Block 6) - 2 occupied
+  // Add self-contained units for NCO category (Block 6) - 2 occupied
   for (let i = 1; i <= 2; i++) {
     additionalLivingUnits.push({
       quarterName: "Other Ranks Quarters",
       location: "Mogadishu Cantonment",
-      category: "NCOs",
+      category: "NCO",
       accommodationTypeId: "301e92b3-1083-4340-a800-f4e21a20b9c7", // Self Contained
       noOfRooms: 1,
       status: "Occupied", // Both NCO units are occupied
@@ -695,7 +704,7 @@ async function main() {
   additionalLivingUnits.push({
     quarterName: "Test NCO Quarters",
     location: "Test Location",
-    category: "NCOs",
+    category: "NCO",
     accommodationTypeId: "301e92b3-1083-4340-a800-f4e21a20b9c7", // Self Contained
     noOfRooms: 1,
     status: "Vacant",
@@ -795,6 +804,7 @@ async function main() {
           dependents: dependents.length > 0 ? dependents : undefined,
           currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][unitIndex % 5],
           appointment: 'Staff Officer',
+          imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(unit.currentOccupantName)}&background=${['059669', '7C3AED', 'DC2626', '2563EB'][unitIndex % 4]}&color=fff&size=200`,
           entryDateTime: unit.occupancyStartDate || new Date(),
           createdAt: unit.occupancyStartDate || new Date(),
           updatedAt: new Date(),
@@ -926,7 +936,7 @@ async function main() {
         svcNo: `${occupant.svcNo}-PAST-${i}`, // Make it unique by adding suffix
         gender: gender,
         armOfService: ['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force'][i % 3],
-        category: i < 15 ? "Officer" : "NCOs",
+        category: i < 15 ? "Officer" : "NCO",
         rank: occupant.rank,
         maritalStatus: maritalStatus,
         noOfAdultDependents: noOfAdultDependents,
@@ -934,6 +944,7 @@ async function main() {
         dependents: dependents.length > 0 ? dependents : undefined,
         currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][i % 5],
         appointment: i < 15 ? 'Staff Officer' : 'Technician',
+        imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(occupant.name)}&background=${['6366F1', '14B8A6', 'F97316', '8B5CF6'][i % 4]}&color=fff&size=200`,
         entryDateTime: startDate,
         createdAt: startDate,
         updatedAt: new Date(),
@@ -951,7 +962,7 @@ async function main() {
         rank: occupant.rank,
         serviceNumber: occupant.svcNo,
         phone: `+234-80${Math.floor(Math.random() * 90000000) + 10000000}`,
-        category: i < 15 ? "Officer" : "NCOs"
+        category: i < 15 ? "Officer" : "NCO"
       },
       unitData: {
         quarterName: unit.quarterName,
@@ -1389,8 +1400,8 @@ async function main() {
   const inspectors = [
     { name: "James Okafor", rank: "Capt", svcNo: "NA/45789/90", category: "Officer", appointment: "QM Assistant" },
     { name: "Mary Adebayo", rank: "Lt", svcNo: "NN/67890/92", category: "Officer", appointment: "Admin Officer" },
-    { name: "Peter Nwosu", rank: "WO", svcNo: "AF/34567/88", category: "NCOs", appointment: "Stores Supervisor" },
-    { name: "Grace Ibrahim", rank: "SSgt", svcNo: "NA/23456/91", category: "NCOs", appointment: "Inventory Clerk" }
+    { name: "Peter Nwosu", rank: "WO", svcNo: "AF/34567/88", category: "NCO", appointment: "Stores Supervisor" },
+    { name: "Grace Ibrahim", rank: "SSgt", svcNo: "NA/23456/91", category: "NCO", appointment: "Inventory Clerk" }
   ]
 
   // Create clearance inspections for 60% of past allocations

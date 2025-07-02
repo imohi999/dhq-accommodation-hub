@@ -38,7 +38,7 @@ export const AccommodationSummaryCards = ({
 	};
 
 	const statusDescription = `${data.vacant} Vacant, ${data.occupied} Occupied, ${data.notInUse} Not In Use`;
-	const categoryDescription = `${data.byCategory.officer} Officers, ${data.byCategory.nco} NCOs`;
+	const categoryDescription = `${data.byCategory.officer} Officers, ${data.byCategory.nco} NCO`;
 
 	const summaryData = [
 		{

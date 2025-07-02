@@ -103,6 +103,7 @@ export const createAllocationRequestInDb = async (
       currentUnit: personnel.current_unit,
       appointment: personnel.appointment,
       phone: personnel.phone,
+      imageUrl: personnel.image_url || null,
       entryDateTime: personnel.entry_date_time,
       sequence: personnel.sequence
     };

@@ -23,6 +23,13 @@ export const ServiceInfoFields = ({
 		formData.category
 	);
 
+	// If the current rank is not in the valid options, add it temporarily
+	// This handles cases where data has invalid rank assignments
+	const displayRankOptions =
+		formData.rank && !rankOptions.includes(formData.rank)
+			? [...rankOptions, formData.rank]
+			: rankOptions;
+
 	return (
 		<>
 			<div className='space-y-2'>
@@ -52,7 +59,7 @@ export const ServiceInfoFields = ({
 						<SelectValue placeholder='Select category' />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value='NCOs'>NCOs</SelectItem>
+						<SelectItem value='NCO'>NCO</SelectItem>
 						<SelectItem value='Officer'>Officer</SelectItem>
 					</SelectContent>
 				</Select>
@@ -67,9 +74,14 @@ export const ServiceInfoFields = ({
 						<SelectValue placeholder='Select rank' />
 					</SelectTrigger>
 					<SelectContent>
-						{rankOptions.map((rank) => (
+						{displayRankOptions.map((rank) => (
 							<SelectItem key={rank} value={rank}>
 								{rank}
+								{formData.rank === rank && !rankOptions.includes(rank) && (
+									<span className='text-xs text-orange-500 ml-2'>
+										(Invalid)
+									</span>
+								)}
 							</SelectItem>
 						))}
 					</SelectContent>

@@ -7,7 +7,7 @@ CREATE TABLE public.queue (
   svc_no TEXT NOT NULL UNIQUE,
   gender TEXT NOT NULL CHECK (gender IN ('Male', 'Female')),
   arm_of_service TEXT NOT NULL CHECK (arm_of_service IN ('Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force')),
-  category TEXT NOT NULL CHECK (category IN ('NCOs', 'Officer')),
+  category TEXT NOT NULL CHECK (category IN ('NCO', 'Officer')),
   rank TEXT NOT NULL,
   marital_status TEXT NOT NULL CHECK (marital_status IN ('Single', 'Married', 'Divorced', 'Widowed')),
   no_of_adult_dependents INTEGER NOT NULL DEFAULT 0 CHECK (no_of_adult_dependents >= 0 AND no_of_adult_dependents <= 99),

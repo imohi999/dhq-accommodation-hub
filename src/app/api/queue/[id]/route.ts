@@ -24,7 +24,7 @@ const updateQueueSchema = z.object({
   svcNo: z.string().min(1),
   gender: z.enum(['Male', 'Female']),
   armOfService: z.enum(['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force']),
-  category: z.enum(['NCOs', 'Officer']),
+  category: z.enum(['NCO', 'Officer']),
   rank: z.string().min(1),
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
   noOfAdultDependents: z.number().int().min(0).max(99).default(0),
@@ -34,7 +34,8 @@ const updateQueueSchema = z.object({
   appointment: z.string().optional(),
   dateTos: z.string().min(1, { message: "Date TOS is required" }).transform(val => new Date(val)),
   dateSos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
-  phone: z.string().optional()
+  phone: z.string().optional(),
+  imageUrl: z.string().nullable().optional()
 })
 
 // GET /api/queue/[id] - Get single queue entry
@@ -72,10 +73,30 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json()
-    
+
     // Validate the request body
     const validatedData = updateQueueSchema.parse(body)
-    
+
+    // Transform camelCase to snake_case for Prisma
+    const prismaData = {
+      fullName: validatedData.fullName,
+      svcNo: validatedData.svcNo,
+      gender: validatedData.gender,
+      armOfService: validatedData.armOfService,
+      category: validatedData.category,
+      rank: validatedData.rank,
+      maritalStatus: validatedData.maritalStatus,
+      noOfAdultDependents: validatedData.noOfAdultDependents,
+      noOfChildDependents: validatedData.noOfChildDependents,
+      dependents: validatedData.dependents,
+      currentUnit: validatedData.currentUnit,
+      appointment: validatedData.appointment,
+      dateTos: validatedData.dateTos,
+      dateSos: validatedData.dateSos,
+      phone: validatedData.phone,
+      ...(validatedData.imageUrl !== undefined && { imageUrl: validatedData.imageUrl })
+    }
+
     // Get old data for audit log
     const oldData = await prisma.queue.findUnique({
       where: { id: params.id }
@@ -83,7 +104,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const updated = await prisma.queue.update({
       where: { id: params.id },
-      data: validatedData
+      data: prismaData
     })
 
     // Log the update
@@ -106,7 +127,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         { status: 400 }
       )
     }
-    
+
     console.error('Error updating queue entry:', error)
     return NextResponse.json(
       { error: 'Failed to update queue entry' },

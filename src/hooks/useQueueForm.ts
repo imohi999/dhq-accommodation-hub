@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { QueueItem, Unit, QueueFormData, Dependent } from "@/types/queue";
 import useSWR from "swr";
+import { getRankOptions } from "@/constants/ranks";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -17,11 +18,11 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
   const [formData, setFormData] = useState<QueueFormData>({
     full_name: "",
     svc_no: "",
-    gender: "",
-    arm_of_service: "",
-    category: "",
-    rank: "",
-    marital_status: "",
+    gender: "", // Will be selected from dropdown
+    arm_of_service: "", // Will be selected from dropdown
+    category: "", // Will be selected from dropdown
+    rank: "", // Will be selected from dropdown
+    marital_status: "", // Will be selected from dropdown
     no_of_adult_dependents: 0,
     no_of_child_dependents: 0,
     dependents: [],
@@ -30,6 +31,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
     date_tos: "",
     date_sos: "",
     phone: "",
+    image_url: "",
   });
   
   const [units, setUnits] = useState<Unit[]>([]);
@@ -62,23 +64,49 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
 
   useEffect(() => {
     if (item) {
-      setFormData({
-        full_name: item.full_name,
-        svc_no: item.svc_no,
+      // Helper function to format date for HTML date input
+      const formatDateForInput = (dateString: string | null) => {
+        if (!dateString) return "";
+        try {
+          const date = new Date(dateString);
+          // Format as YYYY-MM-DD for HTML date input
+          return date.toISOString().split('T')[0];
+        } catch {
+          return dateString || "";
+        }
+      };
+
+      const formValues = {
+        full_name: item.full_name || "",
+        svc_no: item.svc_no || "",
+        gender: item.gender || "",
+        arm_of_service: item.arm_of_service || "",
+        category: item.category || "",
+        rank: item.rank || "",
+        marital_status: item.marital_status || "",
+        no_of_adult_dependents: item.no_of_adult_dependents || 0,
+        no_of_child_dependents: item.no_of_child_dependents || 0,
+        dependents: item.dependents || [],
+        current_unit: item.current_unit || "",
+        appointment: item.appointment || "",
+        date_tos: formatDateForInput(item.date_tos),
+        date_sos: formatDateForInput(item.date_sos),
+        phone: item.phone || "",
+        image_url: item.image_url || "",
+      };
+      
+      // Debug logging to check values
+      console.log("Setting form data for edit:", {
+        itemId: item.id,
         gender: item.gender,
         arm_of_service: item.arm_of_service,
         category: item.category,
         rank: item.rank,
         marital_status: item.marital_status,
-        no_of_adult_dependents: item.no_of_adult_dependents,
-        no_of_child_dependents: item.no_of_child_dependents,
-        dependents: item.dependents || [],
-        current_unit: item.current_unit || "",
-        appointment: item.appointment || "",
-        date_tos: item.date_tos || "",
-        date_sos: item.date_sos || "",
-        phone: item.phone || "",
+        formValues
       });
+      
+      setFormData(formValues);
     }
   }, [item]);
 
@@ -88,12 +116,20 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
       [field]: value
     }));
 
-    // Reset rank when arm of service or category changes
+    // Reset rank when arm of service or category changes only if the current rank is not valid
     if (field === "arm_of_service" || field === "category") {
+      const newArmOfService = field === "arm_of_service" ? value as string : formData.arm_of_service;
+      const newCategory = field === "category" ? value as string : formData.category;
+      
+      // Check if current rank is valid for the new combination
+      const validRanks = getRankOptions(newArmOfService, newCategory);
+      const currentRankIsValid = validRanks.includes(formData.rank);
+      
       setFormData(prev => ({
         ...prev,
         [field]: value,
-        rank: ""
+        // Only reset rank if it's not valid for the new combination
+        rank: currentRankIsValid ? prev.rank : ""
       }));
     }
 
@@ -114,6 +150,41 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
     e.preventDefault();
     
     // Validate required fields
+    if (!formData.full_name) {
+      toast.error("Full Name is required");
+      return;
+    }
+    
+    if (!formData.svc_no) {
+      toast.error("Service Number is required");
+      return;
+    }
+    
+    if (!formData.gender) {
+      toast.error("Gender is required");
+      return;
+    }
+    
+    if (!formData.arm_of_service) {
+      toast.error("Arm of Service is required");
+      return;
+    }
+    
+    if (!formData.category) {
+      toast.error("Category is required");
+      return;
+    }
+    
+    if (!formData.rank) {
+      toast.error("Rank is required");
+      return;
+    }
+    
+    if (!formData.marital_status) {
+      toast.error("Marital Status is required");
+      return;
+    }
+    
     if (!formData.current_unit) {
       toast.error("Current Unit is required");
       return;
@@ -144,6 +215,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         dateTos: formData.date_tos || null,
         dateSos: formData.date_sos || null,
         phone: formData.phone || null,
+        imageUrl: formData.image_url || null,
       };
 
       let response;

@@ -10,7 +10,7 @@ const queuePositionOneSchema = z.object({
   svcNo: z.string().min(1),
   gender: z.enum(['Male', 'Female']),
   armOfService: z.enum(['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force']),
-  category: z.enum(['NCOs', 'Officer']),
+  category: z.enum(['NCO', 'Officer']),
   rank: z.string().min(1),
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
   noOfAdultDependents: z.number().int().min(0).max(99).default(0),
@@ -19,7 +19,8 @@ const queuePositionOneSchema = z.object({
   appointment: z.string().optional(),
   dateTos: z.string().optional(),
   dateSos: z.string().optional(),
-  phone: z.string().optional()
+  phone: z.string().optional(),
+  imageUrl: z.string().nullable().optional()
 })
 
 // POST /api/queue/insert-at-position-one - Insert at queue position #1
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
           dateTos: validatedData.dateTos ? new Date(validatedData.dateTos) : null,
           dateSos: validatedData.dateSos ? new Date(validatedData.dateSos) : null,
           phone: validatedData.phone,
+          imageUrl: validatedData.imageUrl || null,
           sequence: 1
         }
       })

@@ -24,6 +24,7 @@ export interface QueueItem {
   date_tos: string | null;
   date_sos: string | null;
   phone: string | null;
+  image_url?: string | null;
   entry_date_time: string;
 }
 
@@ -56,4 +57,5 @@ export interface QueueFormData {
   date_tos: string;
   date_sos: string;
   phone: string;
+  image_url?: string;
 }

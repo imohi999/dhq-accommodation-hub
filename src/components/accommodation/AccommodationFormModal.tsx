@@ -329,7 +329,7 @@ export function AccommodationFormModal({
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value='Officer'>Officer</SelectItem>
-									<SelectItem value='NCOs'>NCOs</SelectItem>
+									<SelectItem value='NCO'>NCO</SelectItem>
 									<SelectItem value='Other'>Other</SelectItem>
 								</SelectContent>
 							</Select>
@@ -522,7 +522,8 @@ export function AccommodationFormModal({
 							disabled={loading}
 							className='flex items-center gap-2'>
 							<Save className='h-4 w-4' />
-							{loading ? "Saving..." : editingUnit ? "Update" : "Create"} Quarters
+							{loading ? "Saving..." : editingUnit ? "Update" : "Create"}{" "}
+							Quarters
 						</Button>
 						<Button
 							type='button'

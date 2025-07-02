@@ -23,6 +23,7 @@ export interface PersonnelRecord {
   dateTos: string | null
   dateSos: string | null
   phone: string | null
+  imageUrl?: string | null
   entryDateTime: string
   createdAt: string
   updatedAt: string

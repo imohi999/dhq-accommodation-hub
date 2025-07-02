@@ -208,7 +208,7 @@ export const PendingApprovalView = ({
 		(r) => r.personnelData?.category === "Officer"
 	).length;
 	const menRequests = filteredItems.filter(
-		(r) => r.personnelData?.category === "NCOs"
+		(r) => r.personnelData?.category === "NCO"
 	).length;
 
 	const armyRequests = filteredItems.filter(
@@ -241,7 +241,7 @@ export const PendingApprovalView = ({
 					<CardContent>
 						<div className='text-2xl font-bold'>{totalPending}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {officerRequests} | NCOs: {menRequests}
+							Officers: {officerRequests} | NCO: {menRequests}
 						</p>
 					</CardContent>
 				</Card>
@@ -262,12 +262,12 @@ export const PendingApprovalView = ({
 											"Nigerian Army" && r.personnelData.category === "Officer"
 								).length
 							}{" "}
-							| NCOs:{" "}
+							| NCO:{" "}
 							{
 								filteredItems.filter(
 									(r) =>
 										(r.queue?.armOfService || r.personnelData?.armOfService) ===
-											"Nigerian Army" && r.personnelData.category === "NCOs"
+											"Nigerian Army" && r.personnelData.category === "NCO"
 								).length
 							}
 						</p>
@@ -290,12 +290,12 @@ export const PendingApprovalView = ({
 											"Nigerian Navy" && r.personnelData.category === "Officer"
 								).length
 							}{" "}
-							| NCOs:{" "}
+							| NCO:{" "}
 							{
 								filteredItems.filter(
 									(r) =>
 										(r.queue?.armOfService || r.personnelData?.armOfService) ===
-											"Nigerian Navy" && r.personnelData.category === "NCOs"
+											"Nigerian Navy" && r.personnelData.category === "NCO"
 								).length
 							}
 						</p>
@@ -321,13 +321,12 @@ export const PendingApprovalView = ({
 										r.personnelData?.category === "Officer"
 								).length
 							}{" "}
-							| NCOs:{" "}
+							| NCO:{" "}
 							{
 								filteredItems.filter(
 									(r) =>
 										(r.queue?.armOfService || r.personnelData?.armOfService) ===
-											"Nigerian Air Force" &&
-										r.personnelData.category === "NCOs"
+											"Nigerian Air Force" && r.personnelData.category === "NCO"
 								).length
 							}
 						</p>
@@ -383,9 +382,21 @@ export const PendingApprovalView = ({
 								{/* Header Section - Compact */}
 								<div className='flex items-center justify-between mb-3'>
 									<div className='flex items-center gap-3'>
-										<div className='flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-full text-sm font-semibold text-yellow-700'>
-											#{index + 1}
-										</div>
+										{request.queue?.imageUrl ||
+										request.personnelData?.imageUrl ? (
+											<img
+												src={
+													request.queue?.imageUrl ||
+													request.personnelData?.imageUrl
+												}
+												alt={request.personnelData?.fullName}
+												className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
+											/>
+										) : (
+											<div className='flex items-center justify-center w-32 h-32 bg-yellow-100 rounded-full'>
+												<User className='h-16 w-16 text-yellow-700' />
+											</div>
+										)}
 										<div>
 											<h3 className='text-base font-semibold leading-tight'>
 												{request.personnelData?.rank}{" "}
@@ -543,35 +554,58 @@ export const PendingApprovalView = ({
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
-									<div className='grid grid-cols-2 gap-4'>
-										<div>
-											<p className='text-xs text-muted-foreground'>Name</p>
-											<p className='font-medium'>
-												{confirmDialog.request.personnelData?.rank}{" "}
-												{confirmDialog.request.personnelData?.fullName}
-											</p>
+									<div className='flex gap-4'>
+										{/* Personnel Photo */}
+										<div className='flex-shrink-0'>
+											{confirmDialog.request.queue?.imageUrl ||
+											confirmDialog.request.personnelData?.imageUrl ? (
+												<img
+													src={
+														confirmDialog.request.queue?.imageUrl ||
+														confirmDialog.request.personnelData?.imageUrl
+													}
+													alt={confirmDialog.request.personnelData?.fullName}
+													className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
+												/>
+											) : (
+												<div className='flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full'>
+													<User className='h-16 w-16 text-gray-400' />
+												</div>
+											)}
 										</div>
-										<div>
-											<p className='text-xs text-muted-foreground'>
-												Service Number
-											</p>
-											<p className='font-medium'>
-												{confirmDialog.request.personnelData?.svcNo}
-											</p>
-										</div>
-										<div>
-											<p className='text-xs text-muted-foreground'>Category</p>
-											<Badge variant='secondary'>
-												{confirmDialog.request.personnelData?.category}
-											</Badge>
-										</div>
-										<div>
-											<p className='text-xs text-muted-foreground'>Service</p>
-											<p className='font-medium'>
-												{confirmDialog.request.queue?.armOfService ||
-													confirmDialog.request.personnelData?.armOfService ||
-													"Unknown"}
-											</p>
+										{/* Personnel Details */}
+										<div className='flex-1 grid grid-cols-2 gap-4'>
+											<div>
+												<p className='text-xs text-muted-foreground'>Name</p>
+												<p className='font-medium'>
+													{confirmDialog.request.personnelData?.rank}{" "}
+													{confirmDialog.request.personnelData?.fullName}
+												</p>
+											</div>
+											<div>
+												<p className='text-xs text-muted-foreground'>
+													Service Number
+												</p>
+												<p className='font-medium'>
+													{confirmDialog.request.personnelData?.svcNo}
+												</p>
+											</div>
+											<div>
+												<p className='text-xs text-muted-foreground'>
+													Category
+												</p>
+												<Badge variant='secondary'>
+													{confirmDialog.request.personnelData?.category}
+												</Badge>
+											</div>
+											<div>
+												<p className='text-xs text-muted-foreground'>Service</p>
+												<p className='font-medium'>
+													{confirmDialog.request.queue?.armOfService ||
+														confirmDialog.request.personnelData?.armOfService ||
+														"Unknown"}
+												</p>
+											</div>
 										</div>
 									</div>
 								</CardContent>

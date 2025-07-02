@@ -112,7 +112,7 @@ export const AllocationFilters = ({
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value='all'>All Categories</SelectItem>
-							<SelectItem value='NCOs'>NCOs</SelectItem>
+							<SelectItem value='NCO'>NCO</SelectItem>
 							<SelectItem value='Officer'>Officer</SelectItem>
 						</SelectContent>
 					</Select>
@@ -159,7 +159,9 @@ export const AllocationFilters = ({
 				{inspectionStatusFilter !== undefined && onInspectionStatusChange && (
 					<div className='space-y-2'>
 						<Label>Inspection Status</Label>
-						<Select value={inspectionStatusFilter} onValueChange={onInspectionStatusChange}>
+						<Select
+							value={inspectionStatusFilter}
+							onValueChange={onInspectionStatusChange}>
 							<SelectTrigger>
 								<SelectValue placeholder='All Statuses' />
 							</SelectTrigger>

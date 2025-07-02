@@ -36,7 +36,7 @@ export const requiredFields = [
 
 export const validStatuses = ["Vacant", "Occupied", "Not In Use"];
 export const validOccupancyTypes = ["Single", "Shared"];
-export const validCategories = ["NCOs", "Officer"];
+export const validCategories = ["NCO", "Officer"];
 
 export const parseFile = (file: File): Promise<ImportData[]> => {
   return new Promise((resolve, reject) => {
@@ -89,7 +89,7 @@ export const parseFile = (file: File): Promise<ImportData[]> => {
 export const downloadTemplate = (housingTypes: Array<{ id: string; name: string }>) => {
   const template = [
     ["Quarter Name", "Location", "Category", "Accommodation Type", "No of Rooms", "Status", "Type of Occupancy", "BQ", "No of Rooms in BQ", "Block Name", "Flat/House/Room Name", "Quarters Name"],
-    ["Alpha Quarters", "North Block", "NCOs", housingTypes[0]?.name || "Officer Quarter", "3", "Vacant", "Single", "No", "0", "Block A", "Flat 101", "A-101"],
+    ["Alpha Quarters", "North Block", "NCO", housingTypes[0]?.name || "Officer Quarter", "3", "Vacant", "Single", "No", "0", "Block A", "Flat 101", "A-101"],
     ["Officer Quarters", "South Block", "Officer", housingTypes[0]?.name || "Officer Quarter", "4", "Occupied", "Single", "Yes", "1", "Block B", "House 201", "B-201"]
   ];
 
@@ -97,7 +97,7 @@ export const downloadTemplate = (housingTypes: Array<{ id: string; name: string 
 
   // Add validation comments to help users
   const comments = {
-    'C1': 'Valid values: NCOs, Officer',
+    'C1': 'Valid values: NCO, Officer',
     'F1': 'Valid values: Vacant, Occupied, Not In Use',
     'G1': 'Valid values: Single, Shared',
     'H1': 'Valid values: Yes, No, true, false, 1, 0'

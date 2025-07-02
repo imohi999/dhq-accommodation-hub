@@ -1,7 +1,7 @@
 
 export const RANK_OPTIONS = {
   "Nigerian Army": {
-    NCOs: [
+    NCO: [
       "Pte",
       "LCpl",
       "Cpl",
@@ -26,7 +26,7 @@ export const RANK_OPTIONS = {
     ]
   },
   "Nigerian Navy": {
-    NCOs: [
+    NCO: [
       "OS",
       "SM",
       "AB",
@@ -50,7 +50,7 @@ export const RANK_OPTIONS = {
     ]
   },
   "Nigerian Air Force": {
-    NCOs: [
+    NCO: [
       "ACM/ACW",
       "LCpl",
       "Cpl",

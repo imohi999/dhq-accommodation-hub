@@ -7,12 +7,11 @@ interface QueueSummaryCardsProps {
 }
 
 export const QueueSummaryCards = ({ queueItems }: QueueSummaryCardsProps) => {
-
 	const totalCount = queueItems.length;
 	const officerCount = queueItems.filter(
 		(item) => item.category === "Officer"
 	).length;
-	const ncoCount = queueItems.filter((item) => item.category === "NCOs").length;
+	const ncoCount = queueItems.filter((item) => item.category === "NCO").length;
 
 	const armyItems = queueItems.filter(
 		(item) => item.arm_of_service === "Nigerian Army"
@@ -27,16 +26,16 @@ export const QueueSummaryCards = ({ queueItems }: QueueSummaryCardsProps) => {
 	const armyOfficers = armyItems.filter(
 		(item) => item.category === "Officer"
 	).length;
-	const armyNCOs = armyItems.filter((item) => item.category === "NCOs").length;
+	const armyNCO = armyItems.filter((item) => item.category === "NCO").length;
 	const navyOfficers = navyItems.filter(
 		(item) => item.category === "Officer"
 	).length;
-	const navyNCOs = navyItems.filter((item) => item.category === "NCOs").length;
+	const navyNCO = navyItems.filter((item) => item.category === "NCO").length;
 	const airForceOfficers = airForceItems.filter(
 		(item) => item.category === "Officer"
 	).length;
-	const airForceNCOs = airForceItems.filter(
-		(item) => item.category === "NCOs"
+	const airForceNCO = airForceItems.filter(
+		(item) => item.category === "NCO"
 	).length;
 
 	return (
@@ -49,7 +48,7 @@ export const QueueSummaryCards = ({ queueItems }: QueueSummaryCardsProps) => {
 				<CardContent>
 					<div className='text-2xl font-bold'>{totalCount}</div>
 					<p className='text-xs text-muted-foreground'>
-						Officers: {officerCount} | NCOs: {ncoCount}
+						Officers: {officerCount} | NCO: {ncoCount}
 					</p>
 				</CardContent>
 			</Card>
@@ -62,7 +61,7 @@ export const QueueSummaryCards = ({ queueItems }: QueueSummaryCardsProps) => {
 				<CardContent>
 					<div className='text-2xl font-bold'>{armyItems.length}</div>
 					<p className='text-xs text-muted-foreground'>
-						Officers: {armyOfficers} | NCOs: {armyNCOs}
+						Officers: {armyOfficers} | NCO: {armyNCO}
 					</p>
 				</CardContent>
 			</Card>
@@ -75,7 +74,7 @@ export const QueueSummaryCards = ({ queueItems }: QueueSummaryCardsProps) => {
 				<CardContent>
 					<div className='text-2xl font-bold'>{navyItems.length}</div>
 					<p className='text-xs text-muted-foreground'>
-						Officers: {navyOfficers} | NCOs: {navyNCOs}
+						Officers: {navyOfficers} | NCO: {navyNCO}
 					</p>
 				</CardContent>
 			</Card>
@@ -90,7 +89,7 @@ export const QueueSummaryCards = ({ queueItems }: QueueSummaryCardsProps) => {
 				<CardContent>
 					<div className='text-2xl font-bold'>{airForceItems.length}</div>
 					<p className='text-xs text-muted-foreground'>
-						Officers: {airForceOfficers} | NCOs: {airForceNCOs}
+						Officers: {airForceOfficers} | NCO: {airForceNCO}
 					</p>
 				</CardContent>
 			</Card>

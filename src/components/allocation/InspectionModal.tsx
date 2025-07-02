@@ -105,7 +105,7 @@ export function InspectionModal({
 				"Lt",
 				"2Lt",
 			],
-			NCOs: [
+			NCO: [
 				"WO",
 				"MWO",
 				"SWO",
@@ -131,18 +131,7 @@ export function InspectionModal({
 				"SLt",
 				"MSh",
 			],
-			NCOs: [
-				"WO",
-				"MWO",
-				"SWO",
-				"WOI",
-				"WOII",
-				"CPO",
-				"PO",
-				"LPO",
-				"AB",
-				"OS",
-			],
+			NCO: ["WO", "MWO", "SWO", "WOI", "WOII", "CPO", "PO", "LPO", "AB", "OS"],
 		},
 		"Nigerian Air Force": {
 			Officer: [
@@ -156,7 +145,7 @@ export function InspectionModal({
 				"Fg Offr",
 				"Plt Offr",
 			],
-			NCOs: [
+			NCO: [
 				"AWO",
 				"MWO",
 				"SWO",
@@ -175,25 +164,36 @@ export function InspectionModal({
 	const getAvailableRanks = () => {
 		const service = inspectionForm.inspector_arm_of_service;
 		const category = inspectionForm.inspector_category;
-		
+
 		if (!service || !category) return [];
-		
+
 		return militaryRanks[service]?.[category] || [];
 	};
 
 	// Clear rank when service or category changes
 	useEffect(() => {
 		const availableRanks = getAvailableRanks();
-		if (inspectionForm.inspector_rank && !availableRanks.includes(inspectionForm.inspector_rank)) {
-			setInspectionForm(prev => ({ ...prev, inspector_rank: "" }));
+		if (
+			inspectionForm.inspector_rank &&
+			!availableRanks.includes(inspectionForm.inspector_rank)
+		) {
+			setInspectionForm((prev) => ({ ...prev, inspector_rank: "" }));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [inspectionForm.inspector_arm_of_service, inspectionForm.inspector_category]);
+	}, [
+		inspectionForm.inspector_arm_of_service,
+		inspectionForm.inspector_category,
+	]);
 
 	const handleSubmit = async () => {
-		if (!inspectionForm.inspector_svc_no || !inspectionForm.inspector_name || 
-			!inspectionForm.inspector_rank || !inspectionForm.inspector_category ||
-			!inspectionForm.inspector_arm_of_service || !inspectionForm.inspector_appointment) {
+		if (
+			!inspectionForm.inspector_svc_no ||
+			!inspectionForm.inspector_name ||
+			!inspectionForm.inspector_rank ||
+			!inspectionForm.inspector_category ||
+			!inspectionForm.inspector_arm_of_service ||
+			!inspectionForm.inspector_appointment
+		) {
 			toast.error("Please fill in all required fields");
 			return;
 		}
@@ -437,7 +437,9 @@ export function InspectionModal({
 									/>
 								</div>
 								<div className='space-y-2'>
-									<Label htmlFor='inspector_arm_of_service'>Service Branch *</Label>
+									<Label htmlFor='inspector_arm_of_service'>
+										Service Branch *
+									</Label>
 									<Select
 										value={inspectionForm.inspector_arm_of_service}
 										onValueChange={(value) =>
@@ -450,8 +452,12 @@ export function InspectionModal({
 											<SelectValue placeholder='Select service branch' />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value='Nigerian Army'>Nigerian Army</SelectItem>
-											<SelectItem value='Nigerian Navy'>Nigerian Navy</SelectItem>
+											<SelectItem value='Nigerian Army'>
+												Nigerian Army
+											</SelectItem>
+											<SelectItem value='Nigerian Navy'>
+												Nigerian Navy
+											</SelectItem>
 											<SelectItem value='Nigerian Air Force'>
 												Nigerian Air Force
 											</SelectItem>
@@ -473,7 +479,7 @@ export function InspectionModal({
 											<SelectValue placeholder='Select category' />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value='NCOs'>NCOs</SelectItem>
+											<SelectItem value='NCO'>NCO</SelectItem>
 											<SelectItem value='Officer'>Officer</SelectItem>
 										</SelectContent>
 									</Select>
@@ -488,7 +494,10 @@ export function InspectionModal({
 												inspector_rank: value,
 											}))
 										}
-										disabled={!inspectionForm.inspector_category || !inspectionForm.inspector_arm_of_service}>
+										disabled={
+											!inspectionForm.inspector_category ||
+											!inspectionForm.inspector_arm_of_service
+										}>
 										<SelectTrigger>
 											<SelectValue placeholder='Select rank' />
 										</SelectTrigger>
@@ -561,14 +570,15 @@ export function InspectionModal({
 					</div>
 				</div>
 			</DialogContent>
-			
+
 			{/* Confirmation Dialog */}
 			<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Confirm Inspection</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to save this inspection? Please review the details before confirming.
+							Are you sure you want to save this inspection? Please review the
+							details before confirming.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

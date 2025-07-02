@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/spinner";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Clock, ClipboardCheck, FileText, Trash2 } from "lucide-react";
+import { Clock, ClipboardCheck, FileText, Trash2, User } from "lucide-react";
 import useSWR from "swr";
 import { InspectionModal } from "./InspectionModal";
 import { ClearanceLetter } from "./ClearanceLetter";
@@ -117,7 +117,7 @@ export interface PastAllocation {
 	queueId: string;
 	unitId: string;
 	letterId: string;
-	personnelData: PersonnelData;
+	personnelData: PersonnelData & { imageUrl?: string };
 	unitData: UnitData;
 	allocationStartDate: string;
 	allocationEndDate: string;
@@ -126,7 +126,7 @@ export interface PastAllocation {
 	deallocationDate: string | null;
 	createdAt: string;
 	updatedAt: string;
-	queue: QueueData;
+	queue: QueueData & { imageUrl?: string };
 	unit: Unit;
 	clearance_inspections: ClearanceInspection[];
 	inventory: InventoryItem[];
@@ -396,7 +396,7 @@ export const PastAllocationsView = () => {
 		(allocation) => allocation.personnelData?.category === "Officer"
 	).length;
 	const ncoAllocations = filteredItems.filter(
-		(allocation) => allocation.personnelData?.category === "NCOs"
+		(allocation) => allocation.personnelData?.category === "NCO"
 	).length;
 
 	// Calculate by service
@@ -413,20 +413,20 @@ export const PastAllocationsView = () => {
 	const armyOfficers = armyAllocations.filter(
 		(allocation) => allocation.personnelData?.category === "Officer"
 	).length;
-	const armyNCOs = armyAllocations.filter(
-		(allocation) => allocation.personnelData?.category === "NCOs"
+	const armyNCO = armyAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "NCO"
 	).length;
 	const navyOfficers = navyAllocations.filter(
 		(allocation) => allocation.personnelData?.category === "Officer"
 	).length;
-	const navyNCOs = navyAllocations.filter(
-		(allocation) => allocation.personnelData?.category === "NCOs"
+	const navyNCO = navyAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "NCO"
 	).length;
 	const airForceOfficers = airForceAllocations.filter(
 		(allocation) => allocation.personnelData?.category === "Officer"
 	).length;
-	const airForceNCOs = airForceAllocations.filter(
-		(allocation) => allocation.personnelData?.category === "NCOs"
+	const airForceNCO = airForceAllocations.filter(
+		(allocation) => allocation.personnelData?.category === "NCO"
 	).length;
 
 	return (
@@ -443,7 +443,7 @@ export const PastAllocationsView = () => {
 					<CardContent>
 						<div className='text-2xl font-bold'>{totalPastAllocations}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {officerAllocations} | NCOs: {ncoAllocations}
+							Officers: {officerAllocations} | NCO: {ncoAllocations}
 						</p>
 					</CardContent>
 				</Card>
@@ -456,7 +456,7 @@ export const PastAllocationsView = () => {
 					<CardContent>
 						<div className='text-2xl font-bold'>{armyAllocations.length}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {armyOfficers} | NCOs: {armyNCOs}
+							Officers: {armyOfficers} | NCO: {armyNCO}
 						</p>
 					</CardContent>
 				</Card>
@@ -469,7 +469,7 @@ export const PastAllocationsView = () => {
 					<CardContent>
 						<div className='text-2xl font-bold'>{navyAllocations.length}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {navyOfficers} | NCOs: {navyNCOs}
+							Officers: {navyOfficers} | NCO: {navyNCO}
 						</p>
 					</CardContent>
 				</Card>
@@ -486,7 +486,7 @@ export const PastAllocationsView = () => {
 							{airForceAllocations.length}
 						</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {airForceOfficers} | NCOs: {airForceNCOs}
+							Officers: {airForceOfficers} | NCO: {airForceNCO}
 						</p>
 					</CardContent>
 				</Card>
@@ -578,9 +578,21 @@ export const PastAllocationsView = () => {
 												onCheckedChange={() => toggleSelectItem(allocation.id)}
 											/>
 										)}
-										<div className='flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-sm font-semibold text-gray-700'>
-											<Clock className='h-4 w-4' />
-										</div>
+										{allocation.queue?.imageUrl ||
+										allocation.personnelData?.imageUrl ? (
+											<img
+												src={
+													allocation.queue?.imageUrl ||
+													allocation.personnelData?.imageUrl
+												}
+												alt={allocation.personnelData?.fullName}
+												className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
+											/>
+										) : (
+											<div className='flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full'>
+												<User className='h-16 w-16 text-gray-700' />
+											</div>
+										)}
 										<div>
 											<h3 className='text-base font-semibold leading-tight'>
 												{allocation.personnelData?.rank}{" "}

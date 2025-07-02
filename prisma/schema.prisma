@@ -8,19 +8,19 @@ datasource db {
 }
 
 model User {
-  id              String       @id @default(uuid())
-  username        String       @unique
-  email           String       @unique
-  hashedPassword  String       @map("hashed_password")
-  emailVerified   DateTime?    @map("email_verified")
+  id              String        @id @default(uuid())
+  username        String        @unique
+  email           String        @unique
+  hashedPassword  String        @map("hashed_password")
+  emailVerified   DateTime?     @map("email_verified")
   image           String?
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
-  profile         Profile?
-  sessions        AuthSession[]
-  rolesAssignedBy UserRole[]   @relation("AssignedBy")
-  rolesAssigned   UserRole[]   @relation("AssignedRoles")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
   auditLogs       AuditLog[]
+  sessions        AuthSession[]
+  profile         Profile?
+  rolesAssignedBy UserRole[]    @relation("AssignedBy")
+  rolesAssigned   UserRole[]    @relation("AssignedRoles")
 
   @@index([username])
   @@map("users")
@@ -67,8 +67,8 @@ model Profile {
   role            AppRole          @default(user)
   createdAt       DateTime         @default(now()) @map("created_at")
   updatedAt       DateTime         @updatedAt @map("updated_at")
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   pagePermissions PagePermission[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("profiles")
 }
@@ -88,31 +88,32 @@ model UserRole {
 }
 
 model Queue {
-  id                  String              @id @default(uuid())
-  sequence            Int                 @unique
-  fullName            String              @map("full_name")
-  svcNo               String              @unique @map("svc_no")
-  gender              String
-  armOfService        String              @map("arm_of_service")
-  category            String
-  rank                String
-  maritalStatus       String              @map("marital_status")
-  noOfAdultDependents Int                 @default(0) @map("no_of_adult_dependents")
-  noOfChildDependents Int                 @default(0) @map("no_of_child_dependents")
-  currentUnit         String?             @map("current_unit")
-  appointment         String?
-  dateTos             DateTime?           @map("date_tos") @db.Date
-  dateSos             DateTime?           @map("date_sos") @db.Date
-  phone               String?
-  entryDateTime       DateTime            @default(now()) @map("entry_date_time")
-  createdAt           DateTime            @default(now()) @map("created_at")
-  updatedAt           DateTime            @updatedAt @map("updated_at")
-  dependents          Json?               @map("dependents")
-  hasAllocationRequest Boolean            @default(false) @map("has_allocation_request")
-  unitOccupants       UnitOccupant[]
-  allocationRequests  AllocationRequest[]
-  pastAllocations     PastAllocation[]
-  currentlyOccupying  DhqLivingUnit[]   @relation("CurrentOccupant")
+  id                   String              @id @default(uuid())
+  sequence             Int                 @unique
+  fullName             String              @map("full_name")
+  svcNo                String              @unique @map("svc_no")
+  gender               String
+  armOfService         String              @map("arm_of_service")
+  category             String
+  rank                 String
+  maritalStatus        String              @map("marital_status")
+  noOfAdultDependents  Int                 @default(0) @map("no_of_adult_dependents")
+  noOfChildDependents  Int                 @default(0) @map("no_of_child_dependents")
+  currentUnit          String?             @map("current_unit")
+  appointment          String?
+  dateTos              DateTime?           @map("date_tos") @db.Date
+  dateSos              DateTime?           @map("date_sos") @db.Date
+  phone                String?
+  entryDateTime        DateTime            @default(now()) @map("entry_date_time")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+  dependents           Json?               @map("dependents")
+  hasAllocationRequest Boolean             @default(false) @map("has_allocation_request")
+  imageUrl             String?             @map("image_url")
+  allocationRequests   AllocationRequest[]
+  currentlyOccupying   DhqLivingUnit[]     @relation("CurrentOccupant")
+  pastAllocations      PastAllocation[]
+  unitOccupants        UnitOccupant[]
 
   @@index([sequence])
   @@index([svcNo])
@@ -154,11 +155,11 @@ model DhqLivingUnit {
   allocationRequests           AllocationRequest[]
   accommodationType            AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
   currentOccupant              Queue?              @relation("CurrentOccupant", fields: [currentOccupantId], references: [id])
+  pastAllocations              PastAllocation[]
   history                      UnitHistory[]
   inventory                    UnitInventory[]
   maintenance                  UnitMaintenance[]
   occupants                    UnitOccupant[]
-  pastAllocations              PastAllocation[]
 
   @@index([status])
   @@index([unitName])
@@ -169,7 +170,7 @@ model DhqLivingUnit {
 model UnitOccupant {
   id                 String        @id @default(uuid())
   unitId             String        @map("unit_id")
-  queueId            String       @map("queue_id")
+  queueId            String        @map("queue_id")
   fullName           String        @map("full_name")
   rank               String
   serviceNumber      String        @map("service_number")
@@ -180,8 +181,8 @@ model UnitOccupant {
   isCurrent          Boolean       @default(true) @map("is_current")
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
+  queue              Queue         @relation(fields: [queueId], references: [id])
   unit               DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  queue              Queue        @relation(fields: [queueId], references: [id])
 
   @@index([unitId])
   @@index([isCurrent])
@@ -247,7 +248,7 @@ model UnitMaintenance {
 model AllocationRequest {
   id             String        @id @default(uuid())
   personnelId    String        @map("personnel_id")
-  queueId        String       @map("queue_id")
+  queueId        String        @map("queue_id")
   unitId         String        @map("unit_id")
   letterId       String        @unique @map("letter_id")
   personnelData  Json          @map("personnel_data")
@@ -259,8 +260,8 @@ model AllocationRequest {
   refusalReason  String?       @map("refusal_reason")
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
+  queue          Queue         @relation(fields: [queueId], references: [id])
   unit           DhqLivingUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  queue          Queue        @relation(fields: [queueId], references: [id])
 
   @@index([status])
   @@index([personnelId])
@@ -285,23 +286,23 @@ model StampSetting {
 }
 
 model PastAllocation {
-  id                  String                @id @default(uuid())
-  personnelId         String                @map("personnel_id")
-  queueId             String                @map("queue_id")
-  unitId              String                @map("unit_id")
-  letterId            String                @map("letter_id")
-  personnelData       Json                  @map("personnel_data")
-  unitData            Json                  @map("unit_data")
-  allocationStartDate DateTime              @map("allocation_start_date") @db.Date
-  allocationEndDate   DateTime?             @map("allocation_end_date") @db.Date
-  durationDays        Int?                  @map("duration_days")
-  reasonForLeaving    String?               @map("reason_for_leaving")
-  deallocationDate    DateTime?             @map("deallocation_date")
-  createdAt           DateTime              @default(now()) @map("created_at")
-  updatedAt           DateTime              @updatedAt @map("updated_at")
-  queue               Queue                 @relation(fields: [queueId], references: [id])
-  unit                DhqLivingUnit         @relation(fields: [unitId], references: [id])
+  id                   String                @id @default(uuid())
+  personnelId          String                @map("personnel_id")
+  queueId              String                @map("queue_id")
+  unitId               String                @map("unit_id")
+  letterId             String                @map("letter_id")
+  personnelData        Json                  @map("personnel_data")
+  unitData             Json                  @map("unit_data")
+  allocationStartDate  DateTime              @map("allocation_start_date") @db.Date
+  allocationEndDate    DateTime?             @map("allocation_end_date") @db.Date
+  durationDays         Int?                  @map("duration_days")
+  reasonForLeaving     String?               @map("reason_for_leaving")
+  deallocationDate     DateTime?             @map("deallocation_date")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
   clearanceInspections ClearanceInspection[]
+  queue                Queue                 @relation(fields: [queueId], references: [id])
+  unit                 DhqLivingUnit         @relation(fields: [unitId], references: [id])
 
   @@index([personnelId])
   @@index([unitId])
@@ -310,19 +311,19 @@ model PastAllocation {
 }
 
 model ClearanceInspection {
-  id                  String         @id @default(uuid())
-  pastAllocationId    String         @map("past_allocation_id")
-  inspectorSvcNo      String         @map("inspector_svc_no")
-  inspectorName       String         @map("inspector_name")
-  inspectorRank       String         @map("inspector_rank")
-  inspectorCategory   String         @map("inspector_category")
-  inspectorAppointment String        @map("inspector_appointment")
-  inspectionDate      DateTime       @map("inspection_date") @db.Date
-  remarks             String?
-  inventoryStatus     Json           @map("inventory_status")
-  createdAt           DateTime       @default(now()) @map("created_at")
-  updatedAt           DateTime       @updatedAt @map("updated_at")
-  pastAllocation      PastAllocation @relation(fields: [pastAllocationId], references: [id], onDelete: Cascade)
+  id                   String         @id @default(uuid())
+  pastAllocationId     String         @map("past_allocation_id")
+  inspectorSvcNo       String         @map("inspector_svc_no")
+  inspectorName        String         @map("inspector_name")
+  inspectorRank        String         @map("inspector_rank")
+  inspectorCategory    String         @map("inspector_category")
+  inspectorAppointment String         @map("inspector_appointment")
+  inspectionDate       DateTime       @map("inspection_date") @db.Date
+  remarks              String?
+  inventoryStatus      Json           @map("inventory_status")
+  createdAt            DateTime       @default(now()) @map("created_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+  pastAllocation       PastAllocation @relation(fields: [pastAllocationId], references: [id], onDelete: Cascade)
 
   @@index([pastAllocationId])
   @@index([inspectionDate])

@@ -84,6 +84,7 @@ export default function PersonnelPage() {
 				date_tos: item.dateTos ?? null,
 				date_sos: item.dateSos ?? null,
 				phone: item.phone ?? null,
+				image_url: item.imageUrl ?? null,
 				entry_date_time: item.entryDateTime,
 			})),
 		[personnelItems]

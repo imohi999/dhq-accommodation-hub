@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Users, Home, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Users, Home, Clock, CheckCircle, AlertCircle, User } from 'lucide-react';
 import { format } from 'date-fns';
 
 // Fetcher function for SWR
@@ -94,9 +94,28 @@ function RecordCard({ record, type }: { record: any; type: string }) {
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg">{getTitle()}</CardTitle>
-            <CardDescription>Service No: {getServiceNumber()}</CardDescription>
+          <div className='flex items-center gap-3'>
+            {(() => {
+              const imageUrl = record.imageUrl || 
+                              record.queue?.imageUrl || 
+                              record.personnelData?.imageUrl || 
+                              (type === 'active' && record.occupants?.find((o: any) => o.isCurrent)?.queue?.imageUrl);
+              return imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={getTitle()}
+                  className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
+                />
+              ) : (
+                <div className='flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full'>
+                  <User className='h-16 w-16 text-gray-400' />
+                </div>
+              );
+            })()}
+            <div>
+              <CardTitle className="text-lg">{getTitle()}</CardTitle>
+              <CardDescription>Service No: {getServiceNumber()}</CardDescription>
+            </div>
           </div>
           {getStatusBadge()}
         </div>

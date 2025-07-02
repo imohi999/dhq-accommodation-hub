@@ -58,6 +58,7 @@ export const createTransferAllocationRequest = async (
       current_unit: 'DHQ Garrison',
       appointment: 'Staff Officer',
       phone: '+234-801-000-0000',
+      image_url: null,
       entry_date_time: new Date().toISOString(),
     };
 

@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QueueItem } from "@/types/queue";
-import { Phone, Users, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Phone, Users, ChevronDown, ChevronUp, Trash2, User } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Collapsible,
@@ -68,9 +68,17 @@ export const QueueCardView = ({
 											className="mr-2"
 										/>
 									)}
-									<div className='flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full text-sm font-semibold text-blue-700'>
-										#{index + 1}
-									</div>
+									{item.image_url ? (
+										<img
+											src={item.image_url}
+											alt={item.full_name}
+											className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
+										/>
+									) : (
+										<div className='flex items-center justify-center w-32 h-32 bg-blue-100 rounded-full'>
+											<User className='h-16 w-16 text-blue-700' />
+										</div>
+									)}
 									<div>
 										<h3 className='text-base font-semibold leading-tight'>
 											{item.rank} {item.full_name}
@@ -193,31 +201,47 @@ export const QueueCardView = ({
 							{/* Expanded Details */}
 							<CollapsibleContent>
 								<div className='mt-3 pt-3 border-t space-y-3'>
-									{/* Additional Personnel Info */}
-									<div className='grid grid-cols-1 md:grid-cols-2 gap-3 text-xs'>
-										<div>
-											<p className='font-medium text-muted-foreground mb-1'>
-												Service Details
-											</p>
-											<p>Gender: {item.gender}</p>
-											<p>Appointment: {item.appointment || "Not specified"}</p>
-											{item.date_tos && (
-												<p>
-													TOS: {new Date(item.date_tos).toLocaleDateString()}
+									{/* Personnel Photo and Info Grid */}
+									<div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
+										{/* Photo Section */}
+										{item.image_url && (
+											<div className='md:col-span-1'>
+												<p className='text-xs font-medium text-muted-foreground mb-2'>
+													Personnel Photo
 												</p>
-											)}
-										</div>
-										<div>
-											<p className='font-medium text-muted-foreground mb-1'>
-												Family Details
-											</p>
-											<p>Adults: {item.no_of_adult_dependents}</p>
-											<p>Children: {item.no_of_child_dependents}</p>
-											{item.date_sos && (
-												<p>
-													SOS: {new Date(item.date_sos).toLocaleDateString()}
+												<img
+													src={item.image_url}
+													alt={item.full_name}
+													className='w-full max-w-[150px] rounded-lg object-cover border-2 border-gray-200'
+												/>
+											</div>
+										)}
+										{/* Additional Personnel Info */}
+										<div className={`${item.image_url ? 'md:col-span-2' : 'md:col-span-3'} grid grid-cols-1 md:grid-cols-2 gap-3 text-xs`}>
+											<div>
+												<p className='font-medium text-muted-foreground mb-1'>
+													Service Details
 												</p>
-											)}
+												<p>Gender: {item.gender}</p>
+												<p>Appointment: {item.appointment || "Not specified"}</p>
+												{item.date_tos && (
+													<p>
+														TOS: {new Date(item.date_tos).toLocaleDateString()}
+													</p>
+												)}
+											</div>
+											<div>
+												<p className='font-medium text-muted-foreground mb-1'>
+													Family Details
+												</p>
+												<p>Adults: {item.no_of_adult_dependents}</p>
+												<p>Children: {item.no_of_child_dependents}</p>
+												{item.date_sos && (
+													<p>
+														SOS: {new Date(item.date_sos).toLocaleDateString()}
+													</p>
+												)}
+											</div>
 										</div>
 									</div>
 

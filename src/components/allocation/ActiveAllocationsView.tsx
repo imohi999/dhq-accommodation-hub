@@ -20,6 +20,7 @@ import {
 	Home,
 	AlertTriangle,
 	RefreshCw,
+	User,
 } from "lucide-react";
 import { AllocationLetter } from "./AllocationLetter";
 import { EvictionNotice } from "./EvictionNotice";
@@ -385,7 +386,7 @@ export const ActiveAllocationsView = ({
 		(unit) => unit.category === "Officer"
 	).length;
 	const ncoAllocations = filteredItems.filter(
-		(unit) => unit.category === "NCOs"
+		(unit) => unit.category === "NCO"
 	).length;
 
 	// Calculate by service
@@ -402,20 +403,20 @@ export const ActiveAllocationsView = ({
 	const armyOfficers = armyAllocations.filter(
 		(unit) => unit.category === "Officer"
 	).length;
-	const armyNCOs = armyAllocations.filter(
-		(unit) => unit.category === "NCOs"
+	const armyNCO = armyAllocations.filter(
+		(unit) => unit.category === "NCO"
 	).length;
 	const navyOfficers = navyAllocations.filter(
 		(unit) => unit.category === "Officer"
 	).length;
-	const navyNCOs = navyAllocations.filter(
-		(unit) => unit.category === "NCOs"
+	const navyNCO = navyAllocations.filter(
+		(unit) => unit.category === "NCO"
 	).length;
 	const airForceOfficers = airForceAllocations.filter(
 		(unit) => unit.category === "Officer"
 	).length;
-	const airForceNCOs = airForceAllocations.filter(
-		(unit) => unit.category === "NCOs"
+	const airForceNCO = airForceAllocations.filter(
+		(unit) => unit.category === "NCO"
 	).length;
 
 	return (
@@ -432,7 +433,7 @@ export const ActiveAllocationsView = ({
 					<CardContent>
 						<div className='text-2xl font-bold'>{totalActiveAllocations}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {officerAllocations} | NCOs: {ncoAllocations}
+							Officers: {officerAllocations} | NCO: {ncoAllocations}
 						</p>
 					</CardContent>
 				</Card>
@@ -445,7 +446,7 @@ export const ActiveAllocationsView = ({
 					<CardContent>
 						<div className='text-2xl font-bold'>{armyAllocations.length}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {armyOfficers} | NCOs: {armyNCOs}
+							Officers: {armyOfficers} | NCO: {armyNCO}
 						</p>
 					</CardContent>
 				</Card>
@@ -458,7 +459,7 @@ export const ActiveAllocationsView = ({
 					<CardContent>
 						<div className='text-2xl font-bold'>{navyAllocations.length}</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {navyOfficers} | NCOs: {navyNCOs}
+							Officers: {navyOfficers} | NCO: {navyNCO}
 						</p>
 					</CardContent>
 				</Card>
@@ -475,7 +476,7 @@ export const ActiveAllocationsView = ({
 							{airForceAllocations.length}
 						</div>
 						<p className='text-xs text-muted-foreground'>
-							Officers: {airForceOfficers} | NCOs: {airForceNCOs}
+							Officers: {airForceOfficers} | NCO: {airForceNCO}
 						</p>
 					</CardContent>
 				</Card>
@@ -527,9 +528,23 @@ export const ActiveAllocationsView = ({
 								{/* Header Section - Compact */}
 								<div className='flex items-center justify-between mb-3'>
 									<div className='flex items-center gap-3'>
-										<div className='flex items-center justify-center w-8 h-8 bg-green-100 rounded-full text-sm font-semibold text-green-700'>
-											<Home className='h-4 w-4' />
-										</div>
+										{(() => {
+											const currentOccupant = unit.occupants?.find(
+												(o) => o.isCurrent
+											);
+											const imageUrl = currentOccupant?.queue?.imageUrl;
+											return imageUrl ? (
+												<img
+													src={imageUrl}
+													alt={unit.currentOccupantName || ""}
+													className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
+												/>
+											) : (
+												<div className='flex items-center justify-center w-32 h-32 bg-green-100 rounded-full'>
+													<User className='h-16 w-16 text-green-700' />
+												</div>
+											);
+										})()}
 										<div>
 											<h3 className='text-base font-semibold leading-tight'>
 												{unit.currentOccupantRank} {unit.currentOccupantName}
