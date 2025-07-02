@@ -11,6 +11,7 @@ import { AccommodationCardView } from "@/components/accommodation/AccommodationC
 import { AccommodationTableView } from "@/components/accommodation/AccommodationTableView";
 import { ImportModal } from "@/components/accommodation/ImportModal";
 import { AccommodationFormModal } from "@/components/accommodation/AccommodationFormModal";
+import { ExcelUploadModal } from "@/components/accommodation/ExcelUploadModal";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 import { useAccommodationData } from "@/hooks/useAccommodationData";
 import { useAccommodationFilters } from "@/hooks/useAccommodationFilters";
@@ -45,6 +46,7 @@ export default function DHQLivingUnits() {
 	);
 	const [showForm, setShowForm] = useState(false);
 	const [showImportModal, setShowImportModal] = useState(false);
+	const [showExcelUploadModal, setShowExcelUploadModal] = useState(false);
 	const [editingUnit, setEditingUnit] =
 		useState<DHQLivingUnitWithHousingType | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
@@ -127,13 +129,22 @@ export default function DHQLivingUnits() {
 				</div>
 				<div className='flex gap-2'>
 					{canImport() && (
-						<Button
-							onClick={() => setShowImportModal(true)}
-							variant='outline'
-							className='flex items-center gap-2'>
-							<Upload className='h-4 w-4' />
-							Import
-						</Button>
+						<>
+							<Button
+								onClick={() => setShowImportModal(true)}
+								variant='outline'
+								className='flex items-center gap-2'>
+								<Upload className='h-4 w-4' />
+								Import
+							</Button>
+							<Button
+								onClick={() => setShowExcelUploadModal(true)}
+								variant='outline'
+								className='flex items-center gap-2'>
+								<Upload className='h-4 w-4' />
+								Import Allocations
+							</Button>
+						</>
 					)}
 					{canAddQuarters() && (
 						<Button onClick={handleAdd} className='flex items-center gap-2'>
@@ -228,6 +239,12 @@ export default function DHQLivingUnits() {
 				onClose={() => setShowImportModal(false)}
 				onImportComplete={handleImportComplete}
 				housingTypes={housingTypes}
+			/>
+
+			<ExcelUploadModal
+				isOpen={showExcelUploadModal}
+				onClose={() => setShowExcelUploadModal(false)}
+				onUploadComplete={handleImportComplete}
 			/>
 
 			<AccommodationFormModal

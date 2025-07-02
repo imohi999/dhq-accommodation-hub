@@ -691,11 +691,27 @@ async function main() {
     })
   }
 
+  // Add Test NCO Quarters (vacant unit for Excel import sample)
+  additionalLivingUnits.push({
+    quarterName: "Test NCO Quarters",
+    location: "Test Location",
+    category: "NCOs",
+    accommodationTypeId: "301e92b3-1083-4340-a800-f4e21a20b9c7", // Self Contained
+    noOfRooms: 1,
+    status: "Vacant",
+    typeOfOccupancy: "Single",
+    bq: false,
+    noOfRoomsInBq: 0,
+    blockName: "Test Block C",
+    flatHouseRoomName: "Room 301",
+    unitName: "Test Block C Room 301"
+  })
+
   for (const unit of [...dhqLivingUnitsData, ...additionalLivingUnits]) {
     await prisma.dhqLivingUnit.create({ data: unit })
   }
 
-  console.log('✅ Created 20 DHQ  Accommodation (10 occupied, 10 vacant)')
+  console.log('✅ Created 21 DHQ  Accommodation (10 occupied, 11 vacant)')
 
   // Create unit occupants and history for occupied units
   const occupiedUnits = await prisma.dhqLivingUnit.findMany({
