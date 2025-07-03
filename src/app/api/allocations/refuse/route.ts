@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
             dependents: queueData.dependents,
             currentUnit: queueData.currentUnit,
             appointment: queueData.appointment,
-            dateTos: queueData.dateTos ? new Date(queueData.dateTos) : null,
+            dateTos: queueData.dateTos ? new Date(queueData.dateTos) : new Date(),
             dateSos: queueData.dateSos ? new Date(queueData.dateSos) : null,
             phone: queueData.phone,
             entryDateTime: queueData.entryDateTime,

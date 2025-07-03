@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
               currentUnit: mappedUnitName,
               appointment: record.appointment,
               phone: record.phone,
+              dateTos: new Date(), // Default date for imported records
               dependents: dependents.length > 0 ? dependents : undefined,
               hasAllocationRequest: true, // They're being allocated
             },

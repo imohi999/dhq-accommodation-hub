@@ -61,11 +61,11 @@ export async function POST(request: NextRequest) {
           maritalStatus: validatedData.maritalStatus,
           noOfAdultDependents: validatedData.noOfAdultDependents,
           noOfChildDependents: validatedData.noOfChildDependents,
-          currentUnit: validatedData.currentUnit,
-          appointment: validatedData.appointment,
-          dateTos: validatedData.dateTos ? new Date(validatedData.dateTos) : null,
+          currentUnit: validatedData.currentUnit ?? '',
+          appointment: validatedData.appointment ?? '',
+          dateTos: validatedData.dateTos ? new Date(validatedData.dateTos) : new Date('2020-01-01'),
           dateSos: validatedData.dateSos ? new Date(validatedData.dateSos) : null,
-          phone: validatedData.phone,
+          phone: validatedData.phone ?? '',
           imageUrl: validatedData.imageUrl || null,
           sequence: 1
         }

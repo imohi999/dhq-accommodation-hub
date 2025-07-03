@@ -250,6 +250,7 @@ async function main() {
       ],
       currentUnit: "Naval Command",
       appointment: "Staff Officer",
+      dateTos: new Date("2020-06-01"),
       phone: "+234-8044233738",
       imageUrl: "https://ui-avatars.com/api/?name=Aisha+Okafor&background=0D8ABC&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
@@ -273,6 +274,7 @@ async function main() {
       ],
       currentUnit: "Naval Command",
       appointment: "Staff Officer",
+      dateTos: new Date("2020-06-01"),
       phone: "+234-8093386438",
       imageUrl: "https://ui-avatars.com/api/?name=Emeka+Adebayo&background=2563EB&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
@@ -292,6 +294,7 @@ async function main() {
       dependents: [],
       currentUnit: "Medical Corps",
       appointment: "Staff Officer",
+      dateTos: new Date("2020-06-01"),
       phone: "+234-8090141298",
       imageUrl: "https://ui-avatars.com/api/?name=Oluwaseun+Balogun&background=10B981&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
@@ -313,6 +316,7 @@ async function main() {
       ],
       currentUnit: "Air Defence",
       appointment: "Staff Officer",
+      dateTos: new Date("2020-06-01"),
       phone: "+234-8042714278",
       imageUrl: "https://ui-avatars.com/api/?name=Ibrahim+Mohammed&background=F59E0B&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
@@ -331,6 +335,7 @@ async function main() {
       noOfChildDependents: 0,
       currentUnit: "Naval Command",
       appointment: "Technician",
+      dateTos: new Date("2020-06-01"),
       phone: "+234-8035863891",
       imageUrl: "https://ui-avatars.com/api/?name=Chijioke+Eze&background=EF4444&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
@@ -349,6 +354,7 @@ async function main() {
       noOfChildDependents: 2,
       currentUnit: "Air Defence",
       appointment: "Technician",
+      dateTos: new Date("2020-06-01"),
       phone: "+234-808426565",
       imageUrl: "https://ui-avatars.com/api/?name=Yakubu+Danjuma&background=8B5CF6&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
@@ -367,6 +373,7 @@ async function main() {
       noOfChildDependents: 0,
       currentUnit: "Medical Corps",
       appointment: "Technician",
+      dateTos: new Date("2020-06-01"),
       phone: "+234-8032973381",
       imageUrl: "https://ui-avatars.com/api/?name=Funke+Ogunleye&background=EC4899&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
@@ -385,6 +392,7 @@ async function main() {
       noOfChildDependents: 1,
       currentUnit: "Naval Command",
       appointment: "Technician",
+      dateTos: new Date("2020-06-01"),
       phone: "+234-8093388219",
       imageUrl: "https://ui-avatars.com/api/?name=Blessing+Akpan&background=06B6D4&color=fff&size=200",
       entryDateTime: new Date("2025-06-14T17:19:49.83319+00:00")
@@ -462,6 +470,7 @@ async function main() {
       dependents: dependents,
       currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][i % 5],
       appointment: isOfficer ? 'Staff Officer' : 'Technician',
+      dateTos: new Date("2020-06-01"),
       phone: `+234-80${Math.floor(Math.random() * 90000000) + 10000000}`,
       imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=${['1F2937', '3B82F6', '10B981', 'F59E0B', 'EF4444', '8B5CF6', 'EC4899', '06B6D4'][i % 8]}&color=fff&size=200`,
       entryDateTime: new Date()
@@ -804,6 +813,8 @@ async function main() {
           dependents: dependents.length > 0 ? dependents : undefined,
           currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][unitIndex % 5],
           appointment: 'Staff Officer',
+          phone: `080${Math.floor(Math.random() * 10000000).toString().padStart(7, '0')}`,
+          dateTos: new Date("2020-06-01"),
           imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(unit.currentOccupantName)}&background=${['059669', '7C3AED', 'DC2626', '2563EB'][unitIndex % 4]}&color=fff&size=200`,
           entryDateTime: unit.occupancyStartDate || new Date(),
           createdAt: unit.occupancyStartDate || new Date(),
@@ -944,6 +955,8 @@ async function main() {
         dependents: dependents.length > 0 ? dependents : undefined,
         currentUnit: ['DHQ', 'Naval Command', 'Air Defence', 'Medical Corps', 'MPB'][i % 5],
         appointment: i < 15 ? 'Staff Officer' : 'Technician',
+        phone: `080${Math.floor(Math.random() * 10000000).toString().padStart(7, '0')}`,
+        dateTos: new Date("2020-06-01"),
         imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(occupant.name)}&background=${['6366F1', '14B8A6', 'F97316', '8B5CF6'][i % 4]}&color=fff&size=200`,
         entryDateTime: startDate,
         createdAt: startDate,
