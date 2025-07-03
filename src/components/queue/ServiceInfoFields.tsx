@@ -35,7 +35,8 @@ export const ServiceInfoFields = ({
 			<div className='space-y-2'>
 				<Label htmlFor='arm_of_service'>Arm of Service *</Label>
 				<Select
-					value={formData.arm_of_service}
+					key={`arm-of-service-${formData.arm_of_service}`}
+					value={formData.arm_of_service || ""}
 					onValueChange={(value) => onInputChange("arm_of_service", value)}>
 					<SelectTrigger>
 						<SelectValue placeholder='Select service' />
@@ -53,7 +54,8 @@ export const ServiceInfoFields = ({
 			<div className='space-y-2'>
 				<Label htmlFor='category'>Category *</Label>
 				<Select
-					value={formData.category}
+					key={`category-${formData.category}`}
+					value={formData.category || ""}
 					onValueChange={(value) => onInputChange("category", value)}>
 					<SelectTrigger>
 						<SelectValue placeholder='Select category' />
@@ -68,7 +70,8 @@ export const ServiceInfoFields = ({
 			<div className='space-y-2'>
 				<Label htmlFor='rank'>Rank *</Label>
 				<Select
-					value={formData.rank}
+					key={`rank-${formData.rank}`}
+					value={formData.rank || ""}
 					onValueChange={(value) => onInputChange("rank", value)}>
 					<SelectTrigger>
 						<SelectValue placeholder='Select rank' />
