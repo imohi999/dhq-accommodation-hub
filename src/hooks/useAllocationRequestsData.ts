@@ -1,3 +1,4 @@
+import { useState } from "react";
 import useSWR, { mutate as globalMutate } from "swr";
 import { toast } from "react-toastify";
 import { AllocationRequest } from "@/types/allocation";
@@ -12,6 +13,7 @@ import { generateLetterId } from "@/services/allocationApi";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export const useAllocationRequestsData = (status?: string) => {
+  const [isCreating, setIsCreating] = useState(false);
 
   // Build URL with status filter if provided
   const url = status 
@@ -49,59 +51,69 @@ export const useAllocationRequestsData = (status?: string) => {
     personnel: QueueItem,
     unit: DHQLivingUnitWithHousingType
   ) => {
-    console.log("=== Starting allocation request creation ===");
-    console.log("Personnel:", personnel);
-    console.log("Unit:", unit);
-    console.log("Personnel category:", personnel.category);
-    console.log("Unit category:", unit.category);
+    setIsCreating(true);
     
-    // Validate that categories match
-    if (personnel.category !== unit.category) {
-      console.error("Category mismatch - Personnel:", personnel.category, "Unit:", unit.category);
-      toast.error(`Category Mismatch: Personnel category (${personnel.category}) doesn't match unit category (${unit.category})`);
+    try {
+      console.log("=== Starting allocation request creation ===");
+      console.log("Personnel:", personnel);
+      console.log("Unit:", unit);
+      console.log("Personnel category:", personnel.category);
+      console.log("Unit category:", unit.category);
+      
+      // Validate that categories match
+      if (personnel.category !== unit.category) {
+        console.error("Category mismatch - Personnel:", personnel.category, "Unit:", unit.category);
+        toast.error(`Category Mismatch: Personnel category (${personnel.category}) doesn't match unit category (${unit.category})`);
+        return null;
+      }
+      
+      // Generate letter ID
+      console.log("Generating letter ID...");
+      const letterId = await generateLetterId();
+      if (!letterId) {
+        console.error("Failed to generate letter ID");
+        toast.error("Letter ID Generation Failed: Unable to generate a unique letter ID. Please check the database connection and try again.");
+        return null;
+      }
+
+      console.log("Letter ID generated:", letterId);
+
+      // Create the allocation request (this will also remove from queue in a transaction)
+      console.log("Creating allocation request in database...");
+      const result = await createAllocationRequestInDb(personnel, unit, letterId);
+      if (!result) {
+        console.error("Failed to create allocation request in database");
+        toast.error("Database Error: Failed to create allocation request in database. Please check your permissions and try again.");
+        return null;
+      }
+
+      console.log("Allocation request created successfully:", result);
+      console.log("Personnel automatically removed from queue in transaction");
+
+      toast.success(`Allocation request created successfully with letter ID: ${letterId}`);
+
+      // Refresh allocation requests data
+      mutate();
+      
+      // Also invalidate the queue cache to ensure QueueSummaryCards updates
+      await globalMutate((key) => typeof key === 'string' && key.startsWith('/api/queue'));
+      
+      // Invalidate allocation requests cache globally to ensure pending page updates
+      await globalMutate((key) => typeof key === 'string' && key.includes('/api/allocations/requests'));
+      
+      return result;
+    } catch (error) {
+      console.error("Error in createAllocationRequest:", error);
+      toast.error("An unexpected error occurred while creating the allocation request");
       return null;
+    } finally {
+      setIsCreating(false);
     }
-    
-    // Generate letter ID
-    console.log("Generating letter ID...");
-    const letterId = await generateLetterId();
-    if (!letterId) {
-      console.error("Failed to generate letter ID");
-      toast.error("Letter ID Generation Failed: Unable to generate a unique letter ID. Please check the database connection and try again.");
-      return null;
-    }
-
-    console.log("Letter ID generated:", letterId);
-
-    // Create the allocation request (this will also remove from queue in a transaction)
-    console.log("Creating allocation request in database...");
-    const result = await createAllocationRequestInDb(personnel, unit, letterId);
-    if (!result) {
-      console.error("Failed to create allocation request in database");
-      toast.error("Database Error: Failed to create allocation request in database. Please check your permissions and try again.");
-      return null;
-    }
-
-    console.log("Allocation request created successfully:", result);
-    console.log("Personnel automatically removed from queue in transaction");
-
-    toast.success(`Allocation request created successfully with letter ID: ${letterId}`);
-
-    // Refresh allocation requests data
-    mutate();
-    
-    // Also invalidate the queue cache to ensure QueueSummaryCards updates
-    await globalMutate((key) => typeof key === 'string' && key.startsWith('/api/queue'));
-    
-    // Invalidate allocation requests cache globally to ensure pending page updates
-    await globalMutate((key) => typeof key === 'string' && key.includes('/api/allocations/requests'));
-    
-    return result;
   };
 
   return {
     allocationRequests,
-    loading: isLoading,
+    loading: isLoading || isCreating,
     createAllocationRequest,
     refetch: mutate,
   };

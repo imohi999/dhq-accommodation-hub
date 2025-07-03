@@ -8,6 +8,16 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,11 +65,14 @@ export const AllocationModal = ({
 	personnel,
 }: AllocationModalProps) => {
 	// Pass a very large pageSize to get all units without pagination
-	const { units, loading: unitsLoading } = useAccommodationData({ pageSize: 10000 });
+	const { units, loading: unitsLoading } = useAccommodationData({
+		pageSize: 10000,
+	});
 	const { createAllocationRequest, loading: allocationLoading } =
 		useAllocation();
 	const [selectedUnitId, setSelectedUnitId] = useState<string>("");
 	const [searchTerm, setSearchTerm] = useState("");
+	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
 	// Filter for vacant units that match personnel category
 	const eligibleUnits = units.filter(
@@ -80,7 +93,12 @@ export const AllocationModal = ({
 
 	const selectedUnit = eligibleUnits.find((unit) => unit.id === selectedUnitId);
 
-	const handleAllocate = async () => {
+	const handleAllocateClick = () => {
+		if (!personnel || !selectedUnit) return;
+		setShowConfirmDialog(true);
+	};
+
+	const handleConfirmAllocate = async () => {
 		if (!personnel || !selectedUnit) return;
 
 		console.log("Starting allocation process for:", personnel.full_name);
@@ -92,7 +110,11 @@ export const AllocationModal = ({
 			// Manually trigger cache revalidation for pending allocations
 			await globalMutate("/api/allocations/requests?status=pending");
 			// Also refresh all allocation requests
-			await globalMutate((key) => typeof key === 'string' && key.includes('/api/allocations/requests'));
+			await globalMutate(
+				(key) =>
+					typeof key === "string" && key.includes("/api/allocations/requests")
+			);
+			setShowConfirmDialog(false);
 			onClose();
 			setSelectedUnitId("");
 			setSearchTerm("");
@@ -100,12 +122,13 @@ export const AllocationModal = ({
 	};
 
 	const handleClose = () => {
-		// Prevent closing while loading
+		// Prevent closing while loading or processing
 		if (allocationLoading) return;
-		
+
 		onClose();
 		setSelectedUnitId("");
 		setSearchTerm("");
+		setShowConfirmDialog(false);
 	};
 
 	const formatDate = (dateString: string | null) => {
@@ -128,10 +151,12 @@ export const AllocationModal = ({
 
 				{/* Loading overlay */}
 				{allocationLoading && (
-					<div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
-						<div className="flex flex-col items-center gap-2">
-							<Loader2 className="h-8 w-8 animate-spin text-primary" />
-							<p className="text-sm text-muted-foreground">Creating allocation request...</p>
+					<div className='absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg'>
+						<div className='flex flex-col items-center gap-2'>
+							<Loader2 className='h-8 w-8 animate-spin text-primary' />
+							<p className='text-sm text-muted-foreground'>
+								Creating allocation request...
+							</p>
 						</div>
 					</div>
 				)}
@@ -382,30 +407,71 @@ export const AllocationModal = ({
 				</div>
 
 				<DialogFooter>
-					<Button 
-						variant='outline' 
+					<Button
+						variant='outline'
 						onClick={handleClose}
-						disabled={allocationLoading}
-					>
+						disabled={allocationLoading}>
 						Cancel
 					</Button>
 					<Button
-						onClick={handleAllocate}
+						onClick={handleAllocateClick}
 						disabled={
 							!selectedUnitId ||
 							allocationLoading ||
 							unitsLoading ||
 							eligibleUnits.length === 0
 						}>
-						{allocationLoading && (
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						{allocationLoading ? (
+							<>
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+								Creating Request...
+							</>
+						) : (
+							"Create Allocation Request"
 						)}
-						{allocationLoading
-							? "Creating Request..."
-							: "Create Allocation Request"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>
+
+			{/* Confirmation Dialog */}
+			<AlertDialog
+				open={showConfirmDialog}
+				onOpenChange={(open) => {
+					setShowConfirmDialog(open);
+				}}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Confirm Allocation Request</AlertDialogTitle>
+						<AlertDialogDescription>
+							Are you sure you want to create an allocation request for{" "}
+							<strong>{personnel?.full_name}</strong> to unit{" "}
+							<strong>
+								{selectedUnit?.quarterName} - {selectedUnit?.blockName}{" "}
+								{selectedUnit?.flat_house_room_name}
+							</strong>
+							?
+							<br />
+							<br />
+							This will send the request for admin approval and the unit will be
+							reserved pending approval.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={allocationLoading}>
+							Cancel
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleConfirmAllocate}
+							disabled={allocationLoading}
+							className='bg-primary hover:bg-primary/90'>
+							{allocationLoading && (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							)}
+							{allocationLoading ? "Creating..." : "Yes, Create Request"}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</Dialog>
 	);
 };

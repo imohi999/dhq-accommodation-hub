@@ -79,7 +79,7 @@ export default function QueuePage() {
 				date_tos: item.dateTos ?? null,
 				date_sos: item.dateSos ?? null,
 				phone: item.phone ?? null,
-				image_url: null, // imageUrl not available in queue API
+				image_url: item.imageUrl ?? null,
 				entry_date_time: item.entryDateTime,
 				// Include camelCase versions for form hydration
 				fullName: item.fullName,
@@ -91,7 +91,7 @@ export default function QueuePage() {
 				currentUnit: item.currentUnit ?? null,
 				dateTos: item.dateTos ?? null,
 				dateSos: item.dateSos ?? null,
-				imageUrl: null, // imageUrl not available in queue API
+				imageUrl: item.imageUrl ?? null,
 				entryDateTime: item.entryDateTime,
 			})),
 		[queueItems]

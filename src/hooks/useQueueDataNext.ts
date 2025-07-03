@@ -34,6 +34,7 @@ interface ApiQueueItem {
   dateTos?: string | null
   dateSos?: string | null
   phone?: string | null
+  imageUrl?: string | null
   sequence: number
   entryDateTime: string
   createdAt: string
