@@ -188,6 +188,16 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
       return;
     }
     
+    if (!formData.phone) {
+      toast.error("Phone is required");
+      return;
+    }
+    
+    if (!formData.appointment) {
+      toast.error("Appointment is required");
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -203,11 +213,11 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         noOfAdultDependents: Number(formData.no_of_adult_dependents),
         noOfChildDependents: Number(formData.no_of_child_dependents),
         dependents: formData.dependents || [],
-        currentUnit: formData.current_unit || null,
-        appointment: formData.appointment || null,
-        dateTos: formData.date_tos || null,
+        currentUnit: formData.current_unit,
+        appointment: formData.appointment,
+        dateTos: formData.date_tos,
         dateSos: formData.date_sos || null,
-        phone: formData.phone || null,
+        phone: formData.phone,
         imageUrl: formData.image_url || null,
       };
 

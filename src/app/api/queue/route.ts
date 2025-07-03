@@ -27,10 +27,10 @@ const queueSchema = z.object({
   noOfChildDependents: z.number().int().min(0).max(99).default(0),
   dependents: z.array(dependentSchema).optional(),
   currentUnit: z.string().min(1, { message: "Current Unit is required" }),
-  appointment: z.string().nullable().optional(),
+  appointment: z.string().min(1, { message: "Appointment is required" }),
   dateTos: z.string().min(1, { message: "Date TOS is required" }).transform(val => new Date(val)),
   dateSos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
-  phone: z.string().nullable().optional(),
+  phone: z.string().min(1, { message: "Phone is required" }),
   imageUrl: z.string().nullable().optional()
 })
 
