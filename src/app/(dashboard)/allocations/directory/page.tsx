@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import useSWR from 'swr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -101,11 +102,15 @@ function RecordCard({ record, type }: { record: any; type: string }) {
                               record.personnelData?.imageUrl || 
                               (type === 'active' && record.occupants?.find((o: any) => o.isCurrent)?.queue?.imageUrl);
               return imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={getTitle()}
-                  className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
-                />
+                <div className='relative w-32 h-32'>
+                  <Image
+                    src={imageUrl}
+                    alt={getTitle()}
+                    fill
+                    sizes="128px"
+                    className='rounded-full object-cover border-2 border-gray-200'
+                  />
+                </div>
               ) : (
                 <div className='flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full'>
                   <User className='h-16 w-16 text-gray-400' />

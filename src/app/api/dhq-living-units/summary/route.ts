@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     // Get counts by category
     const [men, nco, officer] = await Promise.all([
       prisma.dhqLivingUnit.count({ where: { category: 'Men' } }),
-      prisma.dhqLivingUnit.count({ where: { category: 'NCOs' } }),
+      prisma.dhqLivingUnit.count({ where: { category: 'NCO' } }),
       prisma.dhqLivingUnit.count({ where: { category: 'Officer' } }),
     ]);
 

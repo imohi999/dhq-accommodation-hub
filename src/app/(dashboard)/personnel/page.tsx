@@ -71,7 +71,7 @@ export default function PersonnelPage() {
 				sequence: item.sequence,
 				full_name: item.fullName,
 				svc_no: item.svcNo,
-				gender: item.gender,
+				gender: item.gender || "Male", // Provide default if missing
 				arm_of_service: item.armOfService,
 				category: item.category,
 				rank: item.rank,
@@ -86,6 +86,18 @@ export default function PersonnelPage() {
 				phone: item.phone ?? null,
 				image_url: item.imageUrl ?? null,
 				entry_date_time: item.entryDateTime,
+				// Include camelCase versions for form hydration
+				fullName: item.fullName,
+				svcNo: item.svcNo,
+				armOfService: item.armOfService,
+				maritalStatus: item.maritalStatus,
+				noOfAdultDependents: item.noOfAdultDependents,
+				noOfChildDependents: item.noOfChildDependents,
+				currentUnit: item.currentUnit ?? null,
+				dateTos: item.dateTos ?? null,
+				dateSos: item.dateSos ?? null,
+				imageUrl: item.imageUrl ?? null,
+				entryDateTime: item.entryDateTime,
 			})),
 		[personnelItems]
 	);

@@ -26,6 +26,7 @@ interface PersonnelData {
 	maritalStatus: string;
 	noOfAdultDependents: number;
 	noOfChildDependents: number;
+	imageUrl?: string;
 }
 
 // Interface for unitData JSON field
@@ -68,6 +69,7 @@ interface Personnel {
 		gender: string;
 	}> | null;
 	hasAllocationRequest: boolean;
+	imageUrl?: string | null;
 }
 
 // Interface for accommodation type

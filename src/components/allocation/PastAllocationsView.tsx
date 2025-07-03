@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/spinner";
@@ -28,6 +29,7 @@ interface PersonnelData {
 	fullName: string;
 	svcNo?: string;
 	serviceNumber?: string;
+	imageUrl?: string;
 }
 interface ClearanceInspection {
 	id: string;
@@ -85,6 +87,7 @@ interface QueueData {
 	updatedAt: string;
 	dependents: any | null;
 	hasAllocationRequest: boolean;
+	imageUrl?: string | null;
 }
 
 interface Unit {
@@ -164,22 +167,6 @@ const fetcher = async () => {
 	}
 
 	return pastAllocations;
-};
-
-const formatDuration = (days: number): string => {
-	if (days === 0) return "0 days";
-
-	const years = Math.floor(days / 365);
-	const months = Math.floor((days % 365) / 30);
-	const remainingDays = days % 30;
-
-	const parts = [];
-	if (years > 0) parts.push(`${years} year${years > 1 ? "s" : ""}`);
-	if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
-	if (remainingDays > 0)
-		parts.push(`${remainingDays} day${remainingDays > 1 ? "s" : ""}`);
-
-	return parts.join(", ");
 };
 
 const calculateDurationFromDates = (
@@ -580,14 +567,19 @@ export const PastAllocationsView = () => {
 										)}
 										{allocation.queue?.imageUrl ||
 										allocation.personnelData?.imageUrl ? (
-											<img
-												src={
-													allocation.queue?.imageUrl ||
-													allocation.personnelData?.imageUrl
-												}
-												alt={allocation.personnelData?.fullName}
-												className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
-											/>
+											<div className='relative w-32 h-32'>
+												<Image
+													src={
+														allocation.queue?.imageUrl ||
+														allocation.personnelData?.imageUrl ||
+														''
+													}
+													alt={allocation.personnelData?.fullName || ''}
+													fill
+													sizes="128px"
+													className='rounded-full object-cover border-2 border-gray-200'
+												/>
+											</div>
 										) : (
 											<div className='flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full'>
 												<User className='h-16 w-16 text-gray-700' />

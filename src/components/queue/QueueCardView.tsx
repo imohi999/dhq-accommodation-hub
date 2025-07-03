@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,11 +70,15 @@ export const QueueCardView = ({
 										/>
 									)}
 									{item.image_url ? (
-										<img
-											src={item.image_url}
-											alt={item.full_name}
-											className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
-										/>
+										<div className='relative w-32 h-32'>
+											<Image
+												src={item.image_url}
+												alt={item.full_name}
+												fill
+												sizes="128px"
+												className='rounded-full object-cover border-2 border-gray-200'
+											/>
+										</div>
 									) : (
 										<div className='flex items-center justify-center w-32 h-32 bg-blue-100 rounded-full'>
 											<User className='h-16 w-16 text-blue-700' />
@@ -209,11 +214,15 @@ export const QueueCardView = ({
 												<p className='text-xs font-medium text-muted-foreground mb-2'>
 													Personnel Photo
 												</p>
-												<img
-													src={item.image_url}
-													alt={item.full_name}
-													className='w-full max-w-[150px] rounded-lg object-cover border-2 border-gray-200'
-												/>
+												<div className='relative w-full max-w-[150px] h-[150px]'>
+													<Image
+														src={item.image_url}
+														alt={item.full_name}
+														fill
+														sizes="150px"
+														className='rounded-lg object-cover border-2 border-gray-200'
+													/>
+												</div>
 											</div>
 										)}
 										{/* Additional Personnel Info */}

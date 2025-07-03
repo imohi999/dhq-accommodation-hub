@@ -196,7 +196,7 @@ export const QueueFilters = ({
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value='all'>All Categories</SelectItem>
-							<SelectItem value='NCOs'>NCOs</SelectItem>
+							<SelectItem value='NCO'>NCO</SelectItem>
 							<SelectItem value='Officer'>Officer</SelectItem>
 						</SelectContent>
 					</Select>

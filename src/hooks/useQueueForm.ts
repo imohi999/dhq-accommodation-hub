@@ -65,7 +65,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
   useEffect(() => {
     if (item) {
       // Helper function to format date for HTML date input
-      const formatDateForInput = (dateString: string | null) => {
+      const formatDateForInput = (dateString: string | null | undefined) => {
         if (!dateString) return "";
         try {
           const date = new Date(dateString);
@@ -77,59 +77,52 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
       };
 
       const formValues = {
-        full_name: item.full_name || "",
-        svc_no: item.svc_no || "",
-        gender: item.gender || "",
-        arm_of_service: item.arm_of_service || "",
+        // Handle both snake_case and camelCase field names
+        full_name: item.full_name || item.fullName || "",
+        svc_no: item.svc_no || item.svcNo || "",
+        gender: item.gender || "Male", // Provide default if missing
+        arm_of_service: item.arm_of_service || item.armOfService || "",
         category: item.category || "",
         rank: item.rank || "",
-        marital_status: item.marital_status || "",
-        no_of_adult_dependents: item.no_of_adult_dependents || 0,
-        no_of_child_dependents: item.no_of_child_dependents || 0,
+        marital_status: item.marital_status || item.maritalStatus || "",
+        no_of_adult_dependents: item.no_of_adult_dependents || item.noOfAdultDependents || 0,
+        no_of_child_dependents: item.no_of_child_dependents || item.noOfChildDependents || 0,
         dependents: item.dependents || [],
-        current_unit: item.current_unit || "",
+        current_unit: item.current_unit || item.currentUnit || "",
         appointment: item.appointment || "",
-        date_tos: formatDateForInput(item.date_tos),
-        date_sos: formatDateForInput(item.date_sos),
+        date_tos: formatDateForInput(item.date_tos || item.dateTos),
+        date_sos: formatDateForInput(item.date_sos || item.dateSos),
         phone: item.phone || "",
-        image_url: item.image_url || "",
+        image_url: item.image_url || item.imageUrl || "",
       };
       
-      // Debug logging to check values
-      console.log("Setting form data for edit:", {
-        itemId: item.id,
-        gender: item.gender,
-        arm_of_service: item.arm_of_service,
-        category: item.category,
-        rank: item.rank,
-        marital_status: item.marital_status,
-        formValues
-      });
       
       setFormData(formValues);
     }
   }, [item]);
 
   const handleInputChange = (field: string, value: string | number | Dependent[]) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
     // Reset rank when arm of service or category changes only if the current rank is not valid
     if (field === "arm_of_service" || field === "category") {
-      const newArmOfService = field === "arm_of_service" ? value as string : formData.arm_of_service;
-      const newCategory = field === "category" ? value as string : formData.category;
-      
-      // Check if current rank is valid for the new combination
-      const validRanks = getRankOptions(newArmOfService, newCategory);
-      const currentRankIsValid = validRanks.includes(formData.rank);
-      
+      setFormData(prev => {
+        const newArmOfService = field === "arm_of_service" ? value as string : prev.arm_of_service;
+        const newCategory = field === "category" ? value as string : prev.category;
+        
+        // Check if current rank is valid for the new combination
+        const validRanks = getRankOptions(newArmOfService, newCategory);
+        const currentRankIsValid = validRanks.includes(prev.rank);
+        
+        return {
+          ...prev,
+          [field]: value,
+          // Only reset rank if it's not valid for the new combination
+          rank: currentRankIsValid ? prev.rank : ""
+        };
+      });
+    } else {
       setFormData(prev => ({
         ...prev,
-        [field]: value,
-        // Only reset rank if it's not valid for the new combination
-        rank: currentRankIsValid ? prev.rank : ""
+        [field]: value
       }));
     }
 
@@ -218,10 +211,14 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         imageUrl: formData.image_url || null,
       };
 
+      // Determine if we're working with personnel or queue based on current path
+      const isPersonnelRoute = window.location.pathname.includes('/personnel');
+      const apiEndpoint = isPersonnelRoute ? '/api/personnel' : '/api/queue';
+      
       let response;
       if (item) {
         // Update existing item
-        response = await fetch(`/api/queue/${item.id}`, {
+        response = await fetch(`${apiEndpoint}/${item.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -230,7 +227,7 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         });
       } else {
         // Create new item
-        response = await fetch('/api/queue', {
+        response = await fetch(apiEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -244,7 +241,8 @@ export const useQueueForm = (item: QueueItem | null, onSubmit: () => void) => {
         throw new Error(error.error || error.message || "Failed to save queue item");
       }
 
-      toast.success(`Queue item ${item ? 'updated' : 'created'} successfully`);
+      const itemType = isPersonnelRoute ? 'Personnel record' : 'Queue item';
+      toast.success(`${itemType} ${item ? 'updated' : 'created'} successfully`);
 
       onSubmit();
     } catch (error) {

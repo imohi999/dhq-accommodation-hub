@@ -126,7 +126,7 @@ const sampleData = [
     svcNo: "NA/45678/95",
     gender: "Female",
     armOfService: "Nigerian Army",
-    category: "NCOs",
+    category: "NCO",
     rank: "WO",
     maritalStatus: "Divorced",
     currentUnit: "Medical Corps",

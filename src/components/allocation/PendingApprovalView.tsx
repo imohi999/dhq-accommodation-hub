@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -374,7 +375,7 @@ export const PendingApprovalView = ({
 				</Card>
 			) : (
 				<div className='space-y-4'>
-					{filteredItems.map((request, index) => (
+					{filteredItems.map((request) => (
 						<Card
 							key={request.id}
 							className='hover:shadow-md transition-shadow'>
@@ -384,14 +385,19 @@ export const PendingApprovalView = ({
 									<div className='flex items-center gap-3'>
 										{request.queue?.imageUrl ||
 										request.personnelData?.imageUrl ? (
-											<img
-												src={
-													request.queue?.imageUrl ||
-													request.personnelData?.imageUrl
-												}
-												alt={request.personnelData?.fullName}
-												className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
-											/>
+											<div className='relative w-32 h-32'>
+												<Image
+													src={
+														request.queue?.imageUrl ||
+														request.personnelData?.imageUrl ||
+														''
+													}
+													alt={request.personnelData?.fullName || ''}
+													fill
+													sizes="128px"
+													className='rounded-full object-cover border-2 border-gray-200'
+												/>
+											</div>
 										) : (
 											<div className='flex items-center justify-center w-32 h-32 bg-yellow-100 rounded-full'>
 												<User className='h-16 w-16 text-yellow-700' />
@@ -559,14 +565,19 @@ export const PendingApprovalView = ({
 										<div className='flex-shrink-0'>
 											{confirmDialog.request.queue?.imageUrl ||
 											confirmDialog.request.personnelData?.imageUrl ? (
-												<img
-													src={
-														confirmDialog.request.queue?.imageUrl ||
-														confirmDialog.request.personnelData?.imageUrl
-													}
-													alt={confirmDialog.request.personnelData?.fullName}
-													className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
-												/>
+												<div className='relative w-32 h-32'>
+													<Image
+														src={
+															confirmDialog.request.queue?.imageUrl ||
+															confirmDialog.request.personnelData?.imageUrl ||
+															''
+														}
+														alt={confirmDialog.request.personnelData?.fullName || ''}
+														fill
+														sizes="128px"
+														className='rounded-full object-cover border-2 border-gray-200'
+													/>
+												</div>
 											) : (
 												<div className='flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full'>
 													<User className='h-16 w-16 text-gray-400' />

@@ -722,22 +722,22 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 		(r) => getArmOfService(r) === "Nigerian Air Force"
 	);
 
-	// Count officers and NCOs for each service
+	// Count officers and NCO for each service
 	const armyOfficers = armyRecords.filter(
 		(r) => getCategory(r) === "Officer"
 	).length;
-	const armyNCOs = armyRecords.filter((r) => getCategory(r) === "NCOs").length;
+	const armyNCO = armyRecords.filter((r) => getCategory(r) === "NCO").length;
 
 	const navyOfficers = navyRecords.filter(
 		(r) => getCategory(r) === "Officer"
 	).length;
-	const navyNCOs = navyRecords.filter((r) => getCategory(r) === "NCOs").length;
+	const navyNCO = navyRecords.filter((r) => getCategory(r) === "NCO").length;
 
 	const airForceOfficers = airForceRecords.filter(
 		(r) => getCategory(r) === "Officer"
 	).length;
-	const airForceNCOs = airForceRecords.filter(
-		(r) => getCategory(r) === "NCOs"
+	const airForceNCO = airForceRecords.filter(
+		(r) => getCategory(r) === "NCO"
 	).length;
 
 	return (
@@ -751,7 +751,7 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 							<p className='text-sm text-muted-foreground'>
 								Officers:{" "}
 								{records.filter((r) => getCategory(r) === "Officer").length} |
-								NCOs: {records.filter((r) => getCategory(r) === "NCOs").length}
+								NCO: {records.filter((r) => getCategory(r) === "NCO").length}
 							</p>
 						</div>
 						<Users className='h-8 w-8 text-muted-foreground' />
@@ -770,7 +770,7 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 								{armyRecords.length}
 							</p>
 							<p className='text-sm text-red-600 dark:text-red-400'>
-								Officers: {armyOfficers} | NCOs: {armyNCOs}
+								Officers: {armyOfficers} | NCO: {armyNCO}
 							</p>
 						</div>
 						<Shield className='h-8 w-8 text-red-600 dark:text-red-400' />
@@ -789,7 +789,7 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 								{navyRecords.length}
 							</p>
 							<p className='text-sm text-blue-600 dark:text-blue-400'>
-								Officers: {navyOfficers} | NCOs: {navyNCOs}
+								Officers: {navyOfficers} | NCO: {navyNCO}
 							</p>
 						</div>
 						<Anchor className='h-8 w-8 text-blue-600 dark:text-blue-400' />
@@ -808,7 +808,7 @@ const ServiceSummaryCards = ({ records }: { records: Record[] }) => {
 								{airForceRecords.length}
 							</p>
 							<p className='text-sm text-sky-600 dark:text-sky-400'>
-								Officers: {airForceOfficers} | NCOs: {airForceNCOs}
+								Officers: {airForceOfficers} | NCO: {airForceNCO}
 							</p>
 						</div>
 						<Plane className='h-8 w-8 text-sky-600 dark:text-sky-400' />
@@ -1140,7 +1140,7 @@ export default function DirectoryPage() {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value='all'>All Categories</SelectItem>
-								<SelectItem value='NCOs'>NCOs</SelectItem>
+								<SelectItem value='NCO'>NCO</SelectItem>
 								<SelectItem value='Officer'>Officer</SelectItem>
 							</SelectContent>
 						</Select>

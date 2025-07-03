@@ -9,23 +9,33 @@ export interface QueueItem {
   id: string;
   sequence: number;
   full_name: string;
+  fullName?: string;
   svc_no: string;
+  svcNo?: string;
   gender: string;
   arm_of_service: string;
   armOfService?: string;
   category: string;
   rank: string;
   marital_status: string;
+  maritalStatus?: string;
   no_of_adult_dependents: number;
+  noOfAdultDependents?: number;
   no_of_child_dependents: number;
+  noOfChildDependents?: number;
   dependents?: Dependent[];
   current_unit: string | null;
+  currentUnit?: string | null;
   appointment: string | null;
   date_tos: string | null;
+  dateTos?: string | null;
   date_sos: string | null;
+  dateSos?: string | null;
   phone: string | null;
   image_url?: string | null;
+  imageUrl?: string | null;
   entry_date_time: string;
+  entryDateTime?: string;
 }
 
 export interface Unit {

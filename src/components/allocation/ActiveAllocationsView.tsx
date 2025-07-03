@@ -1,7 +1,7 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { LoadingButton } from "@/components/ui/loading-button";
 import {
 	Dialog,
@@ -19,7 +19,6 @@ import {
 	FileText,
 	Home,
 	AlertTriangle,
-	RefreshCw,
 	User,
 } from "lucide-react";
 import { AllocationLetter } from "./AllocationLetter";
@@ -534,11 +533,15 @@ export const ActiveAllocationsView = ({
 											);
 											const imageUrl = currentOccupant?.queue?.imageUrl;
 											return imageUrl ? (
-												<img
-													src={imageUrl}
-													alt={unit.currentOccupantName || ""}
-													className='w-32 h-32 rounded-full object-cover border-2 border-gray-200'
-												/>
+												<div className='relative w-32 h-32'>
+													<Image
+														src={imageUrl}
+														alt={unit.currentOccupantName || ""}
+														fill
+														sizes="128px"
+														className='rounded-full object-cover border-2 border-gray-200'
+													/>
+												</div>
 											) : (
 												<div className='flex items-center justify-center w-32 h-32 bg-green-100 rounded-full'>
 													<User className='h-16 w-16 text-green-700' />

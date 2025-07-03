@@ -23,7 +23,7 @@ const updatePersonnelSchema = z.object({
   svcNo: z.string().min(1),
   gender: z.enum(['Male', 'Female']),
   armOfService: z.enum(['Nigerian Army', 'Nigerian Navy', 'Nigerian Air Force']),
-  category: z.enum(['NCOs', 'Officer']),
+  category: z.enum(['NCO', 'Officer']),
   rank: z.string().min(1),
   maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
   noOfAdultDependents: z.number().int().min(0).max(99).default(0),

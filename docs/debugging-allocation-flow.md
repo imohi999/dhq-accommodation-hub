@@ -41,7 +41,7 @@
 6. **PendingApprovalView Component**
    - Expects data structure:
      - `request.personnelData.fullName` (camelCase)
-     - `request.personnelData.category` (for Officer/NCOs counts)
+     - `request.personnelData.category` (for Officer/NCO counts)
      - `request.personnel.armOfService` (for Nigerian Army/Nigerian Navy/Nigerian Air Force counts)
 
 ## Debugging Steps

@@ -255,7 +255,7 @@ export default function PendingAnalyticsPage() {
 				: 0;
 
 		const officers = pendingData.filter((p) => p.category === "Officer").length;
-		const ncos = pendingData.filter((p) => p.category === "NCOs").length;
+		const NCO = pendingData.filter((p) => p.category === "NCO").length;
 
 		const byArm = pendingData.reduce((acc, person) => {
 			const arm = person.armOfService || "Unknown";
@@ -331,7 +331,7 @@ export default function PendingAnalyticsPage() {
 			avgProcessingTime,
 			avgWaitingTime,
 			officers,
-			ncos,
+			NCO,
 			withDependents,
 			withoutDependents,
 			byArm: Object.entries(byArm).map(([name, value]) => ({ name, value })),
@@ -871,11 +871,11 @@ export default function PendingAnalyticsPage() {
 
 				<Card>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>NCOs</CardTitle>
+						<CardTitle className='text-sm font-medium'>NCO</CardTitle>
 						<Users className='h-4 w-4 text-muted-foreground' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold'>{pendingAnalytics.ncos}</div>
+						<div className='text-2xl font-bold'>{pendingAnalytics.NCO}</div>
 						<p className='text-xs text-muted-foreground'>NCO requests</p>
 					</CardContent>
 				</Card>
