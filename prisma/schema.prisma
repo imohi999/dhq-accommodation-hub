@@ -99,11 +99,11 @@ model Queue {
   maritalStatus        String              @map("marital_status")
   noOfAdultDependents  Int                 @default(0) @map("no_of_adult_dependents")
   noOfChildDependents  Int                 @default(0) @map("no_of_child_dependents")
-  currentUnit          String?             @map("current_unit")
-  appointment          String?
-  dateTos              DateTime?           @map("date_tos") @db.Date
+  currentUnit          String              @map("current_unit")
+  appointment          String
+  dateTos              DateTime            @map("date_tos") @db.Date
   dateSos              DateTime?           @map("date_sos") @db.Date
-  phone                String?
+  phone                String
   entryDateTime        DateTime            @default(now()) @map("entry_date_time")
   createdAt            DateTime            @default(now()) @map("created_at")
   updatedAt            DateTime            @updatedAt @map("updated_at")
