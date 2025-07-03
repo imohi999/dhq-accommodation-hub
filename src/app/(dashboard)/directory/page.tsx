@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,6 +24,7 @@ import {
 	MapPin,
 	ChevronDown,
 	ChevronUp,
+	User,
 } from "lucide-react";
 import { LoadingState } from "@/components/ui/spinner";
 import {
@@ -69,6 +71,8 @@ interface PersonnelData {
 		age: number;
 		gender: string;
 	}>;
+	image_url?: string | null;
+	imageUrl?: string | null;
 }
 
 interface UnitData {
@@ -136,6 +140,8 @@ interface QueueRecord extends BaseRecord {
 		age: number;
 		gender: string;
 	}>;
+	image_url?: string | null;
+	imageUrl?: string | null;
 }
 
 interface ActiveRecord extends BaseRecord {
@@ -288,6 +294,44 @@ const getPersonnelServiceNumber = (record: Record): string => {
 		default:
 			return "";
 	}
+};
+
+const getPersonnelImageUrl = (record: Record): string | null => {
+	let imageUrl: string | null = null;
+	
+	switch (record.type) {
+		case "queue":
+			imageUrl = (record as any).imageUrl || (record as any).image_url || null;
+			break;
+		case "active":
+			// For active records, try to get image from occupant data or queue data
+			const currentOccupant = record.occupants?.find((o) => o.isCurrent);
+			const queueData = currentOccupant?.queue;
+			imageUrl = (currentOccupant as any)?.imageUrl || (currentOccupant as any)?.image_url || 
+			           (queueData as any)?.imageUrl || (queueData as any)?.image_url || null;
+			break;
+		case "pending":
+			// For pending allocations from API, imageUrl is in the queue relation
+			imageUrl = (record as any).queue?.imageUrl || (record as any).queue?.image_url ||
+			           (record.personnelData as any)?.imageUrl || (record.personnelData as any)?.image_url || 
+			           (record.queue as any)?.imageUrl || (record.queue as any)?.image_url || null;
+			break;
+		case "past":
+			// For past allocations from API, imageUrl is in the queue relation
+			imageUrl = (record as any).queue?.imageUrl || (record as any).queue?.image_url ||
+			           (record.personnelData as any)?.imageUrl || (record.personnelData as any)?.image_url || 
+			           (record.queue as any)?.imageUrl || (record.queue as any)?.image_url || null;
+			break;
+		default:
+			imageUrl = null;
+	}
+	
+	// Debug logging - can be removed in production
+	if (process.env.NODE_ENV === 'development' && imageUrl) {
+		console.log(`Image URL found for ${record.type} record:`, imageUrl?.substring(0, 50) + '...');
+	}
+	
+	return imageUrl;
 };
 
 const getUnitName = (record: Record): string => {
@@ -510,17 +554,35 @@ const RecordCard = ({ record }: { record: Record }) => {
 				<CardContent className='p-6'>
 					{/* Header section - consistent across all types */}
 					<div className='flex items-start justify-between mb-4'>
-						<div className='flex-1'>
-							<div className='flex items-center justify-between'>
-								<h3 className='text-lg font-semibold'>
-									{rank} {name}
-								</h3>
-								{getStatusBadge(record.type)}
+						<div className='flex items-center gap-3'>
+							{/* Personnel Image */}
+							{getPersonnelImageUrl(record) ? (
+								<div className='relative w-32 h-32 flex-shrink-0'>
+									<Image
+										src={getPersonnelImageUrl(record)!}
+										alt={name}
+										fill
+										sizes="128px"
+										className='rounded-full object-cover border-2 border-gray-200'
+									/>
+								</div>
+							) : (
+								<div className='flex items-center justify-center w-32 h-32 bg-blue-100 rounded-full flex-shrink-0'>
+									<User className='h-16 w-16 text-blue-700' />
+								</div>
+							)}
+							<div className='flex-1'>
+								<div className='flex items-center justify-between'>
+									<h3 className='text-lg font-semibold'>
+										{rank} {name}
+									</h3>
+									{getStatusBadge(record.type)}
+								</div>
+								<p className='text-sm text-muted-foreground mt-1'>
+									Svc No: {serviceNumber} • {additionalInfo.currentUnit} •{" "}
+									{additionalInfo.appointment}
+								</p>
 							</div>
-							<p className='text-sm text-muted-foreground mt-1'>
-								Svc No: {serviceNumber} • {additionalInfo.currentUnit} •{" "}
-								{additionalInfo.appointment}
-							</p>
 						</div>
 					</div>
 

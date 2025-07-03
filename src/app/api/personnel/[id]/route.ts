@@ -33,7 +33,8 @@ const updatePersonnelSchema = z.object({
   appointment: z.string().optional(),
   dateTos: z.string().min(1, { message: "Date TOS is required" }).transform(val => new Date(val)),
   dateSos: z.string().nullable().optional().transform(val => val ? new Date(val) : null),
-  phone: z.string().optional()
+  phone: z.string().optional(),
+  imageUrl: z.string().nullable().optional()
 })
 
 // GET /api/personnel/[id] - Get single personnel record
