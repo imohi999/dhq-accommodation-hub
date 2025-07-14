@@ -329,8 +329,8 @@ export async function POST(request: NextRequest) {
 
       return { imported, skipped, errors };
     }, {
-      maxWait: 600000, // 60 seconds max wait
-      timeout: 1200000, // 120 seconds timeout for the transaction
+      maxWait: 6000000, // 60 seconds max wait
+      timeout: 12000000, // 120 seconds timeout for the transaction
     });
 
     return NextResponse.json({
