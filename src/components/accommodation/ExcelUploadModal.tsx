@@ -147,7 +147,7 @@ export function ExcelUploadModal({
 			});
 
 			// Validate specific field values
-			if (row.gender && !validGenders.includes(row.gender)) {
+			if (row.gender && !validGenders.includes(row.gender) && row.gender.toLowerCase() !== "n/a") {
 				validationErrors.push({
 					row: rowNum,
 					field: "gender",
@@ -193,14 +193,8 @@ export function ExcelUploadModal({
 				if (row[nameField]) {
 					actualDependentCount++;
 
-					// If name is provided, gender and age should also be provided
-					if (!row[genderField]) {
-						validationErrors.push({
-							row: rowNum,
-							field: String(genderField),
-							message: `Gender is required for dependent ${i}`,
-						});
-					} else if (!validGenders.includes(String(row[genderField]))) {
+					// If name is provided, check gender (but allow N/A)
+					if (row[genderField] && !validGenders.includes(String(row[genderField])) && String(row[genderField]).toLowerCase() !== "n/a") {
 						validationErrors.push({
 							row: rowNum,
 							field: String(genderField),
@@ -208,17 +202,12 @@ export function ExcelUploadModal({
 						});
 					}
 
-					if (row[ageField] === undefined || row[ageField] === "") {
-						validationErrors.push({
-							row: rowNum,
-							field: String(ageField),
-							message: `Age is required for dependent ${i}`,
-						});
-					} else if (
+					// Age validation - allow empty/0
+					if (row[ageField] !== undefined && row[ageField] !== "" && row[ageField] !== 0 && (
 						isNaN(Number(row[ageField])) ||
 						Number(row[ageField]) < 0 ||
 						Number(row[ageField]) > 120
-					) {
+					)) {
 						validationErrors.push({
 							row: rowNum,
 							field: String(ageField),
@@ -264,41 +253,41 @@ export function ExcelUploadModal({
 				const transformedData = jsonData.map((row: any) => {
 					return {
 						sequence: parseInt(row.sequence) || 0,
-						fullName: row.fullName?.trim() || "",
-						svcNo: row.svcNo?.trim() || "",
-						gender: row.gender?.trim() || "",
-						armOfService: row.armOfService?.trim() || "",
-						category: row.category?.trim() || "",
-						rank: row.rank?.trim() || "",
-						maritalStatus: row.maritalStatus?.trim() || "",
-						currentUnit: row.currentUnit?.trim() || "",
-						appointment: row.appointment?.trim() || "",
-						phone: row.phone?.trim() || "",
+						fullName: String(row.fullName || "")?.trim() || "",
+						svcNo: String(row.svcNo || "")?.trim() || "",
+						gender: String(row.gender || "")?.trim() || "N/A",
+						armOfService: String(row.armOfService || "")?.trim() || "",
+						category: String(row.category || "")?.trim() || "",
+						rank: String(row.rank || "")?.trim() || "",
+						maritalStatus: String(row.maritalStatus || "")?.trim() || "",
+						currentUnit: String(row.currentUnit || "")?.trim() || "",
+						appointment: String(row.appointment || "")?.trim() || "",
+						phone: String(row.phone || "")?.trim() || "",
 						// Individual dependent fields
-						dependent1Name: row.dependent1Name?.trim() || "",
-						dependent1Gender: row.dependent1Gender?.trim() || "",
-						dependent1Age: parseInt(row.dependent1Age) || undefined,
-						dependent2Name: row.dependent2Name?.trim() || "",
-						dependent2Gender: row.dependent2Gender?.trim() || "",
-						dependent2Age: parseInt(row.dependent2Age) || undefined,
-						dependent3Name: row.dependent3Name?.trim() || "",
-						dependent3Gender: row.dependent3Gender?.trim() || "",
-						dependent3Age: parseInt(row.dependent3Age) || undefined,
-						dependent4Name: row.dependent4Name?.trim() || "",
-						dependent4Gender: row.dependent4Gender?.trim() || "",
-						dependent4Age: parseInt(row.dependent4Age) || undefined,
-						dependent5Name: row.dependent5Name?.trim() || "",
-						dependent5Gender: row.dependent5Gender?.trim() || "",
-						dependent5Age: parseInt(row.dependent5Age) || undefined,
-						dependent6Name: row.dependent6Name?.trim() || "",
-						dependent6Gender: row.dependent6Gender?.trim() || "",
-						dependent6Age: parseInt(row.dependent6Age) || undefined,
+						dependent1Name: String(row.dependent1Name || "")?.trim() || "",
+						dependent1Gender: String(row.dependent1Gender || "")?.trim() || "N/A",
+						dependent1Age: parseInt(row.dependent1Age) || 0,
+						dependent2Name: String(row.dependent2Name || "")?.trim() || "",
+						dependent2Gender: String(row.dependent2Gender || "")?.trim() || "N/A",
+						dependent2Age: parseInt(row.dependent2Age) || 0,
+						dependent3Name: String(row.dependent3Name || "")?.trim() || "",
+						dependent3Gender: String(row.dependent3Gender || "")?.trim() || "N/A",
+						dependent3Age: parseInt(row.dependent3Age) || 0,
+						dependent4Name: String(row.dependent4Name || "")?.trim() || "",
+						dependent4Gender: String(row.dependent4Gender || "")?.trim() || "N/A",
+						dependent4Age: parseInt(row.dependent4Age) || 0,
+						dependent5Name: String(row.dependent5Name || "")?.trim() || "",
+						dependent5Gender: String(row.dependent5Gender || "")?.trim() || "N/A",
+						dependent5Age: parseInt(row.dependent5Age) || 0,
+						dependent6Name: String(row.dependent6Name || "")?.trim() || "",
+						dependent6Gender: String(row.dependent6Gender || "")?.trim() || "N/A",
+						dependent6Age: parseInt(row.dependent6Age) || 0,
 						// Unit matching fields
-						quarterName: row.quarterName?.trim() || "",
-						location: row.location?.trim() || "",
-						blockName: row.blockName?.trim() || "",
-						flatHouseRoomName: row.flatHouseRoomName?.trim() || "",
-						unitName: row.unitName?.trim() || "",
+						quarterName: String(row.quarterName || "")?.trim() || "",
+						location: String(row.location || "")?.trim() || "",
+						blockName: String(row.blockName || "")?.trim() || "",
+						flatHouseRoomName: String(row.flatHouseRoomName || "")?.trim() || "",
+						unitName: String(row.unitName || "")?.trim() || "",
 					};
 				});
 
@@ -367,9 +356,9 @@ export function ExcelUploadModal({
 		<Dialog open={isOpen} onOpenChange={handleClose}>
 			<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
 				<DialogHeader>
-					<DialogTitle>Import Queue & Accommodation Data</DialogTitle>
+					<DialogTitle>Import Personnel & Accommodation Data</DialogTitle>
 					<DialogDescription>
-						Upload an Excel file containing queue personnel data and their
+						Upload an Excel file containing personnel data and their
 						accommodation unit assignments
 					</DialogDescription>
 				</DialogHeader>
@@ -525,7 +514,8 @@ export function ExcelUploadModal({
 								Back
 							</Button>
 							<Button
-								variant='destructive'
+								variant='default'
+								className='bg-green-600 hover:bg-green-700 text-white'
 								onClick={handleUpload}
 								disabled={isUploading}>
 								{isUploading ? (

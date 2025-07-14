@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
           existingSvcNoSet.add(record.svcNo);
 
           // Find the unit (case-insensitive)
-          const existingUnit = await tx.dhqLivingUnit.findFirst({
+          let existingUnit = await tx.dhqLivingUnit.findFirst({
             where: {
               AND: [
                 { blockName: { equals: record.blockName, mode: "insensitive" } },
@@ -131,11 +131,95 @@ export async function POST(request: NextRequest) {
           });
 
           if (!existingUnit) {
-            errors.push(
-              `Unit not found: ${record.quarterName} ${record.blockName} ${record.flatHouseRoomName} for ${record.svcNo}`
-            );
-            skipped++;
-            continue;
+            // Try to create the unit using data from similar units
+            try {
+              // Find a similar unit with the same quarterName and location to use as template
+              const similarUnit = await tx.dhqLivingUnit.findFirst({
+                where: {
+                  quarterName: { equals: record.quarterName, mode: "insensitive" },
+                  location: { equals: record.location, mode: "insensitive" },
+                },
+              });
+
+              if (similarUnit) {
+                // Create new unit based on similar unit's data
+                existingUnit = await tx.dhqLivingUnit.create({
+                  data: {
+                    quarterName: record.quarterName,
+                    location: record.location,
+                    category: similarUnit.category,
+                    accommodationTypeId: similarUnit.accommodationTypeId,
+                    noOfRooms: similarUnit.noOfRooms,
+                    status: "Vacant",
+                    typeOfOccupancy: similarUnit.typeOfOccupancy,
+                    bq: similarUnit.bq,
+                    noOfRoomsInBq: similarUnit.noOfRoomsInBq,
+                    blockName: record.blockName,
+                    flatHouseRoomName: record.flatHouseRoomName,
+                    unitName: `${record.blockName} ${record.flatHouseRoomName}`,
+                    blockImageUrl: null,
+                    currentOccupantId: null,
+                    currentOccupantName: null,
+                    currentOccupantRank: null,
+                    currentOccupantServiceNumber: null,
+                    occupancyStartDate: null,
+                  },
+                });
+                console.log(`Created new unit: ${existingUnit.unitName}`);
+              } else {
+                // No similar unit found, create with default values
+                // Try to determine category based on rank
+                const isOfficer = ["Lt Col", "Col", "Brig Gen", "Maj Gen", "Lt Gen", "Gen", "Maj", "Capt", "Lt", "2nd Lt", "Lt Cdr", "Cdr", "Capt", "RAdm", "VAdm", "Adm", "Sqn Ldr", "Wg Cdr", "Gp Capt", "AVM", "AM", "ACM"].some(
+                  rank => record.rank?.includes(rank)
+                );
+                const category = isOfficer ? "Officer" : "NCO";
+
+                // Get or create a default accommodation type
+                let accommodationType = await tx.accommodationType.findFirst({
+                  where: { name: "Two Bedroom Flat" }
+                });
+
+                if (!accommodationType) {
+                  accommodationType = await tx.accommodationType.create({
+                    data: {
+                      name: "Two Bedroom Flat",
+                      description: "Two bedroom apartment"
+                    }
+                  });
+                }
+
+                existingUnit = await tx.dhqLivingUnit.create({
+                  data: {
+                    quarterName: record.quarterName,
+                    location: record.location,
+                    category: category,
+                    accommodationTypeId: accommodationType.id,
+                    noOfRooms: 2,
+                    status: "Vacant",
+                    typeOfOccupancy: "Single",
+                    bq: false,
+                    noOfRoomsInBq: 0,
+                    blockName: record.blockName,
+                    flatHouseRoomName: record.flatHouseRoomName,
+                    unitName: `${record.blockName} ${record.flatHouseRoomName}`,
+                    blockImageUrl: null,
+                    currentOccupantId: null,
+                    currentOccupantName: null,
+                    currentOccupantRank: null,
+                    currentOccupantServiceNumber: null,
+                    occupancyStartDate: null,
+                  },
+                });
+                console.log(`Created new unit with defaults: ${existingUnit.unitName}`);
+              }
+            } catch (createError: any) {
+              console.error(`Failed to create unit for ${record.svcNo}:`, createError);
+              errors.push(
+                `Failed to create unit: ${record.quarterName} ${record.blockName} ${record.flatHouseRoomName} for ${record.svcNo}: ${createError.message}`
+              );
+              skipped++;
+              continue;
+            }
           }
 
           // Check if unit is already occupied
