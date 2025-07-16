@@ -21,7 +21,7 @@ interface FilterOptions {
 }
 
 export const useFilterOptions = () => {
-  const { data, error, isLoading } = useSWR<FilterOptions>(
+  const { data, error, isLoading, mutate } = useSWR<FilterOptions>(
     '/api/dhq-living-units/filter-options',
     fetcher,
     {
@@ -53,5 +53,6 @@ export const useFilterOptions = () => {
     filterOptions,
     loading: isLoading,
     error,
+    mutate,
   };
 };

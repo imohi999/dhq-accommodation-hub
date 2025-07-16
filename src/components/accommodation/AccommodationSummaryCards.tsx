@@ -42,7 +42,7 @@ export const AccommodationSummaryCards = ({
 
 	const summaryData = [
 		{
-			title: "Total Units",
+			title: "Total Quarters",
 			value: loading ? "..." : data.total.toLocaleString(),
 			description: "Total accommodation ",
 			icon: Building,

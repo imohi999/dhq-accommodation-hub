@@ -17,9 +17,8 @@ export async function POST(request: NextRequest) {
     if (!profile || !["superadmin", "admin"].includes(profile.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-
     const { data } = await request.json();
-
+    console.log(JSON.stringify(data));
     if (!data || !Array.isArray(data) || data.length === 0) {
       return NextResponse.json(
         { error: "Invalid data format" },
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
       },
       select: { svcNo: true }
     });
-    
+
     const existingSvcNoSet = new Set(existingServiceNumbers.map(q => q.svcNo));
 
     // Start transaction with increased timeout for large imports
@@ -60,10 +59,29 @@ export async function POST(request: NextRequest) {
             continue;
           }
 
-          // Map unit name (case-insensitive)
-          const mappedUnitName = record.currentUnit
-            ? unitMap.get(record.currentUnit.toLowerCase()) || record.currentUnit
-            : null;
+          // Map unit name (case-insensitive) or create if doesn't exist
+          let mappedUnitName = null;
+          if (record.currentUnit) {
+            mappedUnitName = unitMap.get(record.currentUnit.toLowerCase());
+
+            // If unit doesn't exist, create it
+            if (!mappedUnitName) {
+              try {
+                const newUnit = await tx.unit.create({
+                  data: {
+                    name: record.currentUnit,
+                  }
+                });
+                mappedUnitName = newUnit.name;
+                // Add to map for future records in this batch
+                unitMap.set(record.currentUnit.toLowerCase(), newUnit.name);
+              } catch (unitError: any) {
+                // If creation fails (e.g., unique constraint), use the original name
+                console.error(`Failed to create unit ${record.currentUnit}:`, unitError);
+                mappedUnitName = record.currentUnit;
+              }
+            }
+          }
 
           // Build dependents array from individual fields
           const dependents = [];
@@ -71,7 +89,7 @@ export async function POST(request: NextRequest) {
             const nameField = `dependent${i}Name`;
             const genderField = `dependent${i}Gender`;
             const ageField = `dependent${i}Age`;
-            
+
             if (record[nameField]?.trim()) {
               dependents.push({
                 name: record[nameField].trim(),
@@ -84,7 +102,7 @@ export async function POST(request: NextRequest) {
           // Calculate dependent counts from individual dependents
           let adultDependents = 0;
           let childDependents = 0;
-          
+
           dependents.forEach(dep => {
             if (dep.age >= 18) {
               adultDependents++;
@@ -114,7 +132,7 @@ export async function POST(request: NextRequest) {
               hasAllocationRequest: true, // They're being allocated
             },
           });
-          
+
           // Add to the set to prevent duplicates within the same import
           existingSvcNoSet.add(record.svcNo);
 
@@ -243,7 +261,7 @@ export async function POST(request: NextRequest) {
               occupancyStartDate: new Date(),
             },
           });
-          
+
           const unitId = existingUnit.id;
 
           // Create unit occupant record
@@ -341,7 +359,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("Import error:", error);
-    
+
     // Handle Prisma transaction errors specifically
     if (error?.code === 'P2028') {
       return NextResponse.json(
@@ -349,7 +367,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    
+
     const errorMessage = error?.message || "Failed to import data";
     return NextResponse.json(
       { error: errorMessage },

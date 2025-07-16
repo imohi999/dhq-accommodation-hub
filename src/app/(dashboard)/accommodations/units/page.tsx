@@ -65,7 +65,7 @@ export default function DHQLivingUnits() {
 	const { summary, loading: summaryLoading, refetch: refetchSummary } = useAccommodationSummary();
 
 	// Fetch filter options
-	const { filterOptions, loading: filterOptionsLoading } = useFilterOptions();
+	const { filterOptions, loading: filterOptionsLoading, mutate: mutateFilterOptions } = useFilterOptions();
 
 	const handleAdd = () => {
 		setEditingUnit(null);
@@ -115,6 +115,7 @@ export default function DHQLivingUnits() {
 	const handleImportComplete = () => {
 		refetch();
 		refetchSummary();
+		mutateFilterOptions();
 		toast.success("Successfully imported accommodation units");
 	};
 
