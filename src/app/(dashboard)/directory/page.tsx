@@ -563,11 +563,11 @@ const RecordCard = ({ record }: { record: Record }) => {
 										alt={name}
 										fill
 										sizes="128px"
-										className='rounded-full object-cover border-2 border-gray-200'
+										className='object-cover border-2 border-gray-200'
 									/>
 								</div>
 							) : (
-								<div className='flex items-center justify-center w-32 h-32 bg-blue-100 rounded-full flex-shrink-0'>
+								<div className='flex items-center justify-center w-32 h-32 bg-blue-100 flex-shrink-0'>
 									<User className='h-16 w-16 text-blue-700' />
 								</div>
 							)}

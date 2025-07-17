@@ -539,11 +539,11 @@ export const ActiveAllocationsView = ({
 														alt={unit.currentOccupantName || ""}
 														fill
 														sizes="128px"
-														className='rounded-full object-cover border-2 border-gray-200'
+														className='object-cover border-2 border-gray-200'
 													/>
 												</div>
 											) : (
-												<div className='flex items-center justify-center w-32 h-32 bg-green-100 rounded-full'>
+												<div className='flex items-center justify-center w-32 h-32 bg-green-100'>
 													<User className='h-16 w-16 text-green-700' />
 												</div>
 											);

@@ -230,7 +230,7 @@ export const PersonalInfoFields = ({
 						<img
 							src={formData.image_url}
 							alt='Personnel photo'
-							className='h-32 w-32 rounded-full object-cover border-2 border-gray-200'
+							className='h-32 w-32 object-cover border-2 border-gray-200'
 						/>
 					</div>
 				)}
