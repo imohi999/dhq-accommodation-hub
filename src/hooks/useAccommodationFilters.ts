@@ -10,6 +10,7 @@ interface FilterState {
   blockNameFilter: string;
   flatHouseRoomFilter: string;
   unitNameFilter: string;
+  imageFilter: string;
   page: number;
   pageSize: number;
 }
@@ -26,6 +27,7 @@ export const useAccommodationFilters = () => {
     blockNameFilter: "all",
     flatHouseRoomFilter: "all",
     unitNameFilter: "all",
+    imageFilter: "all",
     page: 1,
     pageSize: 20,
   });
@@ -106,6 +108,10 @@ export const useAccommodationFilters = () => {
     setFilters(prev => ({ ...prev, unitNameFilter: value, page: 1 }));
   }, []);
 
+  const setImageFilter = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, imageFilter: value, page: 1 }));
+  }, []);
+
   // Pagination setters (don't reset page)
   const setPage = useCallback((value: number) => {
     setFilters(prev => ({ ...prev, page: value }));
@@ -128,6 +134,7 @@ export const useAccommodationFilters = () => {
       blockNameFilter: "all",
       flatHouseRoomFilter: "all",
       unitNameFilter: "all",
+      imageFilter: "all",
       page: 1,
       pageSize: 20,
     });
@@ -147,6 +154,7 @@ export const useAccommodationFilters = () => {
       blockName: filters.blockNameFilter,
       flatHouseRoomName: filters.flatHouseRoomFilter,
       unitName: filters.unitNameFilter,
+      image: filters.imageFilter,
       page: filters.page,
       pageSize: filters.pageSize,
     };
@@ -174,6 +182,8 @@ export const useAccommodationFilters = () => {
     setFlatHouseRoomFilter,
     unitNameFilter: filters.unitNameFilter,
     setUnitNameFilter,
+    imageFilter: filters.imageFilter,
+    setImageFilter,
     
     // Pagination
     page: filters.page,

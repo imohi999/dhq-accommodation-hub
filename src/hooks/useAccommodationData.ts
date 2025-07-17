@@ -23,6 +23,7 @@ interface FilterParams {
   blockName?: string;
   flatHouseRoomName?: string;
   unitName?: string;
+  image?: string;
   page?: number;
   pageSize?: number;
 }
@@ -214,6 +215,15 @@ export const useAccommodationData = (filters: FilterParams = {}) => {
     // Unit name filter
     if (filters.unitName && filters.unitName !== 'all') {
       filtered = filtered.filter(unit => unit.unitName === filters.unitName);
+    }
+
+    // Image filter
+    if (filters.image && filters.image !== 'all') {
+      if (filters.image === 'with') {
+        filtered = filtered.filter(unit => unit.blockImageUrl !== null && unit.blockImageUrl !== undefined && unit.blockImageUrl !== '');
+      } else if (filters.image === 'without') {
+        filtered = filtered.filter(unit => unit.blockImageUrl === null || unit.blockImageUrl === undefined || unit.blockImageUrl === '');
+      }
     }
 
     return filtered;

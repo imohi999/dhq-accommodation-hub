@@ -42,6 +42,8 @@ interface AccommodationFiltersProps {
 	onFlatHouseRoomChange: (value: string) => void;
 	unitNameFilter: string;
 	onUnitNameChange: (value: string) => void;
+	imageFilter: string;
+	onImageChange: (value: string) => void;
 	filterOptions: FilterOptions;
 	housingTypes: AccommodationType[];
 	onResetFilters?: () => void;
@@ -68,6 +70,8 @@ export const AccommodationFilters = ({
 	onFlatHouseRoomChange,
 	unitNameFilter,
 	onUnitNameChange,
+	imageFilter,
+	onImageChange,
 	filterOptions,
 	housingTypes,
 	onResetFilters,
@@ -112,7 +116,7 @@ export const AccommodationFilters = ({
 			</div>
 
 			{/* Filters Grid */}
-			<div className='grid gap-4 md:grid-cols-3 lg:grid-cols-5'>
+			<div className='grid gap-4 md:grid-cols-3 lg:grid-cols-6'>
 				<Select value={quarterNameFilter} onValueChange={onQuarterNameChange}>
 					<SelectTrigger>
 						<SelectValue placeholder='Quarter Name' />
@@ -233,6 +237,17 @@ export const AccommodationFilters = ({
 								{name}
 							</SelectItem>
 						))}
+					</SelectContent>
+				</Select>
+
+				<Select value={imageFilter} onValueChange={onImageChange}>
+					<SelectTrigger>
+						<SelectValue placeholder='Block Image' />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value='all'>All Units</SelectItem>
+						<SelectItem value='with'>With Images</SelectItem>
+						<SelectItem value='without'>Without Images</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>

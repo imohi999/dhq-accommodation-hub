@@ -49,6 +49,8 @@ interface QueueFiltersProps {
 	onArmOfServiceChange: (value: string) => void;
 	dependentsFilter: string;
 	onDependentsChange: (value: string) => void;
+	imageFilter?: string;
+	onImageChange?: (value: string) => void;
 	units: Unit[];
 	onUnitsRefresh?: () => void;
 }
@@ -68,6 +70,8 @@ export const QueueFilters = ({
 	onArmOfServiceChange,
 	dependentsFilter,
 	onDependentsChange,
+	imageFilter = "all",
+	onImageChange,
 	units,
 	onUnitsRefresh,
 }: QueueFiltersProps) => {
@@ -85,6 +89,9 @@ export const QueueFilters = ({
 		onUnitChange("all");
 		onArmOfServiceChange("all");
 		onDependentsChange("all");
+		if (onImageChange) {
+			onImageChange("all");
+		}
 	};
 
 	const handleCreateUnit = async () => {
@@ -187,7 +194,7 @@ export const QueueFilters = ({
 			</div>
 
 			{/* Second row: Other filters */}
-			<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4'>
+			<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4'>
 				<div className='space-y-2'>
 					<Label>Category</Label>
 					<Select value={categoryFilter} onValueChange={onCategoryChange}>
@@ -319,6 +326,22 @@ export const QueueFilters = ({
 						</SelectContent>
 					</Select>
 				</div>
+
+				{onImageChange && (
+					<div className='space-y-2'>
+						<Label>Image</Label>
+						<Select value={imageFilter} onValueChange={onImageChange}>
+							<SelectTrigger>
+								<SelectValue placeholder='All Personnel' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Personnel</SelectItem>
+								<SelectItem value='with'>With Images</SelectItem>
+								<SelectItem value='without'>Without Images</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+				)}
 			</div>
 
 			{/* Create Unit Dialog */}

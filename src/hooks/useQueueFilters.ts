@@ -10,6 +10,7 @@ export const useQueueFilters = (queueItems: QueueItem[]) => {
   const [unitFilter, setUnitFilter] = useState("all");
   const [armOfServiceFilter, setArmOfServiceFilter] = useState("all");
   const [dependentsFilter, setDependentsFilter] = useState("all");
+  const [imageFilter, setImageFilter] = useState("all");
 
   // Filter logic
   const filteredItems = useMemo(() => {
@@ -37,11 +38,19 @@ export const useQueueFilters = (queueItems: QueueItem[]) => {
                            item.no_of_child_dependents === 0;
       }
 
+      // Image filter logic
+      let matchesImage = true;
+      if (imageFilter === "with") {
+        matchesImage = item.image_url !== null && item.image_url !== undefined && item.image_url !== '';
+      } else if (imageFilter === "without") {
+        matchesImage = item.image_url === null || item.image_url === undefined || item.image_url === '';
+      }
+
       return matchesSearch && matchesGender && matchesMaritalStatus && 
-             matchesCategory && matchesUnit && matchesArmOfService && matchesDependents;
+             matchesCategory && matchesUnit && matchesArmOfService && matchesDependents && matchesImage;
     });
   }, [queueItems, searchTerm, genderFilter, maritalStatusFilter, categoryFilter, 
-      unitFilter, armOfServiceFilter, dependentsFilter]);
+      unitFilter, armOfServiceFilter, dependentsFilter, imageFilter]);
 
   return {
     searchTerm,
@@ -58,6 +67,8 @@ export const useQueueFilters = (queueItems: QueueItem[]) => {
     setArmOfServiceFilter,
     dependentsFilter,
     setDependentsFilter,
+    imageFilter,
+    setImageFilter,
     filteredItems
   };
 };

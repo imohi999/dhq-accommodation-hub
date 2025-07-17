@@ -181,6 +181,8 @@ export default function DHQLivingUnits() {
 				onFlatHouseRoomChange={filters.setFlatHouseRoomFilter}
 				unitNameFilter={filters.unitNameFilter}
 				onUnitNameChange={filters.setUnitNameFilter}
+				imageFilter={filters.imageFilter}
+				onImageChange={filters.setImageFilter}
 				filterOptions={filterOptions}
 				housingTypes={housingTypes}
 				onResetFilters={filters.resetFilters}

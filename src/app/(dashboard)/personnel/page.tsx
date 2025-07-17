@@ -118,6 +118,8 @@ export default function PersonnelPage() {
 		setArmOfServiceFilter,
 		dependentsFilter,
 		setDependentsFilter,
+		imageFilter,
+		setImageFilter,
 		filteredItems,
 	} = useQueueFilters(transformedPersonnelItems);
 
@@ -320,6 +322,8 @@ export default function PersonnelPage() {
 				onArmOfServiceChange={setArmOfServiceFilter}
 				dependentsFilter={dependentsFilter}
 				onDependentsChange={setDependentsFilter}
+				imageFilter={imageFilter}
+				onImageChange={setImageFilter}
 				units={units}
 				onUnitsRefresh={refetchUnits}
 			/>
