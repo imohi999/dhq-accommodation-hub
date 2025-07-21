@@ -18,6 +18,8 @@ import {
 	AlertTriangle,
 	Building,
 } from "lucide-react";
+import { QueueSummaryCards } from "@/components/queue/QueueSummaryCards";
+import { QueueItem } from "@/types/queue";
 
 export const metadata: Metadata = {
 	title: "Dashboard | DHQ Accommodation Hub",
@@ -27,6 +29,7 @@ export const metadata: Metadata = {
 async function getDashboardStats() {
 	const [
 		queueStats,
+		queueItems,
 		pendingAllocations,
 		activeAllocations,
 		pastAllocations,
@@ -34,7 +37,7 @@ async function getDashboardStats() {
 		maintenanceTasks,
 		maintenanceRequests,
 	] = await Promise.all([
-		// Queue statistics
+		// Queue statistics (keeping for backward compatibility)
 		Promise.all([
 			prisma.queue.count({}),
 			prisma.queue.count({ where: { category: "Officer" } }),
@@ -79,6 +82,13 @@ async function getDashboardStats() {
 				},
 			}),
 		]),
+		// Fetch only unallocated queue items for the QueueSummaryCards component
+		prisma.queue.findMany({
+			where: {
+				hasAllocationRequest: false,
+			},
+			orderBy: { sequence: "asc" },
+		}),
 		// Pending allocations
 		Promise.all([
 			prisma.allocationRequest.count({ where: { status: "pending" } }),
@@ -314,6 +324,29 @@ async function getDashboardStats() {
 		]),
 	]);
 
+	// Transform database queue items to match QueueItem interface
+	const transformedQueueItems: QueueItem[] = queueItems.map((item) => ({
+		id: item.id,
+		sequence: item.sequence,
+		full_name: item.fullName,
+		svc_no: item.svcNo,
+		gender: item.gender,
+		arm_of_service: item.armOfService,
+		category: item.category,
+		rank: item.rank,
+		marital_status: item.maritalStatus,
+		no_of_adult_dependents: item.noOfAdultDependents,
+		no_of_child_dependents: item.noOfChildDependents,
+		dependents: item.dependents as any[],
+		current_unit: item.currentUnit,
+		appointment: item.appointment,
+		date_tos: item.dateTos.toISOString(),
+		date_sos: item.dateSos?.toISOString() || null,
+		phone: item.phone,
+		image_url: item.imageUrl,
+		entry_date_time: item.entryDateTime.toISOString(),
+	}));
+
 	return {
 		queue: {
 			total: queueStats[0],
@@ -335,6 +368,7 @@ async function getDashboardStats() {
 				nco: queueStats[11],
 			},
 		},
+		queueItems: transformedQueueItems,
 		pendingAllocations: {
 			total: pendingAllocations[0],
 			officers: pendingAllocations[1],
@@ -430,70 +464,7 @@ export default async function DashboardPage() {
 			{/* 1. Queue Summary */}
 			<section className='space-y-4'>
 				<h2 className='text-xl font-semibold'>Queue Summary</h2>
-				<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-					<Card>
-						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium'>Total Queue</CardTitle>
-							<Users className='h-4 w-4 text-muted-foreground' />
-						</CardHeader>
-						<CardContent>
-							<div className='text-2xl font-bold'>{stats.queue.total}</div>
-							<p className='text-xs text-muted-foreground'>
-								Officers: {stats.queue.officers} | NCO: {stats.queue.nco}
-							</p>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium'>
-								Nigerian Army
-							</CardTitle>
-							<div className='w-4 h-4 rounded-full bg-red-500' />
-						</CardHeader>
-						<CardContent>
-							<div className='text-2xl font-bold'>{stats.queue.army.total}</div>
-							<p className='text-xs text-muted-foreground'>
-								Officers: {stats.queue.army.officers} | NCO:{" "}
-								{stats.queue.army.nco}
-							</p>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium'>
-								Nigerian Navy
-							</CardTitle>
-							<div className='w-4 h-4 rounded-full bg-blue-500' />
-						</CardHeader>
-						<CardContent>
-							<div className='text-2xl font-bold'>{stats.queue.navy.total}</div>
-							<p className='text-xs text-muted-foreground'>
-								Officers: {stats.queue.navy.officers} | NCO:{" "}
-								{stats.queue.navy.nco}
-							</p>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium'>
-								Nigerian Air Force
-							</CardTitle>
-							<div className='w-4 h-4 rounded-full bg-cyan-500' />
-						</CardHeader>
-						<CardContent>
-							<div className='text-2xl font-bold'>
-								{stats.queue.airForce.total}
-							</div>
-							<p className='text-xs text-muted-foreground'>
-								Officers: {stats.queue.airForce.officers} | NCO:{" "}
-								{stats.queue.airForce.nco}
-							</p>
-						</CardContent>
-					</Card>
-				</div>
+				<QueueSummaryCards queueItems={stats.queueItems} />
 			</section>
 
 			{/* 2. Pending Allocations */}
